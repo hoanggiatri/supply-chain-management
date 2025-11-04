@@ -1,32 +1,31 @@
 import axios from "axios";
-
-const BASE_URL = "http://localhost:8080";
+import { API_BASE_URL as BASE_URL } from "../../config/api";
 const axiosAuth = (token) => ({
   headers: { Authorization: `Bearer ${token}` },
 });
 
 export const getAllEmployeesInCompany = async (companyId, token) => {
-  const res = await axios.get(`${BASE_URL}/user/get-all-employee-in-com/${companyId}`, axiosAuth(token));
+  const res = await axios.get(`${BASE_URL}/employees/company/${companyId}`, axiosAuth(token));
   return res.data;
 };
 
 export const getEmployeeById = async (employeeId, token) => {
-  const res = await axios.get(`${BASE_URL}/user/get-employee/${employeeId}`, axiosAuth(token));
+  const res = await axios.get(`${BASE_URL}/employees/${employeeId}`, axiosAuth(token));
   return res.data;
 };
 
 export const createEmployee = async (data, token) => {
-  const res = await axios.post(`${BASE_URL}/comad/create-employee`, data, axiosAuth(token));
+  const res = await axios.post(`${BASE_URL}/admin/employees`, data, axiosAuth(token));
   return res.data;
 };
 
 export const updateEmployee = async (employeeId, data, token) => {
-  const res = await axios.put(`${BASE_URL}/user/update-employee/${employeeId}`, data, axiosAuth(token));
+  const res = await axios.put(`${BASE_URL}/employees/${employeeId}`, data, axiosAuth(token));
   return res.data;
 };
 
 export const deleteEmployee = async (employeeId, token) => {
-  const res = await axios.delete(`${BASE_URL}/comad/delete-employee/${employeeId}`, axiosAuth(token));
+  const res = await axios.delete(`${BASE_URL}/admin/employees/${employeeId}`, axiosAuth(token));
   return res.data;
 };
 
@@ -34,7 +33,7 @@ export const updateEmployeeAvatar = async (employeeId, file, token) => {
   const formData = new FormData();
   formData.append("avatar", file);
 
-  const res = await axios.put(`${BASE_URL}/user/update-avatar/${employeeId}`, formData, {
+  const res = await axios.post(`${BASE_URL}/employees/${employeeId}/avatar`, formData, {
     headers: {
       "Content-Type": "multipart/form-data",
       Authorization: `Bearer ${token}`,

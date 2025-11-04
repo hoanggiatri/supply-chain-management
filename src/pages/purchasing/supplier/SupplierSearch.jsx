@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, TextField, Grid, Card, CardContent, Typography, InputAdornment } from "@mui/material";
+import {
+  Container,
+  Paper,
+  TextField,
+  Grid,
+  Card,
+  CardContent,
+  Typography,
+  InputAdornment,
+} from "@mui/material";
 import { getAllCompanies } from "@/services/general/CompanyService";
 import { Search } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
@@ -16,8 +25,11 @@ const SupplierSearch = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await getAllCompanies(token);
-        const filtered = data.filter(company => company.companyId !== companyId);
+        const data = await getAllCompanies(token, { page: 1, pageSize: 100 });
+        const list = Array.isArray(data?.data) ? data.data : [];
+        const filtered = list.filter(
+          (company) => Number(company.id) !== Number(companyId)
+        );
         setSuppliers(filtered);
         setFilteredSuppliers(filtered);
       } catch (err) {
@@ -31,7 +43,7 @@ const SupplierSearch = () => {
     const value = e.target.value.toLowerCase();
     setSearchSupplier(value);
 
-    const filtered = suppliers.filter(supplier =>
+    const filtered = suppliers.filter((supplier) =>
       Object.values({
         companyName: supplier.companyName,
         companyCode: supplier.companyCode,
@@ -41,19 +53,16 @@ const SupplierSearch = () => {
         phone: supplier.phone,
         email: supplier.email,
         address: supplier.address,
-      }).some(field =>
-        field?.toLowerCase().includes(value)
-      )
+      }).some((field) => field?.toLowerCase().includes(value))
     );
 
     setFilteredSuppliers(filtered);
   };
 
-
   return (
     <Container>
-      <Paper className="paper-container" elevation={3} >
-        <Typography className="page-title" variant="h4" >
+      <Paper className="paper-container" elevation={3}>
+        <Typography className="page-title" variant="h4">
           TÌM KIẾM NHÀ CUNG CẤP
         </Typography>
 
@@ -74,20 +83,40 @@ const SupplierSearch = () => {
 
         <Grid container spacing={2} sx={{ mt: 2 }}>
           {filteredSuppliers.map((supplier) => (
-            <Grid item sm={12} key={supplier.companyId} onClick={() => navigate(`/supplier/${supplier.companyId}`)}>
+            <Grid
+              item
+              sm={12}
+              key={supplier.id}
+              onClick={() => navigate(`/supplier/${supplier.id}`)}
+            >
               <Card variant="outlined" sx={{ cursor: "pointer" }}>
                 <CardContent>
-                  <Typography variant="h5" sx={{ pb: 1 }}>{supplier.companyCode} - {supplier.companyName}</Typography>
+                  <Typography variant="h5" sx={{ pb: 1 }}>
+                    {supplier.companyCode} - {supplier.companyName}
+                  </Typography>
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6}>
-                      <Typography>Mã số thuế: {supplier.taxCode || "Không có"}</Typography>
-                      <Typography>Ngành nghề chính: {supplier.mainIndustry || "Không có"}</Typography>
-                      <Typography>Người đại diện: {supplier.representativeName || "Không có"}</Typography>
+                      <Typography>
+                        Mã số thuế: {supplier.taxCode || "Không có"}
+                      </Typography>
+                      <Typography>
+                        Ngành nghề chính: {supplier.mainIndustry || "Không có"}
+                      </Typography>
+                      <Typography>
+                        Người đại diện:{" "}
+                        {supplier.representativeName || "Không có"}
+                      </Typography>
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                      <Typography>Số điện thoại: {supplier.phoneNumber || "Không có"}</Typography>
-                      <Typography>Email: {supplier.email || "Không có"}</Typography>
-                      <Typography>Địa chỉ: {supplier.address || "Không có"}</Typography>
+                      <Typography>
+                        Số điện thoại: {supplier.phoneNumber || "Không có"}
+                      </Typography>
+                      <Typography>
+                        Email: {supplier.email || "Không có"}
+                      </Typography>
+                      <Typography>
+                        Địa chỉ: {supplier.address || "Không có"}
+                      </Typography>
                     </Grid>
                   </Grid>
                 </CardContent>

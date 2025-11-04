@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, Button, Box, } from "@mui/material";
+import { Container, Paper, Typography, Button, Box } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import EmployeeForm from "@components/general/EmployeeForm";
-import { getEmployeeById, updateEmployee, updateEmployeeAvatar } from "@/services/general/EmployeeService";
+import {
+  getEmployeeById,
+  updateEmployee,
+  updateEmployeeAvatar,
+} from "@/services/general/EmployeeService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 
 const EditEmployee = () => {
@@ -17,10 +21,12 @@ const EditEmployee = () => {
 
   const validateForm = () => {
     const errors = {};
-    const { position, employeeName, email, phoneNumber } = editedEmployee;
+    const { position, employeeName, email, phoneNumber, gender } =
+      editedEmployee || {};
 
     if (!position) errors.position = "Chức vụ không được để trống";
-    if (!employeeName?.trim()) errors.employeeName = "Họ và tên không được để trống";
+    if (!employeeName?.trim())
+      errors.employeeName = "Họ và tên không được để trống";
 
     if (!email?.trim()) {
       errors.email = "Email không được để trống";
@@ -28,8 +34,16 @@ const EditEmployee = () => {
       errors.email = "Email không hợp lệ";
     }
 
-    if (!phoneNumber?.trim()) errors.phoneNumber = "Số điện thoại không được để trống";
-    if (!/^\d{10,11}$/.test(phoneNumber)) errors.phoneNumber = "Số điện thoại không hợp lệ";
+    if (!phoneNumber?.trim())
+      errors.phoneNumber = "Số điện thoại không được để trống";
+    if (!/^\d{10,11}$/.test(phoneNumber))
+      errors.phoneNumber = "Số điện thoại không hợp lệ";
+    if (
+      !gender ||
+      !["male", "female", "other"].includes(String(gender).toLowerCase())
+    ) {
+      errors.gender = "Giới tính phải là: male, female, other";
+    }
     return errors;
   };
 
@@ -46,7 +60,10 @@ const EditEmployee = () => {
         setEmployee(data);
         setEditedEmployee(data);
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi xảy ra khi lấy thông tin nhân viên!");
+        alert(
+          error.response?.data?.message ||
+            "Có lỗi xảy ra khi lấy thông tin nhân viên!"
+        );
       }
     };
 
@@ -55,7 +72,9 @@ const EditEmployee = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setEditedEmployee((prev) => ({ ...prev, [name]: value }));
+    const nextValue =
+      name === "departmentId" ? (value === "" ? "" : Number(value)) : value;
+    setEditedEmployee((prev) => ({ ...prev, [name]: nextValue }));
   };
 
   const handleCancel = () => {
@@ -73,14 +92,19 @@ const EditEmployee = () => {
     const token = localStorage.getItem("token");
 
     try {
-      const updatedEmployee = await updateEmployee(employeeId, editedEmployee, token);
+      const { id, departmentName, avatar, ...payload } = editedEmployee || {};
+
+      const updatedEmployee = await updateEmployee(employeeId, payload, token);
 
       setEmployee(updatedEmployee);
       setEditedEmployee(updatedEmployee);
       alert("Cập nhật thông tin nhân viên thành công!");
       navigate(`/employee/${employeeId}`);
     } catch (error) {
-      alert(error.response?.data?.message || "Có lỗi xảy ra khi cập nhật thông tin nhân viên!");
+      alert(
+        error.response?.data?.message ||
+          "Có lỗi xảy ra khi cập nhật thông tin nhân viên!"
+      );
     }
   };
 
@@ -96,7 +120,11 @@ const EditEmployee = () => {
     const token = localStorage.getItem("token");
 
     try {
-      const newAvatarUrl = await updateEmployeeAvatar(employeeId, avatarFile, token);
+      const newAvatarUrl = await updateEmployeeAvatar(
+        employeeId,
+        avatarFile,
+        token
+      );
       const updatedAvatarUrl = `${newAvatarUrl}?${Date.now()}`;
 
       setEmployee((prev) => ({
@@ -110,7 +138,10 @@ const EditEmployee = () => {
       alert("Cập nhật ảnh đại diện thành công!");
       navigate(`/employee/${employeeId}`);
     } catch (error) {
-      alert(error.response?.data?.message || "Có lỗi xảy ra khi cập nhật ảnh đại diện!");
+      alert(
+        error.response?.data?.message ||
+          "Có lỗi xảy ra khi cập nhật ảnh đại diện!"
+      );
     }
   };
 
@@ -124,32 +155,60 @@ const EditEmployee = () => {
 
   return (
     <Container>
-      <Paper className="paper-container" elevation={3} >
-        <Typography className="page-title" variant="h4" >
+      <Paper className="paper-container" elevation={3}>
+        <Typography className="page-title" variant="h4">
           CHỈNH SỬA THÔNG TIN NHÂN VIÊN
         </Typography>
         <Box display="flex" alignItems="center" gap={3} mb={3}>
           <img
-            src={avatarPreview || employee.avatarUrl || "https://img.freepik.com/premium-vector/default-avatar-profile-icon-social-media-user-image-gray-avatar-icon-blank-profile-silhouette-vector-illustration_561158-3383.jpg"}
+            src={
+              avatarPreview ||
+              employee.avatarUrl ||
+              "https://img.freepik.com/premium-vector/default-avatar-profile-icon-social-media-user-image-gray-avatar-icon-blank-profile-silhouette-vector-illustration_561158-3383.jpg"
+            }
             alt="avatar"
-            style={{ width: 120, height: 120, objectFit: "cover", borderRadius: "50%" }}
+            style={{
+              width: 120,
+              height: 120,
+              objectFit: "cover",
+              borderRadius: "50%",
+            }}
           />
           <Box display="flex" flexDirection="column" gap={2}>
             <Button variant="outlined" color="default" component="label">
               Chọn ảnh
-              <input type="file" hidden accept="image/*" onChange={handleAvatarChange} />
+              <input
+                type="file"
+                hidden
+                accept="image/*"
+                onChange={handleAvatarChange}
+              />
             </Button>
-            <Button variant="contained" color="default" disabled={!avatarFile} onClick={handleUploadImage}>
+            <Button
+              variant="contained"
+              color="default"
+              disabled={!avatarFile}
+              onClick={handleUploadImage}
+            >
               Cập nhật ảnh
             </Button>
           </Box>
         </Box>
 
-        <EmployeeForm employee={editedEmployee} onChange={handleChange} errors={errors} readOnlyFields={readOnlyFields} />
+        <EmployeeForm
+          employee={editedEmployee}
+          onChange={handleChange}
+          errors={errors}
+          readOnlyFields={readOnlyFields}
+        />
 
         <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
-          <Button variant="contained" color="default" onClick={handleSave}>Lưu</Button>
-          <Button variant="outlined" color="default" onClick={handleCancel}>Hủy</Button>
+          <Button variant="contained" color="default" onClick={handleSave}>
+            Lưu
+          </Button>
+          <Button variant="outlined" color="default" onClick={handleCancel}>
+            Hủy
+          </Button>
         </Box>
       </Paper>
     </Container>

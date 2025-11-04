@@ -5,22 +5,38 @@ import {
   CategoryScale,
   LinearScale,
   Tooltip,
-  Legend
+  Legend,
 } from "chart.js";
 import { Box } from "@mui/material";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
-const MonthlyBarChart = ({ data, metric = "totalQuantity", label = "Số lượng", color = "#05518B" }) => {
+const MonthlyBarChart = ({
+  data,
+  metric = "totalQuantity",
+  label = "Số lượng",
+  color = "#05518B",
+}) => {
+  const raw = Array.isArray(data)
+    ? data
+    : Array.isArray(data?.data)
+    ? data.data
+    : [];
+  const safeData = raw.filter(Boolean);
+
   const chartData = {
-    labels: data.map((item) => item.month),
+    labels: safeData.map((item) => item?.month ?? ""),
     datasets: [
       {
         label,
-        data: data.map((item) => item[metric]),
-        backgroundColor: color
-      }
-    ]
+        data: safeData.map((item) => {
+          const v = item?.[metric];
+          const n = typeof v === "number" ? v : Number(v);
+          return Number.isFinite(n) ? n : 0;
+        }),
+        backgroundColor: color,
+      },
+    ],
   };
 
   const options = {
@@ -29,11 +45,11 @@ const MonthlyBarChart = ({ data, metric = "totalQuantity", label = "Số lượn
     aspectRatio: 3,
     plugins: {
       legend: { display: false },
-      tooltip: { enabled: true }
+      tooltip: { enabled: true },
     },
     scales: {
-      y: { beginAtZero: true }
-    }
+      y: { beginAtZero: true },
+    },
   };
 
   return (

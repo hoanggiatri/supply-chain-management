@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, TableRow, TableCell } from "@mui/material";
+import {
+  Container,
+  Paper,
+  Typography,
+  TableRow,
+  TableCell,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import DataTable from "@components/content-components/DataTable";
 import { getAllCompanies } from "@/services/general/CompanyService";
@@ -18,15 +24,21 @@ const AllCompanies = () => {
   useEffect(() => {
     const fetchCompanies = async () => {
       try {
-        const data = await getAllCompanies(token);
+        const data = await getAllCompanies(token, {
+          page,
+          pageSize: rowsPerPage,
+        });
         setCompanies(data);
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi xảy ra khi lấy danh sách công ty!");
+        alert(
+          error.response?.data?.message ||
+            "Có lỗi xảy ra khi lấy danh sách công ty!"
+        );
       }
     };
 
     if (token) fetchCompanies();
-  }, [token]);
+  }, [token, page, rowsPerPage]);
 
   const handleRequestSort = (property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -84,8 +96,12 @@ const AllCompanies = () => {
               <TableCell>{company.taxCode || ""}</TableCell>
               <TableCell>{company.representativeName || ""}</TableCell>
               <TableCell>{company.companyType || ""}</TableCell>
-              <TableCell>{new Date(company.startDate).toLocaleString() || ""}</TableCell>
-              <TableCell>{new Date(company.joinDate).toLocaleString() || ""}</TableCell>
+              <TableCell>
+                {new Date(company.startDate).toLocaleString() || ""}
+              </TableCell>
+              <TableCell>
+                {new Date(company.joinDate).toLocaleString() || ""}
+              </TableCell>
               <TableCell>{company.status || ""}</TableCell>
             </TableRow>
           )}

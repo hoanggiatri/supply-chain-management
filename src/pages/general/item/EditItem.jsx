@@ -14,7 +14,8 @@ const EditItem = () => {
 
   const validateForm = () => {
     const errors = {};
-    const { itemName, itemType, uom, importPrice, exportPrice, isSellable } = editedItem;
+    const { itemName, itemType, uom, importPrice, exportPrice, isSellable } =
+      editedItem;
 
     if (!itemName?.trim()) errors.itemName = "Tên hàng hóa không được để trống";
     if (!itemType) errors.itemType = "Loại hàng hóa không được để trống";
@@ -41,7 +42,10 @@ const EditItem = () => {
         setItem(data);
         setEditedItem(data);
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi xảy ra khi lấy thông tin hàng hóa!");
+        alert(
+          error.response?.data?.message ||
+            "Có lỗi xảy ra khi lấy thông tin hàng hóa!"
+        );
       }
     };
 
@@ -50,7 +54,7 @@ const EditItem = () => {
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
-  
+
     let newValue = value;
     if (type === "number") {
       const num = parseFloat(value);
@@ -60,7 +64,7 @@ const EditItem = () => {
         newValue = num < 0 ? 0 : num;
       }
     }
-  
+
     setEditedItem((prev) => ({ ...prev, [name]: newValue }));
   };
 
@@ -79,13 +83,22 @@ const EditItem = () => {
     const token = localStorage.getItem("token");
 
     try {
-      const updatedItem = await updateItem(itemId, editedItem, token);
+      const {
+        itemId: _iid,
+        companyId,
+        itemCode,
+        ...payload
+      } = editedItem || {};
+      const updatedItem = await updateItem(itemId, payload, token);
       setItem(updatedItem);
       setEditedItem(updatedItem);
       alert("Cập nhật thông tin hàng hóa thành công!");
       navigate(`/item/${itemId}`);
     } catch (error) {
-      alert(error.response?.data?.message || "Có lỗi xảy ra khi cập nhật thông tin hàng hóa!");
+      alert(
+        error.response?.data?.message ||
+          "Có lỗi xảy ra khi cập nhật thông tin hàng hóa!"
+      );
     }
   };
 

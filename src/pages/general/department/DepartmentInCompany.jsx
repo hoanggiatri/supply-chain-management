@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Container, TableRow, TableCell, Typography, Paper } from "@mui/material";
+import {
+  Container,
+  TableRow,
+  TableCell,
+  Typography,
+  Paper,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import DataTable from "@components/content-components/DataTable";
 import { getAllDepartmentsInCompany } from "@/services/general/DepartmentService";
@@ -22,7 +28,10 @@ const DepartmentInCompany = () => {
         const data = await getAllDepartmentsInCompany(companyId, token);
         setDepartments(data);
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi xảy ra khi lấy danh sách bộ phận!");
+        alert(
+          error.response?.data?.message ||
+            "Có lỗi xảy ra khi lấy danh sách bộ phận!"
+        );
       }
     };
 
@@ -71,10 +80,10 @@ const DepartmentInCompany = () => {
           setSearch={setSearch}
           renderRow={(dept) => (
             <TableRow
-              key={dept.departmentId}
+              key={dept.id}
               hover
               sx={{ cursor: "pointer" }}
-              onClick={() => navigate(`/department/${dept.departmentId}`)}
+              onClick={() => navigate(`/department/${dept.id}`)}
             >
               <TableCell>{dept.departmentCode}</TableCell>
               <TableCell>{dept.departmentName}</TableCell>

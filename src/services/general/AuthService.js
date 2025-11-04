@@ -1,9 +1,8 @@
 import axios from "axios";
-
-const BASE_URL = "http://localhost:8080";
+import { API_BASE_URL as BASE_URL } from "../../config/api";
 
 export const registerCompany = async (data) => {
-  await axios.post(`${BASE_URL}/auth/register-company`, data);
+  await axios.post(`${BASE_URL}/auth/register`, data);
 };
 
 export const sendVerifyOtp = async (email) => {
@@ -17,7 +16,7 @@ export const verifyOtp = async (data) => {
 };
 
 export const verifyForgotPasswordOtp = async (data) => {
-  await axios.post(`${BASE_URL}/auth/verify-otp-forgot-password`, data);
+  await axios.post(`${BASE_URL}/auth/forgot-password`, data);
 };
 
 export const resetPassword = async (data) => {

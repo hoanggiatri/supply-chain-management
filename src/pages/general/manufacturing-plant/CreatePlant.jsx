@@ -10,7 +10,6 @@ const CreatePlant = () => {
   const companyId = localStorage.getItem("companyId");
 
   const [plant, setPlant] = useState({
-    companyId: companyId,
     plantCode: "",
     plantName: "",
     description: "",
@@ -25,8 +24,8 @@ const CreatePlant = () => {
 
   const validate = () => {
     const newErrors = {};
-    if (!plant.plantCode.trim()) newErrors.plantCode = "Mã xưởng không được để trống";
-    if (!plant.plantName.trim()) newErrors.plantName = "Tên xưởng không được để trống";
+    if (!plant.plantName.trim())
+      newErrors.plantName = "Tên xưởng không được để trống";
     return newErrors;
   };
 
@@ -38,7 +37,8 @@ const CreatePlant = () => {
     }
 
     try {
-      await createPlant(companyId, plant, token);
+      const { companyId: _cid, plantCode, ...payload } = plant || {};
+      await createPlant(companyId, payload, token);
       alert("Tạo xưởng thành công!");
       navigate("/plants");
     } catch (err) {
@@ -53,7 +53,12 @@ const CreatePlant = () => {
           THÊM MỚI XƯỞNG
         </Typography>
 
-        <PlantForm plant={plant} onChange={handleChange} errors={errors} readOnlyFields={{}} />
+        <PlantForm
+          plant={plant}
+          onChange={handleChange}
+          errors={errors}
+          readOnlyFields={{}}
+        />
 
         <Grid container spacing={2} justifyContent="flex-end" mt={2}>
           <Grid item>
@@ -62,7 +67,11 @@ const CreatePlant = () => {
             </Button>
           </Grid>
           <Grid item>
-            <Button variant="outlined" color="default" onClick={() => navigate("/plants")}>
+            <Button
+              variant="outlined"
+              color="default"
+              onClick={() => navigate("/plants")}
+            >
               Hủy
             </Button>
           </Grid>

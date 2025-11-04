@@ -2,7 +2,10 @@ import React, { useEffect, useState } from "react";
 import { Container, Paper, Typography, Box, Button } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import WarehouseForm from "@components/general/WarehouseForm";
-import { getWarehouseById, updateWarehouse } from "@/services/general/WarehouseService";
+import {
+  getWarehouseById,
+  updateWarehouse,
+} from "@/services/general/WarehouseService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 
 const EditWarehouse = () => {
@@ -16,10 +19,13 @@ const EditWarehouse = () => {
     const errors = {};
     const { warehouseName, warehouseType, maxCapacity } = editedWarehouse;
 
-    if (!warehouseName?.trim()) errors.warehouseName = "Tên kho không được để trống";
+    if (!warehouseName?.trim())
+      errors.warehouseName = "Tên kho không được để trống";
     if (!warehouseType) errors.warehouseType = "Loại kho không được để trống";
-    if (maxCapacity == null || maxCapacity === "") errors.maxCapacity = "Sức chứa tối đa không được để trống";
-    else if (isNaN(maxCapacity) || maxCapacity <= 0) errors.maxCapacity = "Sức chứa phải là số lớn hơn 0";
+    if (maxCapacity == null || maxCapacity === "")
+      errors.maxCapacity = "Sức chứa tối đa không được để trống";
+    else if (isNaN(maxCapacity) || maxCapacity <= 0)
+      errors.maxCapacity = "Sức chứa phải là số lớn hơn 0";
 
     return errors;
   };
@@ -32,7 +38,10 @@ const EditWarehouse = () => {
         setWarehouse(data);
         setEditedWarehouse(data);
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi xảy ra khi lấy thông tin kho!");
+        alert(
+          error.response?.data?.message ||
+            "Có lỗi xảy ra khi lấy thông tin kho!"
+        );
       }
     };
 
@@ -41,7 +50,7 @@ const EditWarehouse = () => {
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
-  
+
     let newValue = value;
     if (type === "number") {
       const num = parseFloat(value);
@@ -51,7 +60,7 @@ const EditWarehouse = () => {
         newValue = num < 0 ? 0 : num;
       }
     }
-  
+
     setEditedWarehouse((prev) => ({ ...prev, [name]: newValue }));
   };
 
@@ -70,7 +79,17 @@ const EditWarehouse = () => {
     const token = localStorage.getItem("token");
 
     try {
-      const updatedWarehouse = await updateWarehouse(warehouseId, editedWarehouse, token);
+      const {
+        warehouseId: _wid,
+        companyId,
+        warehouseCode,
+        ...payload
+      } = editedWarehouse || {};
+      const updatedWarehouse = await updateWarehouse(
+        warehouseId,
+        payload,
+        token
+      );
       setWarehouse(updatedWarehouse);
       setEditedWarehouse(updatedWarehouse);
       alert("Cập nhật kho thành công!");
@@ -88,12 +107,17 @@ const EditWarehouse = () => {
 
   return (
     <Container>
-      <Paper className="paper-container" elevation={3} >
-        <Typography className="page-title" variant="h4" >
+      <Paper className="paper-container" elevation={3}>
+        <Typography className="page-title" variant="h4">
           CHỈNH SỬA THÔNG TIN KHO HÀNG
         </Typography>
 
-        <WarehouseForm warehouse={editedWarehouse} onChange={handleChange} errors={errors} readOnlyFields={[]}/>
+        <WarehouseForm
+          warehouse={editedWarehouse}
+          onChange={handleChange}
+          errors={errors}
+          readOnlyFields={[]}
+        />
 
         <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
           <Button variant="contained" color="default" onClick={handleSave}>
@@ -104,7 +128,7 @@ const EditWarehouse = () => {
           </Button>
         </Box>
       </Paper>
-    </Container >
+    </Container>
   );
 };
 

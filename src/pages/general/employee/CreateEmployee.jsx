@@ -27,25 +27,35 @@ const CreateEmployee = () => {
 
   const validateForm = () => {
     const errors = {};
-    if (!formData.departmentId) errors.departmentId = "Bộ phận không được để trống";
-    if (!formData.position?.trim()) errors.position = "Chức vụ không được để trống";
-    if (!formData.employeeCode?.trim()) errors.employeeCode = "Mã nhân viên không được để trống";
-    if (!formData.employeeName?.trim()) errors.employeeName = "Họ và tên không được để trống";
+    if (!formData.departmentId)
+      errors.departmentId = "Bộ phận không được để trống";
+    if (!formData.position?.trim())
+      errors.position = "Chức vụ không được để trống";
+    if (!formData.employeeCode?.trim())
+      errors.employeeCode = "Mã nhân viên không được để trống";
+    if (!formData.employeeName?.trim())
+      errors.employeeName = "Họ và tên không được để trống";
     if (!formData.email?.trim()) {
       errors.email = "Email không được để trống";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       errors.email = "Email không hợp lệ";
     }
-    if (!formData.phoneNumber?.trim()) errors.phoneNumber = "SĐT không được để trống";
-    else if (!/^\d{10,11}$/.test(formData.phoneNumber)) errors.phoneNumber = "SĐT không hợp lệ";
-    if (!formData.password.trim()) errors.password = "Mật khẩu không được để trống";
-    else if (formData.password.length < 8) errors.password = "Mật khẩu phải ≥ 8 ký tự";
+    if (!formData.phoneNumber?.trim())
+      errors.phoneNumber = "SĐT không được để trống";
+    else if (!/^\d{10,11}$/.test(formData.phoneNumber))
+      errors.phoneNumber = "SĐT không hợp lệ";
+    if (!formData.password.trim())
+      errors.password = "Mật khẩu không được để trống";
+    else if (formData.password.length < 8)
+      errors.password = "Mật khẩu phải ≥ 8 ký tự";
     return errors;
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const nextValue =
+      name === "departmentId" ? (value === "" ? "" : Number(value)) : value;
+    setFormData((prev) => ({ ...prev, [name]: nextValue }));
   };
 
   const handleSubmit = async () => {
@@ -70,19 +80,29 @@ const CreateEmployee = () => {
 
   return (
     <Container>
-      <Paper className="paper-container" elevation={3} >
-        <Typography className="page-title" variant="h4" >
+      <Paper className="paper-container" elevation={3}>
+        <Typography className="page-title" variant="h4">
           THÊM MỚI NHÂN VIÊN
         </Typography>
 
-        <EmployeeForm employee={formData} onChange={handleChange} errors={errors} readOnlyFields={{}} mode="create" />
+        <EmployeeForm
+          employee={formData}
+          onChange={handleChange}
+          errors={errors}
+          readOnlyFields={{}}
+          mode="create"
+        />
 
         <Grid container spacing={2} mt={3} justifyContent="flex-end">
           <Grid item>
-            <Button variant="contained" color="default" onClick={handleSubmit}>Thêm</Button>
+            <Button variant="contained" color="default" onClick={handleSubmit}>
+              Thêm
+            </Button>
           </Grid>
           <Grid item>
-            <Button variant="outlined" color="default" onClick={handleCancel}>Hủy</Button>
+            <Button variant="outlined" color="default" onClick={handleCancel}>
+              Hủy
+            </Button>
           </Grid>
         </Grid>
       </Paper>

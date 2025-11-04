@@ -10,7 +10,7 @@ const CreateWarehouse = () => {
   const companyId = localStorage.getItem("companyId");
 
   const [warehouse, setWarehouse] = useState({
-    companyId,
+    // companyId,
     warehouseName: "",
     description: "",
     maxCapacity: 0,
@@ -22,7 +22,7 @@ const CreateWarehouse = () => {
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
-  
+
     let newValue = value;
     if (type === "number") {
       const num = parseFloat(value);
@@ -32,15 +32,18 @@ const CreateWarehouse = () => {
         newValue = num < 0 ? 0 : num;
       }
     }
-  
+
     setWarehouse((prev) => ({ ...prev, [name]: newValue }));
   };
 
   const validate = () => {
     const newErrors = {};
-    if (!warehouse.warehouseName.trim()) newErrors.warehouseName = "Tên kho không được để trống";
-    if (!warehouse.maxCapacity || warehouse.maxCapacity <= 0) newErrors.maxCapacity = "Sức chứa phải lớn hơn 0";
-    if (!warehouse.warehouseType) newErrors.warehouseType = "Loại kho không được để trống";
+    if (!warehouse.warehouseName.trim())
+      newErrors.warehouseName = "Tên kho không được để trống";
+    if (!warehouse.maxCapacity || warehouse.maxCapacity <= 0)
+      newErrors.maxCapacity = "Sức chứa phải lớn hơn 0";
+    if (!warehouse.warehouseType)
+      newErrors.warehouseType = "Loại kho không được để trống";
     if (!warehouse.status) newErrors.status = "Trạng thái không được để trống";
     return newErrors;
   };
@@ -63,19 +66,32 @@ const CreateWarehouse = () => {
 
   return (
     <Container>
-      <Paper className="paper-container" elevation={3} >
-        <Typography className="page-title" variant="h4" >
+      <Paper className="paper-container" elevation={3}>
+        <Typography className="page-title" variant="h4">
           THÊM MỚI KHO HÀNG
         </Typography>
 
-        <WarehouseForm warehouse={warehouse} onChange={handleChange} errors={errors} readOnlyFields={{}} />
+        <WarehouseForm
+          warehouse={warehouse}
+          onChange={handleChange}
+          errors={errors}
+          readOnlyFields={{}}
+        />
 
         <Grid container spacing={2} justifyContent="flex-end" mt={2}>
           <Grid item>
-            <Button variant="contained" color="default" onClick={handleSubmit}>Lưu</Button>
+            <Button variant="contained" color="default" onClick={handleSubmit}>
+              Lưu
+            </Button>
           </Grid>
           <Grid item>
-            <Button variant="outlined" color="default" onClick={() => navigate("/warehouses")}>Hủy</Button>
+            <Button
+              variant="outlined"
+              color="default"
+              onClick={() => navigate("/warehouses")}
+            >
+              Hủy
+            </Button>
           </Grid>
         </Grid>
       </Paper>

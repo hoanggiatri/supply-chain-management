@@ -1,6 +1,10 @@
-import React, { useEffect, useState, } from "react";
-import { Container, Paper, Typography, Button, Box, } from "@mui/material";
-import { getCompanyById, updateCompany, updateCompanyLogo } from "@/services/general/CompanyService";
+import React, { useEffect, useState } from "react";
+import { Container, Paper, Typography, Button, Box } from "@mui/material";
+import {
+  getCompanyById,
+  updateCompany,
+  updateCompanyLogo,
+} from "@/services/general/CompanyService";
 import CompanyForm from "@components/general/CompanyForm";
 import { useNavigate } from "react-router-dom";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
@@ -15,39 +19,54 @@ const EditCompany = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-      const fetchCompany = async () => {
-        const companyId = localStorage.getItem("companyId");
-        const token = localStorage.getItem("token");
-        if (!companyId) return;
-  
-        try {
-          const data = await getCompanyById(companyId, token);
-  
-          if (data.logoUrl) {
-            data.logoUrl = `${data.logoUrl}?t=${Date.now()}`;
-          }
-  
-          setCompany(data);
-          setEditedCompany(data);
-        } catch (error) {
-          alert(error.response?.data?.message || "Lỗi khi lấy thông tin công ty!");
+    const fetchCompany = async () => {
+      const companyId = localStorage.getItem("companyId");
+      const token = localStorage.getItem("token");
+      if (!companyId) return;
+
+      try {
+        const data = await getCompanyById(companyId, token);
+
+        if (data.logoUrl) {
+          data.logoUrl = `${data.logoUrl}?t=${Date.now()}`;
         }
-      };
-  
-      fetchCompany();
-    }, []);
+
+        setCompany(data);
+        setEditedCompany(data);
+      } catch (error) {
+        alert(
+          error.response?.data?.message || "Lỗi khi lấy thông tin công ty!"
+        );
+      }
+    };
+
+    fetchCompany();
+  }, []);
 
   const validateForm = () => {
     const errors = {};
-    const { companyName, representativeName, address, country, phoneNumber, email, startDate, joinDate } = editedCompany;
-    if (!companyName.trim()) errors.companyName = "Tên công ty không được để trống";
+    const companyName = (editedCompany?.companyName ?? "").toString();
+    const representativeName = (
+      editedCompany?.representativeName ?? ""
+    ).toString();
+    const address = (editedCompany?.address ?? "").toString();
+    const phoneNumber = (editedCompany?.phoneNumber ?? "").toString();
+    const email = (editedCompany?.email ?? "").toString();
+    const startDate = editedCompany?.startDate;
+    const joinDate = editedCompany?.joinDate;
+
+    if (!companyName.trim())
+      errors.companyName = "Tên công ty không được để trống";
     if (!address.trim()) errors.address = "Địa chỉ không được để trống";
-    if (!country.trim()) errors.country = "Quốc gia không được để trống";
-    if (!representativeName.trim()) errors.representativeName = "Người đại diện không được để trống";
-    if (!phoneNumber.trim()) errors.phoneNumber = "Số điện thoại không được để trống";
-    if (!/^\d{10,11}$/.test(phoneNumber)) errors.phoneNumber = "Số điện thoại không hợp lệ";
+    if (!representativeName.trim())
+      errors.representativeName = "Người đại diện không được để trống";
+    if (!phoneNumber.trim())
+      errors.phoneNumber = "Số điện thoại không được để trống";
+    if (phoneNumber.trim() && !/^\d{10,11}$/.test(phoneNumber.trim()))
+      errors.phoneNumber = "Số điện thoại không hợp lệ";
     if (!email.trim()) errors.email = "Email không được để trống";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = "Email không hợp lệ";
+    if (email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()))
+      errors.email = "Email không hợp lệ";
     if (startDate && joinDate && new Date(startDate) > new Date(joinDate)) {
       errors.startDate = "Ngày bắt đầu phải trước ngày tham gia";
     }
@@ -76,7 +95,18 @@ const EditCompany = () => {
     const token = localStorage.getItem("token");
 
     try {
-      await updateCompany(companyId, editedCompany, token);
+      const { joinDate, id, country, ...payload } = editedCompany || {};
+      // const normalizeStatus = (status) => {
+      //   if (!status) return status;
+      //   const s = status.toString().toLowerCase().trim();
+      //   if (["active", "inactived", "closed"].includes(s)) return s;
+      //   if (s.includes("đang")) return "active";
+      //   if (s.includes("ngừng")) return "inactived";
+      //   if (s.includes("đóng")) return "closed";
+      //   return status;
+      // };
+      // payload.status = normalizeStatus(payload.status);
+      await updateCompany(companyId, payload, token);
 
       const updatedCompany = await getCompanyById(companyId, token);
 
@@ -84,7 +114,6 @@ const EditCompany = () => {
       setEditedCompany(updatedCompany);
       alert("Cập nhật thông tin thành công!");
       navigate("/company");
-
     } catch (error) {
       alert(error.response?.data?.message || "Cập nhật thất bại!");
     }
@@ -120,29 +149,61 @@ const EditCompany = () => {
 
   return (
     <Container>
-      <Paper className="paper-container" elevation={3} >
-        <Typography className="page-title" variant="h4" >
+      <Paper className="paper-container" elevation={3}>
+        <Typography className="page-title" variant="h4">
           CHỈNH SỬA THÔNG TIN CÔNG TY
         </Typography>
         <Box display="flex" alignItems="center" gap={3} mb={3}>
-            <img
-              src={logoPreview || company.logoUrl || "https://cdn-icons-png.freepik.com/512/2774/2774806.png"}
-              alt=""
-              style={{ width: 120, height: 120, objectFit: "cover", borderRadius: 8 }}
-            />
+          <img
+            src={
+              logoPreview ||
+              company.logoUrl ||
+              "https://cdn-icons-png.freepik.com/512/2774/2774806.png"
+            }
+            alt=""
+            style={{
+              width: 120,
+              height: 120,
+              objectFit: "cover",
+              borderRadius: 8,
+            }}
+          />
           <Box display="flex" flexDirection="column" gap={1}>
-            <Button variant="outlined" color="default" component="label"> Chọn logo
-              <input type="file" hidden accept="image/*" onChange={handleLogoChange} />
+            <Button variant="outlined" color="default" component="label">
+              {" "}
+              Chọn logo
+              <input
+                type="file"
+                hidden
+                accept="image/*"
+                onChange={handleLogoChange}
+              />
             </Button>
-            <Button variant="contained" color="default" disabled={!logoFile} onClick={handleUploadLogo}> Cập nhật logo </Button>
+            <Button
+              variant="contained"
+              color="default"
+              disabled={!logoFile}
+              onClick={handleUploadLogo}
+            >
+              {" "}
+              Cập nhật logo{" "}
+            </Button>
           </Box>
         </Box>
 
-          <CompanyForm companyData={editedCompany} onChange={handleChange} errors={errors} />
+        <CompanyForm
+          companyData={editedCompany}
+          onChange={handleChange}
+          errors={errors}
+        />
 
         <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
-          <Button variant="contained" color="default" onClick={handleSave}>Lưu</Button>
-          <Button variant="outlined" color="default" onClick={handleCancel}>Hủy</Button>
+          <Button variant="contained" color="default" onClick={handleSave}>
+            Lưu
+          </Button>
+          <Button variant="outlined" color="default" onClick={handleCancel}>
+            Hủy
+          </Button>
         </Box>
       </Paper>
     </Container>

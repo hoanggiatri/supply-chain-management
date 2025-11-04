@@ -2,7 +2,10 @@ import React, { useEffect, useState } from "react";
 import { Container, Paper, Typography, Box, Button } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import PlantForm from "@components/general/PlantForm";
-import { getPlantById, updatePlant } from "@/services/general/ManufacturePlantService";
+import {
+  getPlantById,
+  updatePlant,
+} from "@/services/general/ManufacturePlantService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 
 const EditPlant = () => {
@@ -30,7 +33,10 @@ const EditPlant = () => {
         setPlant(data);
         setEditedPlant(data);
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi xảy ra khi lấy thông tin xưởng!");
+        alert(
+          error.response?.data?.message ||
+            "Có lỗi xảy ra khi lấy thông tin xưởng!"
+        );
       }
     };
 
@@ -57,13 +63,16 @@ const EditPlant = () => {
     const token = localStorage.getItem("token");
 
     try {
-      const updatedPlant = await updatePlant(plantId, editedPlant, token);
+      const { companyId, plantCode, plantId, ...payload } = editedPlant || {};
+      const updatedPlant = await updatePlant(plantId, payload, token);
       setPlant(updatedPlant);
       setEditedPlant(updatedPlant);
       alert("Cập nhật xưởng thành công!");
       navigate(`/plant/${plantId}`);
     } catch (error) {
-      alert(error.response?.data?.message || "Có lỗi xảy ra khi cập nhật xưởng!");
+      alert(
+        error.response?.data?.message || "Có lỗi xảy ra khi cập nhật xưởng!"
+      );
     }
   };
 
@@ -82,7 +91,12 @@ const EditPlant = () => {
           CHỈNH SỬA THÔNG TIN XƯỞNG
         </Typography>
 
-        <PlantForm plant={editedPlant} onChange={handleChange} errors={errors} readOnlyFields={readOnlyFields} />
+        <PlantForm
+          plant={editedPlant}
+          onChange={handleChange}
+          errors={errors}
+          readOnlyFields={readOnlyFields}
+        />
 
         <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
           <Button variant="contained" color="default" onClick={handleSave}>

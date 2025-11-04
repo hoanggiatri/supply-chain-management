@@ -1,6 +1,5 @@
 import axios from "axios";
-
-const BASE_URL = "http://localhost:8080";
+import { API_BASE_URL as BASE_URL } from "../../config/api";
 
 export const getInvoicePdf = async (soId, token) => {
   const response = await axios.get(`${BASE_URL}/user/get-invoice/${soId}`, {

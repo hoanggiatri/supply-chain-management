@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Container, TableRow, TableCell, Typography, Paper, Box, Button } from "@mui/material";
+import {
+  Container,
+  TableRow,
+  TableCell,
+  Typography,
+  Paper,
+  Box,
+  Button,
+} from "@mui/material";
 import DataTable from "@components/content-components/DataTable";
 import { getAllEmployeesInCompany } from "@/services/general/EmployeeService";
 import { useNavigate } from "react-router-dom";
@@ -22,7 +30,10 @@ const EmployeeInCompany = () => {
         const employees = await getAllEmployeesInCompany(companyId, token);
         setEmployees(employees);
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi xảy ra khi lấy danh sách nhân viên!");
+        alert(
+          error.response?.data?.message ||
+            "Có lỗi xảy ra khi lấy danh sách nhân viên!"
+        );
       }
     };
 
@@ -58,12 +69,16 @@ const EmployeeInCompany = () => {
 
   return (
     <Container>
-      <Paper className="paper-container" elevation={3} >
-        <Typography className="page-title" variant="h4" >
+      <Paper className="paper-container" elevation={3}>
+        <Typography className="page-title" variant="h4">
           DANH SÁCH NHÂN VIÊN
         </Typography>
         <Box mt={3} mb={3}>
-          <Button variant="contained" color="default" onClick={() => navigate("/create-employee")}>
+          <Button
+            variant="contained"
+            color="default"
+            onClick={() => navigate("/create-employee")}
+          >
             Thêm mới
           </Button>
         </Box>
@@ -80,7 +95,12 @@ const EmployeeInCompany = () => {
           search={search}
           setSearch={setSearch}
           renderRow={(emp) => (
-            <TableRow key={emp.employeeId} hover sx={{ cursor: "pointer" }} onClick={() => navigate(`/employee/${emp.employeeId}`)}>
+            <TableRow
+              key={emp.id}
+              hover
+              sx={{ cursor: "pointer" }}
+              onClick={() => navigate(`/employee/${emp.id}`)}
+            >
               <TableCell>{emp.employeeCode || ""}</TableCell>
               <TableCell>{emp.employeeName || ""}</TableCell>
               <TableCell>{emp.departmentName || ""}</TableCell>

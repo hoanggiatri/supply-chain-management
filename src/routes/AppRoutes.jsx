@@ -142,7 +142,10 @@ function AppRoutes() {
           <Route path="/otp-verification" element={<OtpVerification />} />
           <Route path="/login" element={<Login />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/verify-forgot-password-otp" element={<OtpForgotPassword />} />
+          <Route
+            path="/verify-forgot-password-otp"
+            element={<OtpForgotPassword />}
+          />
           <Route path="/reset-password" element={<ResetPassword />} />
 
           <Route path="/login-admin" element={<AdminLogin />} />
@@ -150,125 +153,880 @@ function AppRoutes() {
         </Route>
 
         <Route element={<SideBarLayout role={"S-ADMIN"} />}>
-          <Route path="/admin/dashboard" element={<PrivateRoute element={<Dashboard />} allowedRoles={["S-ADMIN"]} />} />
-          <Route path="/admin/all-company" element={<PrivateRoute element={<AllCompanies />} allowedRoles={["S-ADMIN"]} />} />
-          <Route path="/admin/company/:companyId" element={<PrivateRoute element={<Company />} allowedRoles={["S-ADMIN"]} />} />
-          <Route path="/admin/company/:companyId/edit" element={<PrivateRoute element={<UpdateCompany />} allowedRoles={["S-ADMIN"]} />} />
+          <Route
+            path="/admin/dashboard"
+            element={
+              <PrivateRoute
+                element={<Dashboard />}
+                allowedRoles={["S-ADMIN"]}
+              />
+            }
+          />
+          <Route
+            path="/admin/all-company"
+            element={
+              <PrivateRoute
+                element={<AllCompanies />}
+                allowedRoles={["S-ADMIN"]}
+              />
+            }
+          />
+          <Route
+            path="/admin/company/:companyId"
+            element={
+              <PrivateRoute element={<Company />} allowedRoles={["S-ADMIN"]} />
+            }
+          />
+          <Route
+            path="/admin/company/:companyId/edit"
+            element={
+              <PrivateRoute
+                element={<UpdateCompany />}
+                allowedRoles={["S-ADMIN"]}
+              />
+            }
+          />
 
-          <Route path="/admin/all-user" element={<PrivateRoute element={<AllUsers />} allowedRoles={["S-ADMIN"]} />} />
-          <Route path="/admin/user/:userId" element={<PrivateRoute element={<User />} allowedRoles={["S-ADMIN"]} />} />
-          <Route path="/admin/user/:userId/edit" element={<PrivateRoute element={<UpdateUser />} allowedRoles={["S-ADMIN"]} />} />
-
+          <Route
+            path="/admin/all-user"
+            element={
+              <PrivateRoute element={<AllUsers />} allowedRoles={["S-ADMIN"]} />
+            }
+          />
+          <Route
+            path="/admin/user/:userId"
+            element={
+              <PrivateRoute element={<User />} allowedRoles={["S-ADMIN"]} />
+            }
+          />
+          <Route
+            path="/admin/user/:userId/edit"
+            element={
+              <PrivateRoute
+                element={<UpdateUser />}
+                allowedRoles={["S-ADMIN"]}
+              />
+            }
+          />
         </Route>
 
         <Route element={<SideBarLayout />}>
-          <Route path="/homepage" element={<PrivateRoute element={<HomePage />} allowedRoles={["C-ADMIN", "USER"]} />} />
-          <Route path="/my-profile" element={<PrivateRoute element={<MyProfile />} allowedRoles={["C-ADMIN", "USER", "S-ADMIN"]} />} />
+          <Route
+            path="/homepage"
+            element={
+              <PrivateRoute
+                element={<HomePage />}
+                allowedRoles={["c_admin", "USER"]}
+              />
+            }
+          />
+          <Route
+            path="/my-profile"
+            element={
+              <PrivateRoute
+                element={<MyProfile />}
+                allowedRoles={["c_admin", "USER", "S-ADMIN"]}
+              />
+            }
+          />
 
-          <Route path="/company" element={<PrivateRoute element={<CompanyDetail />} allowedRoles={["C-ADMIN"]} />} />
-          <Route path="/company/edit" element={<PrivateRoute element={<EditCompany />} allowedRoles={["C-ADMIN"]} />} />
+          <Route
+            path="/company"
+            element={
+              <PrivateRoute
+                element={<CompanyDetail />}
+                allowedRoles={["c_admin"]}
+              />
+            }
+          />
+          <Route
+            path="/company/edit"
+            element={
+              <PrivateRoute
+                element={<EditCompany />}
+                allowedRoles={["c_admin"]}
+              />
+            }
+          />
 
-          <Route path="/departments" element={<PrivateRoute element={<DepartmentInCompany />} allowedRoles={["C-ADMIN"]} />} />
-          <Route path="/department/:departmentId" element={<PrivateRoute element={<DepartmentDetail />} allowedRoles={["C-ADMIN"]} />} />
+          <Route
+            path="/departments"
+            element={
+              <PrivateRoute
+                element={<DepartmentInCompany />}
+                allowedRoles={["c_admin"]}
+              />
+            }
+          />
+          <Route
+            path="/department/:departmentId"
+            element={
+              <PrivateRoute
+                element={<DepartmentDetail />}
+                allowedRoles={["c_admin"]}
+              />
+            }
+          />
 
-          <Route path="/employees" element={<PrivateRoute element={<EmployeeInCompany />} allowedRoles={["C-ADMIN"]} />} />
-          <Route path="/employee/:employeeId" element={<PrivateRoute element={<EmployeeDetail />} allowedRoles={["C-ADMIN"]} />} />
-          <Route path="/employee/:employeeId/edit" element={<PrivateRoute element={<EditEmployee />} allowedRoles={["C-ADMIN", "USER"]} />} />
-          <Route path="/create-employee" element={<PrivateRoute element={<CreateEmployee />} allowedRoles={["C-ADMIN"]} />} />
+          <Route
+            path="/employees"
+            element={
+              <PrivateRoute
+                element={<EmployeeInCompany />}
+                allowedRoles={["c_admin"]}
+              />
+            }
+          />
+          <Route
+            path="/employee/:employeeId"
+            element={
+              <PrivateRoute
+                element={<EmployeeDetail />}
+                allowedRoles={["c_admin"]}
+              />
+            }
+          />
+          <Route
+            path="/employee/:employeeId/edit"
+            element={
+              <PrivateRoute
+                element={<EditEmployee />}
+                allowedRoles={["c_admin", "USER"]}
+              />
+            }
+          />
+          <Route
+            path="/create-employee"
+            element={
+              <PrivateRoute
+                element={<CreateEmployee />}
+                allowedRoles={["c_admin"]}
+              />
+            }
+          />
 
-          <Route path="/users" element={<PrivateRoute element={<UserInCompany />} allowedRoles={["C-ADMIN"]} />} />
-          <Route path="/user/:userId" element={<PrivateRoute element={<UserDetail />} allowedRoles={["C-ADMIN"]} />} />
-          <Route path="/user/:userId/edit" element={<PrivateRoute element={<EditUser />} allowedRoles={["C-ADMIN", "USER", "S-ADMIN"]} />} />
+          <Route
+            path="/users"
+            element={
+              <PrivateRoute
+                element={<UserInCompany />}
+                allowedRoles={["c_admin"]}
+              />
+            }
+          />
+          <Route
+            path="/user/:userId"
+            element={
+              <PrivateRoute
+                element={<UserDetail />}
+                allowedRoles={["c_admin"]}
+              />
+            }
+          />
+          <Route
+            path="/user/:userId/edit"
+            element={
+              <PrivateRoute
+                element={<EditUser />}
+                allowedRoles={["c_admin", "USER", "S-ADMIN"]}
+              />
+            }
+          />
 
-          <Route path="/items" element={<PrivateRoute element={<ItemInCompany />} allowedRoles={["C-ADMIN"]} />} />
-          <Route path="/item/:itemId" element={<PrivateRoute element={<ItemDetail />} allowedRoles={["C-ADMIN"]} />} />
-          <Route path="/create-item" element={<PrivateRoute element={<CreateItem />} allowedRoles={["C-ADMIN"]} />} />
-          <Route path="/item/:itemId/edit" element={<PrivateRoute element={<EditItem />} allowedRoles={["C-ADMIN"]} />} />
-          <Route path="/create-item-from-excel" element={<PrivateRoute element={<CreateItemFromExcel />} allowedRoles={["C-ADMIN"]} />} />
+          <Route
+            path="/items"
+            element={
+              <PrivateRoute
+                element={<ItemInCompany />}
+                allowedRoles={["c_admin"]}
+              />
+            }
+          />
+          <Route
+            path="/item/:itemId"
+            element={
+              <PrivateRoute
+                element={<ItemDetail />}
+                allowedRoles={["c_admin"]}
+              />
+            }
+          />
+          <Route
+            path="/create-item"
+            element={
+              <PrivateRoute
+                element={<CreateItem />}
+                allowedRoles={["c_admin"]}
+              />
+            }
+          />
+          <Route
+            path="/item/:itemId/edit"
+            element={
+              <PrivateRoute element={<EditItem />} allowedRoles={["c_admin"]} />
+            }
+          />
+          <Route
+            path="/create-item-from-excel"
+            element={
+              <PrivateRoute
+                element={<CreateItemFromExcel />}
+                allowedRoles={["c_admin"]}
+              />
+            }
+          />
 
-          <Route path="/warehouses" element={<PrivateRoute element={<WarehouseInCompany />} allowedRoles={["C-ADMIN"]} />} />
-          <Route path="/warehouse/:warehouseId" element={<PrivateRoute element={<WarehouseDetail />} allowedRoles={["C-ADMIN"]} />} />
-          <Route path="/create-warehouse" element={<PrivateRoute element={<CreateWarehouse />} allowedRoles={["C-ADMIN"]} />} />
-          <Route path="/warehouse/:warehouseId/edit" element={<PrivateRoute element={<EditWarehouse />} allowedRoles={["C-ADMIN"]} />} />
+          <Route
+            path="/warehouses"
+            element={
+              <PrivateRoute
+                element={<WarehouseInCompany />}
+                allowedRoles={["c_admin"]}
+              />
+            }
+          />
+          <Route
+            path="/warehouse/:warehouseId"
+            element={
+              <PrivateRoute
+                element={<WarehouseDetail />}
+                allowedRoles={["c_admin"]}
+              />
+            }
+          />
+          <Route
+            path="/create-warehouse"
+            element={
+              <PrivateRoute
+                element={<CreateWarehouse />}
+                allowedRoles={["c_admin"]}
+              />
+            }
+          />
+          <Route
+            path="/warehouse/:warehouseId/edit"
+            element={
+              <PrivateRoute
+                element={<EditWarehouse />}
+                allowedRoles={["c_admin"]}
+              />
+            }
+          />
 
-          <Route path="/plants" element={<PrivateRoute element={<PlantInCompany />} allowedRoles={["C-ADMIN"]} />} />
-          <Route path="/plant/:plantId" element={<PrivateRoute element={<PlantDetail />} allowedRoles={["C-ADMIN"]} />} />
-          <Route path="/create-plant" element={<PrivateRoute element={<CreatePlant />} allowedRoles={["C-ADMIN"]} />} />
-          <Route path="/plant/:plantId/edit" element={<PrivateRoute element={<EditPlant />} allowedRoles={["C-ADMIN"]} />} />
+          <Route
+            path="/plants"
+            element={
+              <PrivateRoute
+                element={<PlantInCompany />}
+                allowedRoles={["c_admin"]}
+              />
+            }
+          />
+          <Route
+            path="/plant/:plantId"
+            element={
+              <PrivateRoute
+                element={<PlantDetail />}
+                allowedRoles={["c_admin"]}
+              />
+            }
+          />
+          <Route
+            path="/create-plant"
+            element={
+              <PrivateRoute
+                element={<CreatePlant />}
+                allowedRoles={["c_admin"]}
+              />
+            }
+          />
+          <Route
+            path="/plant/:plantId/edit"
+            element={
+              <PrivateRoute
+                element={<EditPlant />}
+                allowedRoles={["c_admin"]}
+              />
+            }
+          />
 
-          <Route path="/lines" element={<PrivateRoute element={<LineInCompany />} allowedRoles={["C-ADMIN"]} />} />
-          <Route path="/line/:lineId" element={<PrivateRoute element={<LineDetail />} allowedRoles={["C-ADMIN"]} />} />
-          <Route path="/create-line" element={<PrivateRoute element={<CreateLine />} allowedRoles={["C-ADMIN"]} />} />
-          <Route path="/line/:lineId/edit" element={<PrivateRoute element={<EditLine />} allowedRoles={["C-ADMIN"]} />} />
+          <Route
+            path="/lines"
+            element={
+              <PrivateRoute
+                element={<LineInCompany />}
+                allowedRoles={["c_admin"]}
+              />
+            }
+          />
+          <Route
+            path="/line/:lineId"
+            element={
+              <PrivateRoute
+                element={<LineDetail />}
+                allowedRoles={["c_admin"]}
+              />
+            }
+          />
+          <Route
+            path="/create-line"
+            element={
+              <PrivateRoute
+                element={<CreateLine />}
+                allowedRoles={["c_admin"]}
+              />
+            }
+          />
+          <Route
+            path="/line/:lineId/edit"
+            element={
+              <PrivateRoute element={<EditLine />} allowedRoles={["c_admin"]} />
+            }
+          />
 
-          <Route path="/boms" element={<PrivateRoute element={<BomInCompany />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Sản xuất"]} />} />
-          <Route path="/create-bom" element={<PrivateRoute element={<CreateBom />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Sản xuất"]} />} />
-          <Route path="/bom/:itemId" element={<PrivateRoute element={<BomDetail />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Sản xuất"]} />} />
-          <Route path="/bom/:itemId/edit" element={<PrivateRoute element={<EditBom />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Sản xuất"]} />} />
+          <Route
+            path="/boms"
+            element={
+              <PrivateRoute
+                element={<BomInCompany />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Sản xuất"]}
+              />
+            }
+          />
+          <Route
+            path="/create-bom"
+            element={
+              <PrivateRoute
+                element={<CreateBom />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Sản xuất"]}
+              />
+            }
+          />
+          <Route
+            path="/bom/:itemId"
+            element={
+              <PrivateRoute
+                element={<BomDetail />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Sản xuất"]}
+              />
+            }
+          />
+          <Route
+            path="/bom/:itemId/edit"
+            element={
+              <PrivateRoute
+                element={<EditBom />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Sản xuất"]}
+              />
+            }
+          />
 
-          <Route path="/mos" element={<PrivateRoute element={<MoInCompany />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Sản xuất"]} />} />
-          <Route path="/create-mo" element={<PrivateRoute element={<CreateMo />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Sản xuất"]} />} />
-          <Route path="/mo/:moId" element={<PrivateRoute element={<MoDetail />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Sản xuất"]} />} />
-          <Route path="/mo/:moId/edit" element={<PrivateRoute element={<EditMo />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Sản xuất"]} />} />
-          <Route path="/manufacture-report" element={<PrivateRoute element={<ManufactureReport />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Sản xuất"]} />} />
+          <Route
+            path="/mos"
+            element={
+              <PrivateRoute
+                element={<MoInCompany />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Sản xuất"]}
+              />
+            }
+          />
+          <Route
+            path="/create-mo"
+            element={
+              <PrivateRoute
+                element={<CreateMo />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Sản xuất"]}
+              />
+            }
+          />
+          <Route
+            path="/mo/:moId"
+            element={
+              <PrivateRoute
+                element={<MoDetail />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Sản xuất"]}
+              />
+            }
+          />
+          <Route
+            path="/mo/:moId/edit"
+            element={
+              <PrivateRoute
+                element={<EditMo />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Sản xuất"]}
+              />
+            }
+          />
+          <Route
+            path="/manufacture-report"
+            element={
+              <PrivateRoute
+                element={<ManufactureReport />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Sản xuất"]}
+              />
+            }
+          />
 
-          <Route path="/stages" element={<PrivateRoute element={<StageInCompany />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Sản xuất"]} />} />
-          <Route path="/create-stage" element={<PrivateRoute element={<CreateStage />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Sản xuất"]} />} />
-          <Route path="/stage/:itemId" element={<PrivateRoute element={<StageDetail />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Sản xuất"]} />} />
-          <Route path="/stage/:itemId/edit" element={<PrivateRoute element={<EditStage />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Sản xuất"]} />} />
+          <Route
+            path="/stages"
+            element={
+              <PrivateRoute
+                element={<StageInCompany />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Sản xuất"]}
+              />
+            }
+          />
+          <Route
+            path="/create-stage"
+            element={
+              <PrivateRoute
+                element={<CreateStage />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Sản xuất"]}
+              />
+            }
+          />
+          <Route
+            path="/stage/:itemId"
+            element={
+              <PrivateRoute
+                element={<StageDetail />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Sản xuất"]}
+              />
+            }
+          />
+          <Route
+            path="/stage/:itemId/edit"
+            element={
+              <PrivateRoute
+                element={<EditStage />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Sản xuất"]}
+              />
+            }
+          />
 
-          <Route path="/inventory" element={<PrivateRoute element={<Inventory />} allowedRoles={["C-ADMIN", "USER"]} />} />
-          <Route path="/check-inventory/:type/:id" element={<PrivateRoute element={<CheckInventory />} allowedRoles={["C-ADMIN", "USER"]} />} />
-          <Route path="/inventory-count" element={<PrivateRoute element={<InventoryCount />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Kho"]} />} />
-          <Route path="/create-inventory" element={<PrivateRoute element={<CreateInventory />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Kho"]} />} />
+          <Route
+            path="/inventory"
+            element={
+              <PrivateRoute
+                element={<Inventory />}
+                allowedRoles={["c_admin", "USER"]}
+              />
+            }
+          />
+          <Route
+            path="/check-inventory/:type/:id"
+            element={
+              <PrivateRoute
+                element={<CheckInventory />}
+                allowedRoles={["c_admin", "USER"]}
+              />
+            }
+          />
+          <Route
+            path="/inventory-count"
+            element={
+              <PrivateRoute
+                element={<InventoryCount />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Kho"]}
+              />
+            }
+          />
+          <Route
+            path="/create-inventory"
+            element={
+              <PrivateRoute
+                element={<CreateInventory />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Kho"]}
+              />
+            }
+          />
 
-          <Route path="/issue-tickets" element={<PrivateRoute element={<ItInCompany />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Kho"]} />} />
-          <Route path="/issue-ticket/:ticketId" element={<PrivateRoute element={<ItDetail />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Kho"]} />} />
-          <Route path="/issue-report" element={<PrivateRoute element={<IssueReport />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Kho"]} />} />
+          <Route
+            path="/issue-tickets"
+            element={
+              <PrivateRoute
+                element={<ItInCompany />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Kho"]}
+              />
+            }
+          />
+          <Route
+            path="/issue-ticket/:ticketId"
+            element={
+              <PrivateRoute
+                element={<ItDetail />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Kho"]}
+              />
+            }
+          />
+          <Route
+            path="/issue-report"
+            element={
+              <PrivateRoute
+                element={<IssueReport />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Kho"]}
+              />
+            }
+          />
 
-          <Route path="/receive-tickets" element={<PrivateRoute element={<RtInCompany />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Kho"]} />} />
-          <Route path="/receive-ticket/:ticketId" element={<PrivateRoute element={<RtDetail />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Kho"]} />} />
-          <Route path="/receive-report" element={<PrivateRoute element={<ReceiveReport />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Kho"]} />} />
+          <Route
+            path="/receive-tickets"
+            element={
+              <PrivateRoute
+                element={<RtInCompany />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Kho"]}
+              />
+            }
+          />
+          <Route
+            path="/receive-ticket/:ticketId"
+            element={
+              <PrivateRoute
+                element={<RtDetail />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Kho"]}
+              />
+            }
+          />
+          <Route
+            path="/receive-report"
+            element={
+              <PrivateRoute
+                element={<ReceiveReport />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Kho"]}
+              />
+            }
+          />
 
-          <Route path="/transfer-tickets" element={<PrivateRoute element={<TtInCompany />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Kho"]} />} />
-          <Route path="/transfer-ticket/:ticketId" element={<PrivateRoute element={<TtDetail />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Kho"]} />} />
-          <Route path="/transfer-ticket/:ticketId/edit" element={<PrivateRoute element={<EditTt />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Kho"]} />} />
-          <Route path="/create-transfer-ticket" element={<PrivateRoute element={<CreateTt />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Kho"]} />} />
+          <Route
+            path="/transfer-tickets"
+            element={
+              <PrivateRoute
+                element={<TtInCompany />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Kho"]}
+              />
+            }
+          />
+          <Route
+            path="/transfer-ticket/:ticketId"
+            element={
+              <PrivateRoute
+                element={<TtDetail />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Kho"]}
+              />
+            }
+          />
+          <Route
+            path="/transfer-ticket/:ticketId/edit"
+            element={
+              <PrivateRoute
+                element={<EditTt />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Kho"]}
+              />
+            }
+          />
+          <Route
+            path="/create-transfer-ticket"
+            element={
+              <PrivateRoute
+                element={<CreateTt />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Kho"]}
+              />
+            }
+          />
 
-          <Route path="/supplier-search" element={<PrivateRoute element={<SupplierSearch />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Mua hàng"]} />} />
-          <Route path="/supplier/:supplierId" element={<PrivateRoute element={<SupplierDetail />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Mua hàng"]} />} />
+          <Route
+            path="/supplier-search"
+            element={
+              <PrivateRoute
+                element={<SupplierSearch />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Mua hàng"]}
+              />
+            }
+          />
+          <Route
+            path="/supplier/:supplierId"
+            element={
+              <PrivateRoute
+                element={<SupplierDetail />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Mua hàng"]}
+              />
+            }
+          />
 
-          <Route path="/create-rfq" element={<PrivateRoute element={<CreateRfq />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Mua hàng"]} />} />
-          <Route path="/rfqs" element={<PrivateRoute element={<RfqInCompany />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Mua hàng"]} />} />
-          <Route path="/rfq/:rfqId" element={<PrivateRoute element={<RfqDetail />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Mua hàng"]} />} />
+          <Route
+            path="/create-rfq"
+            element={
+              <PrivateRoute
+                element={<CreateRfq />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Mua hàng"]}
+              />
+            }
+          />
+          <Route
+            path="/rfqs"
+            element={
+              <PrivateRoute
+                element={<RfqInCompany />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Mua hàng"]}
+              />
+            }
+          />
+          <Route
+            path="/rfq/:rfqId"
+            element={
+              <PrivateRoute
+                element={<RfqDetail />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Mua hàng"]}
+              />
+            }
+          />
 
-          <Route path="/supplier-rfqs" element={<PrivateRoute element={<RfqInSupplierCompany />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Bán hàng"]} />} />
-          <Route path="/supplier-rfq/:rfqId" element={<PrivateRoute element={<SupplierRfqDetail />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Bán hàng"]} />} />
+          <Route
+            path="/supplier-rfqs"
+            element={
+              <PrivateRoute
+                element={<RfqInSupplierCompany />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Bán hàng"]}
+              />
+            }
+          />
+          <Route
+            path="/supplier-rfq/:rfqId"
+            element={
+              <PrivateRoute
+                element={<SupplierRfqDetail />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Bán hàng"]}
+              />
+            }
+          />
 
-          <Route path="/create-quotation/:rfqId" element={<PrivateRoute element={<CreateQuotation />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Bán hàng"]} />} />
-          <Route path="/quotations" element={<PrivateRoute element={<QuotationInCompany />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Bán hàng"]} />} />
-          <Route path="/quotation/:rfqId" element={<PrivateRoute element={<QuotationDetail />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Bán hàng"]} />} />
+          <Route
+            path="/create-quotation/:rfqId"
+            element={
+              <PrivateRoute
+                element={<CreateQuotation />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Bán hàng"]}
+              />
+            }
+          />
+          <Route
+            path="/quotations"
+            element={
+              <PrivateRoute
+                element={<QuotationInCompany />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Bán hàng"]}
+              />
+            }
+          />
+          <Route
+            path="/quotation/:rfqId"
+            element={
+              <PrivateRoute
+                element={<QuotationDetail />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Bán hàng"]}
+              />
+            }
+          />
 
-          <Route path="/customer-quotations" element={<PrivateRoute element={<QuotationInCustomerCompany />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Mua hàng"]} />} />
-          <Route path="/customer-quotation/:rfqId" element={<PrivateRoute element={<CustomerQuotationDetail />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Mua hàng"]} />} />
+          <Route
+            path="/customer-quotations"
+            element={
+              <PrivateRoute
+                element={<QuotationInCustomerCompany />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Mua hàng"]}
+              />
+            }
+          />
+          <Route
+            path="/customer-quotation/:rfqId"
+            element={
+              <PrivateRoute
+                element={<CustomerQuotationDetail />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Mua hàng"]}
+              />
+            }
+          />
 
-          <Route path="/create-po/:quotationId" element={<PrivateRoute element={<CreatePo />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Mua hàng"]} />} />
-          <Route path="/pos" element={<PrivateRoute element={<PoInCompany />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Mua hàng"]} />} />
-          <Route path="/po/:poId" element={<PrivateRoute element={<PoDetail />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Mua hàng"]} />} />
-          <Route path="/purchase-report" element={<PrivateRoute element={<PurchaseReport />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Mua hàng"]} />} />
+          <Route
+            path="/create-po/:quotationId"
+            element={
+              <PrivateRoute
+                element={<CreatePo />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Mua hàng"]}
+              />
+            }
+          />
+          <Route
+            path="/pos"
+            element={
+              <PrivateRoute
+                element={<PoInCompany />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Mua hàng"]}
+              />
+            }
+          />
+          <Route
+            path="/po/:poId"
+            element={
+              <PrivateRoute
+                element={<PoDetail />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Mua hàng"]}
+              />
+            }
+          />
+          <Route
+            path="/purchase-report"
+            element={
+              <PrivateRoute
+                element={<PurchaseReport />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Mua hàng"]}
+              />
+            }
+          />
 
-          <Route path="/supplier-pos" element={<PrivateRoute element={<PoInSupplierCompany />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Bán hàng"]} />} />
-          <Route path="/supplier-po/:poId" element={<PrivateRoute element={<SupplierPoDetail />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Bán hàng"]} />} />
+          <Route
+            path="/supplier-pos"
+            element={
+              <PrivateRoute
+                element={<PoInSupplierCompany />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Bán hàng"]}
+              />
+            }
+          />
+          <Route
+            path="/supplier-po/:poId"
+            element={
+              <PrivateRoute
+                element={<SupplierPoDetail />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Bán hàng"]}
+              />
+            }
+          />
 
-          <Route path="/create-so/:poId" element={<PrivateRoute element={<CreateSo />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Bán hàng"]} />} />
-          <Route path="/sos" element={<PrivateRoute element={<SoInCompany />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Bán hàng"]} />} />
-          <Route path="/so/:soId" element={<PrivateRoute element={<SoDetail />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Bán hàng"]} />} />
-          <Route path="/sales-report" element={<PrivateRoute element={<SalesReport />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Bán hàng"]} />} />
+          <Route
+            path="/create-so/:poId"
+            element={
+              <PrivateRoute
+                element={<CreateSo />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Bán hàng"]}
+              />
+            }
+          />
+          <Route
+            path="/sos"
+            element={
+              <PrivateRoute
+                element={<SoInCompany />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Bán hàng"]}
+              />
+            }
+          />
+          <Route
+            path="/so/:soId"
+            element={
+              <PrivateRoute
+                element={<SoDetail />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Bán hàng"]}
+              />
+            }
+          />
+          <Route
+            path="/sales-report"
+            element={
+              <PrivateRoute
+                element={<SalesReport />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Bán hàng"]}
+              />
+            }
+          />
 
-          <Route path="/dos" element={<PrivateRoute element={<DoInCompany />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Vận chuyển"]} />} />
-          <Route path="/do/:doId" element={<PrivateRoute element={<DoDetail />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Vận chuyển"]} />} />
-          <Route path="/update-do-process/:doId" element={<PrivateRoute element={<UpdateDoProcess />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Vận chuyển"]} />} />
-          <Route path="/do-process/:doId" element={<PrivateRoute element={<DoProcess />} allowedRoles={["C-ADMIN", "USER"]} allowedDepartments={["Quản trị", "Vận chuyển"]} />} />
+          <Route
+            path="/dos"
+            element={
+              <PrivateRoute
+                element={<DoInCompany />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Vận chuyển"]}
+              />
+            }
+          />
+          <Route
+            path="/do/:doId"
+            element={
+              <PrivateRoute
+                element={<DoDetail />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Vận chuyển"]}
+              />
+            }
+          />
+          <Route
+            path="/update-do-process/:doId"
+            element={
+              <PrivateRoute
+                element={<UpdateDoProcess />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Vận chuyển"]}
+              />
+            }
+          />
+          <Route
+            path="/do-process/:doId"
+            element={
+              <PrivateRoute
+                element={<DoProcess />}
+                allowedRoles={["c_admin", "USER"]}
+                allowedDepartments={["Quản trị", "Vận chuyển"]}
+              />
+            }
+          />
 
           <Route path="/unauthorized" element={<Unauthorized />} />
         </Route>

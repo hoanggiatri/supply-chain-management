@@ -11,7 +11,6 @@ const CreateItem = () => {
   const [errors, setErrors] = useState({});
 
   const [formData, setFormData] = useState({
-    companyId: companyId,
     itemName: "",
     itemType: "",
     isSellable: true,
@@ -20,17 +19,24 @@ const CreateItem = () => {
     importPrice: 0,
     exportPrice: 0,
   });
-  
 
   const validateForm = () => {
     const errors = {};
-    if (!formData.itemName?.trim()) errors.itemName = "Tên hàng hóa không được để trống";
-    if (!formData.itemType?.trim()) errors.itemType = "Loại hàng hóa không được để trống";
+    if (!formData.itemName?.trim())
+      errors.itemName = "Tên hàng hóa không được để trống";
+    if (!formData.itemType?.trim())
+      errors.itemType = "Loại hàng hóa không được để trống";
     if (!formData.uom?.trim()) errors.uom = "Đơn vị tính không được để trống";
-    if (formData.importPrice && (isNaN(formData.importPrice) || Number(formData.importPrice) <= 0)) {
+    if (
+      formData.importPrice &&
+      (isNaN(formData.importPrice) || Number(formData.importPrice) <= 0)
+    ) {
       errors.importPrice = "Giá nhập phải là số và lớn hơn 0 nếu nhập";
     }
-    if (formData.exportPrice && (isNaN(formData.exportPrice) || Number(formData.exportPrice) <= 0)) {
+    if (
+      formData.exportPrice &&
+      (isNaN(formData.exportPrice) || Number(formData.exportPrice) <= 0)
+    ) {
       errors.exportPrice = "Giá xuất phải là số và lớn hơn 0 nếu nhập";
     }
     if (formData.isSellable && !formData.exportPrice) {
@@ -41,7 +47,7 @@ const CreateItem = () => {
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
-  
+
     let newValue = value;
     if (type === "number") {
       const num = parseFloat(value);
@@ -51,7 +57,7 @@ const CreateItem = () => {
         newValue = num < 0 ? 0 : num;
       }
     }
-  
+
     setFormData((prev) => ({ ...prev, [name]: newValue }));
   };
 
@@ -88,17 +94,32 @@ const CreateItem = () => {
           THÊM MỚI HÀNG HÓA
         </Typography>
 
-        <ItemForm item={formData} onChange={handleChange} errors={errors} readOnlyFields={{ itemCode: true }}/>
+        <ItemForm
+          item={formData}
+          onChange={handleChange}
+          errors={errors}
+          readOnlyFields={{ itemCode: true }}
+        />
 
         <Grid container spacing={2} mt={3} justifyContent="flex-end">
           <Grid item>
-            <Button variant="contained" color="success" onClick={handleNavigateToExcelPage}>Nhập từ Excel</Button>
+            <Button
+              variant="contained"
+              color="success"
+              onClick={handleNavigateToExcelPage}
+            >
+              Nhập từ Excel
+            </Button>
           </Grid>
           <Grid item>
-            <Button variant="contained" color="default" onClick={handleSubmit}>Thêm</Button>
+            <Button variant="contained" color="default" onClick={handleSubmit}>
+              Thêm
+            </Button>
           </Grid>
           <Grid item>
-            <Button variant="outlined" color="default" onClick={handleCancel}>Hủy</Button>
+            <Button variant="outlined" color="default" onClick={handleCancel}>
+              Hủy
+            </Button>
           </Grid>
         </Grid>
       </Paper>
