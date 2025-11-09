@@ -7,11 +7,9 @@ import EmployeeForm from "@components/general/EmployeeForm"; // Đường dẫn 
 const CreateEmployee = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  const companyId = localStorage.getItem("companyId");
   const [errors, setErrors] = useState({});
 
   const [formData, setFormData] = useState({
-    companyId: companyId,
     employeeCode: "",
     employeeName: "",
     position: "",
@@ -20,9 +18,12 @@ const CreateEmployee = () => {
     email: "",
     phoneNumber: "",
     dateOfBirth: "",
-    employmentStartDate: "",
+    startDate: "",
     departmentId: "",
+    username: "",
     password: "",
+    role: "",
+    status: "",
   });
 
   const validateForm = () => {
@@ -44,10 +45,14 @@ const CreateEmployee = () => {
       errors.phoneNumber = "SĐT không được để trống";
     else if (!/^\d{10,11}$/.test(formData.phoneNumber))
       errors.phoneNumber = "SĐT không hợp lệ";
+    if (!formData.username?.trim())
+      errors.username = "Tên đăng nhập không được để trống";
     if (!formData.password.trim())
       errors.password = "Mật khẩu không được để trống";
     else if (formData.password.length < 8)
       errors.password = "Mật khẩu phải ≥ 8 ký tự";
+    if (!formData.role) errors.role = "Vai trò không được để trống";
+    if (!formData.status) errors.status = "Trạng thái không được để trống";
     return errors;
   };
 
@@ -66,7 +71,12 @@ const CreateEmployee = () => {
     }
 
     try {
-      await createEmployee(formData, token);
+      const payload = { ...formData };
+      if (payload.dateOfBirth)
+        payload.dateOfBirth = new Date(payload.dateOfBirth).toISOString();
+      if (payload.startDate)
+        payload.startDate = new Date(payload.startDate).toISOString();
+      await createEmployee(payload, token);
       alert("Tạo nhân viên thành công!");
       navigate("/employees");
     } catch (error) {

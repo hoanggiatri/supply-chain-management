@@ -20,7 +20,7 @@ const CreateLine = () => {
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
-  
+
     let newValue = value;
     if (type === "number") {
       const num = parseFloat(value);
@@ -30,16 +30,17 @@ const CreateLine = () => {
         newValue = num < 0 ? 0 : num;
       }
     }
-  
+
     setLine((prev) => ({ ...prev, [name]: newValue }));
   };
 
   const validate = () => {
     const newErrors = {};
     if (!line.plantId) newErrors.plantId = "Vui lòng chọn xưởng";
-    if (!line.lineCode.trim()) newErrors.lineCode = "Mã dây chuyền không được để trống";
-    if (!line.lineName.trim()) newErrors.lineName = "Tên dây chuyền không được để trống";
-    if (!line.capacity || line.capacity <= 0) newErrors.capacity = "Công suất phải lớn hơn 0";
+    if (!line.lineName.trim())
+      newErrors.lineName = "Tên dây chuyền không được để trống";
+    if (!line.capacity || line.capacity <= 0)
+      newErrors.capacity = "Công suất phải lớn hơn 0";
     return newErrors;
   };
 
@@ -51,8 +52,8 @@ const CreateLine = () => {
     }
 
     try {
-      console.log("Sending line:", line);
-      await createLine(line.plantId, line, token);
+      const { plantId, lineCode, ...payload } = line;
+      await createLine(plantId, payload, token);
       alert("Tạo dây chuyền thành công!");
       navigate("/lines");
     } catch (err) {
@@ -72,6 +73,7 @@ const CreateLine = () => {
           onChange={handleChange}
           errors={errors}
           readOnlyFields={{}}
+          requireLineCode={false}
         />
 
         <Grid container spacing={2} justifyContent="flex-end" mt={2}>
@@ -81,7 +83,11 @@ const CreateLine = () => {
             </Button>
           </Grid>
           <Grid item>
-            <Button variant="outlined" color="default" onClick={() => navigate("/lines")}>
+            <Button
+              variant="outlined"
+              color="default"
+              onClick={() => navigate("/lines")}
+            >
               Hủy
             </Button>
           </Grid>

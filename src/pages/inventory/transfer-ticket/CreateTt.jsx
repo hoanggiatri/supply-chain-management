@@ -9,7 +9,7 @@ import TtDetailTable from "@/components/inventory/TtDetailTable";
 const CreateTt = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  const companyId = localStorage.getItem("companyId");
+  const companyId = parseInt(localStorage.getItem("companyId"));
   const employeeName = localStorage.getItem("employeeName");
 
   const [errors, setErrors] = useState({ transferDetailErrors: [] });
@@ -35,7 +35,9 @@ const CreateTt = () => {
         const data = await getAllItemsInCompany(companyId, token);
         setItems(data);
       } catch (error) {
-        alert(error.response?.data?.message || "Lỗi khi tải danh sách hàng hóa!");
+        alert(
+          error.response?.data?.message || "Lỗi khi tải danh sách hàng hóa!"
+        );
       }
     };
     fetchItems();
@@ -44,9 +46,12 @@ const CreateTt = () => {
   const validateForm = () => {
     const formErrors = {};
     if (!ticket.reason?.trim()) formErrors.reason = "Lý do không được để trống";
-    if (!ticket.fromWarehouseCode) formErrors.fromWarehouseCode = "Chưa chọn kho xuất";
-    if (!ticket.toWarehouseCode) formErrors.toWarehouseCode = "Chưa chọn kho nhập";
-    if (ticket.fromWarehouseCode === ticket.toWarehouseCode) formErrors.toWarehouseCode = "Kho xuất và kho nhập không được giống nhau";
+    if (!ticket.fromWarehouseCode)
+      formErrors.fromWarehouseCode = "Chưa chọn kho xuất";
+    if (!ticket.toWarehouseCode)
+      formErrors.toWarehouseCode = "Chưa chọn kho nhập";
+    if (ticket.fromWarehouseCode === ticket.toWarehouseCode)
+      formErrors.toWarehouseCode = "Kho xuất và kho nhập không được giống nhau";
     return formErrors;
   };
 
@@ -55,7 +60,11 @@ const CreateTt = () => {
 
     details.forEach((detail, index) => {
       if (!detail.itemId) {
-        tableErrors.push({ index, field: "itemId", message: "Phải chọn hàng hóa" });
+        tableErrors.push({
+          index,
+          field: "itemId",
+          message: "Phải chọn hàng hóa",
+        });
       }
       if (detail.quantity < 0) {
         tableErrors.push({ index, field: "quantity", message: ">=0" });
@@ -82,15 +91,15 @@ const CreateTt = () => {
     try {
       const request = {
         companyId: companyId,
-        fromWarehouseId: ticket.fromWarehouseId,
-        toWarehouseId: ticket.toWarehouseId,
+        fromWarehouseId: parseInt(ticket.fromWarehouseId),
+        toWarehouseId: parseInt(ticket.toWarehouseId),
         reason: ticket.reason,
         createdBy: employeeName,
         status: ticket.status,
         file: ticket.file,
-        transferTicketDetails: details.map(detail => ({
-          itemId: detail.itemId,
-          quantity: detail.quantity,
+        transferTicketDetails: details.map((detail) => ({
+          itemId: parseInt(detail.itemId),
+          quantity: parseFloat(detail.quantity),
           note: detail.note,
         })),
       };

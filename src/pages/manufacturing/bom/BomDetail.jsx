@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, TableRow, TableCell, Box, Button } from "@mui/material";
+import {
+  Container,
+  Paper,
+  Typography,
+  TableRow,
+  TableCell,
+  Box,
+  Button,
+} from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import DataTable from "@/components/content-components/DataTable";
 import BomForm from "@/components/manufacturing/BomForm";
@@ -67,8 +75,7 @@ const BomDetail = () => {
   };
 
   const filteredDetails = Array.isArray(bomDetails)
-    ? bomDetails
-      .sort((a, b) => {
+    ? bomDetails.sort((a, b) => {
         if (orderBy) {
           if (a[orderBy] < b[orderBy]) return order === "asc" ? -1 : 1;
           if (a[orderBy] > b[orderBy]) return order === "asc" ? 1 : -1;
@@ -76,7 +83,6 @@ const BomDetail = () => {
         return 0;
       })
     : [];
-
 
   const paginatedDetails = filteredDetails.slice(
     (page - 1) * rowsPerPage,
@@ -107,7 +113,13 @@ const BomDetail = () => {
           THÔNG TIN BOM
         </Typography>
 
-        <BomForm bom={bom} onChange={() => { }} errors={{}} readOnlyFields={readOnlyFields} setBom={setBom} />
+        <BomForm
+          bom={bom}
+          onChange={() => {}}
+          errors={{}}
+          readOnlyFields={readOnlyFields}
+          setBom={setBom}
+        />
 
         <Typography variant="h5" mt={3} mb={3}>
           DANH SÁCH NGUYÊN VẬT LIỆU:
@@ -137,7 +149,11 @@ const BomDetail = () => {
         />
 
         <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
-          <Button variant="contained" color="default" onClick={() => navigate(`/bom/${bom.bomId}/edit`)}>
+          <Button
+            variant="contained"
+            color="default"
+            onClick={() => navigate(`/bom/${bom.itemId}/edit`)}
+          >
             Sửa
           </Button>
           <Button variant="contained" color="error" onClick={handleDelete}>

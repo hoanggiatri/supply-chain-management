@@ -1,7 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { Container, TableRow, TableCell, Typography, Paper, Box, Button, Grid, TextField } from "@mui/material";
+import {
+  Container,
+  TableRow,
+  TableCell,
+  Typography,
+  Paper,
+  Box,
+  Button,
+  Grid,
+  TextField,
+} from "@mui/material";
 import DataTable from "@components/content-components/DataTable";
-import { getAllInventory, updateInventory } from "@/services/inventory/InventoryService";
+import {
+  getAllInventory,
+  updateInventory,
+} from "@/services/inventory/InventoryService";
 import { getAllItemsInCompany } from "@/services/general/ItemService";
 import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
 import SelectAutocomplete from "@components/content-components/SelectAutocomplete";
@@ -27,7 +40,10 @@ const InventoryCount = () => {
     const fetchItemsAndWarehouses = async () => {
       try {
         const itemsData = await getAllItemsInCompany(companyId, token);
-        const warehousesData = await getAllWarehousesInCompany(companyId, token);
+        const warehousesData = await getAllWarehousesInCompany(
+          companyId,
+          token
+        );
         setItems(itemsData);
         setWarehouses(warehousesData);
       } catch (error) {
@@ -43,14 +59,15 @@ const InventoryCount = () => {
         ? items.find((i) => i.itemCode === selectedItemCode)?.itemId || 0
         : 0;
       const warehouseId = selectedWarehouseCode
-        ? warehouses.find((w) => w.warehouseCode === selectedWarehouseCode)?.warehouseId || 0
+        ? warehouses.find((w) => w.warehouseCode === selectedWarehouseCode)
+            ?.warehouseId || 0
         : 0;
 
       const data = await getAllInventory(itemId, warehouseId, companyId, token);
-      const withActualQuantity = data.map(inventory => ({
+      const withActualQuantity = data.map((inventory) => ({
         ...inventory,
         actualQuantity: inventory.quantity,
-        actualOnDemandQuantity: inventory.onDemandQuantity
+        actualOnDemandQuantity: inventory.onDemandQuantity,
       }));
 
       setInventories(withActualQuantity);
@@ -61,24 +78,40 @@ const InventoryCount = () => {
 
   const handleSaveInventory = async (inventory) => {
     try {
-      const quantityToSave = inventory.actualQuantity === null ? 0 : inventory.actualQuantity;
-      const onDemandToSave = inventory.actualOnDemandQuantity === null ? 0 : inventory.actualOnDemandQuantity;
+      const quantityToSave =
+        inventory.actualQuantity === null ? 0 : inventory.actualQuantity;
+      const onDemandToSave =
+        inventory.actualOnDemandQuantity === null
+          ? 0
+          : inventory.actualOnDemandQuantity;
+      const itemIdToSave = Number(inventory.itemId);
+      const warehouseIdToSave = Number(inventory.warehouseId);
 
-      await updateInventory(inventory.inventoryId, {
-        ...inventory,
-        quantity: quantityToSave,
-        onDemandQuantity: onDemandToSave
-      }, token);
+      if (!itemIdToSave || !warehouseIdToSave) {
+        alert("Không tìm thấy mã kho hoặc hàng hóa hợp lệ để cập nhật");
+        return;
+      }
+
+      await updateInventory(
+        inventory.inventoryId,
+        {
+          itemId: itemIdToSave,
+          warehouseId: warehouseIdToSave,
+          quantity: quantityToSave,
+          onDemandQuantity: onDemandToSave,
+        },
+        token
+      );
 
       const newInventories = inventories.map((inv) =>
         inv.inventoryId === inventory.inventoryId
           ? {
-            ...inv,
-            actualQuantity: quantityToSave,
-            quantity: quantityToSave,
-            actualOnDemandQuantity: onDemandToSave,
-            onDemandQuantity: onDemandToSave
-          }
+              ...inv,
+              actualQuantity: quantityToSave,
+              quantity: quantityToSave,
+              actualOnDemandQuantity: onDemandToSave,
+              onDemandQuantity: onDemandToSave,
+            }
           : inv
       );
       setInventories(newInventories);
@@ -98,36 +131,53 @@ const InventoryCount = () => {
     { id: "actualQuantity", label: "Số lượng thực tế" },
     { id: "onDemandQuantity", label: "Số lượng cần dùng" },
     { id: "actualOnDemandQuantity", label: "Số lượng cần dùng thực tế" },
-    { id: "action", label: "Hành động" }
+    { id: "action", label: "Hành động" },
   ];
 
   return (
     <Container>
       <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">CẬP NHẬT TỒN KHO</Typography>
+        <Typography className="page-title" variant="h4">
+          CẬP NHẬT TỒN KHO
+        </Typography>
 
         <Box mt={3} mb={3}>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={5}>
               <SelectAutocomplete
-                options={items.map((item) => ({ label: item.itemCode + " - " + item.itemName, value: item.itemCode }))}
+                options={items.map((item) => ({
+                  label: item.itemCode + " - " + item.itemName,
+                  value: item.itemCode,
+                }))}
                 value={selectedItemCode}
-                onChange={(selected) => setSelectedItemCode(selected?.value || "")}
+                onChange={(selected) =>
+                  setSelectedItemCode(selected?.value || "")
+                }
                 placeholder="Chọn hàng hóa"
               />
             </Grid>
 
             <Grid item xs={12} sm={5}>
               <SelectAutocomplete
-                options={warehouses.map((w) => ({ label: w.warehouseCode + " - " + w.warehouseName, value: w.warehouseCode }))}
+                options={warehouses.map((w) => ({
+                  label: w.warehouseCode + " - " + w.warehouseName,
+                  value: w.warehouseCode,
+                }))}
                 value={selectedWarehouseCode}
-                onChange={(selected) => setSelectedWarehouseCode(selected?.value || "")}
+                onChange={(selected) =>
+                  setSelectedWarehouseCode(selected?.value || "")
+                }
                 placeholder="Chọn kho"
               />
             </Grid>
 
             <Grid item xs={12} sm={2}>
-              <Button variant="contained" color="default" fullWidth onClick={handleViewInventory}>
+              <Button
+                variant="contained"
+                color="default"
+                fullWidth
+                onClick={handleViewInventory}
+              >
                 Xem tồn kho
               </Button>
             </Grid>
@@ -135,7 +185,11 @@ const InventoryCount = () => {
         </Box>
 
         <Box mt={3} mb={3}>
-          <Button variant="contained" color="default" onClick={() => navigate("/create-inventory")}>
+          <Button
+            variant="contained"
+            color="default"
+            onClick={() => navigate("/create-inventory")}
+          >
             Thêm mới
           </Button>
         </Box>
@@ -170,12 +224,19 @@ const InventoryCount = () => {
                 <TextField
                   type="number"
                   size="small"
-                  value={inventory.actualQuantity === null ? "" : inventory.actualQuantity}
+                  value={
+                    inventory.actualQuantity === null
+                      ? ""
+                      : inventory.actualQuantity
+                  }
                   onChange={(e) => {
                     const value = e.target.value;
                     const newInventories = inventories.map((inv) =>
                       inv.inventoryId === inventory.inventoryId
-                        ? { ...inv, actualQuantity: value === "" ? null : Number(value) }
+                        ? {
+                            ...inv,
+                            actualQuantity: value === "" ? null : Number(value),
+                          }
                         : inv
                     );
                     setInventories(newInventories);
@@ -183,7 +244,13 @@ const InventoryCount = () => {
                   onBlur={() => {
                     const newInventories = inventories.map((inv) =>
                       inv.inventoryId === inventory.inventoryId
-                        ? { ...inv, actualQuantity: inv.actualQuantity === null ? 0 : inv.actualQuantity }
+                        ? {
+                            ...inv,
+                            actualQuantity:
+                              inv.actualQuantity === null
+                                ? 0
+                                : inv.actualQuantity,
+                          }
                         : inv
                     );
                     setInventories(newInventories);
@@ -196,12 +263,20 @@ const InventoryCount = () => {
                 <TextField
                   type="number"
                   size="small"
-                  value={inventory.actualOnDemandQuantity === null ? "" : inventory.actualOnDemandQuantity}
+                  value={
+                    inventory.actualOnDemandQuantity === null
+                      ? ""
+                      : inventory.actualOnDemandQuantity
+                  }
                   onChange={(e) => {
                     const value = e.target.value;
                     const newInventories = inventories.map((inv) =>
                       inv.inventoryId === inventory.inventoryId
-                        ? { ...inv, actualOnDemandQuantity: value === "" ? null : Number(value) }
+                        ? {
+                            ...inv,
+                            actualOnDemandQuantity:
+                              value === "" ? null : Number(value),
+                          }
                         : inv
                     );
                     setInventories(newInventories);
@@ -209,7 +284,13 @@ const InventoryCount = () => {
                   onBlur={() => {
                     const newInventories = inventories.map((inv) =>
                       inv.inventoryId === inventory.inventoryId
-                        ? { ...inv, actualOnDemandQuantity: inv.actualOnDemandQuantity === null ? 0 : inv.actualOnDemandQuantity }
+                        ? {
+                            ...inv,
+                            actualOnDemandQuantity:
+                              inv.actualOnDemandQuantity === null
+                                ? 0
+                                : inv.actualOnDemandQuantity,
+                          }
                         : inv
                     );
                     setInventories(newInventories);
@@ -219,22 +300,23 @@ const InventoryCount = () => {
               </TableCell>
               <TableCell>
                 {(inventory.actualQuantity !== inventory.quantity ||
-                  inventory.actualOnDemandQuantity !== inventory.onDemandQuantity) && (
-                    <Button
-                      variant="contained"
-                      color="success"
-                      size="small"
-                      onClick={() => handleSaveInventory(inventory)}
-                    >
-                      Lưu
-                    </Button>
-                  )}
+                  inventory.actualOnDemandQuantity !==
+                    inventory.onDemandQuantity) && (
+                  <Button
+                    variant="contained"
+                    color="success"
+                    size="small"
+                    onClick={() => handleSaveInventory(inventory)}
+                  >
+                    Lưu
+                  </Button>
+                )}
               </TableCell>
             </TableRow>
           )}
         />
       </Paper>
-    </Container >
+    </Container>
   );
 };
 

@@ -51,7 +51,8 @@ const EditBom = () => {
     const formErrors = {};
     if (!bom.itemCode) formErrors.itemCode = "Phải chọn hàng hóa";
     if (!bom.itemName) formErrors.itemName = "Chưa có tên hàng hóa";
-    if (!bom.status?.trim()) formErrors.status = "Trạng thái không được để trống";
+    if (!bom.status?.trim())
+      formErrors.status = "Trạng thái không được để trống";
     return formErrors;
   };
 
@@ -60,7 +61,11 @@ const EditBom = () => {
 
     bomDetails.forEach((detail, index) => {
       if (!detail.itemId) {
-        tableErrors.push({ index, field: "itemId", message: "Phải chọn nguyên vật liệu" });
+        tableErrors.push({
+          index,
+          field: "itemId",
+          message: "Phải chọn nguyên vật liệu",
+        });
       }
       if (detail.quantity < 0) {
         tableErrors.push({ index, field: "quantity", message: ">= 0" });
@@ -85,7 +90,10 @@ const EditBom = () => {
     const validationErrors = validateForm();
     const bomDetailErrors = validateBomDetails();
 
-    if (Object.keys(validationErrors).length > 0 || bomDetailErrors.length > 0) {
+    if (
+      Object.keys(validationErrors).length > 0 ||
+      bomDetailErrors.length > 0
+    ) {
       setErrors({ ...validationErrors, bomDetailErrors });
       return;
     }
@@ -121,16 +129,28 @@ const EditBom = () => {
   return (
     <Container>
       <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">CẬP NHẬT BOM</Typography>
+        <Typography className="page-title" variant="h4">
+          CẬP NHẬT BOM
+        </Typography>
 
-        <BomForm bom={bom} onChange={handleChange} errors={errors} readOnlyFields={readOnlyFields} setBom={setBom} />
-
+        <BomForm
+          bom={bom}
+          onChange={handleChange}
+          errors={errors}
+          readOnlyFields={readOnlyFields}
+          setBom={setBom}
+        />
 
         <Typography variant="h5" mt={3} mb={3}>
           DANH SÁCH NGUYÊN VẬT LIỆU:
         </Typography>
-        
-        <BomDetailTable bomDetails={bomDetails} setBomDetails={setBomDetails} items={items} errors={errors.bomDetailErrors} />
+
+        <BomDetailTable
+          bomDetails={bomDetails}
+          setBomDetails={setBomDetails}
+          items={items}
+          errors={errors.bomDetailErrors}
+        />
 
         <Grid container spacing={2} mt={3} justifyContent="flex-end">
           <Grid item>

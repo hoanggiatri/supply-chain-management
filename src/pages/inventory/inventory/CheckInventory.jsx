@@ -1,13 +1,33 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, Box, Button, Grid, FormControl, InputLabel, Select, MenuItem, TableRow, TableCell } from "@mui/material";
+import {
+  Container,
+  Paper,
+  Typography,
+  Box,
+  Button,
+  Grid,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  TableRow,
+  TableCell,
+} from "@mui/material";
 import DataTable from "@components/content-components/DataTable";
-import { getAllInventory, checkInventory, increaseOnDemand } from "@/services/inventory/InventoryService";
+import {
+  getAllInventory,
+  checkInventory,
+  increaseOnDemand,
+} from "@/services/inventory/InventoryService";
 import { getBomByItemId } from "@/services/manufacturing/BomService";
 import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
 import { getMoById, updateMo } from "@/services/manufacturing/MoService";
 import { createIssueTicket } from "@/services/inventory/IssueTicketService";
 import { useNavigate, useParams } from "react-router-dom";
-import { getTransferTicketById, updateTransferTicket } from "@/services/inventory/TransferTicketService";
+import {
+  getTransferTicketById,
+  updateTransferTicket,
+} from "@/services/inventory/TransferTicketService";
 import { getPoById } from "@/services/purchasing/PoService";
 
 const CheckInventory = () => {
@@ -27,7 +47,8 @@ const CheckInventory = () => {
   const [search, setSearch] = useState("");
 
   const token = localStorage.getItem("token");
-  const companyId = localStorage.getItem("companyId");
+  const companyId = parseInt(localStorage.getItem("companyId"));
+  const employeeName = localStorage.getItem("employeeName");
   const navigate = useNavigate();
   const { type, id } = useParams();
 
@@ -102,10 +123,21 @@ const CheckInventory = () => {
       if (type === "mo") {
         results = await Promise.all(
           bomDetails.map(async (detail) => {
-            const inventories = await getAllInventory(detail.itemId, selectedWarehouseId, companyId, token);
-            const amountAvailabled = (inventories[0]?.quantity - inventories[0]?.onDemandQuantity) || 0;
+            const inventories = await getAllInventory(
+              detail.itemId,
+              selectedWarehouseId,
+              companyId,
+              token
+            );
+            const amountAvailabled =
+              inventories[0]?.quantity - inventories[0]?.onDemandQuantity || 0;
             const amountNeeded = detail.quantity * quantity;
-            const check = await checkInventory(detail.itemId, selectedWarehouseId, amountNeeded, token);
+            const check = await checkInventory(
+              detail.itemId,
+              selectedWarehouseId,
+              amountNeeded,
+              token
+            );
             return {
               ...detail,
               quantityNeeded: amountNeeded,
@@ -119,10 +151,21 @@ const CheckInventory = () => {
       if (type === "tt") {
         results = await Promise.all(
           ttDetails.map(async (detail) => {
-            const inventories = await getAllInventory(detail.itemId, selectedWarehouseId, companyId, token);
-            const amountAvailabled = (inventories[0]?.quantity - inventories[0]?.onDemandQuantity) || 0;
+            const inventories = await getAllInventory(
+              detail.itemId,
+              selectedWarehouseId,
+              companyId,
+              token
+            );
+            const amountAvailabled =
+              inventories[0]?.quantity - inventories[0]?.onDemandQuantity || 0;
             const amountNeeded = detail.quantity;
-            const check = await checkInventory(detail.itemId, selectedWarehouseId, amountNeeded, token);
+            const check = await checkInventory(
+              detail.itemId,
+              selectedWarehouseId,
+              amountNeeded,
+              token
+            );
             return {
               ...detail,
               quantityNeeded: amountNeeded,
@@ -136,10 +179,21 @@ const CheckInventory = () => {
       if (type === "po") {
         results = await Promise.all(
           poDetails.map(async (detail) => {
-            const inventories = await getAllInventory(detail.supplierItemId, selectedWarehouseId, companyId, token);
-            const amountAvailabled = (inventories[0]?.quantity - inventories[0]?.onDemandQuantity) || 0;
+            const inventories = await getAllInventory(
+              detail.supplierItemId,
+              selectedWarehouseId,
+              companyId,
+              token
+            );
+            const amountAvailabled =
+              inventories[0]?.quantity - inventories[0]?.onDemandQuantity || 0;
             const amountNeeded = detail.quantity;
-            const check = await checkInventory(detail.supplierItemId, selectedWarehouseId, amountNeeded, token);
+            const check = await checkInventory(
+              detail.supplierItemId,
+              selectedWarehouseId,
+              amountNeeded,
+              token
+            );
             return {
               ...detail,
               quantityNeeded: amountNeeded,
@@ -151,7 +205,6 @@ const CheckInventory = () => {
       }
 
       setInventoryResults(results);
-
     } catch (error) {
       alert(error.response?.data?.message || "Lỗi khi tải tồn kho!");
     } finally {
@@ -175,21 +228,28 @@ const CheckInventory = () => {
 
           const issueTicketRequest = {
             companyId: companyId,
-            warehouseId: selectedWarehouseId,
+            warehouseId: parseInt(selectedWarehouseId),
             reason: "Xuất kho để sản xuất",
             issueType: "Sản xuất",
             referenceCode: mo.moCode,
             status: "Chờ xác nhận",
+            createdBy: employeeName,
+            issueDate: new Date().toISOString(),
           };
           await createIssueTicket(issueTicketRequest, token);
 
-          await Promise.all(inventoryResults.map((r) =>
-            increaseOnDemand({
-              warehouseId: selectedWarehouseId,
-              itemId: r.itemId,
-              onDemandQuantity: r.quantityNeeded,
-            }, token)
-          ));
+          await Promise.all(
+            inventoryResults.map((r) =>
+              increaseOnDemand(
+                {
+                  warehouseId: selectedWarehouseId,
+                  itemId: r.itemId,
+                  onDemandQuantity: r.quantityNeeded,
+                },
+                token
+              )
+            )
+          );
 
           alert("Đã xác nhận công lệnh sản xuất!");
           navigate(-1);
@@ -198,27 +258,48 @@ const CheckInventory = () => {
         if (type === "tt") {
           const tt = await getTransferTicketById(id, token);
           console.log("tt", tt);
-          const updatedTt = { ...tt, status: "Chờ xuất kho" };
+          const updatedTt = {
+            companyId: companyId,
+            status: "Chờ xuất kho",
+            reason: tt?.reason,
+            fromWarehouseId: parseInt(tt?.fromWarehouseId),
+            toWarehouseId: parseInt(tt?.toWarehouseId),
+            createdBy: employeeName,
+            transferTicketDetails: (tt?.transferTicketDetails || []).map(
+              (d) => ({
+                itemId: parseInt(d.itemId),
+                quantity: parseFloat(d.quantity),
+                note: d.note,
+              })
+            ),
+          };
           await updateTransferTicket(id, updatedTt, token);
 
           const issueTicketRequest = {
             companyId: companyId,
-            warehouseId: selectedWarehouseId,
+            warehouseId: parseInt(selectedWarehouseId),
             reason: "Xuất kho để chuyển kho",
             issueType: "Chuyển kho",
             referenceCode: tt.ticketCode,
             status: "Chờ xác nhận",
+            createdBy: employeeName,
+            issueDate: new Date().toISOString(),
           };
 
           await createIssueTicket(issueTicketRequest, token);
 
-          await Promise.all(inventoryResults.map((r) =>
-            increaseOnDemand({
-              warehouseId: selectedWarehouseId,
-              itemId: r.itemId,
-              onDemandQuantity: r.quantityNeeded,
-            }, token)
-          ));
+          await Promise.all(
+            inventoryResults.map((r) =>
+              increaseOnDemand(
+                {
+                  warehouseId: selectedWarehouseId,
+                  itemId: r.itemId,
+                  onDemandQuantity: r.quantityNeeded,
+                },
+                token
+              )
+            )
+          );
 
           alert("Đã xác nhận phiếu chuyển kho!");
           navigate(-1);
@@ -258,7 +339,12 @@ const CheckInventory = () => {
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
                 <InputLabel>Kho xuất</InputLabel>
-                <Select value={selectedWarehouseId} onChange={handleWarehouseChange} label="Kho xuất" disabled={type === "tt"} >
+                <Select
+                  value={selectedWarehouseId}
+                  onChange={handleWarehouseChange}
+                  label="Kho xuất"
+                  disabled={type === "tt"}
+                >
                   {warehouses.map((wh) => (
                     <MenuItem key={wh.warehouseId} value={wh.warehouseId}>
                       {wh.warehouseCode} - {wh.warehouseName}
@@ -269,7 +355,12 @@ const CheckInventory = () => {
             </Grid>
 
             <Grid item xs={12} sm={6}>
-              <Button variant="contained" color="default" onClick={handleCheckInventory} disabled={!selectedWarehouseId || loading}>
+              <Button
+                variant="contained"
+                color="default"
+                onClick={handleCheckInventory}
+                disabled={!selectedWarehouseId || loading}
+              >
                 Kiểm tra tồn kho
               </Button>
             </Grid>
@@ -291,8 +382,12 @@ const CheckInventory = () => {
             setSearch={setSearch}
             renderRow={(row, index) => (
               <TableRow key={`${row.itemId || row.supplierItemId}-${index}`}>
-                <TableCell>{type === "po" ? row.supplierItemCode : row.itemCode}</TableCell>
-                <TableCell>{type === "po" ? row.supplierItemName : row.itemName}</TableCell>
+                <TableCell>
+                  {type === "po" ? row.supplierItemCode : row.itemCode}
+                </TableCell>
+                <TableCell>
+                  {type === "po" ? row.supplierItemName : row.itemName}
+                </TableCell>
                 <TableCell>
                   {row.enough === "Không có tồn kho" ? "-" : row.quantityNeeded}
                 </TableCell>
@@ -301,7 +396,7 @@ const CheckInventory = () => {
                 </TableCell>
                 <TableCell>
                   {{
-                    "Đủ": "✔️ Đủ",
+                    Đủ: "✔️ Đủ",
                     "Không đủ": "❌ Không đủ",
                     "Không có tồn kho": "⚠️ Không có tồn kho",
                   }[row.enough] || "⏳"}
@@ -313,10 +408,19 @@ const CheckInventory = () => {
 
         {inventoryResults.length > 0 && (
           <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
-            <Button variant="contained" color="default" onClick={handleConfirm} disabled={loading}>
+            <Button
+              variant="contained"
+              color="default"
+              onClick={handleConfirm}
+              disabled={loading}
+            >
               Xác nhận
             </Button>
-            <Button variant="outlined" color="default" onClick={() => navigate(-1)}>
+            <Button
+              variant="outlined"
+              color="default"
+              onClick={() => navigate(-1)}
+            >
               Hủy
             </Button>
           </Box>

@@ -50,7 +50,7 @@ const EmployeeForm = ({
           InputProps={{ readOnly: isFieldReadOnly("departmentId") }}
         >
           {departments.map((dept) => (
-            <MenuItem key={dept.departmentId} value={dept.departmentId}>
+            <MenuItem key={dept.id} value={dept.id}>
               {dept.departmentCode} - {dept.departmentName}
             </MenuItem>
           ))}
@@ -154,11 +154,11 @@ const EmployeeForm = ({
           fullWidth
           type="date"
           label="Ngày bắt đầu làm"
-          name="employmentStartDate"
-          value={employee.employmentStartDate}
+          name="startDate"
+          value={employee.startDate}
           InputLabelProps={{ shrink: true }}
           onChange={onChange}
-          InputProps={{ readOnly: isFieldReadOnly("employmentStartDate") }}
+          InputProps={{ readOnly: isFieldReadOnly("startDate") }}
         />
       </Grid>
 
@@ -191,20 +191,70 @@ const EmployeeForm = ({
       </Grid>
 
       {mode === "create" && (
-        <Grid item xs={12} sm={6}>
-          <TextField
-            fullWidth
-            label="Mật khẩu"
-            name="password"
-            type="password"
-            value={employee.password}
-            onChange={onChange}
-            error={!!errors.password}
-            helperText={errors.password}
-            required
-            InputProps={{ readOnly: isFieldReadOnly("password") }}
-          />
-        </Grid>
+        <>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="Tên đăng nhập"
+              name="username"
+              value={employee.username}
+              onChange={onChange}
+              error={!!errors.username}
+              helperText={errors.username}
+              required
+              InputProps={{ readOnly: isFieldReadOnly("username") }}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="Mật khẩu"
+              name="password"
+              type="password"
+              value={employee.password}
+              onChange={onChange}
+              error={!!errors.password}
+              helperText={errors.password}
+              required
+              InputProps={{ readOnly: isFieldReadOnly("password") }}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <FormControl fullWidth required error={!!errors.role}>
+              <InputLabel>Vai trò</InputLabel>
+              <Select
+                name="role"
+                value={employee.role || ""}
+                label="Vai trò"
+                onChange={onChange}
+                inputProps={{ readOnly: isFieldReadOnly("role") }}
+              >
+                <MenuItem value="s_admin">Super Admin</MenuItem>
+                <MenuItem value="c_admin">Company Admin</MenuItem>
+                <MenuItem value="user">User</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <FormControl fullWidth required error={!!errors.status}>
+              <InputLabel>Trạng thái</InputLabel>
+              <Select
+                name="status"
+                value={employee.status || ""}
+                label="Trạng thái"
+                onChange={onChange}
+                inputProps={{ readOnly: isFieldReadOnly("status") }}
+              >
+                <MenuItem value="active">Đang hoạt động</MenuItem>
+                <MenuItem value="inactive">Không hoạt động</MenuItem>
+                <MenuItem value="resigned">Đã nghỉ</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+        </>
       )}
     </Grid>
   );

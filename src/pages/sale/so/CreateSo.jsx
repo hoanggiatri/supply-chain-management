@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, Box, Button, TableRow, TableCell, Grid } from "@mui/material";
+import {
+  Container,
+  Paper,
+  Typography,
+  Box,
+  Button,
+  TableRow,
+  TableCell,
+  Grid,
+} from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import { getPoById, updatePoStatus } from "@/services/purchasing/PoService";
 import { createSo } from "@/services/sale/SoService";
@@ -77,23 +86,30 @@ const CreateSo = () => {
       console.log(soCode);
 
       const issueTicketRequest = {
-        companyId: companyId,
-        warehouseId: poWarehouseId,
+        companyId: parseInt(companyId),
+        warehouseId: parseInt(poWarehouseId),
         reason: "Xuất kho để bán hàng",
         issueType: "Bán hàng",
         referenceCode: soCode,
         status: "Chờ xác nhận",
+        createdBy: employeeName,
+        issueDate: new Date().toISOString(),
       };
 
       await createIssueTicket(issueTicketRequest, token);
 
-      await Promise.all(soDetails.map((d) =>
-        increaseOnDemand({
-          warehouseId: poWarehouseId,
-          itemId: d.itemId,
-          onDemandQuantity: d.quantity,
-        }, token)
-      ));
+      await Promise.all(
+        soDetails.map((d) =>
+          increaseOnDemand(
+            {
+              warehouseId: poWarehouseId,
+              itemId: d.itemId,
+              onDemandQuantity: d.quantity,
+            },
+            token
+          )
+        )
+      );
 
       await updatePoStatus(poId, "Đã xác nhận", token);
 
@@ -126,18 +142,25 @@ const CreateSo = () => {
     return 0;
   });
 
-  const paginatedDetails = filteredDetails.slice((page - 1) * rowsPerPage, (page - 1) * rowsPerPage + rowsPerPage);
+  const paginatedDetails = filteredDetails.slice(
+    (page - 1) * rowsPerPage,
+    (page - 1) * rowsPerPage + rowsPerPage
+  );
 
   if (!po) return <LoadingPaper title="TẠO ĐƠN BÁN HÀNG" />;
 
   return (
     <Container>
       <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">TẠO ĐƠN BÁN HÀNG</Typography>
+        <Typography className="page-title" variant="h4">
+          TẠO ĐƠN BÁN HÀNG
+        </Typography>
 
         <SoForm so={so} setSo={setSo} po={po} />
 
-        <Typography variant="h5" mt={3} mb={3}>DANH SÁCH HÀNG HÓA:</Typography>
+        <Typography variant="h5" mt={3} mb={3}>
+          DANH SÁCH HÀNG HÓA:
+        </Typography>
 
         <DataTable
           rows={paginatedDetails}
@@ -169,7 +192,10 @@ const CreateSo = () => {
               <TableCell>{row.discount.toLocaleString()}</TableCell>
               <TableCell>
                 <Typography fontWeight="bold">
-                  {(row.itemPrice * row.quantity - row.discount).toLocaleString()}
+                  {(
+                    row.itemPrice * row.quantity -
+                    row.discount
+                  ).toLocaleString()}
                 </Typography>
               </TableCell>
             </TableRow>
@@ -179,17 +205,33 @@ const CreateSo = () => {
         <Grid container justifyContent="flex-end" mt={2}>
           <Grid item>
             {[
-              { label: "Tổng tiền hàng (VNĐ):", value: po.subTotal.toLocaleString() },
+              {
+                label: "Tổng tiền hàng (VNĐ):",
+                value: po.subTotal.toLocaleString(),
+              },
               { label: "Thuế (%):", value: po.taxRate },
-              { label: "Tiền thuế (VNĐ):", value: po.taxAmount.toLocaleString() },
-              { label: "Tổng cộng (VNĐ):", value: po.totalAmount.toLocaleString() },
+              {
+                label: "Tiền thuế (VNĐ):",
+                value: po.taxAmount.toLocaleString(),
+              },
+              {
+                label: "Tổng cộng (VNĐ):",
+                value: po.totalAmount.toLocaleString(),
+              },
             ].map((item, index) => (
-              <Grid container key={index} justifyContent="space-between" spacing={2}>
+              <Grid
+                container
+                key={index}
+                justifyContent="space-between"
+                spacing={2}
+              >
                 <Grid item mb={3}>
                   <Typography fontWeight="bold">{item.label}</Typography>
                 </Grid>
                 <Grid item>
-                  <Typography fontWeight="bold" align="right">{item.value}</Typography>
+                  <Typography fontWeight="bold" align="right">
+                    {item.value}
+                  </Typography>
                 </Grid>
               </Grid>
             ))}
@@ -197,8 +239,12 @@ const CreateSo = () => {
         </Grid>
 
         <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
-          <Button variant="contained" color="default" onClick={handleSubmit}>Tạo đơn bán hàng</Button>
-          <Button variant="outlined" color="default" onClick={handleCancel}>Hủy</Button>
+          <Button variant="contained" color="default" onClick={handleSubmit}>
+            Tạo đơn bán hàng
+          </Button>
+          <Button variant="outlined" color="default" onClick={handleCancel}>
+            Hủy
+          </Button>
         </Box>
       </Paper>
     </Container>

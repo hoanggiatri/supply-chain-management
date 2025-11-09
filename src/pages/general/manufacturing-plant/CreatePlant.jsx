@@ -57,7 +57,7 @@ const CreatePlant = () => {
           plant={plant}
           onChange={handleChange}
           errors={errors}
-          readOnlyFields={{}}
+          readOnlyFields={{ plantCode: true }}
         />
 
         <Grid container spacing={2} justifyContent="flex-end" mt={2}>

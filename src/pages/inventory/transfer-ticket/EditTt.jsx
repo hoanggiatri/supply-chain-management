@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Container, Typography, Button, Grid, Paper } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
-import { getTransferTicketById, updateTransferTicket } from "@/services/inventory/TransferTicketService";
+import {
+  getTransferTicketById,
+  updateTransferTicket,
+} from "@/services/inventory/TransferTicketService";
 import { getAllItemsInCompany } from "@/services/general/ItemService";
 import TtForm from "@/components/inventory/TtForm";
 import TtDetailTable from "@/components/inventory/TtDetailTable";
@@ -11,7 +14,8 @@ const EditTt = () => {
   const { ticketId } = useParams();
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  const companyId = localStorage.getItem("companyId");
+  const companyId = parseInt(localStorage.getItem("companyId"));
+  const employeeName = localStorage.getItem("employeeName");
 
   const [ticket, setTicket] = useState(null);
   const [ticketDetails, setTicketDetails] = useState([]);
@@ -41,7 +45,10 @@ const EditTt = () => {
         setTicketDetails(ticketData.transferTicketDetails || []);
         setItems(itemData || []);
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi khi tải dữ liệu phiếu điều chuyển!");
+        alert(
+          error.response?.data?.message ||
+            "Có lỗi khi tải dữ liệu phiếu điều chuyển!"
+        );
       } finally {
         setLoading(false);
       }
@@ -52,9 +59,12 @@ const EditTt = () => {
   const validateForm = () => {
     const formErrors = {};
     if (!ticket.reason?.trim()) formErrors.reason = "Lý do không được để trống";
-    if (!ticket.fromWarehouseCode) formErrors.fromWarehouseCode = "Phải chọn kho xuất";
-    if (!ticket.toWarehouseCode) formErrors.toWarehouseCode = "Phải chọn kho nhập";
-    if (!ticket.status?.trim()) formErrors.status = "Trạng thái không được để trống";
+    if (!ticket.fromWarehouseCode)
+      formErrors.fromWarehouseCode = "Phải chọn kho xuất";
+    if (!ticket.toWarehouseCode)
+      formErrors.toWarehouseCode = "Phải chọn kho nhập";
+    if (!ticket.status?.trim())
+      formErrors.status = "Trạng thái không được để trống";
     return formErrors;
   };
 
@@ -63,12 +73,15 @@ const EditTt = () => {
 
     ticketDetails.forEach((detail, index) => {
       if (!detail.itemId) {
-        detailErrors.push({ index, field: "itemId", message: "Phải chọn hàng hóa" });
+        detailErrors.push({
+          index,
+          field: "itemId",
+          message: "Phải chọn hàng hóa",
+        });
       }
       if (detail.quantity < 0) {
         detailErrors.push({ index, field: "quantity", message: ">= 0" });
       }
-
     });
     return detailErrors;
   };
@@ -95,13 +108,15 @@ const EditTt = () => {
 
     try {
       const request = {
+        companyId: companyId,
         reason: ticket.reason,
-        fromWarehouseId: ticket.fromWarehouseId,
-        toWarehouseId: ticket.toWarehouseId,
+        fromWarehouseId: parseInt(ticket.fromWarehouseId),
+        toWarehouseId: parseInt(ticket.toWarehouseId),
         status: ticket.status,
+        createdBy: employeeName,
         transferTicketDetails: ticketDetails.map((detail) => ({
-          itemId: detail.itemId,
-          quantity: detail.quantity,
+          itemId: parseInt(detail.itemId),
+          quantity: parseFloat(detail.quantity),
           note: detail.note,
         })),
       };
@@ -110,7 +125,9 @@ const EditTt = () => {
       alert("Cập nhật phiếu chuyển kho thành công!");
       navigate(-1);
     } catch (error) {
-      alert(error.response?.data?.message || "Lỗi khi cập nhật phiếu chuyển kho!");
+      alert(
+        error.response?.data?.message || "Lỗi khi cập nhật phiếu chuyển kho!"
+      );
     }
   };
 
@@ -125,15 +142,28 @@ const EditTt = () => {
   return (
     <Container>
       <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">CẬP NHẬT PHIẾU CHUYỂN KHO</Typography>
+        <Typography className="page-title" variant="h4">
+          CẬP NHẬT PHIẾU CHUYỂN KHO
+        </Typography>
 
-        <TtForm ticket={ticket} onChange={handleChange} errors={errors} readOnlyFields={readOnlyFields} setTicket={setTicket} />
+        <TtForm
+          ticket={ticket}
+          onChange={handleChange}
+          errors={errors}
+          readOnlyFields={readOnlyFields}
+          setTicket={setTicket}
+        />
 
         <Typography variant="h5" mt={3} mb={3}>
           DANH SÁCH HÀNG HÓA CHUYỂN KHO:
         </Typography>
 
-        <TtDetailTable ticketDetails={ticketDetails} setTicketDetails={setTicketDetails} items={items} errors={errors.ticketDetailErrors} />
+        <TtDetailTable
+          ticketDetails={ticketDetails}
+          setTicketDetails={setTicketDetails}
+          items={items}
+          errors={errors.ticketDetailErrors}
+        />
 
         <Grid container spacing={2} mt={3} justifyContent="flex-end">
           <Grid item>
