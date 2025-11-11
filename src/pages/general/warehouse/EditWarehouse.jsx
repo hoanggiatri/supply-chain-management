@@ -7,6 +7,7 @@ import {
   updateWarehouse,
 } from "@/services/general/WarehouseService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
+import toastrService from "@/services/toastrService";
 
 const EditWarehouse = () => {
   const { warehouseId } = useParams();
@@ -38,7 +39,7 @@ const EditWarehouse = () => {
         setWarehouse(data);
         setEditedWarehouse(data);
       } catch (error) {
-        alert(
+        toastrService.error(
           error.response?.data?.message ||
             "Có lỗi xảy ra khi lấy thông tin kho!"
         );
@@ -92,10 +93,10 @@ const EditWarehouse = () => {
       );
       setWarehouse(updatedWarehouse);
       setEditedWarehouse(updatedWarehouse);
-      alert("Cập nhật kho thành công!");
+      toastrService.success("Cập nhật kho thành công!");
       navigate(`/warehouse/${warehouseId}`);
     } catch (error) {
-      alert(error.response?.data?.message || "Có lỗi xảy ra khi cập nhật kho!");
+      toastrService.error(error.response?.data?.message || "Có lỗi xảy ra khi cập nhật kho!");
     }
   };
 

@@ -8,6 +8,7 @@ import {
   updateEmployeeAvatar,
 } from "@/services/general/EmployeeService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
+import toastrService from "@/services/toastrService";
 
 const EditEmployee = () => {
   const { employeeId } = useParams();
@@ -60,7 +61,7 @@ const EditEmployee = () => {
         setEmployee(data);
         setEditedEmployee(data);
       } catch (error) {
-        alert(
+        toastrService.error(
           error.response?.data?.message ||
             "Có lỗi xảy ra khi lấy thông tin nhân viên!"
         );
@@ -98,10 +99,10 @@ const EditEmployee = () => {
 
       setEmployee(updatedEmployee);
       setEditedEmployee(updatedEmployee);
-      alert("Cập nhật thông tin nhân viên thành công!");
+      toastrService.success("Cập nhật thông tin nhân viên thành công!");
       navigate(`/employee/${employeeId}`);
     } catch (error) {
-      alert(
+      toastrService.error(
         error.response?.data?.message ||
           "Có lỗi xảy ra khi cập nhật thông tin nhân viên!"
       );
@@ -135,10 +136,10 @@ const EditEmployee = () => {
       setAvatarFile(null);
       setAvatarPreview(null);
 
-      alert("Cập nhật ảnh đại diện thành công!");
+      toastrService.success("Cập nhật ảnh đại diện thành công!");
       navigate(`/employee/${employeeId}`);
     } catch (error) {
-      alert(
+      toastrService.error(
         error.response?.data?.message ||
           "Có lỗi xảy ra khi cập nhật ảnh đại diện!"
       );

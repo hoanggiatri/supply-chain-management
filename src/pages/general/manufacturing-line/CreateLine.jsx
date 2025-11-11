@@ -3,6 +3,7 @@ import { Container, Typography, Button, Grid, Paper } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { createLine } from "@/services/general/ManufactureLineService";
 import LineForm from "@components/general/LineForm";
+import toastrService from "@/services/toastrService";
 
 const CreateLine = () => {
   const navigate = useNavigate();
@@ -54,10 +55,10 @@ const CreateLine = () => {
     try {
       const { plantId, lineCode, ...payload } = line;
       await createLine(plantId, payload, token);
-      alert("Tạo dây chuyền thành công!");
+      toastrService.success("Tạo dây chuyền thành công!");
       navigate("/lines");
     } catch (err) {
-      alert(err.response?.data?.message || "Lỗi khi tạo dây chuyền!");
+      toastrService.error(err.response?.data?.message || "Lỗi khi tạo dây chuyền!");
     }
   };
 

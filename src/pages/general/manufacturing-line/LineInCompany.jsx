@@ -3,6 +3,7 @@ import { Container, Paper, Typography, TableRow, TableCell, Box, Button, } from 
 import DataTable from "@components/content-components/DataTable";
 import { useNavigate } from "react-router-dom";
 import { getAllLinesInCompany } from "@/services/general/ManufactureLineService";
+import toastrService from "@/services/toastrService";
 
 const LineInCompany = () => {
   const [lines, setLines] = useState([]);
@@ -24,7 +25,7 @@ const LineInCompany = () => {
         const result = await getAllLinesInCompany(companyId, token);
         setLines(result);
       } catch (error) {
-        alert(error.response?.data?.message || "Lỗi khi tải danh sách dây chuyền!");
+        toastrService.error(error.response?.data?.message || "Lỗi khi tải danh sách dây chuyền!");
       } finally {
         setLoading(false);
       }

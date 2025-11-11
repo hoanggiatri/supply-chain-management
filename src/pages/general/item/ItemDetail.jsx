@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import ItemForm from "@components/general/ItemForm";
 import { getItemById, deleteItem } from "@/services/general/ItemService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
+import toastrService from "@/services/toastrService";
 
 const ItemDetail = () => {
   const { itemId } = useParams();
@@ -17,7 +18,7 @@ const ItemDetail = () => {
         const data = await getItemById(itemId, token);
         setItem(data);
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi xảy ra khi lấy thông tin hàng hóa!");
+        toastrService.error(error.response?.data?.message || "Có lỗi xảy ra khi lấy thông tin hàng hóa!");
       }
     };
 
@@ -30,10 +31,10 @@ const ItemDetail = () => {
     const token = localStorage.getItem("token");
     try {
       await deleteItem(itemId, token);
-      alert("Xóa hàng hóa thành công!");
+      toastrService.success("Xóa hàng hóa thành công!");
       navigate("/items");
     } catch (error) {
-      alert(error.response?.data?.message || "Có lỗi xảy ra khi xóa hàng hóa!");
+      toastrService.error(error.response?.data?.message || "Có lỗi xảy ra khi xóa hàng hóa!");
     }
   };
 

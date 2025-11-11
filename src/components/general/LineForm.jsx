@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Grid, TextField, MenuItem } from "@mui/material";
 import { getAllPlantsInCompany } from "@/services/general/ManufacturePlantService";
+import toastrService from "@/services/toastrService";
 
 const LineForm = ({
   line,
@@ -20,7 +21,7 @@ const LineForm = ({
         const data = await getAllPlantsInCompany(companyId, token);
         setPlants(data);
       } catch (error) {
-        alert(
+        toastrService.error(
           error.response?.data?.message ||
             "Có lỗi khi lấy danh sách xưởng sản xuất!"
         );

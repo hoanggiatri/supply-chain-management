@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { Container, Paper, Typography, Grid, TextField } from "@mui/material";
 import { getDepartmentById } from "@/services/general/DepartmentService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
+import toastrService from "@/services/toastrService";
 
 const DepartmentDetail = () => {
   const { departmentId } = useParams();
@@ -16,7 +17,7 @@ const DepartmentDetail = () => {
         console.log(data);
         setDepartment(data);
       } catch (error) {
-        alert(error.response?.data?.message || "Lỗi khi lấy thông tin bộ phận");
+        toastrService.error(error.response?.data?.message || "Lỗi khi lấy thông tin bộ phận");
       }
     };
 

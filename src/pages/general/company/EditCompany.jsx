@@ -8,6 +8,7 @@ import {
 import CompanyForm from "@components/general/CompanyForm";
 import { useNavigate } from "react-router-dom";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
+import toastrService from "@/services/toastrService";
 
 const EditCompany = () => {
   const [company, setCompany] = useState(null);
@@ -34,7 +35,7 @@ const EditCompany = () => {
         setCompany(data);
         setEditedCompany(data);
       } catch (error) {
-        alert(
+        toastrService.error(
           error.response?.data?.message || "Lỗi khi lấy thông tin công ty!"
         );
       }
@@ -112,10 +113,10 @@ const EditCompany = () => {
 
       setCompany(updatedCompany);
       setEditedCompany(updatedCompany);
-      alert("Cập nhật thông tin thành công!");
+      toastrService.success("Cập nhật thông tin thành công!");
       navigate("/company");
     } catch (error) {
-      alert(error.response?.data?.message || "Cập nhật thất bại!");
+      toastrService.error(error.response?.data?.message || "Cập nhật thất bại!");
     }
   };
 
@@ -146,9 +147,9 @@ const EditCompany = () => {
       setEditedCompany(updatedCompany);
       setLogoFile(null);
       setLogoPreview(null);
-      alert("Cập nhật logo thành công!");
+      toastrService.success("Cập nhật logo thành công!");
     } catch (error) {
-      alert(error.response?.data?.message || "Cập nhật logo thất bại!");
+      toastrService.error(error.response?.data?.message || "Cập nhật logo thất bại!");
     }
   };
 

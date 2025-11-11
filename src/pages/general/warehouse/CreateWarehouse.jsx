@@ -3,6 +3,7 @@ import { Container, Typography, Button, Grid, Paper } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { createWarehouse } from "@/services/general/WarehouseService";
 import WarehouseForm from "@components/general/WarehouseForm";
+import toastrService from "@/services/toastrService";
 
 const CreateWarehouse = () => {
   const navigate = useNavigate();
@@ -57,10 +58,10 @@ const CreateWarehouse = () => {
 
     try {
       await createWarehouse(companyId, warehouse, token);
-      alert("Tạo kho hàng thành công!");
+      toastrService.success("Tạo kho hàng thành công!");
       navigate("/warehouses");
     } catch (err) {
-      alert(err.response?.data?.message || "Lỗi khi tạo kho!");
+      toastrService.error(err.response?.data?.message || "Lỗi khi tạo kho!");
     }
   };
 

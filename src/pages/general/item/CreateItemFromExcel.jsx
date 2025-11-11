@@ -4,6 +4,7 @@ import DataTable from "@/components/content-components/DataTable";
 import useExcelUpload from "@/hooks/useExcelUpload";
 import { useNavigate } from "react-router-dom";
 import { createItem } from "@/services/general/ItemService";
+import toastrService from "@/services/toastrService";
 
 const CreateItemFromExcel = () => {
   const navigate = useNavigate();
@@ -65,11 +66,10 @@ const CreateItemFromExcel = () => {
         await createItem(companyId, newItemData, token);
       }
 
-      alert("Thêm tất cả hàng hóa thành công!");
+      toastrService.success("Thêm tất cả hàng hóa thành công!");
       navigate("/items");
     } catch (error) {
-      alert(error.response?.data?.message || "Lỗi khi thêm hàng hóa!");
-      alert("Lỗi khi thêm hàng hóa!");
+      toastrService.error(error.response?.data?.message || "Lỗi khi thêm hàng hóa!");
     }
   };
 

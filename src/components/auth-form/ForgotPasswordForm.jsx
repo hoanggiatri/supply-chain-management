@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Container, TextField, Button, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { sendVerifyOtp } from "@/services/general/AuthService";
+import toastrService from "@/services/toastrService";
 
 const ForgotPasswordForm = () => {
   const [email, setEmail] = useState("");
@@ -30,13 +31,15 @@ const ForgotPasswordForm = () => {
       localStorage.setItem("forgotEmail", email);
       const storedEmail = localStorage.getItem("forgotEmail");
 
-      alert("Kiểm tra email để nhận mã OTP.");
+      toastrService.success("Kiểm tra email để nhận mã OTP.");
       navigate("/verify-forgot-password-otp");
 
       console.log(storedEmail);
     } catch (error) {
+      const errorMessage = error.response?.data?.message || "Không thể gửi OTP! Vui lòng thử lại.";
+      toastrService.error(errorMessage);
       setErrors({
-        apiError: error.response?.data?.message || "Không thể gửi OTP! Vui lòng thử lại.",
+        apiError: errorMessage,
       });
     }
   };

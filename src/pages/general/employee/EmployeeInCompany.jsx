@@ -11,6 +11,7 @@ import {
 import DataTable from "@components/content-components/DataTable";
 import { getAllEmployeesInCompany } from "@/services/general/EmployeeService";
 import { useNavigate } from "react-router-dom";
+import toastrService from "@/services/toastrService";
 
 const EmployeeInCompany = () => {
   const [employees, setEmployees] = useState([]);
@@ -30,7 +31,7 @@ const EmployeeInCompany = () => {
         const employees = await getAllEmployeesInCompany(companyId, token);
         setEmployees(employees);
       } catch (error) {
-        alert(
+        toastrService.error(
           error.response?.data?.message ||
             "Có lỗi xảy ra khi lấy danh sách nhân viên!"
         );

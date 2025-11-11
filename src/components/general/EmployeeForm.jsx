@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { getAllDepartmentsInCompany } from "@/services/general/DepartmentService";
+import toastrService from "@/services/toastrService";
 
 const EmployeeForm = ({
   employee,
@@ -28,7 +29,7 @@ const EmployeeForm = ({
         const data = await getAllDepartmentsInCompany(companyId, token);
         setDepartments(data);
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi khi lấy bộ phận!");
+        toastrService.error(error.response?.data?.message || "Có lỗi khi lấy bộ phận!");
       }
     };
     fetchDepartments();

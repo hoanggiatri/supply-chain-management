@@ -4,6 +4,7 @@ import { getCompanyById } from "@/services/general/CompanyService";
 import CompanyForm from "@components/general/CompanyForm";
 import { useNavigate } from "react-router-dom";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
+import toastrService from "@/services/toastrService";
 
 const CompanyDetail = () => {
   const [company, setCompany] = useState(null);
@@ -24,7 +25,7 @@ const CompanyDetail = () => {
 
         setCompany(data);
       } catch (error) {
-        alert(error.response?.data?.message || "Lỗi khi lấy thông tin công ty!");
+        toastrService.error(error.response?.data?.message || "Lỗi khi lấy thông tin công ty!");
       }
     };
 

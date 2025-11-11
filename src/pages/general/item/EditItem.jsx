@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import ItemForm from "@components/general/ItemForm";
 import { getItemById, updateItem } from "@/services/general/ItemService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
+import toastrService from "@/services/toastrService";
 
 const EditItem = () => {
   const { itemId } = useParams();
@@ -42,7 +43,7 @@ const EditItem = () => {
         setItem(data);
         setEditedItem(data);
       } catch (error) {
-        alert(
+        toastrService.error(
           error.response?.data?.message ||
             "Có lỗi xảy ra khi lấy thông tin hàng hóa!"
         );
@@ -92,10 +93,10 @@ const EditItem = () => {
       const updatedItem = await updateItem(itemId, payload, token);
       setItem(updatedItem);
       setEditedItem(updatedItem);
-      alert("Cập nhật thông tin hàng hóa thành công!");
+      toastrService.success("Cập nhật thông tin hàng hóa thành công!");
       navigate(`/item/${itemId}`);
     } catch (error) {
-      alert(
+      toastrService.error(
         error.response?.data?.message ||
           "Có lỗi xảy ra khi cập nhật thông tin hàng hóa!"
       );

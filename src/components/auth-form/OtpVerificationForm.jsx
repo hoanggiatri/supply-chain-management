@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { TextField, Button, Container, Typography } from "@mui/material";
 import { verifyOtp, sendVerifyOtp } from "@/services/general/AuthService";
 import { useNavigate } from "react-router-dom";
+import toastrService from "@/services/toastrService";
 
 const OtpVerificationForm = () => {
   const [otp, setOtp] = useState("");
@@ -39,14 +40,14 @@ const OtpVerificationForm = () => {
 
     try {
       await verifyOtp({ email, otp: Number(otp) });
-      alert("Xác thực thành công!");
+      toastrService.success("Xác thực thành công!");
       navigate("/login");
     } catch (error) {
+      const errorMessage = error.response?.data?.message || "Mã OTP không đúng. Vui lòng thử lại!";
+      toastrService.error(errorMessage);
       setErrors((prevErrors) => ({
         ...prevErrors,
-        apiError:
-          error.response?.data?.message ||
-          "Mã OTP không đúng. Vui lòng thử lại!",
+        apiError: errorMessage,
       }));
     }
   };
@@ -54,14 +55,14 @@ const OtpVerificationForm = () => {
   const handleResendOtp = async () => {
     try {
       await sendVerifyOtp(email);
-      alert("Mã OTP đã được gửi lại!");
+      toastrService.success("Mã OTP đã được gửi lại!");
       setResendTimer(60);
     } catch (error) {
+      const errorMessage = error.response?.data?.message || "Lỗi khi gửi lại OTP. Vui lòng thử lại!";
+      toastrService.error(errorMessage);
       setErrors((prevErrors) => ({
         ...prevErrors,
-        apiError:
-          error.response?.data?.message ||
-          "Lỗi khi gửi lại OTP. Vui lòng thử lại!",
+        apiError: errorMessage,
       }));
     }
   };

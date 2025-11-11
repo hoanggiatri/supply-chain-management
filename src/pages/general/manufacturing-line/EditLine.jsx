@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import LineForm from "@components/general/LineForm";
 import { getLineById, updateLine } from "@/services/general/ManufactureLineService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
+import toastrService from "@/services/toastrService";
 
 const EditLine = () => {
   const { lineId } = useParams();
@@ -34,10 +35,10 @@ const EditLine = () => {
         setLine(data);
         setEditedLine(data);
       } catch (error) {
-        alert(error.response?.data?.message || "Lỗi khi lấy thông tin dây chuyền!");
+        toastrService.error(error.response?.data?.message || "Lỗi khi lấy thông tin dây chuyền!");
       }
     };
-  
+
     fetchLineById();
   }, [lineId, token]);
 
@@ -73,10 +74,10 @@ const EditLine = () => {
       const updatedLine = await updateLine(lineId, editedLine, token);
       setLine(updatedLine);
       setEditedLine(updatedLine);
-      alert("Cập nhật dây chuyền thành công!");
+      toastrService.success("Cập nhật dây chuyền thành công!");
       navigate(`/line/${lineId}`);
     } catch (error) {
-      alert(error.response?.data?.message || "Lỗi khi cập nhật dây chuyền!");
+      toastrService.error(error.response?.data?.message || "Lỗi khi cập nhật dây chuyền!");
     }
   };
 

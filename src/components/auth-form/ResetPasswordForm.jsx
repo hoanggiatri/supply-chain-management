@@ -3,6 +3,7 @@ import { Container, TextField, Button, Typography, IconButton, InputAdornment } 
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { resetPassword } from "@/services/general/AuthService";
 import { useNavigate } from "react-router-dom";
+import toastrService from "@/services/toastrService";
 
 const ResetPasswordForm = () => {
   const [formData, setFormData] = useState({ email: "", newPassword: "" });
@@ -42,11 +43,13 @@ const ResetPasswordForm = () => {
 
     try {
       await resetPassword(formData);
-      alert("Đặt lại mật khẩu thành công!");
+      toastrService.success("Đặt lại mật khẩu thành công!");
       navigate("/login");
     } catch (error) {
+      const errorMessage = error.response?.data?.message || "Thay đổi thất bại! Vui lòng thử lại.";
+      toastrService.error(errorMessage);
       setErrors({
-        apiError: error.response?.data?.message || "Thay đổi thất bại! Vui lòng thử lại.",
+        apiError: errorMessage,
       });
     }
   };

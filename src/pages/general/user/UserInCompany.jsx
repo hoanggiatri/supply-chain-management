@@ -3,6 +3,7 @@ import { Container, TableRow, TableCell, Typography, Paper, } from "@mui/materia
 import DataTable from "@components/content-components/DataTable";
 import { getAllUsersInCompany } from "@/services/general/UserService";
 import { useNavigate } from "react-router-dom";
+import toastrService from "@/services/toastrService";
 
 const UserInCompany = () => {
   const [users, setUsers] = useState([]);
@@ -22,7 +23,7 @@ const UserInCompany = () => {
         const users = await getAllUsersInCompany(companyId, token);
         setUsers(users);
       } catch (error) {
-        alert(error.response?.data?.message || "Lỗi khi tải danh sách người dùng!");
+        toastrService.error(error.response?.data?.message || "Lỗi khi tải danh sách người dùng!");
       }
     };
 

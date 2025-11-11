@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import LineForm from "@components/general/LineForm";
 import { getLineById } from "@/services/general/ManufactureLineService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
+import toastrService from "@/services/toastrService";
 
 const LineDetail = () => {
   const { lineId } = useParams();
@@ -17,7 +18,7 @@ const LineDetail = () => {
         const data = await getLineById(lineId, token);
         setLine(data);
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi xảy ra khi lấy thông tin dây chuyền!");
+        toastrService.error(error.response?.data?.message || "Có lỗi xảy ra khi lấy thông tin dây chuyền!");
       }
     };
 

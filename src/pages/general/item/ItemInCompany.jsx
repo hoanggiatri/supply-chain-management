@@ -3,6 +3,7 @@ import { Container, TableRow, TableCell, Typography, Paper, Box, Button } from "
 import DataTable from "@components/content-components/DataTable";
 import { getAllItemsInCompany } from "@/services/general/ItemService";
 import { useNavigate } from "react-router-dom";
+import toastrService from "@/services/toastrService";
 
 const ItemInCompany = () => {
   const [items, setItems] = useState([]);
@@ -22,7 +23,7 @@ const ItemInCompany = () => {
         const data = await getAllItemsInCompany(companyId, token);
         setItems(data);
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi xảy ra khi lấy danh sách hàng hóa!");
+        toastrService.error(error.response?.data?.message || "Có lỗi xảy ra khi lấy danh sách hàng hóa!");
       }
     };
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { TextField, Button, Container, Typography } from "@mui/material";
 import { verifyForgotPasswordOtp, sendVerifyOtp } from "@/services/general/AuthService";
 import { useNavigate } from "react-router-dom";
+import toastrService from "@/services/toastrService";
 
 const OtpForgotPasswordForm = () => {
   const [otp, setOtp] = useState("");
@@ -38,13 +39,14 @@ const OtpForgotPasswordForm = () => {
 
     try {
       await verifyForgotPasswordOtp({ email, otp });
-      alert("Xác thực thành công!");
+      toastrService.success("Xác thực thành công!");
       navigate("/reset-password");
     } catch (error) {
+      const errorMessage = error.response?.data?.message || "Xác thực thất bại! Vui lòng thử lại.";
+      toastrService.error(errorMessage);
       setErrors((prevErrors) => ({
         ...prevErrors,
-        apiError:
-          error.response?.data?.message || "Xác thực thất bại! Vui lòng thử lại.",
+        apiError: errorMessage,
       }));
     }
   };
@@ -52,10 +54,10 @@ const OtpForgotPasswordForm = () => {
   const handleResendOtp = async () => {
     try {
       await sendVerifyOtp(email);
-      alert("Mã OTP đã được gửi lại!");
+      toastrService.success("Mã OTP đã được gửi lại!");
       setResendTimer(60);
     } catch (error) {
-      alert(error.response?.data?.message || "Lỗi khi gửi lại OTP. Vui lòng thử lại!");
+      toastrService.error(error.response?.data?.message || "Lỗi khi gửi lại OTP. Vui lòng thử lại!");
     }
   };
 

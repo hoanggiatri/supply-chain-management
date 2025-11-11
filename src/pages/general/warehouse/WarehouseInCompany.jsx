@@ -3,6 +3,7 @@ import { Container, Paper, Typography, TableRow, TableCell, Box, Button } from "
 import DataTable from "@components/content-components/DataTable";
 import { useNavigate } from "react-router-dom";
 import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
+import toastrService from "@/services/toastrService";
 
 const WarehouseInCompany = () => {
   const [warehouses, setWarehouses] = useState([]);
@@ -24,7 +25,7 @@ const WarehouseInCompany = () => {
         const result = await getAllWarehousesInCompany(companyId, token);
         setWarehouses(result);
       } catch (error) {
-        alert(error.response?.data?.message || "Lỗi khi tải danh sách kho!");
+        toastrService.error(error.response?.data?.message || "Lỗi khi tải danh sách kho!");
       } finally {
         setLoading(false);
       }

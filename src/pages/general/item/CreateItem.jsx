@@ -3,6 +3,7 @@ import { Container, Typography, Button, Grid, Paper } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { createItem } from "@/services/general/ItemService";
 import ItemForm from "@components/general/ItemForm";
+import toastrService from "@/services/toastrService";
 
 const CreateItem = () => {
   const navigate = useNavigate();
@@ -72,10 +73,10 @@ const CreateItem = () => {
     try {
       console.log(formData);
       await createItem(companyId, formData, token);
-      alert("Thêm hàng hóa thành công!");
+      toastrService.success("Thêm hàng hóa thành công!");
       navigate("/items");
     } catch (error) {
-      alert(error.response?.data?.message || "Lỗi khi thêm hàng hóa!");
+      toastrService.error(error.response?.data?.message || "Lỗi khi thêm hàng hóa!");
     }
   };
 

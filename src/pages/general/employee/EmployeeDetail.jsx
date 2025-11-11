@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import EmployeeForm from "@components/general/EmployeeForm";
 import { getEmployeeById, deleteEmployee } from "@/services/general/EmployeeService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
+import toastrService from "@/services/toastrService";
 
 const EmployeeDetail = () => {
   const { employeeId } = useParams();
@@ -20,7 +21,7 @@ const EmployeeDetail = () => {
         }
         setEmployee(data);
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi xảy ra khi lấy thông tin nhân viên!");
+        toastrService.error(error.response?.data?.message || "Có lỗi xảy ra khi lấy thông tin nhân viên!");
       }
     };
 
@@ -33,10 +34,10 @@ const EmployeeDetail = () => {
     const token = localStorage.getItem("token");
     try {
       await deleteEmployee(employeeId, token);
-      alert("Xóa nhân viên và tài khoản liên quan thành công!");
+      toastrService.success("Xóa nhân viên và tài khoản liên quan thành công!");
       navigate("/employees");
     } catch (error) {
-      alert(error.response?.data?.message || "Có lỗi xảy ra khi xóa nhân viên!");
+      toastrService.error(error.response?.data?.message || "Có lỗi xảy ra khi xóa nhân viên!");
     }
   };
 

@@ -9,6 +9,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import DataTable from "@components/content-components/DataTable";
 import { getAllDepartmentsInCompany } from "@/services/general/DepartmentService";
+import toastrService from "@/services/toastrService";
 
 const DepartmentInCompany = () => {
   const [departments, setDepartments] = useState([]);
@@ -28,7 +29,7 @@ const DepartmentInCompany = () => {
         const data = await getAllDepartmentsInCompany(companyId, token);
         setDepartments(data);
       } catch (error) {
-        alert(
+        toastrService.error(
           error.response?.data?.message ||
             "Có lỗi xảy ra khi lấy danh sách bộ phận!"
         );

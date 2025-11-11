@@ -14,6 +14,7 @@ import {
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { registerCompany } from "@/services/general/AuthService";
 import { useNavigate } from "react-router-dom";
+import toastrService from "@/services/toastrService";
 
 const RegisterForm = () => {
   const navigate = useNavigate();
@@ -81,13 +82,13 @@ const RegisterForm = () => {
       const { termsAccepted, ...payload } = formData;
       await registerCompany(payload);
       localStorage.setItem("registeredEmail", formData.email);
-      alert("Đăng ký thành công! Kiểm tra email để nhận mã OTP.");
+      toastrService.success("Kiểm tra email để nhận mã OTP.", "Đăng ký thành công!");
       navigate("/otp-verification");
     } catch (error) {
+      const errorMessage = error.response?.data?.message || "Đăng ký thất bại! Vui lòng thử lại.";
+      toastrService.error(errorMessage);
       setErrors({
-        apiError:
-          error.response?.data?.message ||
-          "Đăng ký thất bại! Vui lòng thử lại.",
+        apiError: errorMessage,
       });
     }
   };

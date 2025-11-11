@@ -3,6 +3,7 @@ import { Container, Typography, Button, Grid, Paper } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { createEmployee } from "@/services/general/EmployeeService";
 import EmployeeForm from "@components/general/EmployeeForm"; // Đường dẫn tới file component con
+import toastrService from "@/services/toastrService";
 
 const CreateEmployee = () => {
   const navigate = useNavigate();
@@ -77,10 +78,10 @@ const CreateEmployee = () => {
       if (payload.startDate)
         payload.startDate = new Date(payload.startDate).toISOString();
       await createEmployee(payload, token);
-      alert("Tạo nhân viên thành công!");
+      toastrService.success("Tạo nhân viên thành công!");
       navigate("/employees");
     } catch (error) {
-      alert(error.response?.data?.message || "Lỗi khi tạo nhân viên!");
+      toastrService.error(error.response?.data?.message || "Lỗi khi tạo nhân viên!");
     }
   };
 

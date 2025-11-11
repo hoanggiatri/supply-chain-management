@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import WarehouseForm from "@components/general/WarehouseForm";
 import { getWarehouseById } from "@/services/general/WarehouseService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
+import toastrService from "@/services/toastrService";
 
 const WarehouseDetail = () => {
   const { warehouseId } = useParams();
@@ -17,7 +18,7 @@ const WarehouseDetail = () => {
         const data = await getWarehouseById(warehouseId, token);
         setWarehouse(data);
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi xảy ra khi lấy thông tin kho!");
+        toastrService.error(error.response?.data?.message || "Có lỗi xảy ra khi lấy thông tin kho!");
       }
     };
 
