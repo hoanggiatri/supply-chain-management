@@ -16,7 +16,10 @@ const CreateRfq = () => {
 
   const [details, setDetails] = useState([]);
   const [errors, setErrors] = useState({ rfqDetailErrors: [] });
-  const [readOnlyFields, setReadOnlyFields] = useState({ rfqCode: true, status: true });
+  const [readOnlyFields, setReadOnlyFields] = useState({
+    rfqCode: true,
+    status: true,
+  });
 
   const [rfq, setRfq] = useState({
     companyId: companyId,
@@ -32,11 +35,11 @@ const CreateRfq = () => {
         const supplierIdFromState = Number(location.state?.supplierId);
         if (supplierIdFromState) {
           const companyData = await getCompanyById(supplierIdFromState, token);
-          setReadOnlyFields(prev => ({ ...prev, requestedCompanyId: true }));
+          setReadOnlyFields((prev) => ({ ...prev, requestedCompanyId: true }));
 
-          setRfq(prev => ({
+          setRfq((prev) => ({
             ...prev,
-            requestedCompanyId: companyData.companyId,
+            requestedCompanyId: companyData.companyId || companyData.id,
             requestedCompanyCode: companyData.companyCode,
             requestedCompanyName: companyData.companyName,
           }));
@@ -55,7 +58,8 @@ const CreateRfq = () => {
 
   const validateForm = () => {
     const formErrors = {};
-    if (!rfq.requestedCompanyId) formErrors.requestedCompanyId = "Chưa chọn công ty cung cấp";
+    if (!rfq.requestedCompanyId)
+      formErrors.requestedCompanyId = "Chưa chọn công ty cung cấp";
     if (!rfq.needByDate) formErrors.needByDate = "Chưa chọn hạn báo giá";
     return formErrors;
   };
@@ -65,10 +69,18 @@ const CreateRfq = () => {
 
     details.forEach((detail, index) => {
       if (!detail.itemId) {
-        detailErrors.push({ index, field: "itemId", message: "Phải chọn hàng hóa" });
+        detailErrors.push({
+          index,
+          field: "itemId",
+          message: "Phải chọn hàng hóa",
+        });
       }
       if (!detail.supplierItemId) {
-        detailErrors.push({ index, field: "supplierItemId", message: "Phải chọn hàng hóa NCC" });
+        detailErrors.push({
+          index,
+          field: "supplierItemId",
+          message: "Phải chọn hàng hóa NCC",
+        });
       }
       if (detail.quantity <= 0) {
         detailErrors.push({ index, field: "quantity", message: "> 0" });
@@ -80,7 +92,7 @@ const CreateRfq = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setRfq(prev => ({ ...prev, [name]: value }));
+    setRfq((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async () => {
@@ -93,19 +105,21 @@ const CreateRfq = () => {
     }
 
     try {
+      // Only send allowed fields, exclude read-only and computed fields
       const request = {
-        ...rfq,
+        companyId: Number(rfq.companyId),
+        requestedCompanyId: Number(rfq.requestedCompanyId),
         needByDate: toLocalDateTimeString(rfq.needByDate),
-        requestedCompanyId: rfq.requestedCompanyId,
-        rfqDetails: details.map(detail => ({
-          itemId: detail.itemId,
-          quantity: detail.quantity,
-          note: detail.note,
-          supplierItemId: detail.supplierItemId,
+        createdBy: rfq.createdBy,
+        status: rfq.status,
+        rfqDetails: details.map((detail) => ({
+          itemId: Number(detail.itemId),
+          quantity: parseFloat(detail.quantity),
+          note: detail.note || "",
+          supplierItemId: Number(detail.supplierItemId),
         })),
       };
 
-      console.log("Create RFQ request", request);
       await createRfq(request, token);
       alert("Tạo RFQ thành công!");
       navigate(-1);

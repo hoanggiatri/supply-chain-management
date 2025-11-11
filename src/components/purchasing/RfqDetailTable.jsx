@@ -1,13 +1,25 @@
 import React, { useEffect, useState } from "react";
 import {
-  Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, TextField, IconButton, Button
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  IconButton,
+  Button,
 } from "@mui/material";
 import { Delete } from "@mui/icons-material";
 import SelectAutocomplete from "@components/content-components/SelectAutocomplete";
 import { getAllItemsInCompany } from "@/services/general/ItemService";
 
-const RfqDetailTable = ({ rfqDetails, setRfqDetails, requestedCompanyId, errors }) => {
+const RfqDetailTable = ({
+  rfqDetails,
+  setRfqDetails,
+  requestedCompanyId,
+  errors,
+}) => {
   const [myItems, setMyItems] = useState([]);
   const [supplierItems, setSupplierItems] = useState([]);
   const companyId = localStorage.getItem("companyId");
@@ -17,6 +29,7 @@ const RfqDetailTable = ({ rfqDetails, setRfqDetails, requestedCompanyId, errors 
     const fetchMyItems = async () => {
       try {
         const data = await getAllItemsInCompany(companyId, token);
+        console.log("data", data);
         setMyItems(data);
       } catch (err) {
         alert("Lỗi khi tải danh sách hàng hóa công ty mình.");
@@ -30,7 +43,7 @@ const RfqDetailTable = ({ rfqDetails, setRfqDetails, requestedCompanyId, errors 
       if (!requestedCompanyId) return setSupplierItems([]);
       try {
         const data = await getAllItemsInCompany(requestedCompanyId, token);
-        const sellableItems = data.filter(item => item.isSellable);
+        const sellableItems = data.filter((item) => item.isSellable);
         setSupplierItems(sellableItems);
       } catch (err) {
         alert("Lỗi khi tải danh sách hàng hóa của công ty cung cấp.");
@@ -45,7 +58,7 @@ const RfqDetailTable = ({ rfqDetails, setRfqDetails, requestedCompanyId, errors 
       const num = parseFloat(value);
       newValue = isNaN(num) ? "" : Math.max(num, 0);
     }
-    setRfqDetails(prev =>
+    setRfqDetails((prev) =>
       prev.map((detail, i) =>
         i === index ? { ...detail, [field]: newValue } : detail
       )
@@ -53,22 +66,29 @@ const RfqDetailTable = ({ rfqDetails, setRfqDetails, requestedCompanyId, errors 
   };
 
   const handleAddRow = () => {
-    setRfqDetails(prev => [
+    setRfqDetails((prev) => [
       ...prev,
-      { itemId: "", itemName: "", quantity: 0, note: "", supplierItemId: "", supplierItemName: "" }
+      {
+        itemId: "",
+        itemName: "",
+        quantity: 0,
+        note: "",
+        supplierItemId: "",
+        supplierItemName: "",
+      },
     ]);
   };
 
   const handleDeleteRow = (index) => {
-    setRfqDetails(prev => prev.filter((_, i) => i !== index));
+    setRfqDetails((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const itemOptions = myItems.map(item => ({
+  const itemOptions = myItems.map((item) => ({
     value: item.itemId,
     label: item.itemCode + " - " + item.itemName,
   }));
 
-  const supplierItemOptions = supplierItems.map(item => ({
+  const supplierItemOptions = supplierItems.map((item) => ({
     value: item.itemId,
     label: item.itemCode + " - " + item.itemName,
   }));
@@ -94,11 +114,23 @@ const RfqDetailTable = ({ rfqDetails, setRfqDetails, requestedCompanyId, errors 
                     options={itemOptions}
                     value={detail.itemId}
                     onChange={(selected) => {
-                      handleDetailChange(index, "itemId", selected?.value || "");
+                      handleDetailChange(
+                        index,
+                        "itemId",
+                        selected?.value || ""
+                      );
                     }}
                     placeholder="Chọn hàng hóa"
-                    error={!!errors?.find(err => err.index === index && err.field === "itemId")}
-                    helperText={errors?.find(err => err.index === index && err.field === "itemId")?.message}
+                    error={
+                      !!errors?.find(
+                        (err) => err.index === index && err.field === "itemId"
+                      )
+                    }
+                    helperText={
+                      errors?.find(
+                        (err) => err.index === index && err.field === "itemId"
+                      )?.message
+                    }
                   />
                 </TableCell>
                 <TableCell sx={{ width: 400 }}>
@@ -106,11 +138,25 @@ const RfqDetailTable = ({ rfqDetails, setRfqDetails, requestedCompanyId, errors 
                     options={supplierItemOptions}
                     value={detail.supplierItemId}
                     onChange={(selected) => {
-                      handleDetailChange(index, "supplierItemId", selected?.value || "");
+                      handleDetailChange(
+                        index,
+                        "supplierItemId",
+                        selected?.value || ""
+                      );
                     }}
                     placeholder="Chọn hàng hóa NCC"
-                    error={!!errors?.find(err => err.index === index && err.field === "supplierItemId")}
-                    helperText={errors?.find(err => err.index === index && err.field === "supplierItemId")?.message}
+                    error={
+                      !!errors?.find(
+                        (err) =>
+                          err.index === index && err.field === "supplierItemId"
+                      )
+                    }
+                    helperText={
+                      errors?.find(
+                        (err) =>
+                          err.index === index && err.field === "supplierItemId"
+                      )?.message
+                    }
                     disabled={!requestedCompanyId}
                   />
                 </TableCell>
@@ -119,9 +165,24 @@ const RfqDetailTable = ({ rfqDetails, setRfqDetails, requestedCompanyId, errors 
                     type="number"
                     size="small"
                     value={detail.quantity}
-                    onChange={(e) => handleDetailChange(index, "quantity", e.target.value, "number")}
-                    error={!!errors?.find(err => err.index === index && err.field === "quantity")}
-                    helperText={errors?.find(err => err.index === index && err.field === "quantity")?.message}
+                    onChange={(e) =>
+                      handleDetailChange(
+                        index,
+                        "quantity",
+                        e.target.value,
+                        "number"
+                      )
+                    }
+                    error={
+                      !!errors?.find(
+                        (err) => err.index === index && err.field === "quantity"
+                      )
+                    }
+                    helperText={
+                      errors?.find(
+                        (err) => err.index === index && err.field === "quantity"
+                      )?.message
+                    }
                     inputProps={{ min: 0 }}
                   />
                 </TableCell>
@@ -129,7 +190,9 @@ const RfqDetailTable = ({ rfqDetails, setRfqDetails, requestedCompanyId, errors 
                   <TextField
                     size="small"
                     value={detail.note}
-                    onChange={(e) => handleDetailChange(index, "note", e.target.value)}
+                    onChange={(e) =>
+                      handleDetailChange(index, "note", e.target.value)
+                    }
                   />
                 </TableCell>
                 <TableCell>

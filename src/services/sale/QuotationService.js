@@ -30,6 +30,6 @@ export const getQuotationByRfq = async (rfqId, token) => {
 };
 
 export const updateQuotationStatus = async (quotationId, status, token) => {
-  const res = await axios.put(`${BASE_URL}/quotations/${quotationId}?status=${status}`, {}, axiosAuth(token));
+  const res = await axios.put(`${BASE_URL}/quotations/${quotationId}/status`, { status }, axiosAuth(token));
   return res.data;
 };

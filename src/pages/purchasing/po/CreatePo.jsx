@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, Box, Button, TableRow, TableCell, Grid } from "@mui/material";
+import {
+  Container,
+  Paper,
+  Typography,
+  Box,
+  Button,
+  TableRow,
+  TableCell,
+  Grid,
+} from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import { getQuotationById } from "@/services/sale/QuotationService";
 import { createPo } from "@/services/purchasing/PoService";
@@ -42,7 +51,7 @@ const CreatePo = () => {
           receiveWarehouseId: "",
           createdBy: employeeName,
           deliveryToAddress: companyAddress,
-          status: "Chờ xác nhận"
+          status: "Chờ xác nhận",
         });
 
         const details = quotationData.quotationDetails.map((d) => ({
@@ -70,9 +79,12 @@ const CreatePo = () => {
 
   const validate = () => {
     const newErrors = {};
-    if (!po.receiveWarehouseId) newErrors.receiveWarehouseId = "Chưa chọn kho nhập hàng về!";
-    if (!po.deliveryToAddress.trim()) newErrors.deliveryToAddress = "Địa chỉ giao hàng không được để trống";
-    if (!po.paymentMethod) newErrors.paymentMethod = "Chưa chọn phương thức thanh toán";
+    if (!po.receiveWarehouseId)
+      newErrors.receiveWarehouseId = "Chưa chọn kho nhập hàng về!";
+    if (!po.deliveryToAddress.trim())
+      newErrors.deliveryToAddress = "Địa chỉ giao hàng không được để trống";
+    if (!po.paymentMethod)
+      newErrors.paymentMethod = "Chưa chọn phương thức thanh toán";
     return newErrors;
   };
 
@@ -84,8 +96,18 @@ const CreatePo = () => {
     }
 
     try {
-      console.log("PO", po);
-      await createPo(po, token);
+      // Only send allowed fields, exclude read-only and computed fields
+      const request = {
+        companyId: Number(po.companyId),
+        supplierCompanyId: Number(po.supplierCompanyId),
+        quotationId: Number(po.quotationId),
+        receiveWarehouseId: Number(po.receiveWarehouseId),
+        paymentMethod: po.paymentMethod,
+        deliveryToAddress: po.deliveryToAddress,
+        createdBy: po.createdBy,
+        status: po.status,
+      };
+      await createPo(request, token);
       alert("Tạo đơn mua hàng thành công!");
       navigate("/customer-quotations");
     } catch (err) {
@@ -121,8 +143,7 @@ const CreatePo = () => {
   };
 
   const filteredDetails = Array.isArray(quotationDetails)
-    ? quotationDetails
-      .sort((a, b) => {
+    ? quotationDetails.sort((a, b) => {
         if (orderBy) {
           if (a[orderBy] < b[orderBy]) return order === "asc" ? -1 : 1;
           if (a[orderBy] > b[orderBy]) return order === "asc" ? 1 : -1;
@@ -145,7 +166,13 @@ const CreatePo = () => {
           TẠO ĐƠN MUA HÀNG
         </Typography>
 
-        <PoForm po={po} setPo={setPo} quotation={quotation} errors={errors} readOnlyFields={[]} />
+        <PoForm
+          po={po}
+          setPo={setPo}
+          quotation={quotation}
+          errors={errors}
+          readOnlyFields={[]}
+        />
 
         <Typography variant="h5" mt={3} mb={3}>
           DANH SÁCH HÀNG HÓA BÁO GIÁ:
@@ -176,7 +203,10 @@ const CreatePo = () => {
               <TableCell>{detail.discount.toLocaleString()}</TableCell>
               <TableCell>
                 <Typography fontWeight="bold">
-                  {(detail.itemPrice * detail.quantity - detail.discount).toLocaleString()}
+                  {(
+                    detail.itemPrice * detail.quantity -
+                    detail.discount
+                  ).toLocaleString()}
                 </Typography>
               </TableCell>
             </TableRow>
@@ -185,12 +215,26 @@ const CreatePo = () => {
         <Grid container justifyContent="flex-end" mt={2}>
           <Grid item>
             {[
-              { label: "Tổng tiền hàng (VNĐ):", value: quotation.subTotal.toLocaleString() },
+              {
+                label: "Tổng tiền hàng (VNĐ):",
+                value: quotation.subTotal.toLocaleString(),
+              },
               { label: "Thuế (%):", value: quotation.taxRate },
-              { label: "Tiền thuế (VNĐ):", value: quotation.taxAmount.toLocaleString() },
-              { label: "Tổng cộng (VNĐ):", value: quotation.totalAmount.toLocaleString() },
+              {
+                label: "Tiền thuế (VNĐ):",
+                value: quotation.taxAmount.toLocaleString(),
+              },
+              {
+                label: "Tổng cộng (VNĐ):",
+                value: quotation.totalAmount.toLocaleString(),
+              },
             ].map((item, index) => (
-              <Grid container key={index} justifyContent="space-between" spacing={2}>
+              <Grid
+                container
+                key={index}
+                justifyContent="space-between"
+                spacing={2}
+              >
                 <Grid item mb={3}>
                   <Typography fontWeight="bold">{item.label}</Typography>
                 </Grid>
@@ -208,7 +252,11 @@ const CreatePo = () => {
           <Button variant="contained" color="default" onClick={handleSubmit}>
             Tạo đơn mua hàng
           </Button>
-          <Button variant="outlined" color="default" onClick={() => navigate(-1)}>
+          <Button
+            variant="outlined"
+            color="default"
+            onClick={() => navigate(-1)}
+          >
             Hủy
           </Button>
         </Box>

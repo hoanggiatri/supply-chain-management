@@ -1,7 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Container, Paper, Typography, TableRow, TableCell, Box, Button } from "@mui/material";
-import { getDeliveryOrderById, updateDeliveryOrder } from "@/services/delivery/DoService";
+import {
+  Container,
+  Paper,
+  Typography,
+  TableRow,
+  TableCell,
+  Box,
+  Button,
+} from "@mui/material";
+import {
+  getDeliveryOrderById,
+  updateDeliveryOrder,
+} from "@/services/delivery/DoService";
 import DoForm from "@/components/delivery/DoForm";
 import DataTable from "@/components/content-components/DataTable";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
@@ -38,7 +49,9 @@ const DoDetail = () => {
 
         setDetails(doData.deliveryOrderDetails || []);
       } catch (err) {
-        alert(err.response?.data?.message || "Không thể tải dữ liệu đơn giao hàng!");
+        alert(
+          err.response?.data?.message || "Không thể tải dữ liệu đơn giao hàng!"
+        );
       } finally {
         setLoading(false);
       }
@@ -51,25 +64,31 @@ const DoDetail = () => {
     return dayjs(localDateTimeString).format("YYYY-MM-DDTHH:mm:ss");
   };
 
-
   const handleConfirm = async () => {
-    if (!window.confirm("Bạn có chắc muốn xác nhận đơn vận chuyển này không?")) return;
+    if (!window.confirm("Bạn có chắc muốn xác nhận đơn vận chuyển này không?"))
+      return;
 
     const employeeName = localStorage.getItem("employeeName");
     try {
       const request = {
         createdBy: employeeName,
-        status: "Chờ lấy hàng"
-      }
+        status: "Chờ lấy hàng",
+      };
       await updateDeliveryOrder(deliveryOrder.doId, request, token);
-      setDeliveryOrder((prev) => ({ ...prev, status: "Chờ lấy hàng", createdBy: employeeName }));
+      setDeliveryOrder((prev) => ({
+        ...prev,
+        status: "Chờ lấy hàng",
+        createdBy: employeeName,
+      }));
 
       await updateSoStatus(so.soId, "Đang vận chuyển", token);
       await updatePoStatus(so.poId, "Đang vận chuyển", token);
 
       alert("Xác nhận đơn vận chuyển thành công!");
     } catch (error) {
-      alert(error.response?.data?.message || "Có lỗi xảy ra khi xác nhận phiếu!");
+      alert(
+        error.response?.data?.message || "Có lỗi xảy ra khi xác nhận phiếu!"
+      );
     }
   };
 
@@ -82,21 +101,27 @@ const DoDetail = () => {
         location: so.deliveryFromAddress,
         arrivalTime: toLocalDateTimeString(),
         note: "from",
-      }
+      };
       await createDeliveryProcess(fromProcess, token);
 
-      await updateDeliveryOrder(deliveryOrder.doId, { ...deliveryOrder, status: "Đang vận chuyển" }, token);
+      await updateDeliveryOrder(
+        deliveryOrder.doId,
+        { ...deliveryOrder, status: "Đang vận chuyển" },
+        token
+      );
       setDeliveryOrder((prev) => ({ ...prev, status: "Đang vận chuyển" }));
 
       alert("Lấy hàng thành công!");
-
     } catch (error) {
       alert(error.response?.data?.message || "Có lỗi xảy ra khi lấy hàng!");
     }
-  }
+  };
 
   const handleComplete = async () => {
-    if (!window.confirm("Bạn có chắc muốn hoàn thành đơn vận chuyển này không?")) return;
+    if (
+      !window.confirm("Bạn có chắc muốn hoàn thành đơn vận chuyển này không?")
+    )
+      return;
 
     try {
       const toProcess = {
@@ -104,34 +129,43 @@ const DoDetail = () => {
         location: so.deliveryToAddress,
         arrivalTime: toLocalDateTimeString(),
         note: "to",
-      }
+      };
 
       await createDeliveryProcess(toProcess, token);
 
-      await updateDeliveryOrder(deliveryOrder.doId, { ...deliveryOrder, status: "Đã hoàn thành" }, token);
+      await updateDeliveryOrder(
+        deliveryOrder.doId,
+        { ...deliveryOrder, status: "Đã hoàn thành" },
+        token
+      );
       setDeliveryOrder((prev) => ({ ...prev, status: "Đã hoàn thành" }));
 
       await updateSoStatus(so.soId, "Đã hoàn thành", token);
       await updatePoStatus(so.poId, "Chờ nhập kho", token);
 
       const po = await getPoById(so.poId, token);
+      const employeeName = localStorage.getItem("employeeName");
 
       const receiveTicketRequest = {
-        companyId: so.customerCompanyId,
-        warehouseId: po.receiveWarehouseId,
+        companyId: Number(so.customerCompanyId),
+        warehouseId: Number(po.receiveWarehouseId),
         reason: "Nhập hàng mua về",
         receiveType: "Mua hàng",
         referenceCode: so.poCode,
         status: "Chờ xác nhận",
+        receiveDate: new Date().toISOString(),
+        createdBy: employeeName,
       };
 
       await createReceiveTicket(receiveTicketRequest, token);
       alert("Đã hoàn thành đơn vận chuyển!");
-
     } catch (error) {
-      alert(error.response?.data?.message || "Có lỗi xảy ra khi hoàn thành đơn vận chuyển!");
+      alert(
+        error.response?.data?.message ||
+          "Có lỗi xảy ra khi hoàn thành đơn vận chuyển!"
+      );
     }
-  }
+  };
 
   const columns = [
     { id: "itemCode", label: "Mã hàng hóa" },
@@ -146,7 +180,10 @@ const DoDetail = () => {
     return 0;
   });
 
-  const paginatedDetails = sortedDetails.slice((page - 1) * rowsPerPage, (page - 1) * rowsPerPage + rowsPerPage);
+  const paginatedDetails = sortedDetails.slice(
+    (page - 1) * rowsPerPage,
+    (page - 1) * rowsPerPage + rowsPerPage
+  );
 
   if (!deliveryOrder) return <LoadingPaper title="CHI TIẾT ĐƠN VẬN CHUYỂN" />;
 
@@ -170,16 +207,30 @@ const DoDetail = () => {
           )}
           {deliveryOrder.status === "Đang vận chuyển" && (
             <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
-              <Button variant="contained" color="success" onClick={() => navigate(`/update-do-process/${deliveryOrder.doId}`)}>
+              <Button
+                variant="contained"
+                color="success"
+                onClick={() =>
+                  navigate(`/update-do-process/${deliveryOrder.doId}`)
+                }
+              >
                 Thông tin vận chuyển
               </Button>
-              <Button variant="contained" color="default" onClick={handleComplete}>
+              <Button
+                variant="contained"
+                color="default"
+                onClick={handleComplete}
+              >
                 Hoàn thành
               </Button>
             </Box>
           )}
           {deliveryOrder.status === "Đã hoàn thành" && (
-            <Button variant="contained" color="success" onClick={() => navigate(`/do-process/${deliveryOrder.doId}`)}>
+            <Button
+              variant="contained"
+              color="success"
+              onClick={() => navigate(`/do-process/${deliveryOrder.doId}`)}
+            >
               Thông tin vận chuyển
             </Button>
           )}

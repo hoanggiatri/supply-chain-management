@@ -25,6 +25,6 @@ export const getRfqById = async (rfqId, token) => {
 };
 
 export const updateRfqStatus = async (rfqId, status, token) => {
-  const res = await axios.put(`${BASE_URL}/request-for-quotations/${rfqId}?status=${status}`, {}, axiosAuth(token));
+  const res = await axios.put(`${BASE_URL}/request-for-quotations/${rfqId}/status`, { status }, axiosAuth(token));
   return res.data;
 };

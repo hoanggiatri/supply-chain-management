@@ -25,7 +25,8 @@ const RfqForm = ({ rfq, onChange, errors = {}, readOnlyFields, setRfq }) => {
         const data = await getAllCompanies(token);
         const list = Array.isArray(data?.data) ? data.data : [];
         const filtered = list.filter(
-          (company) => Number(company.id) !== Number(companyId)
+          (company) =>
+            Number(company.companyId || company.id) !== Number(companyId)
         );
         setCompanies(filtered);
         setFilteredCompanies(filtered);
@@ -40,11 +41,13 @@ const RfqForm = ({ rfq, onChange, errors = {}, readOnlyFields, setRfq }) => {
 
   const handleCompanyChange = (selected) => {
     const selectedCompany = companies.find(
-      (company) => Number(company.id) === Number(selected?.value)
+      (company) =>
+        Number(company.companyId || company.id) === Number(selected?.value)
     );
     setRfq((prev) => ({
       ...prev,
-      requestedCompanyId: selectedCompany?.id || "",
+      requestedCompanyId:
+        selectedCompany?.companyId || selectedCompany?.id || "",
       requestedCompanyCode: selectedCompany?.companyCode || "",
       requestedCompanyName: selectedCompany?.companyName || "",
     }));
@@ -80,7 +83,7 @@ const RfqForm = ({ rfq, onChange, errors = {}, readOnlyFields, setRfq }) => {
         <SelectAutocomplete
           options={filteredCompanies.map((c) => ({
             label: c.companyCode + " - " + c.companyName,
-            value: c.id,
+            value: c.companyId || c.id,
           }))}
           value={rfq.requestedCompanyId}
           onChange={handleCompanyChange}

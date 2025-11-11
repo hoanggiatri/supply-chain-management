@@ -81,13 +81,24 @@ const CreateSo = () => {
 
   const handleSubmit = async () => {
     try {
-      const createdSo = await createSo(so, token);
+      // Only send allowed fields, exclude read-only and computed fields
+      const request = {
+        companyId: Number(so.companyId),
+        customerCompanyId: Number(so.customerCompanyId),
+        poId: Number(so.poId),
+        paymentMethod: so.paymentMethod,
+        deliveryToAddress: so.deliveryToAddress,
+        deliveryFromAddress: so.deliveryFromAddress,
+        createdBy: so.createdBy,
+        status: so.status,
+      };
+      const createdSo = await createSo(request, token);
       const soCode = createdSo.soCode;
       console.log(soCode);
 
       const issueTicketRequest = {
-        companyId: parseInt(companyId),
-        warehouseId: parseInt(poWarehouseId),
+        companyId: Number(companyId),
+        warehouseId: Number(poWarehouseId),
         reason: "Xuất kho để bán hàng",
         issueType: "Bán hàng",
         referenceCode: soCode,
@@ -102,9 +113,9 @@ const CreateSo = () => {
         soDetails.map((d) =>
           increaseOnDemand(
             {
-              warehouseId: poWarehouseId,
-              itemId: d.itemId,
-              onDemandQuantity: d.quantity,
+              warehouseId: Number(poWarehouseId),
+              itemId: Number(d.itemId),
+              onDemandQuantity: parseFloat(d.quantity),
             },
             token
           )

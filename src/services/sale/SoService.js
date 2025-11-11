@@ -30,7 +30,14 @@ export const updateSoStatus = async (soId, status, token) => {
 };
 
 export const getSalesReport = async (request, companyId, token) => {
-  const response = await axios.post(`${BASE_URL}/sales-orders/reports/sales/${companyId}`, request, axiosAuth(token));
+  const response = await axios.post(
+    `${BASE_URL}/sales-orders/reports/sales/${companyId}`,
+    {
+      startDate: request.startDate,
+      endDate: request.endDate,
+    },
+    axiosAuth(token)
+  );
   return response.data;
 };
 

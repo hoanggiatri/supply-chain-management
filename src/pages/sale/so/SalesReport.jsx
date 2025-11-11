@@ -1,9 +1,25 @@
 import { useEffect, useState } from "react";
-import { Box, Container, FormControl, Grid, InputLabel, MenuItem, Paper, Select, TableCell, TableRow, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Container,
+  FormControl,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Paper,
+  Select,
+  TableCell,
+  TableRow,
+  TextField,
+  Typography,
+} from "@mui/material";
 import DataTable from "@/components/content-components/DataTable";
 import MonthlyBarChart from "@/components/content-components/MonthlyBarChart";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
-import { getMonthlySalesReport, getSalesReport } from "@/services/sale/SoService";
+import {
+  getMonthlySalesReport,
+  getSalesReport,
+} from "@/services/sale/SoService";
 import dayjs from "dayjs";
 
 const SalesReport = () => {
@@ -25,7 +41,14 @@ const SalesReport = () => {
   };
 
   const getEndOfDay = (date) => {
-    return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
+    return new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+      23,
+      59,
+      59
+    );
   };
 
   const [startDate, setStartDate] = useState(getStartOfMonth());
@@ -50,8 +73,8 @@ const SalesReport = () => {
       const monthly = await getMonthlySalesReport(companyId, token);
       const detail = await getSalesReport(
         {
-          startTime: toLocalDateTimeString(startDate),
-          endTime: toLocalDateTimeString(getEndOfDay(endDate))
+          startDate: toLocalDateTimeString(startDate),
+          endDate: toLocalDateTimeString(getEndOfDay(endDate)),
         },
         companyId,
         token
@@ -68,7 +91,7 @@ const SalesReport = () => {
   const columns = [
     { id: "itemCode", label: "Mã hàng hóa" },
     { id: "itemName", label: "Tên hàng hóa" },
-    { id: "totalQuantity", label: "Tổng số lượng mua" }
+    { id: "totalQuantity", label: "Tổng số lượng mua" },
   ];
 
   const filteredItems = tableData.filter(
@@ -95,7 +118,7 @@ const SalesReport = () => {
   const metricLabels = {
     totalQuantity: { label: "Tổng số lượng hàng hóa", color: "#05518B" },
     totalOrder: { label: "Số đơn mua hàng", color: "#FAAD14" },
-    totalAmount: { label: "Tổng giá trị đơn hàng", color: "#389E0D" }
+    totalAmount: { label: "Tổng giá trị đơn hàng", color: "#389E0D" },
   };
 
   if (monthlyData.length === 0 && tableData.length === 0) {
@@ -138,7 +161,9 @@ const SalesReport = () => {
                 onChange={(e) => setChartMetric(e.target.value)}
               >
                 {Object.entries(metricLabels).map(([key, val]) => (
-                  <MenuItem key={key} value={key}>{val.label}</MenuItem>
+                  <MenuItem key={key} value={key}>
+                    {val.label}
+                  </MenuItem>
                 ))}
               </Select>
             </FormControl>

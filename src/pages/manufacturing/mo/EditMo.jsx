@@ -49,7 +49,6 @@ const EditMo = () => {
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
-  
     let newValue = value;
     if (type === "number") {
       const num = parseFloat(value);
@@ -63,20 +62,25 @@ const EditMo = () => {
     setMo((prev) => ({ ...prev, [name]: newValue }));
   };
 
-  const toLocalDateTimeString = (localDateTimeString) => {
-    if (!localDateTimeString) return null;
-    return dayjs(localDateTimeString).format("YYYY-MM-DDTHH:mm:ss");
+  const toISO8601String = (dateString) => {
+    if (!dateString) return null;
+    // Convert to ISO 8601 format with timezone
+    return dayjs(dateString).toISOString();
   };
 
   const validateForm = () => {
     const formErrors = {};
-    if (!mo.quantity || mo.quantity <= 0) formErrors.quantity = "Số lượng phải > 0";
-    if (!mo.estimatedStartTime) formErrors.estimatedStartTime = "Vui lòng chọn thời gian bắt đầu!";
-    if (!mo.estimatedEndTime) formErrors.estimatedEndTime = "Vui lòng chọn thời gian kết thúc!";
+    if (!mo.quantity || mo.quantity <= 0)
+      formErrors.quantity = "Số lượng phải > 0";
+    if (!mo.estimatedStartTime)
+      formErrors.estimatedStartTime = "Vui lòng chọn thời gian bắt đầu!";
+    if (!mo.estimatedEndTime)
+      formErrors.estimatedEndTime = "Vui lòng chọn thời gian kết thúc!";
     if (mo.estimatedStartTime && mo.estimatedEndTime) {
       const start = new Date(mo.estimatedStartTime);
       const end = new Date(mo.estimatedEndTime);
-      if (start >= end) formErrors.estimatedEndTime = "Ngày kết thúc phải sau ngày bắt đầu!";
+      if (start >= end)
+        formErrors.estimatedEndTime = "Ngày kết thúc phải sau ngày bắt đầu!";
     }
     return formErrors;
   };
@@ -88,10 +92,16 @@ const EditMo = () => {
 
     const token = localStorage.getItem("token");
     try {
+      // Only send allowed fields, exclude read-only and computed fields
+      // itemId and lineId are required but read-only, so we include them as numbers
       const request = {
-        ...mo,
-        estimatedStartTime: toLocalDateTimeString(mo.estimatedStartTime),
-        estimatedEndTime: toLocalDateTimeString(mo.estimatedEndTime),
+        itemId: Number(mo.itemId),
+        lineId: Number(mo.lineId),
+        type: mo.type,
+        quantity: mo.quantity,
+        estimatedStartTime: toISO8601String(mo.estimatedStartTime),
+        estimatedEndTime: toISO8601String(mo.estimatedEndTime),
+        status: mo.status,
       };
       await updateMo(moId, request, token);
       alert("Cập nhật công lệnh thành công!");
@@ -119,13 +129,25 @@ const EditMo = () => {
           CHỈNH SỬA CÔNG LỆNH
         </Typography>
 
-        <MoForm mo={mo} onChange={handleChange} errors={errors} setMo={setMo} items={items} lines={lines} readOnlyFields={readOnlyFields} />
+        <MoForm
+          mo={mo}
+          onChange={handleChange}
+          errors={errors}
+          setMo={setMo}
+          items={items}
+          lines={lines}
+          readOnlyFields={readOnlyFields}
+        />
 
         <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
           <Button variant="contained" color="default" onClick={handleSave}>
             Lưu
           </Button>
-          <Button variant="outlined" color="default" onClick={() => navigate(-1)}>
+          <Button
+            variant="outlined"
+            color="default"
+            onClick={() => navigate(-1)}
+          >
             Hủy
           </Button>
         </Box>

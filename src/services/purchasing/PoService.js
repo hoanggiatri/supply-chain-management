@@ -5,7 +5,7 @@ const axiosAuth = (token) => ({
 });
 
 export const createPo = async (purchaseOrderRequest, token) => {
-  const res = await axios.post(`${BASE_URL}/perchase-orders`, purchaseOrderRequest, axiosAuth(token));
+  const res = await axios.post(`${BASE_URL}/purchase-orders`, purchaseOrderRequest, axiosAuth(token));
   return res.data;
 };
 
@@ -25,12 +25,19 @@ export const getPoById = async (poId, token) => {
 };
 
 export const updatePoStatus = async (poId, status, token) => {
-  const res = await axios.put(`${BASE_URL}/purchase-orders/${poId}?status=${status}`, {}, axiosAuth(token));
+  const res = await axios.put(`${BASE_URL}/purchase-orders/${poId}/status`, { status }, axiosAuth(token));
   return res.data;
 };
 
 export const getPurchaseReport = async (request, companyId, token) => {
-  const response = await axios.post(`${BASE_URL}/purchase-orders/reports/purchase/${companyId}`, request, axiosAuth(token));
+  const response = await axios.post(
+    `${BASE_URL}/purchase-orders/reports/purchase/${companyId}`,
+    {
+      startDate: request.startDate,
+      endDate: request.endDate,
+    },
+    axiosAuth(token)
+  );
   return response.data;
 };
 
