@@ -1,10 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { Container, TableRow, TableCell, Typography, Paper } from "@mui/material";
+import {
+  Container,
+  TableRow,
+  TableCell,
+  Typography,
+  Paper,
+} from "@mui/material";
 import DataTable from "@components/content-components/DataTable";
 import { getAllQuotationsInRequestCompany } from "@/services/sale/QuotationService";
 import { useNavigate } from "react-router-dom";
 import StatusSummaryCard from "@/components/content-components/StatusSummaryCard";
 import { useTheme } from "@mui/material/styles";
+import toastrService from "@/services/toastrService";
 
 const QuotationInCustomerCompany = () => {
   const [quotations, setQuotations] = useState([]);
@@ -24,10 +31,17 @@ const QuotationInCustomerCompany = () => {
     const fetchQuotations = async () => {
       try {
         const data = await getAllQuotationsInRequestCompany(companyId, token);
-        const filteredData = data.filter(quotation => quotation.status === "Đã chấp nhận" || quotation.status === "Đã báo giá" || quotation.status === "Đã từ chối");
+        const filteredData = data.filter(
+          (quotation) =>
+            quotation.status === "Đã chấp nhận" ||
+            quotation.status === "Đã báo giá" ||
+            quotation.status === "Đã từ chối"
+        );
         setQuotations(filteredData);
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi khi lấy danh sách báo giá!");
+        toastrService.error(
+          error.response?.data?.message || "Có lỗi khi lấy danh sách báo giá!"
+        );
       }
     };
 
@@ -107,7 +121,11 @@ const QuotationInCustomerCompany = () => {
               <TableCell>{quotation.quotationCode || ""}</TableCell>
               <TableCell>{quotation.companyCode || ""}</TableCell>
               <TableCell>{quotation.companyName || ""}</TableCell>
-              <TableCell>{quotation.createdOn ? new Date(quotation.createdOn).toLocaleString() : ""}</TableCell>
+              <TableCell>
+                {quotation.createdOn
+                  ? new Date(quotation.createdOn).toLocaleString()
+                  : ""}
+              </TableCell>
               <TableCell>{quotation.status || ""}</TableCell>
             </TableRow>
           )}

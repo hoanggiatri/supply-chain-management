@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Container, Typography, Button, Grid, Paper } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
-import { getStageByItemId, updateStage } from "@/services/manufacturing/StageService";
+import {
+  getStageByItemId,
+  updateStage,
+} from "@/services/manufacturing/StageService";
 import StageForm from "@/components/manufacturing/StageForm";
 import StageDetailTable from "@/components/manufacturing/StageDetailTable";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
+import toastrService from "@/services/toastrService";
 
 const EditStage = () => {
   const { itemId } = useParams();
@@ -28,7 +32,9 @@ const EditStage = () => {
         });
         setStageDetails(stageData.stageDetails || []);
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi khi tải dữ liệu!");
+        toastrService.error(
+          error.response?.data?.message || "Có lỗi khi tải dữ liệu!"
+        );
       } finally {
         setLoading(false);
       }
@@ -39,7 +45,8 @@ const EditStage = () => {
   const validateForm = () => {
     const formErrors = {};
     if (!stage.stageCode) formErrors.stageCode = "Phải nhập mã công đoạn";
-    if (!stage.status?.trim()) formErrors.status = "Trạng thái không được để trống";
+    if (!stage.status?.trim())
+      formErrors.status = "Trạng thái không được để trống";
     return formErrors;
   };
 
@@ -48,7 +55,11 @@ const EditStage = () => {
 
     stageDetails.forEach((detail, index) => {
       if (!detail.stageName?.trim()) {
-        tableErrors.push({ index, field: "stageName", message: "Tên công đoạn không được để trống" });
+        tableErrors.push({
+          index,
+          field: "stageName",
+          message: "Tên công đoạn không được để trống",
+        });
       }
       if (detail.estimatedTime < 0) {
         tableErrors.push({ index, field: "estimatedTime", message: ">= 0" });
@@ -71,7 +82,10 @@ const EditStage = () => {
     const validationErrors = validateForm();
     const stageDetailErrors = validateStageDetails();
 
-    if (Object.keys(validationErrors).length > 0 || stageDetailErrors.length > 0) {
+    if (
+      Object.keys(validationErrors).length > 0 ||
+      stageDetailErrors.length > 0
+    ) {
       setErrors({ ...validationErrors, stageDetailErrors });
       return;
     }
@@ -90,10 +104,12 @@ const EditStage = () => {
       };
 
       await updateStage(stage.stageId, request, token);
-      alert("Cập nhật công đoạn thành công!");
+      toastrService.success("Cập nhật công đoạn thành công!");
       navigate(-1);
     } catch (error) {
-      alert(error.response?.data?.message || "Lỗi khi cập nhật công đoạn!");
+      toastrService.error(
+        error.response?.data?.message || "Lỗi khi cập nhật công đoạn!"
+      );
     }
   };
 
@@ -108,15 +124,27 @@ const EditStage = () => {
   return (
     <Container>
       <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">CẬP NHẬT QUY TRÌNH SẢN XUẤT</Typography>
+        <Typography className="page-title" variant="h4">
+          CẬP NHẬT QUY TRÌNH SẢN XUẤT
+        </Typography>
 
-        <StageForm stage={stage} onChange={handleChange} errors={errors} readOnlyFields={readOnlyFields} setStage={setStage} />
+        <StageForm
+          stage={stage}
+          onChange={handleChange}
+          errors={errors}
+          readOnlyFields={readOnlyFields}
+          setStage={setStage}
+        />
 
         <Typography variant="h5" mt={3} mb={3}>
           DANH SÁCH CÔNG ĐOẠN:
         </Typography>
 
-        <StageDetailTable stageDetails={stageDetails} setStageDetails={setStageDetails} errors={errors.stageDetailErrors} />
+        <StageDetailTable
+          stageDetails={stageDetails}
+          setStageDetails={setStageDetails}
+          errors={errors.stageDetailErrors}
+        />
 
         <Grid container spacing={2} mt={3} justifyContent="flex-end">
           <Grid item>

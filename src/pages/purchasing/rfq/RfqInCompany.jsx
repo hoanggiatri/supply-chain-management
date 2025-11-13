@@ -1,10 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { Container, TableRow, TableCell, Typography, Paper, Box, Button } from "@mui/material";
+import {
+  Container,
+  TableRow,
+  TableCell,
+  Typography,
+  Paper,
+  Box,
+  Button,
+} from "@mui/material";
 import DataTable from "@components/content-components/DataTable";
 import StatusSummaryCard from "@/components/content-components/StatusSummaryCard";
 import { getAllRfqsInCompany } from "@/services/purchasing/RfqService";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
+import toastrService from "@/services/toastrService";
 
 const RfqInCompany = () => {
   const [rfqs, setRfqs] = useState([]);
@@ -26,16 +35,20 @@ const RfqInCompany = () => {
         const data = await getAllRfqsInCompany(companyId, token);
         setRfqs(data);
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi khi lấy danh sách yêu cầu báo giá!");
+        toastrService.error(
+          error.response?.data?.message ||
+            "Có lỗi khi lấy danh sách yêu cầu báo giá!"
+        );
       }
     };
 
     fetchRfqs();
   }, [companyId, token]);
 
-  const filteredRfqs = !filterStatus || filterStatus === "Tất cả"
-    ? rfqs
-    : rfqs.filter((rfq) => rfq.status === filterStatus);
+  const filteredRfqs =
+    !filterStatus || filterStatus === "Tất cả"
+      ? rfqs
+      : rfqs.filter((rfq) => rfq.status === filterStatus);
 
   const handleRequestSort = (property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -70,7 +83,15 @@ const RfqInCompany = () => {
         </Typography>
         <StatusSummaryCard
           data={rfqs}
-          statusLabels={["Tất cả", "Chưa báo giá", "Đã báo giá", "Quá hạn báo giá", "Đã chấp nhận", "Đã từ chối", "Đã hủy"]}
+          statusLabels={[
+            "Tất cả",
+            "Chưa báo giá",
+            "Đã báo giá",
+            "Quá hạn báo giá",
+            "Đã chấp nhận",
+            "Đã từ chối",
+            "Đã hủy",
+          ]}
           getStatus={(rfq) => rfq.status}
           statusColors={{
             "Tất cả": "#000",
@@ -79,13 +100,17 @@ const RfqInCompany = () => {
             "Quá hạn báo giá": theme.palette.error.main,
             "Đã chấp nhận": theme.palette.success.main,
             "Đã từ chối": theme.palette.warning.main,
-            "Đã hủy": theme.palette.error.main
+            "Đã hủy": theme.palette.error.main,
           }}
           onSelectStatus={(status) => setFilterStatus(status)}
           selectedStatus={filterStatus}
         />
         <Box mb={3}>
-          <Button variant="contained" color="default" onClick={() => navigate("/create-rfq")}>
+          <Button
+            variant="contained"
+            color="default"
+            onClick={() => navigate("/create-rfq")}
+          >
             Thêm mới
           </Button>
         </Box>
@@ -110,10 +135,20 @@ const RfqInCompany = () => {
             >
               <TableCell>{rfq.rfqCode || ""}</TableCell>
               <TableCell>{rfq.requestedCompanyName || ""}</TableCell>
-              <TableCell>{rfq.needByDate ? new Date(rfq.needByDate).toLocaleDateString() : ""}</TableCell>
+              <TableCell>
+                {rfq.needByDate
+                  ? new Date(rfq.needByDate).toLocaleDateString()
+                  : ""}
+              </TableCell>
               <TableCell>{rfq.createdBy || ""}</TableCell>
-              <TableCell>{rfq.createdOn ? new Date(rfq.createdOn).toLocaleString() : ""}</TableCell>
-              <TableCell>{rfq.lastUpdatedOn ? new Date(rfq.lastUpdatedOn).toLocaleString() : ""}</TableCell>
+              <TableCell>
+                {rfq.createdOn ? new Date(rfq.createdOn).toLocaleString() : ""}
+              </TableCell>
+              <TableCell>
+                {rfq.lastUpdatedOn
+                  ? new Date(rfq.lastUpdatedOn).toLocaleString()
+                  : ""}
+              </TableCell>
               <TableCell>{rfq.status || ""}</TableCell>
             </TableRow>
           )}

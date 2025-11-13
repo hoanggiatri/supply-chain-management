@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, Box, Button, Grid, } from "@mui/material";
+import { Container, Paper, Typography, Box, Button, Grid } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 import EmployeeForm from "@components/general/EmployeeForm";
@@ -8,13 +8,13 @@ import UserForm from "@components/general/UserForm";
 import { getEmployeeById } from "@/services/general/EmployeeService";
 import { getUserByEmployeeId } from "@/services/general/UserService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
+import toastrService from "@/services/toastrService";
 
 const MyProfile = () => {
   const [employee, setEmployee] = useState(null);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
-  
   const role = localStorage.getItem("role");
   const token = localStorage.getItem("token");
 
@@ -32,7 +32,9 @@ const MyProfile = () => {
         const userRes = await getUserByEmployeeId(employeeId, token);
         setUser(userRes);
       } catch (error) {
-        alert(error.response?.data?.message || "Lỗi khi tải thông tin người dùng!");
+        toastrService.error(
+          error.response?.data?.message || "Lỗi khi tải thông tin người dùng!"
+        );
       }
     };
 
@@ -45,8 +47,8 @@ const MyProfile = () => {
 
   return (
     <Container>
-      <Paper className="paper-container" elevation={3} >
-        <Typography className="page-title" variant="h4" >
+      <Paper className="paper-container" elevation={3}>
+        <Typography className="page-title" variant="h4">
           THÔNG TIN CÁ NHÂN
         </Typography>
 
@@ -63,14 +65,30 @@ const MyProfile = () => {
                   "https://img.freepik.com/premium-vector/default-avatar-profile-icon-social-media-user-image-gray-avatar-icon-blank-profile-silhouette-vector-illustration_561158-3383.jpg"
                 }
                 alt="avatar"
-                style={{ width: 100, height: 100, objectFit: "cover", borderRadius: "50%", }}
+                style={{
+                  width: 100,
+                  height: 100,
+                  objectFit: "cover",
+                  borderRadius: "50%",
+                }}
               />
             </Box>
 
-            <EmployeeForm employee={employee} onChange={() => { }} errors={{}} readOnlyFields={Object.keys(employee)} />
+            <EmployeeForm
+              employee={employee}
+              onChange={() => {}}
+              errors={{}}
+              readOnlyFields={Object.keys(employee)}
+            />
 
             <Box mt={2} display="flex" justifyContent="flex-end">
-              <Button variant="contained" color="default" onClick={() => navigate(`/employee/${employee.employeeId}/edit`)} >
+              <Button
+                variant="contained"
+                color="default"
+                onClick={() =>
+                  navigate(`/employee/${employee.employeeId}/edit`)
+                }
+              >
                 Sửa thông tin
               </Button>
             </Box>
@@ -81,10 +99,20 @@ const MyProfile = () => {
               THÔNG TIN TÀI KHOẢN:
             </Typography>
 
-            <UserForm user={user} onChange={() => { }} errors={{}} readOnly role={role}/>
+            <UserForm
+              user={user}
+              onChange={() => {}}
+              errors={{}}
+              readOnly
+              role={role}
+            />
 
             <Box mt={2} display="flex" justifyContent="flex-end">
-              <Button variant="contained" color="default" onClick={() => navigate(`/user/${user.userId}/edit`)} >
+              <Button
+                variant="contained"
+                color="default"
+                onClick={() => navigate(`/user/${user.userId}/edit`)}
+              >
                 Sửa tài khoản
               </Button>
             </Box>

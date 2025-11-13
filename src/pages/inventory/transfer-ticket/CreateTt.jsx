@@ -5,6 +5,7 @@ import { getAllItemsInCompany } from "@/services/general/ItemService";
 import { createTransferTicket } from "@/services/inventory/TransferTicketService";
 import TtForm from "@/components/inventory/TtForm";
 import TtDetailTable from "@/components/inventory/TtDetailTable";
+import toastrService from "@/services/toastrService";
 
 const CreateTt = () => {
   const navigate = useNavigate();
@@ -35,7 +36,7 @@ const CreateTt = () => {
         const data = await getAllItemsInCompany(companyId, token);
         setItems(data);
       } catch (error) {
-        alert(
+        toastrService.error(
           error.response?.data?.message || "Lỗi khi tải danh sách hàng hóa!"
         );
       }
@@ -106,11 +107,13 @@ const CreateTt = () => {
       console.log("Request", request);
 
       await createTransferTicket(request, token);
-      alert("Tạo phiếu chuyển kho thành công!");
+      toastrService.success("Tạo phiếu chuyển kho thành công!");
       navigate("/transfer-tickets");
     } catch (error) {
       console.log(error.response);
-      alert(error.response?.data?.message || "Lỗi khi tạo phiếu chuyển kho!");
+      toastrService.error(
+        error.response?.data?.message || "Lỗi khi tạo phiếu chuyển kho!"
+      );
     }
   };
 

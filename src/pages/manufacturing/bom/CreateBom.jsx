@@ -5,6 +5,7 @@ import { createBom } from "@/services/manufacturing/BomService";
 import { getAllItemsInCompany } from "@/services/general/ItemService";
 import BomForm from "@/components/manufacturing/BomForm";
 import BomDetailTable from "@/components/manufacturing/BomDetailTable";
+import toastrService from "@/services/toastrService";
 
 const CreateBom = () => {
   const navigate = useNavigate();
@@ -31,7 +32,9 @@ const CreateBom = () => {
         const data = await getAllItemsInCompany(companyId, token);
         setItems(data);
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi khi lấy danh sách hàng hóa!");
+        toastrService.error(
+          error.response?.data?.message || "Có lỗi khi lấy danh sách hàng hóa!"
+        );
       }
     };
     fetchItems();
@@ -41,7 +44,8 @@ const CreateBom = () => {
     const formErrors = {};
     if (!bom.itemCode) formErrors.itemCode = "Phải chọn hàng hóa";
     if (!bom.itemName) formErrors.itemName = "Chưa có tên hàng hóa";
-    if (!bom.status?.trim()) formErrors.status = "Trạng thái không được để trống";
+    if (!bom.status?.trim())
+      formErrors.status = "Trạng thái không được để trống";
     return formErrors;
   };
 
@@ -50,7 +54,11 @@ const CreateBom = () => {
 
     bomDetails.forEach((detail, index) => {
       if (!detail.itemId) {
-        tableErrors.push({ index, field: "itemId", message: "Phải chọn nguyên vật liệu" });
+        tableErrors.push({
+          index,
+          field: "itemId",
+          message: "Phải chọn nguyên vật liệu",
+        });
       }
       if (detail.quantity < 0) {
         tableErrors.push({ index, field: "quantity", message: ">= 0" });
@@ -69,7 +77,10 @@ const CreateBom = () => {
     const validationErrors = validateForm();
     const bomDetailErrors = validateBomDetails();
 
-    if (Object.keys(validationErrors).length > 0 || bomDetailErrors.length > 0) {
+    if (
+      Object.keys(validationErrors).length > 0 ||
+      bomDetailErrors.length > 0
+    ) {
       setErrors({ ...validationErrors, bomDetailErrors });
       return;
     }
@@ -88,11 +99,11 @@ const CreateBom = () => {
       console.log(request);
 
       await createBom(request, token);
-      alert("Tạo BOM thành công!");
+      toastrService.success("Tạo BOM thành công!");
       navigate("/boms");
     } catch (error) {
       console.log(error.response);
-      alert(error.response?.data?.message || "Lỗi khi tạo BOM!");
+      toastrService.error(error.response?.data?.message || "Lỗi khi tạo BOM!");
     }
   };
 

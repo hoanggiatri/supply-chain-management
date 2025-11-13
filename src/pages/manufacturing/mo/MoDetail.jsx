@@ -25,6 +25,7 @@ import { createReceiveTicket } from "@/services/inventory/ReceiveTicketService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import ProcessCard from "@/components/content-components/ProcessCard";
 import dayjs from "dayjs";
+import toastrService from "@/services/toastrService";
 
 const MoDetail = () => {
   const { moId } = useParams();
@@ -46,7 +47,7 @@ const MoDetail = () => {
         const data = await getMoById(moId, token);
         setMo(data);
       } catch (error) {
-        alert(
+        toastrService.error(
           error.response?.data?.message ||
             "Có lỗi xảy ra khi lấy thông tin công lệnh!"
         );
@@ -65,7 +66,9 @@ const MoDetail = () => {
         const linesData = await getAllLinesInCompany(companyId, token);
         setLines(linesData);
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi khi lấy dữ liệu!");
+        toastrService.error(
+          error.response?.data?.message || "Có lỗi khi lấy dữ liệu!"
+        );
       }
     };
 
@@ -81,7 +84,9 @@ const MoDetail = () => {
         );
         setProcesses(sorted);
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi khi lấy process!");
+        toastrService.error(
+          error.response?.data?.message || "Có lỗi khi lấy process!"
+        );
       }
     };
 
@@ -94,7 +99,9 @@ const MoDetail = () => {
         const data = await getAllWarehousesInCompany(companyId, token);
         setWarehouses(data);
       } catch (error) {
-        alert(error.response?.data?.message || "Không thể tải danh sách kho!");
+        toastrService.error(
+          error.response?.data?.message || "Không thể tải danh sách kho!"
+        );
       }
     };
     fetchWarehouses();
@@ -116,14 +123,16 @@ const MoDetail = () => {
         status: "Đã hủy",
       };
       await updateMo(moId, request, token);
-      alert("Đã hủy công lệnh!");
+      toastrService.success("Đã hủy công lệnh!");
 
       setMo((prev) => ({
         ...prev,
         status: "Đã hủy",
       }));
     } catch (error) {
-      alert(error.response?.data?.message || "Có lỗi khi hủy công lệnh!");
+      toastrService.error(
+        error.response?.data?.message || "Có lỗi khi hủy công lệnh!"
+      );
     }
   };
 
@@ -131,7 +140,9 @@ const MoDetail = () => {
     if (mo.status === "Chờ xác nhận") {
       navigate(`/mo/${moId}/edit`);
     } else {
-      alert("Chỉ công lệnh ở trạng thái 'Chờ xác nhận' mới được chỉnh sửa!");
+      toastrService.warning(
+        "Chỉ công lệnh ở trạng thái 'Chờ xác nhận' mới được chỉnh sửa!"
+      );
     }
   };
 
@@ -189,13 +200,15 @@ const MoDetail = () => {
       );
       setProcesses(sorted);
     } catch (error) {
-      alert(error.response?.data?.message || "Có lỗi khi cập nhật process!");
+      toastrService.error(
+        error.response?.data?.message || "Có lỗi khi cập nhật process!"
+      );
     }
   };
 
   const handleCreateReceiveTicket = async () => {
     if (!selectedWarehouseId) {
-      alert("Vui lòng chọn kho nhập.");
+      toastrService.warning("Vui lòng chọn kho nhập.");
       return;
     }
 
@@ -214,10 +227,12 @@ const MoDetail = () => {
     try {
       console.log("Receive Ticket Request: ", receiveTicketRequest);
       await createReceiveTicket(receiveTicketRequest, token);
-      alert("Yêu cầu nhập kho thành công!");
+      toastrService.success("Yêu cầu nhập kho thành công!");
       setHasRequestedReceive(true);
     } catch (error) {
-      alert(error.response?.data?.message || "Không thể tạo phiếu nhập kho!");
+      toastrService.error(
+        error.response?.data?.message || "Không thể tạo phiếu nhập kho!"
+      );
     }
   };
 

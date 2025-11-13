@@ -6,6 +6,7 @@ import { getAllItemsInCompany } from "@/services/general/ItemService";
 import BomForm from "@/components/manufacturing/BomForm";
 import BomDetailTable from "@/components/manufacturing/BomDetailTable";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
+import toastrService from "@/services/toastrService";
 
 const EditBom = () => {
   const { itemId } = useParams();
@@ -39,7 +40,9 @@ const EditBom = () => {
         setBomDetails(bomData.bomDetails || []);
         setItems(itemData);
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi khi tải dữ liệu!");
+        toastrService.error(
+          error.response?.data?.message || "Có lỗi khi tải dữ liệu!"
+        );
       } finally {
         setLoading(false);
       }
@@ -111,10 +114,12 @@ const EditBom = () => {
       };
 
       await updateBom(bom.bomId, request, token);
-      alert("Cập nhật BOM thành công!");
+      toastrService.success("Cập nhật BOM thành công!");
       navigate(-1);
     } catch (error) {
-      alert(error.response?.data?.message || "Lỗi khi cập nhật BOM!");
+      toastrService.error(
+        error.response?.data?.message || "Lỗi khi cập nhật BOM!"
+      );
     }
   };
 

@@ -1,7 +1,15 @@
 import React, { useState } from "react";
-import { Box, TextField, Button, Typography, IconButton, InputAdornment } from "@mui/material";
+import {
+  Box,
+  TextField,
+  Button,
+  Typography,
+  IconButton,
+  InputAdornment,
+} from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { updatePassword } from "@/services/general/UserService";
+import toastrService from "@/services/toastrService";
 
 const UpdatePasswordForm = ({ userId, onSuccess }) => {
   const [formData, setFormData] = useState({
@@ -22,11 +30,16 @@ const UpdatePasswordForm = ({ userId, onSuccess }) => {
 
   const validate = () => {
     const errors = {};
-    if (!formData.currentPassword.trim()) errors.currentPassword = "Vui lòng nhập mật khẩu hiện tại";
-    if (!formData.newPassword.trim()) errors.newPassword = "Vui lòng nhập mật khẩu mới";
-    if (formData.newPassword.length < 8) errors.newPassword = "Mật khẩu phải có ít nhất 8 ký tự";
-    if (!formData.confirmPassword.trim()) errors.confirmPassword = "Vui lòng nhập xác nhận mật khẩu";
-    if (formData.confirmPassword !== formData.newPassword) errors.confirmPassword = "Mật khẩu xác nhận không khớp";
+    if (!formData.currentPassword.trim())
+      errors.currentPassword = "Vui lòng nhập mật khẩu hiện tại";
+    if (!formData.newPassword.trim())
+      errors.newPassword = "Vui lòng nhập mật khẩu mới";
+    if (formData.newPassword.length < 8)
+      errors.newPassword = "Mật khẩu phải có ít nhất 8 ký tự";
+    if (!formData.confirmPassword.trim())
+      errors.confirmPassword = "Vui lòng nhập xác nhận mật khẩu";
+    if (formData.confirmPassword !== formData.newPassword)
+      errors.confirmPassword = "Mật khẩu xác nhận không khớp";
     return errors;
   };
 
@@ -36,7 +49,7 @@ const UpdatePasswordForm = ({ userId, onSuccess }) => {
       setErrors(errors);
       return;
     }
-  
+
     const token = localStorage.getItem("token");
     try {
       const request = {
@@ -44,14 +57,24 @@ const UpdatePasswordForm = ({ userId, onSuccess }) => {
         newPassword: formData.newPassword,
       };
       await updatePassword(userId, request, token);
-      alert("Đổi mật khẩu thành công!");
+      toastrService.success("Đổi mật khẩu thành công!");
       onSuccess?.();
     } catch (error) {
-      alert(error.response?.data?.message || "Đổi mật khẩu thất bại!");
+      toastrService.error(
+        error.response?.data?.message || "Đổi mật khẩu thất bại!"
+      );
     }
-  };  
+  };
 
-  const renderPasswordField = (label, name, value, onToggleShow, showPassword, error, helperText) => (
+  const renderPasswordField = (
+    label,
+    name,
+    value,
+    onToggleShow,
+    showPassword,
+    error,
+    helperText
+  ) => (
     <TextField
       label={label}
       name={name}

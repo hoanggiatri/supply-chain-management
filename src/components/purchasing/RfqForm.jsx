@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import SelectAutocomplete from "@components/content-components/SelectAutocomplete";
 import { getAllCompanies } from "@/services/general/CompanyService";
+import toastrService from "@/services/toastrService";
 
 const RfqForm = ({ rfq, onChange, errors = {}, readOnlyFields, setRfq }) => {
   const [companies, setCompanies] = useState([]);
@@ -31,7 +32,7 @@ const RfqForm = ({ rfq, onChange, errors = {}, readOnlyFields, setRfq }) => {
         setCompanies(filtered);
         setFilteredCompanies(filtered);
       } catch (error) {
-        alert(
+        toastrService.error(
           error.response?.data?.message || "Có lỗi khi lấy danh sách công ty!"
         );
       }

@@ -1,10 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { Container, TableRow, TableCell, Typography, Paper, Box, Button } from "@mui/material";
+import {
+  Container,
+  TableRow,
+  TableCell,
+  Typography,
+  Paper,
+  Box,
+  Button,
+} from "@mui/material";
 import DataTable from "@components/content-components/DataTable";
 import StatusSummaryCard from "@/components/content-components/StatusSummaryCard";
 import { getAllTransferTicketsInCompany } from "@/services/inventory/TransferTicketService";
 import { useNavigate } from "react-router-dom";
-import { useTheme } from '@mui/material/styles';
+import { useTheme } from "@mui/material/styles";
+import toastrService from "@/services/toastrService";
 
 const TransferTicketInCompany = () => {
   const [tickets, setTickets] = useState([]);
@@ -26,16 +35,20 @@ const TransferTicketInCompany = () => {
         const data = await getAllTransferTicketsInCompany(companyId, token);
         setTickets(data);
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi khi lấy danh sách phiếu chuyển kho!");
+        toastrService.error(
+          error.response?.data?.message ||
+            "Có lỗi khi lấy danh sách phiếu chuyển kho!"
+        );
       }
     };
 
     fetchTickets();
   }, [companyId, token]);
-  
-  const filteredTickets = !filterStatus || filterStatus === "Tất cả"
-  ? tickets
-  : tickets.filter((ticket) => ticket.status === filterStatus);
+
+  const filteredTickets =
+    !filterStatus || filterStatus === "Tất cả"
+      ? tickets
+      : tickets.filter((ticket) => ticket.status === filterStatus);
 
   const handleRequestSort = (property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -73,7 +86,14 @@ const TransferTicketInCompany = () => {
         </Typography>
         <StatusSummaryCard
           data={tickets}
-          statusLabels={["Tất cả", "Chờ xác nhận", "Chờ xuất kho", "Chờ nhập kho", "Đã hoàn thành", "Đã hủy"]}
+          statusLabels={[
+            "Tất cả",
+            "Chờ xác nhận",
+            "Chờ xuất kho",
+            "Chờ nhập kho",
+            "Đã hoàn thành",
+            "Đã hủy",
+          ]}
           getStatus={(ticket) => ticket.status}
           statusColors={{
             "Tất cả": "#000",
@@ -81,13 +101,17 @@ const TransferTicketInCompany = () => {
             "Chờ xuất kho": theme.palette.info.main,
             "Chờ nhập kho": theme.palette.warning.main,
             "Đã hoàn thành": theme.palette.success.main,
-            "Đã hủy": theme.palette.error.main
+            "Đã hủy": theme.palette.error.main,
           }}
           onSelectStatus={(status) => setFilterStatus(status)}
           selectedStatus={filterStatus}
         />
         <Box mb={3}>
-          <Button variant="contained" color="default" onClick={() => navigate("/create-transfer-ticket")}>
+          <Button
+            variant="contained"
+            color="default"
+            onClick={() => navigate("/create-transfer-ticket")}
+          >
             Thêm mới
           </Button>
         </Box>
@@ -117,8 +141,16 @@ const TransferTicketInCompany = () => {
               <TableCell>{ticket.toWarehouseName || ""}</TableCell>
               <TableCell>{ticket.reason || ""}</TableCell>
               <TableCell>{ticket.createdBy || ""}</TableCell>
-              <TableCell>{ticket.createdOn ? new Date(ticket.createdOn).toLocaleString() : ""}</TableCell>
-              <TableCell>{ticket.lastUpdatedOn ? new Date(ticket.lastUpdatedOn).toLocaleString() : ""}</TableCell>
+              <TableCell>
+                {ticket.createdOn
+                  ? new Date(ticket.createdOn).toLocaleString()
+                  : ""}
+              </TableCell>
+              <TableCell>
+                {ticket.lastUpdatedOn
+                  ? new Date(ticket.lastUpdatedOn).toLocaleString()
+                  : ""}
+              </TableCell>
               <TableCell>{ticket.status || ""}</TableCell>
             </TableRow>
           )}

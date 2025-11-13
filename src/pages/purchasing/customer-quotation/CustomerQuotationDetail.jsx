@@ -1,11 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, TableRow, TableCell, Grid, Box, Button } from "@mui/material";
+import {
+  Container,
+  Paper,
+  Typography,
+  TableRow,
+  TableCell,
+  Grid,
+  Box,
+  Button,
+} from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import DataTable from "@/components/content-components/DataTable";
-import { getQuotationByRfq, updateQuotationStatus } from "@/services/sale/QuotationService";
+import {
+  getQuotationByRfq,
+  updateQuotationStatus,
+} from "@/services/sale/QuotationService";
 import { updateRfqStatus } from "@/services/purchasing/RfqService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import CustomerQuotationForm from "@/components/sale/CustomerQuotationForm";
+import toastrService from "@/services/toastrService";
 
 const CustomerQuotationDetail = () => {
   const { rfqId } = useParams();
@@ -30,7 +43,9 @@ const CustomerQuotationDetail = () => {
         setQuotation(data);
         setQuotationDetails(data.quotationDetails || []);
       } catch (e) {
-        alert(e.response?.data?.message || "Không thể tải báo giá!");
+        toastrService.error(
+          e.response?.data?.message || "Không thể tải báo giá!"
+        );
       } finally {
         setLoading(false);
       }
@@ -49,12 +64,14 @@ const CustomerQuotationDetail = () => {
   ];
 
   const handleDecline = async () => {
-    const confirmDecline = window.confirm("Bạn có chắc chắn muốn từ chối báo giá này không?");
-    if (!confirmDecline) return;
+    const result = await toastrService.confirm(
+      "Bạn có chắc chắn muốn từ chối báo giá này không?"
+    );
+    if (!result.isConfirmed) return;
 
     try {
       await updateQuotationStatus(quotation.quotationId, "Đã từ chối", token);
-      alert("Đã từ chối!");
+      toastrService.success("Đã từ chối!");
 
       await updateRfqStatus(rfqId, "Đã từ chối", token);
 
@@ -63,17 +80,21 @@ const CustomerQuotationDetail = () => {
         status: "Đã từ chối",
       }));
     } catch (error) {
-      alert(error.response?.data?.message || "Có lỗi khi từ chối báo giá!");
+      toastrService.error(
+        error.response?.data?.message || "Có lỗi khi từ chối báo giá!"
+      );
     }
   };
 
   const handleAccept = async () => {
-    const confirmAccept = window.confirm("Bạn có chắc chắn muốn chấp nhận báo giá này không?");
-    if (!confirmAccept) return;
+    const result = await toastrService.confirm(
+      "Bạn có chắc chắn muốn chấp nhận báo giá này không?"
+    );
+    if (!result.isConfirmed) return;
 
     try {
       await updateQuotationStatus(quotation.quotationId, "Đã chấp nhận", token);
-      alert("Đã chấp nhận!");
+      toastrService.success("Đã chấp nhận!");
 
       await updateRfqStatus(rfqId, "Đã chấp nhận", token);
 
@@ -82,7 +103,9 @@ const CustomerQuotationDetail = () => {
         status: "Đã chấp nhận",
       }));
     } catch (error) {
-      alert(error.response?.data?.message || "Có lỗi khi chấp nhận báo giá!");
+      toastrService.error(
+        error.response?.data?.message || "Có lỗi khi chấp nhận báo giá!"
+      );
     }
   };
 
@@ -102,8 +125,7 @@ const CustomerQuotationDetail = () => {
   };
 
   const filteredDetails = Array.isArray(quotationDetails)
-    ? quotationDetails
-      .sort((a, b) => {
+    ? quotationDetails.sort((a, b) => {
         if (orderBy) {
           if (a[orderBy] < b[orderBy]) return order === "asc" ? -1 : 1;
           if (a[orderBy] > b[orderBy]) return order === "asc" ? 1 : -1;
@@ -139,7 +161,11 @@ const CustomerQuotationDetail = () => {
 
         {quotation.status === "Đã chấp nhận" && (
           <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
-            <Button variant="contained" color="default" onClick={() => navigate(`/create-po/${quotation.quotationId}`)}>
+            <Button
+              variant="contained"
+              color="default"
+              onClick={() => navigate(`/create-po/${quotation.quotationId}`)}
+            >
               Mua hàng
             </Button>
           </Box>
@@ -174,7 +200,10 @@ const CustomerQuotationDetail = () => {
               <TableCell>{detail.discount.toLocaleString()}</TableCell>
               <TableCell>
                 <Typography fontWeight="bold">
-                  {(detail.itemPrice * detail.quantity - detail.discount).toLocaleString()}
+                  {(
+                    detail.itemPrice * detail.quantity -
+                    detail.discount
+                  ).toLocaleString()}
                 </Typography>
               </TableCell>
             </TableRow>
@@ -183,12 +212,26 @@ const CustomerQuotationDetail = () => {
         <Grid container justifyContent="flex-end" mt={2}>
           <Grid item>
             {[
-              { label: "Tổng tiền hàng (VNĐ):", value: quotation.subTotal.toLocaleString() },
+              {
+                label: "Tổng tiền hàng (VNĐ):",
+                value: quotation.subTotal.toLocaleString(),
+              },
               { label: "Thuế (%):", value: quotation.taxRate },
-              { label: "Tiền thuế (VNĐ):", value: quotation.taxAmount.toLocaleString() },
-              { label: "Tổng cộng (VNĐ):", value: quotation.totalAmount.toLocaleString() },
+              {
+                label: "Tiền thuế (VNĐ):",
+                value: quotation.taxAmount.toLocaleString(),
+              },
+              {
+                label: "Tổng cộng (VNĐ):",
+                value: quotation.totalAmount.toLocaleString(),
+              },
             ].map((item, index) => (
-              <Grid container key={index} justifyContent="space-between" spacing={2}>
+              <Grid
+                container
+                key={index}
+                justifyContent="space-between"
+                spacing={2}
+              >
                 <Grid item mb={3}>
                   <Typography fontWeight="bold">{item.label}</Typography>
                 </Grid>

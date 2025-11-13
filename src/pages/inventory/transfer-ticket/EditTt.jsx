@@ -9,6 +9,7 @@ import { getAllItemsInCompany } from "@/services/general/ItemService";
 import TtForm from "@/components/inventory/TtForm";
 import TtDetailTable from "@/components/inventory/TtDetailTable";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
+import toastrService from "@/services/toastrService";
 
 const EditTt = () => {
   const { ticketId } = useParams();
@@ -45,7 +46,7 @@ const EditTt = () => {
         setTicketDetails(ticketData.transferTicketDetails || []);
         setItems(itemData || []);
       } catch (error) {
-        alert(
+        toastrService.error(
           error.response?.data?.message ||
             "Có lỗi khi tải dữ liệu phiếu điều chuyển!"
         );
@@ -122,10 +123,10 @@ const EditTt = () => {
       };
 
       await updateTransferTicket(ticket.ticketId, request, token);
-      alert("Cập nhật phiếu chuyển kho thành công!");
+      toastrService.success("Cập nhật phiếu chuyển kho thành công!");
       navigate(-1);
     } catch (error) {
-      alert(
+      toastrService.error(
         error.response?.data?.message || "Lỗi khi cập nhật phiếu chuyển kho!"
       );
     }

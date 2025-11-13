@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, TableRow, TableCell, Grid, Box, Button } from "@mui/material";
+import {
+  Container,
+  Paper,
+  Typography,
+  TableRow,
+  TableCell,
+  Grid,
+  Box,
+  Button,
+} from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import DataTable from "@/components/content-components/DataTable";
@@ -9,6 +18,7 @@ import { getQuotationById } from "@/services/sale/QuotationService";
 import { getInvoicePdf } from "@/services/sale/InvoiceService";
 import { getSoByPoId } from "@/services/sale/SoService";
 import { getDeliveryOrderBySoId } from "@/services/delivery/DoService";
+import toastrService from "@/services/toastrService";
 
 const PoDetail = () => {
   const { poId } = useParams();
@@ -38,7 +48,10 @@ const PoDetail = () => {
         setQuotation(quotationData);
         setDetails(poData.purchaseOrderDetails || []);
       } catch (error) {
-        alert(error.response?.poData?.message || "Không thể tải chi tiết đơn mua hàng!");
+        toastrService.error(
+          error.response?.poData?.message ||
+            "Không thể tải chi tiết đơn mua hàng!"
+        );
       } finally {
         setLoading(false);
       }
@@ -48,19 +61,23 @@ const PoDetail = () => {
   }, [poId, token]);
 
   const handleCancel = async () => {
-    const confirmCancel = window.confirm("Bạn có chắc chắn muốn hủy đơn mua hàng này không?");
-    if (!confirmCancel) return;
+    const result = await toastrService.confirm(
+      "Bạn có chắc chắn muốn hủy đơn mua hàng này không?"
+    );
+    if (!result.isConfirmed) return;
 
     try {
       await updatePoStatus(po.poId, "Đã hủy", token);
-      alert("Đã hủy đơn mua hàng!");
+      toastrService.success("Đã hủy đơn mua hàng!");
 
       setPo((prev) => ({
         ...prev,
         status: "Đã hủy",
       }));
     } catch (error) {
-      alert(error.response?.data?.message || "Có lỗi khi hủy đơn mua hàng!");
+      toastrService.error(
+        error.response?.data?.message || "Có lỗi khi hủy đơn mua hàng!"
+      );
     }
   };
 
@@ -70,7 +87,7 @@ const PoDetail = () => {
       const doData = await getDeliveryOrderBySoId(soData.soId, token);
       navigate(`/do-process/${doData.doId}`);
     } catch (error) {
-      alert("Không thể tải thông tin vận chuyển");
+      toastrService.error("Không thể tải thông tin vận chuyển");
     }
   };
 
@@ -79,7 +96,7 @@ const PoDetail = () => {
       const soData = await getSoByPoId(po.poId, token);
       await getInvoicePdf(soData.soId, token);
     } catch (error) {
-      alert("Không thể tải hóa đơn");
+      toastrService.error("Không thể tải hóa đơn");
     }
   };
 
@@ -110,12 +127,12 @@ const PoDetail = () => {
 
   const filteredDetails = Array.isArray(details)
     ? [...details].sort((a, b) => {
-      if (orderBy) {
-        if (a[orderBy] < b[orderBy]) return order === "asc" ? -1 : 1;
-        if (a[orderBy] > b[orderBy]) return order === "asc" ? 1 : -1;
-      }
-      return 0;
-    })
+        if (orderBy) {
+          if (a[orderBy] < b[orderBy]) return order === "asc" ? -1 : 1;
+          if (a[orderBy] > b[orderBy]) return order === "asc" ? 1 : -1;
+        }
+        return 0;
+      })
     : [];
 
   const paginatedDetails = filteredDetails.slice(
@@ -145,25 +162,45 @@ const PoDetail = () => {
             </Button>
           </Box>
         )}
-        {po && (po.status === "Đang vận chuyển" || po.status === "Chờ nhập kho") && (
-          <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
-            <Button variant="contained" color="success" onClick={handleViewDoProcess}>
-              Thông tin vận chuyển
-            </Button>
-          </Box>
-        )}
+        {po &&
+          (po.status === "Đang vận chuyển" || po.status === "Chờ nhập kho") && (
+            <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
+              <Button
+                variant="contained"
+                color="success"
+                onClick={handleViewDoProcess}
+              >
+                Thông tin vận chuyển
+              </Button>
+            </Box>
+          )}
         {po && po.status === "Đã hoàn thành" && (
           <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
-            <Button variant="contained" color="default" onClick={handleViewInvoice}>
+            <Button
+              variant="contained"
+              color="default"
+              onClick={handleViewInvoice}
+            >
               Xem hóa đơn
             </Button>
-            <Button variant="contained" color="success" onClick={handleViewDoProcess}>
+            <Button
+              variant="contained"
+              color="success"
+              onClick={handleViewDoProcess}
+            >
               Thông tin vận chuyển
             </Button>
           </Box>
         )}
 
-        <PoForm po={po} quotation={quotation} readOnly setPo={[]} errors={[]} readOnlyFields={readOnlyFields} />
+        <PoForm
+          po={po}
+          quotation={quotation}
+          readOnly
+          setPo={[]}
+          errors={[]}
+          readOnlyFields={readOnlyFields}
+        />
 
         <Typography variant="h5" mt={3} mb={3}>
           DANH SÁCH HÀNG HÓA:
@@ -192,7 +229,10 @@ const PoDetail = () => {
               <TableCell>{detail.discount.toLocaleString()}</TableCell>
               <TableCell>
                 <Typography fontWeight="bold">
-                  {(detail.itemPrice * detail.quantity - detail.discount).toLocaleString()}
+                  {(
+                    detail.itemPrice * detail.quantity -
+                    detail.discount
+                  ).toLocaleString()}
                 </Typography>
               </TableCell>
             </TableRow>
@@ -202,12 +242,26 @@ const PoDetail = () => {
         <Grid container justifyContent="flex-end" mt={2}>
           <Grid item>
             {[
-              { label: "Tổng tiền hàng (VNĐ):", value: po?.subTotal.toLocaleString() },
+              {
+                label: "Tổng tiền hàng (VNĐ):",
+                value: po?.subTotal.toLocaleString(),
+              },
               { label: "Thuế (%):", value: po?.taxRate },
-              { label: "Tiền thuế (VNĐ):", value: po?.taxAmount.toLocaleString() },
-              { label: "Tổng cộng (VNĐ):", value: po?.totalAmount.toLocaleString() },
+              {
+                label: "Tiền thuế (VNĐ):",
+                value: po?.taxAmount.toLocaleString(),
+              },
+              {
+                label: "Tổng cộng (VNĐ):",
+                value: po?.totalAmount.toLocaleString(),
+              },
             ].map((item, index) => (
-              <Grid container key={index} justifyContent="space-between" spacing={2}>
+              <Grid
+                container
+                key={index}
+                justifyContent="space-between"
+                spacing={2}
+              >
                 <Grid item mb={3}>
                   <Typography fontWeight="bold">{item.label}</Typography>
                 </Grid>

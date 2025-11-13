@@ -7,6 +7,7 @@ import { getAllItemsInCompany } from "@/services/general/ItemService";
 import { getAllLinesInCompany } from "@/services/general/ManufactureLineService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import dayjs from "dayjs";
+import toastrService from "@/services/toastrService";
 
 const EditMo = () => {
   const { moId } = useParams();
@@ -23,7 +24,9 @@ const EditMo = () => {
         const data = await getMoById(moId, token);
         setMo(data);
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi khi lấy công lệnh!");
+        toastrService.error(
+          error.response?.data?.message || "Có lỗi khi lấy công lệnh!"
+        );
       }
     };
     fetchMo();
@@ -40,7 +43,9 @@ const EditMo = () => {
         const linesData = await getAllLinesInCompany(companyId, token);
         setLines(linesData);
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi khi lấy dữ liệu!");
+        toastrService.error(
+          error.response?.data?.message || "Có lỗi khi lấy dữ liệu!"
+        );
       }
     };
 
@@ -104,10 +109,12 @@ const EditMo = () => {
         status: mo.status,
       };
       await updateMo(moId, request, token);
-      alert("Cập nhật công lệnh thành công!");
+      toastrService.success("Cập nhật công lệnh thành công!");
       navigate(-1);
     } catch (error) {
-      alert(error.response?.data?.message || "Có lỗi khi cập nhật!");
+      toastrService.error(
+        error.response?.data?.message || "Có lỗi khi cập nhật!"
+      );
     }
   };
 

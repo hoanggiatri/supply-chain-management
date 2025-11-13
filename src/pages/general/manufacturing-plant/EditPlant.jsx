@@ -7,6 +7,7 @@ import {
   updatePlant,
 } from "@/services/general/ManufacturePlantService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
+import toastrService from "@/services/toastrService";
 
 const EditPlant = () => {
   const { plantId } = useParams();
@@ -33,7 +34,7 @@ const EditPlant = () => {
         setPlant(data);
         setEditedPlant(data);
       } catch (error) {
-        alert(
+        toastrService.error(
           error.response?.data?.message ||
             "Có lỗi xảy ra khi lấy thông tin xưởng!"
         );
@@ -67,10 +68,10 @@ const EditPlant = () => {
       const updatedPlant = await updatePlant(plantId, payload, token);
       setPlant(updatedPlant);
       setEditedPlant(updatedPlant);
-      alert("Cập nhật xưởng thành công!");
+      toastrService.success("Cập nhật xưởng thành công!");
       navigate(`/plant/${plantId}`);
     } catch (error) {
-      alert(
+      toastrService.error(
         error.response?.data?.message || "Có lỗi xảy ra khi cập nhật xưởng!"
       );
     }

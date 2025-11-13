@@ -1,10 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, TableRow, TableCell, Box, Button } from "@mui/material";
+import {
+  Container,
+  Paper,
+  Typography,
+  TableRow,
+  TableCell,
+  Box,
+  Button,
+} from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import DataTable from "@/components/content-components/DataTable";
 import { getRfqById, updateRfqStatus } from "@/services/purchasing/RfqService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import RfqForm from "@/components/purchasing/RfqForm";
+import toastrService from "@/services/toastrService";
 
 const RfqDetail = () => {
   const { rfqId } = useParams();
@@ -26,7 +35,7 @@ const RfqDetail = () => {
         const data = await getRfqById(rfqId, token);
         setRfq(data);
       } catch (error) {
-        alert(error.response?.data?.message || "Lỗi khi tải RFQ");
+        toastrService.error(error.response?.data?.message || "Lỗi khi tải RFQ");
       } finally {
         setLoading(false);
       }
@@ -51,15 +60,19 @@ const RfqDetail = () => {
     { id: "note", label: "Ghi chú" },
   ];
 
-  const filteredDetails = rfq?.rfqDetails?.sort((a, b) => {
-    if (orderBy && a[orderBy] !== undefined && b[orderBy] !== undefined) {
-      if (a[orderBy] < b[orderBy]) return order === "asc" ? -1 : 1;
-      if (a[orderBy] > b[orderBy]) return order === "asc" ? 1 : -1;
-    }
-    return 0;
-  }) || [];
+  const filteredDetails =
+    rfq?.rfqDetails?.sort((a, b) => {
+      if (orderBy && a[orderBy] !== undefined && b[orderBy] !== undefined) {
+        if (a[orderBy] < b[orderBy]) return order === "asc" ? -1 : 1;
+        if (a[orderBy] > b[orderBy]) return order === "asc" ? 1 : -1;
+      }
+      return 0;
+    }) || [];
 
-  const paginatedDetails = filteredDetails.slice((page - 1) * rowsPerPage, (page - 1) * rowsPerPage + rowsPerPage);
+  const paginatedDetails = filteredDetails.slice(
+    (page - 1) * rowsPerPage,
+    (page - 1) * rowsPerPage + rowsPerPage
+  );
 
   const handleRequestSort = (property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -68,19 +81,23 @@ const RfqDetail = () => {
   };
 
   const handleCancel = async () => {
-    const confirmCancel = window.confirm("Bạn có chắc chắn muốn hủy yêu cầu báo giá này không?");
-    if (!confirmCancel) return;
+    const result = await toastrService.confirm(
+      "Bạn có chắc chắn muốn hủy yêu cầu báo giá này không?"
+    );
+    if (!result.isConfirmed) return;
 
     try {
       await updateRfqStatus(rfq.rfqId, "Đã hủy", token);
-      alert("Đã hủy yêu cầu báo giá!");
+      toastrService.success("Đã hủy yêu cầu báo giá!");
 
       setRfq((prev) => ({
         ...prev,
         status: "Đã hủy",
       }));
     } catch (error) {
-      alert(error.response?.data?.message || "Có lỗi khi hủy yêu cầu báo giá!");
+      toastrService.error(
+        error.response?.data?.message || "Có lỗi khi hủy yêu cầu báo giá!"
+      );
     }
   };
 
@@ -100,13 +117,23 @@ const RfqDetail = () => {
             </Button>
           )}
           {rfq.status === "Đã báo giá" && (
-            <Button variant="contained" color="default" onClick={() => navigate(`/customer-quotation/${rfq.rfqId}`)}>
+            <Button
+              variant="contained"
+              color="default"
+              onClick={() => navigate(`/customer-quotation/${rfq.rfqId}`)}
+            >
               Xem báo giá
             </Button>
           )}
         </Box>
 
-        <RfqForm rfq={rfq} onChange={() => { }} errors={{}} readOnlyFields={readOnlyFields} setRfq={setRfq} />
+        <RfqForm
+          rfq={rfq}
+          onChange={() => {}}
+          errors={{}}
+          readOnlyFields={readOnlyFields}
+          setRfq={setRfq}
+        />
 
         <Typography variant="h5" mt={3} mb={3}>
           DANH SÁCH HÀNG HÓA YÊU CẦU BÁO GIÁ:
@@ -121,7 +148,10 @@ const RfqDetail = () => {
           page={page}
           rowsPerPage={rowsPerPage}
           onPageChange={(e, newPage) => setPage(newPage)}
-          onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value)); setPage(1); }}
+          onRowsPerPageChange={(e) => {
+            setRowsPerPage(parseInt(e.target.value));
+            setPage(1);
+          }}
           search={search}
           setSearch={setSearch}
           isLoading={loading}

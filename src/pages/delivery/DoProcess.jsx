@@ -1,10 +1,28 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Container, Paper, Typography, Box, CircularProgress, Stepper, Step, StepLabel } from "@mui/material";
+import {
+  Container,
+  Paper,
+  Typography,
+  Box,
+  CircularProgress,
+  Stepper,
+  Step,
+  StepLabel,
+} from "@mui/material";
 import { getAllDeliveryProcesses } from "@/services/delivery/DoProcessService";
-import { Timeline, TimelineItem, TimelineSeparator, TimelineConnector, TimelineContent, TimelineDot, TimelineOppositeContent } from "@mui/lab";
+import {
+  Timeline,
+  TimelineItem,
+  TimelineSeparator,
+  TimelineConnector,
+  TimelineContent,
+  TimelineDot,
+  TimelineOppositeContent,
+} from "@mui/lab";
 import { getDeliveryOrderById } from "@/services/delivery/DoService";
 import DeliveryStep from "@/components/delivery/DeliveryStep";
+import toastrService from "@/services/toastrService";
 
 const DoProcess = () => {
   const { doId } = useParams();
@@ -23,7 +41,9 @@ const DoProcess = () => {
         const data = await getAllDeliveryProcesses(doId, token);
         setProcesses(data);
       } catch (err) {
-        alert(err.response?.data?.message || "Không thể tải tiến trình vận chuyển!");
+        toastrService.error(
+          err.response?.data?.message || "Không thể tải tiến trình vận chuyển!"
+        );
       } finally {
         setLoading(false);
       }

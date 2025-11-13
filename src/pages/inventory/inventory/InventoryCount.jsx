@@ -19,6 +19,7 @@ import { getAllItemsInCompany } from "@/services/general/ItemService";
 import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
 import SelectAutocomplete from "@components/content-components/SelectAutocomplete";
 import { useNavigate } from "react-router-dom";
+import toastrService from "@/services/toastrService";
 
 const InventoryCount = () => {
   const [inventories, setInventories] = useState([]);
@@ -47,7 +48,7 @@ const InventoryCount = () => {
         setItems(itemsData);
         setWarehouses(warehousesData);
       } catch (error) {
-        alert("Có lỗi khi tải dữ liệu kho và hàng hóa!");
+        toastrService.error("Có lỗi khi tải dữ liệu kho và hàng hóa!");
       }
     };
     fetchItemsAndWarehouses();
@@ -72,7 +73,9 @@ const InventoryCount = () => {
 
       setInventories(withActualQuantity);
     } catch (error) {
-      alert(error.response?.data?.message || "Có lỗi khi lấy tồn kho!");
+      toastrService.error(
+        error.response?.data?.message || "Có lỗi khi lấy tồn kho!"
+      );
     }
   };
 
@@ -88,7 +91,9 @@ const InventoryCount = () => {
       const warehouseIdToSave = Number(inventory.warehouseId);
 
       if (!itemIdToSave || !warehouseIdToSave) {
-        alert("Không tìm thấy mã kho hoặc hàng hóa hợp lệ để cập nhật");
+        toastrService.warning(
+          "Không tìm thấy mã kho hoặc hàng hóa hợp lệ để cập nhật"
+        );
         return;
       }
 
@@ -116,9 +121,11 @@ const InventoryCount = () => {
       );
       setInventories(newInventories);
 
-      alert("Cập nhật tồn kho thành công!");
+      toastrService.success("Cập nhật tồn kho thành công!");
     } catch (error) {
-      alert(error.response?.data?.message || "Có lỗi khi cập nhật tồn kho!");
+      toastrService.error(
+        error.response?.data?.message || "Có lỗi khi cập nhật tồn kho!"
+      );
     }
   };
 

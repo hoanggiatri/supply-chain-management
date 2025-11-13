@@ -15,6 +15,7 @@ import { createPo } from "@/services/purchasing/PoService";
 import PoForm from "@/components/purchasing/PoForm";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import DataTable from "@/components/content-components/DataTable";
+import toastrService from "@/services/toastrService";
 
 const CreatePo = () => {
   const { quotationId } = useParams();
@@ -68,7 +69,9 @@ const CreatePo = () => {
         }));
         setQuotationDetails(details);
       } catch (error) {
-        alert(error.response?.data?.message || "Không thể tải dữ liệu!");
+        toastrService.error(
+          error.response?.data?.message || "Không thể tải dữ liệu!"
+        );
       } finally {
         setLoading(false);
       }
@@ -108,10 +111,12 @@ const CreatePo = () => {
         status: po.status,
       };
       await createPo(request, token);
-      alert("Tạo đơn mua hàng thành công!");
+      toastrService.success("Tạo đơn mua hàng thành công!");
       navigate("/customer-quotations");
     } catch (err) {
-      alert(err.response?.data?.message || "Không thể tạo đơn mua hàng!");
+      toastrService.error(
+        err.response?.data?.message || "Không thể tạo đơn mua hàng!"
+      );
     }
   };
 

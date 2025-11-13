@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import PlantForm from "@components/general/PlantForm";
 import { getPlantById } from "@/services/general/ManufacturePlantService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
+import toastrService from "@/services/toastrService";
 
 const PlantDetail = () => {
   const { plantId } = useParams();
@@ -17,7 +18,10 @@ const PlantDetail = () => {
         const data = await getPlantById(plantId, token);
         setPlant(data);
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi xảy ra khi lấy thông tin xưởng!");
+        toastrService.error(
+          error.response?.data?.message ||
+            "Có lỗi xảy ra khi lấy thông tin xưởng!"
+        );
       }
     };
 
@@ -41,10 +45,19 @@ const PlantDetail = () => {
           THÔNG TIN XƯỞNG SẢN XUẤT
         </Typography>
 
-        <PlantForm plant={plant} onChange={() => { }} errors={{}} readOnlyFields={readOnlyFields} />
+        <PlantForm
+          plant={plant}
+          onChange={() => {}}
+          errors={{}}
+          readOnlyFields={readOnlyFields}
+        />
 
         <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
-          <Button variant="contained" color="default" onClick={() => navigate(`/plant/${plantId}/edit`)}>
+          <Button
+            variant="contained"
+            color="default"
+            onClick={() => navigate(`/plant/${plantId}/edit`)}
+          >
             Sửa
           </Button>
         </Box>

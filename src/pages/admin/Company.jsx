@@ -4,6 +4,7 @@ import { getCompanyById } from "@/services/general/CompanyService";
 import CompanyForm from "@components/general/CompanyForm";
 import { useParams, useNavigate } from "react-router-dom";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
+import toastrService from "@/services/toastrService";
 
 const Company = () => {
   const [company, setCompany] = useState(null);
@@ -24,7 +25,9 @@ const Company = () => {
 
         setCompany(data);
       } catch (error) {
-        alert(error.response?.data?.message || "Lỗi khi lấy thông tin công ty!");
+        toastrService.error(
+          error.response?.data?.message || "Lỗi khi lấy thông tin công ty!"
+        );
       }
     };
 
@@ -37,23 +40,40 @@ const Company = () => {
 
   return (
     <Container>
-      <Paper className="paper-container" elevation={3} >
-        <Typography className="page-title" variant="h4" >
+      <Paper className="paper-container" elevation={3}>
+        <Typography className="page-title" variant="h4">
           THÔNG TIN CÔNG TY
         </Typography>
 
         <Box display="flex" alignItems="center" gap={3} mb={3}>
           <img
-            src={company.logoUrl || "https://cdn-icons-png.freepik.com/512/2774/2774806.png"}
+            src={
+              company.logoUrl ||
+              "https://cdn-icons-png.freepik.com/512/2774/2774806.png"
+            }
             alt=""
-            style={{ width: 120, height: 120, objectFit: "cover", borderRadius: 8 }}
+            style={{
+              width: 120,
+              height: 120,
+              objectFit: "cover",
+              borderRadius: 8,
+            }}
           />
         </Box>
 
-        <CompanyForm companyData={company} onChange={() => { }} errors={[]} readOnly />
+        <CompanyForm
+          companyData={company}
+          onChange={() => {}}
+          errors={[]}
+          readOnly
+        />
 
         <Box mt={3} display="flex" justifyContent="flex-end">
-          <Button variant="contained" color="default" onClick={() => navigate(`/admin/company/${companyId}/edit`)}>
+          <Button
+            variant="contained"
+            color="default"
+            onClick={() => navigate(`/admin/company/${companyId}/edit`)}
+          >
             Sửa
           </Button>
         </Box>

@@ -1,8 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, TableRow, TableCell, Box, Button } from "@mui/material";
+import {
+  Container,
+  Paper,
+  Typography,
+  TableRow,
+  TableCell,
+  Box,
+  Button,
+} from "@mui/material";
 import DataTable from "@components/content-components/DataTable";
 import { useNavigate } from "react-router-dom";
 import { getAllPlantsInCompany } from "@/services/general/ManufacturePlantService";
+import toastrService from "@/services/toastrService";
 
 const PlantInCompany = () => {
   const [plants, setPlants] = useState([]);
@@ -24,7 +33,9 @@ const PlantInCompany = () => {
         const result = await getAllPlantsInCompany(companyId, token);
         setPlants(result);
       } catch (error) {
-        alert(error.response?.data?.message || "Lỗi khi tải danh sách xưởng!");
+        toastrService.error(
+          error.response?.data?.message || "Lỗi khi tải danh sách xưởng!"
+        );
       } finally {
         setLoading(false);
       }
@@ -62,7 +73,11 @@ const PlantInCompany = () => {
         </Typography>
 
         <Box mt={3} mb={3}>
-          <Button variant="contained" color="default" onClick={() => navigate("/create-plant")}>
+          <Button
+            variant="contained"
+            color="default"
+            onClick={() => navigate("/create-plant")}
+          >
             Thêm mới
           </Button>
         </Box>

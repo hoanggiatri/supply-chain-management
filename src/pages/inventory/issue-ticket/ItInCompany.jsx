@@ -1,10 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { Container, TableRow, TableCell, Typography, Paper } from "@mui/material";
+import {
+  Container,
+  TableRow,
+  TableCell,
+  Typography,
+  Paper,
+} from "@mui/material";
 import DataTable from "@components/content-components/DataTable";
 import StatusSummaryCard from "@/components/content-components/StatusSummaryCard";
 import { getAllIssueTicketsInCompany } from "@/services/inventory/IssueTicketService";
 import { useNavigate } from "react-router-dom";
-import { useTheme } from '@mui/material/styles';
+import { useTheme } from "@mui/material/styles";
+import toastrService from "@/services/toastrService";
 
 const ItInCompany = () => {
   const [tickets, setTickets] = useState([]);
@@ -26,16 +33,20 @@ const ItInCompany = () => {
         const data = await getAllIssueTicketsInCompany(companyId, token);
         setTickets(data);
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi khi lấy danh sách phiếu xuất!");
+        toastrService.error(
+          error.response?.data?.message ||
+            "Có lỗi khi lấy danh sách phiếu xuất!"
+        );
       }
     };
 
     fetchTickets();
   }, [companyId, token]);
 
-  const filteredTickets = !filterStatus || filterStatus === "Tất cả"
-  ? tickets
-  : tickets.filter((ticket) => ticket.status === filterStatus);
+  const filteredTickets =
+    !filterStatus || filterStatus === "Tất cả"
+      ? tickets
+      : tickets.filter((ticket) => ticket.status === filterStatus);
 
   const handleRequestSort = (property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -75,13 +86,18 @@ const ItInCompany = () => {
 
         <StatusSummaryCard
           data={tickets}
-          statusLabels={["Tất cả", "Chờ xác nhận", "Chờ xuất kho", "Đã hoàn thành"]}
+          statusLabels={[
+            "Tất cả",
+            "Chờ xác nhận",
+            "Chờ xuất kho",
+            "Đã hoàn thành",
+          ]}
           getStatus={(ticket) => ticket.status}
           statusColors={{
             "Tất cả": "#000",
             "Chờ xác nhận": theme.palette.secondary.main,
             "Chờ xuất kho": theme.palette.warning.main,
-            "Đã hoàn thành": theme.palette.success.main
+            "Đã hoàn thành": theme.palette.success.main,
           }}
           onSelectStatus={(status) => setFilterStatus(status)}
           selectedStatus={filterStatus}
@@ -109,13 +125,25 @@ const ItInCompany = () => {
               <TableCell>{ticket.ticketCode}</TableCell>
               <TableCell>{ticket.warehouseCode}</TableCell>
               <TableCell>{ticket.warehouseName}</TableCell>
-              <TableCell>{ticket.issueDate ? new Date(ticket.issueDate).toLocaleString() : ""}</TableCell>
+              <TableCell>
+                {ticket.issueDate
+                  ? new Date(ticket.issueDate).toLocaleString()
+                  : ""}
+              </TableCell>
               <TableCell>{ticket.reason}</TableCell>
               <TableCell>{ticket.issueType}</TableCell>
               <TableCell>{ticket.referenceCode}</TableCell>
               <TableCell>{ticket.createdBy}</TableCell>
-              <TableCell>{ticket.createdOn ? new Date(ticket.createdOn).toLocaleString() : ""}</TableCell>
-              <TableCell>{ticket.lastUpdatedOn ? new Date(ticket.lastUpdatedOn).toLocaleString() : ""}</TableCell>
+              <TableCell>
+                {ticket.createdOn
+                  ? new Date(ticket.createdOn).toLocaleString()
+                  : ""}
+              </TableCell>
+              <TableCell>
+                {ticket.lastUpdatedOn
+                  ? new Date(ticket.lastUpdatedOn).toLocaleString()
+                  : ""}
+              </TableCell>
               <TableCell>{ticket.status}</TableCell>
             </TableRow>
           )}

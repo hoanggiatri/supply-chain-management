@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import UserForm from "@components/general/UserForm";
 import { getUserById, updateUser } from "@/services/general/UserService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
+import toastrService from "@/services/toastrService";
 
 const UpdateUser = () => {
   const { userId } = useParams();
@@ -19,7 +20,10 @@ const UpdateUser = () => {
         const data = await getUserById(userId, token);
         setUser(data);
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi xảy ra khi lấy thông tin người dùng!");
+        toastrService.error(
+          error.response?.data?.message ||
+            "Có lỗi xảy ra khi lấy thông tin người dùng!"
+        );
       }
     };
 
@@ -57,10 +61,12 @@ const UpdateUser = () => {
     const token = localStorage.getItem("token");
     try {
       await updateUser(userId, user, token);
-      alert("Cập nhật tài khoản thành công!");
+      toastrService.success("Cập nhật tài khoản thành công!");
       navigate(-1);
     } catch (error) {
-      alert(error.response?.data?.message || "Lỗi khi cập nhật tài khoản!");
+      toastrService.error(
+        error.response?.data?.message || "Lỗi khi cập nhật tài khoản!"
+      );
     }
   };
 
@@ -70,16 +76,30 @@ const UpdateUser = () => {
 
   return (
     <Container>
-      <Paper className="paper-container" elevation={3} >
-        <Typography className="page-title" variant="h4" >
+      <Paper className="paper-container" elevation={3}>
+        <Typography className="page-title" variant="h4">
           CHỈNH SỬA TÀI KHOẢN
         </Typography>
 
-        <UserForm user={user} onChange={handleChange} errors={errors} role={role} />
+        <UserForm
+          user={user}
+          onChange={handleChange}
+          errors={errors}
+          role={role}
+        />
 
-        <Box mt={3} display="flex" justifyContent="flex-end" alignItems="center">
+        <Box
+          mt={3}
+          display="flex"
+          justifyContent="flex-end"
+          alignItems="center"
+        >
           <Box display="flex" gap={2}>
-            <Button variant="outlined" color="default" onClick={() => navigate(-1)}>
+            <Button
+              variant="outlined"
+              color="default"
+              onClick={() => navigate(-1)}
+            >
               Hủy
             </Button>
             <Button variant="contained" color="default" onClick={handleSave}>
@@ -87,7 +107,6 @@ const UpdateUser = () => {
             </Button>
           </Box>
         </Box>
-
       </Paper>
     </Container>
   );

@@ -1,11 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Container, Paper, Typography, Box, TableRow, TableCell, Button } from "@mui/material";
+import {
+  Container,
+  Paper,
+  Typography,
+  Box,
+  TableRow,
+  TableCell,
+  Button,
+} from "@mui/material";
 import CompanyForm from "@components/general/CompanyForm";
 import DataTable from "@components/content-components/DataTable";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import { getCompanyById } from "@/services/general/CompanyService";
 import { getAllItemsInCompany } from "@/services/general/ItemService";
+import toastrService from "@/services/toastrService";
 
 const SupplierDetail = () => {
   const { supplierId } = useParams();
@@ -26,11 +35,12 @@ const SupplierDetail = () => {
         setCompany(companyData);
 
         const itemData = await getAllItemsInCompany(supplierId, token);
-        const sellableItems = itemData.filter(item => item.isSellable === true);
+        const sellableItems = itemData.filter(
+          (item) => item.isSellable === true
+        );
         setItems(sellableItems);
-
       } catch (error) {
-        alert("Lỗi khi tải dữ liệu nhà cung cấp!");
+        toastrService.error("Lỗi khi tải dữ liệu nhà cung cấp!");
       }
     };
 
@@ -49,7 +59,9 @@ const SupplierDetail = () => {
   return (
     <Container>
       <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">THÔNG TIN NHÀ CUNG CẤP</Typography>
+        <Typography className="page-title" variant="h4">
+          THÔNG TIN NHÀ CUNG CẤP
+        </Typography>
 
         <Box mt={3} mb={3} display="flex" justifyContent="flex-end" gap={2}>
           <Button
@@ -61,10 +73,17 @@ const SupplierDetail = () => {
           </Button>
         </Box>
 
-        <CompanyForm companyData={company} readOnly onChange={() => { }} errors={{}} />
+        <CompanyForm
+          companyData={company}
+          readOnly
+          onChange={() => {}}
+          errors={{}}
+        />
 
         <Box mt={5}>
-          <Typography variant="h5" mb={3}>DANH SÁCH HÀNG HÓA:</Typography>
+          <Typography variant="h5" mb={3}>
+            DANH SÁCH HÀNG HÓA:
+          </Typography>
           <DataTable
             rows={items}
             columns={columns}

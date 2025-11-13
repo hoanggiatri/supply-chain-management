@@ -1,8 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { Container, TableRow, TableCell, Typography, Paper, Box, Button } from "@mui/material";
+import {
+  Container,
+  TableRow,
+  TableCell,
+  Typography,
+  Paper,
+  Box,
+  Button,
+} from "@mui/material";
 import DataTable from "@components/content-components/DataTable";
 import { getAllBomsInCompany } from "@/services/manufacturing/BomService";
 import { useNavigate } from "react-router-dom";
+import toastrService from "@/services/toastrService";
 
 const BomInCompany = () => {
   const [boms, setBoms] = useState([]);
@@ -22,7 +31,10 @@ const BomInCompany = () => {
         const data = await getAllBomsInCompany(companyId, token);
         setBoms(data);
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi xảy ra khi lấy danh sách Bom!");
+        toastrService.error(
+          error.response?.data?.message ||
+            "Có lỗi xảy ra khi lấy danh sách Bom!"
+        );
       }
     };
 
@@ -59,7 +71,11 @@ const BomInCompany = () => {
           DANH SÁCH BOM
         </Typography>
         <Box mt={3} mb={3}>
-          <Button variant="contained" color="default" onClick={() => navigate("/create-bom")}>
+          <Button
+            variant="contained"
+            color="default"
+            onClick={() => navigate("/create-bom")}
+          >
             Thêm mới
           </Button>
         </Box>

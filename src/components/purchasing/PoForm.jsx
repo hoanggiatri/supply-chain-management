@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Grid, TextField, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import {
+  Grid,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from "@mui/material";
 import SelectAutocomplete from "../content-components/SelectAutocomplete";
 import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
+import toastrService from "@/services/toastrService";
 
 const PoForm = ({ quotation, po = {}, setPo, errors, readOnlyFields }) => {
   const [warehouses, setWarehouses] = useState([]);
@@ -13,10 +21,15 @@ const PoForm = ({ quotation, po = {}, setPo, errors, readOnlyFields }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const warehousesData = await getAllWarehousesInCompany(companyId, token);
+        const warehousesData = await getAllWarehousesInCompany(
+          companyId,
+          token
+        );
         setWarehouses(warehousesData);
       } catch (error) {
-        alert(error?.response?.data?.message || "Có lỗi khi tải dữ liệu!");
+        toastrService.error(
+          error?.response?.data?.message || "Có lỗi khi tải dữ liệu!"
+        );
       }
     };
     fetchData();
@@ -28,7 +41,9 @@ const PoForm = ({ quotation, po = {}, setPo, errors, readOnlyFields }) => {
   };
 
   const handleWarehouseChange = (selected) => {
-    const selectedWarehouse = warehouses.find((warehouse) => warehouse.warehouseId === selected?.value);
+    const selectedWarehouse = warehouses.find(
+      (warehouse) => warehouse.warehouseId === selected?.value
+    );
     setPo((prev) => ({
       ...prev,
       receiveWarehouseCode: selectedWarehouse?.warehouseCode || "",
@@ -47,7 +62,6 @@ const PoForm = ({ quotation, po = {}, setPo, errors, readOnlyFields }) => {
     const minutes = String(date.getMinutes()).padStart(2, "0");
     return `${year}-${month}-${day}T${hours}:${minutes}`;
   };
-
 
   return (
     <Grid container spacing={2} mt={1}>
@@ -101,7 +115,12 @@ const PoForm = ({ quotation, po = {}, setPo, errors, readOnlyFields }) => {
       </Grid>
 
       <Grid item xs={12} sm={6}>
-        <FormControl fullWidth required error={!!errors.paymentMethod} helperText={errors.paymentMethod}>
+        <FormControl
+          fullWidth
+          required
+          error={!!errors.paymentMethod}
+          helperText={errors.paymentMethod}
+        >
           <InputLabel>Phương thức thanh toán</InputLabel>
           <Select
             name="paymentMethod"
@@ -119,7 +138,10 @@ const PoForm = ({ quotation, po = {}, setPo, errors, readOnlyFields }) => {
 
       <Grid item xs={12} sm={6}>
         <SelectAutocomplete
-          options={warehouses.map(wh => ({ label: wh.warehouseCode + " - " + wh.warehouseName, value: wh.warehouseId }))}
+          options={warehouses.map((wh) => ({
+            label: wh.warehouseCode + " - " + wh.warehouseName,
+            value: wh.warehouseId,
+          }))}
           value={po?.receiveWarehouseId}
           onChange={handleWarehouseChange}
           placeholder="Chọn kho *"
@@ -137,7 +159,8 @@ const PoForm = ({ quotation, po = {}, setPo, errors, readOnlyFields }) => {
           name="deliveryToAddress"
           value={po?.deliveryToAddress || ""}
           onChange={handleChange}
-          error={!!errors.deliveryToAddress} helperText={errors.deliveryToAddress}
+          error={!!errors.deliveryToAddress}
+          helperText={errors.deliveryToAddress}
           InputProps={{ readOnly: isFieldReadOnly("deliveryToAddress") }}
         />
       </Grid>

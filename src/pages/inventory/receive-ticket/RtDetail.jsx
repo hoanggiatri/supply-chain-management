@@ -1,15 +1,30 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, TableRow, TableCell, Button, Box } from "@mui/material";
+import {
+  Container,
+  Paper,
+  Typography,
+  TableRow,
+  TableCell,
+  Button,
+  Box,
+} from "@mui/material";
 import { useParams } from "react-router-dom";
 import DataTable from "@/components/content-components/DataTable";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import RtForm from "@/components/inventory/RtForm";
-import { getReceiveTicketById, updateReceiveTicket } from "@/services/inventory/ReceiveTicketService";
+import {
+  getReceiveTicketById,
+  updateReceiveTicket,
+} from "@/services/inventory/ReceiveTicketService";
 import { getMoById, updateMo } from "@/services/manufacturing/MoService";
 import dayjs from "dayjs";
 import { increaseQuantity } from "@/services/inventory/InventoryService";
-import { getTransferTicketById, updateTransferTicket } from "@/services/inventory/TransferTicketService";
+import {
+  getTransferTicketById,
+  updateTransferTicket,
+} from "@/services/inventory/TransferTicketService";
 import { updatePoStatus } from "@/services/purchasing/PoService";
+import toastrService from "@/services/toastrService";
 
 const RtDetail = () => {
   const { ticketId } = useParams();
@@ -32,7 +47,9 @@ const RtDetail = () => {
         console.log(data);
         setTicket(data);
       } catch (error) {
-        alert(error.response?.data?.message || "Không thể lấy dữ liệu phiếu nhập.");
+        toastrService.error(
+          error.response?.data?.message || "Không thể lấy dữ liệu phiếu nhập."
+        );
       } finally {
         setLoading(false);
       }
@@ -41,22 +58,33 @@ const RtDetail = () => {
   }, [ticketId, token]);
 
   const handleConfirm = async () => {
-    if (!window.confirm("Bạn có chắc muốn xác nhận phiếu nhập kho này không?")) return;
+    if (!window.confirm("Bạn có chắc muốn xác nhận phiếu nhập kho này không?"))
+      return;
 
     const token = localStorage.getItem("token");
     const employeeName = localStorage.getItem("employeeName");
 
     try {
-      await updateReceiveTicket(ticket.ticketId, {
-        ...ticket,
+      await updateReceiveTicket(
+        ticket.ticketId,
+        {
+          ...ticket,
+          status: "Chờ nhập kho",
+          createdBy: employeeName,
+        },
+        token
+      );
+
+      toastrService.success("Xác nhận phiếu nhập kho thành công!");
+      setTicket((prev) => ({
+        ...prev,
         status: "Chờ nhập kho",
         createdBy: employeeName,
-      }, token);
-
-      alert("Xác nhận phiếu nhập kho thành công!");
-      setTicket((prev) => ({ ...prev, status: "Chờ nhập kho", createdBy: employeeName }));
+      }));
     } catch (error) {
-      alert(error.response?.data?.message || "Có lỗi xảy ra khi xác nhận phiếu!");
+      toastrService.error(
+        error.response?.data?.message || "Có lỗi xảy ra khi xác nhận phiếu!"
+      );
     }
   };
 
@@ -66,29 +94,40 @@ const RtDetail = () => {
     const token = localStorage.getItem("token");
 
     try {
-      const now = toLocalDateTimeString(new Date().toISOString())
+      const now = toLocalDateTimeString(new Date().toISOString());
 
       if (ticket.receiveType === "Sản xuất" && ticket.referenceId) {
         try {
           const mo = await getMoById(ticket.referenceId, token);
-          await updateMo(ticket.referenceId, {
-            ...mo,
-            status: "Đã hoàn thành",
-          }, token);
+          await updateMo(
+            ticket.referenceId,
+            {
+              ...mo,
+              status: "Đã hoàn thành",
+            },
+            token
+          );
         } catch (moError) {
-          alert("Cập nhật MO thất bại!");
+          toastrService.error("Cập nhật MO thất bại!");
         }
       }
 
       if (ticket.receiveType === "Chuyển kho" && ticket.referenceId) {
         try {
-          const transferTicket = await getTransferTicketById(ticket.referenceId, token);
-          await updateTransferTicket(ticket.referenceId, {
-            ...transferTicket,
-            status: "Đã hoàn thành",
-          }, token);
+          const transferTicket = await getTransferTicketById(
+            ticket.referenceId,
+            token
+          );
+          await updateTransferTicket(
+            ticket.referenceId,
+            {
+              ...transferTicket,
+              status: "Đã hoàn thành",
+            },
+            token
+          );
         } catch (transferError) {
-          alert("Cập nhật phiếu chuyển kho thất bại!");
+          toastrService.error("Cập nhật phiếu chuyển kho thất bại!");
         }
       }
 
@@ -96,37 +135,49 @@ const RtDetail = () => {
         try {
           await updatePoStatus(ticket.referenceId, "Đã hoàn thành", token);
         } catch (poError) {
-          alert("Cập nhật đơn mua hàng thất bại!");
+          toastrService.error("Cập nhật đơn mua hàng thất bại!");
         }
       }
-      
+
       try {
         await Promise.all(
           ticket.receiveTicketDetails.map((detail) =>
             Promise.all([
-              increaseQuantity({
-                warehouseId: ticket.warehouseId,
-                itemId: detail.itemId,
-                quantity: detail.quantity
-              }, token)
+              increaseQuantity(
+                {
+                  warehouseId: ticket.warehouseId,
+                  itemId: detail.itemId,
+                  quantity: detail.quantity,
+                },
+                token
+              ),
             ])
           )
         );
 
-        await updateReceiveTicket(ticket.ticketId, {
-          ...ticket,
+        await updateReceiveTicket(
+          ticket.ticketId,
+          {
+            ...ticket,
+            status: "Đã hoàn thành",
+            receiveDate: now,
+          },
+          token
+        );
+
+        toastrService.success("Nhập kho thành công!");
+        setTicket((prev) => ({
+          ...prev,
           status: "Đã hoàn thành",
           receiveDate: now,
-        }, token);
-        
-        alert("Nhập kho thành công!");
-        setTicket((prev) => ({ ...prev, status: "Đã hoàn thành", receiveDate: now }));
-
+        }));
       } catch (inventoryError) {
-        alert("Cập nhật tồn kho thất bại!");
+        toastrService.error("Cập nhật tồn kho thất bại!");
       }
     } catch (error) {
-      alert(error.response?.data?.message || "Có lỗi xảy ra khi nhập kho!");
+      toastrService.error(
+        error.response?.data?.message || "Có lỗi xảy ra khi nhập kho!"
+      );
     }
   };
 
@@ -155,17 +206,20 @@ const RtDetail = () => {
     setPage(1);
   };
 
-  const paginatedDetails = ticket?.receiveTicketDetails.slice(
-    (page - 1) * rowsPerPage,
-    (page - 1) * rowsPerPage + rowsPerPage
-  ) || [];
+  const paginatedDetails =
+    ticket?.receiveTicketDetails.slice(
+      (page - 1) * rowsPerPage,
+      (page - 1) * rowsPerPage + rowsPerPage
+    ) || [];
 
   if (!ticket) return <LoadingPaper title="THÔNG TIN PHIẾU NHẬP KHO" />;
 
   return (
     <Container>
       <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">THÔNG TIN PHIẾU NHẬP KHO</Typography>
+        <Typography className="page-title" variant="h4">
+          THÔNG TIN PHIẾU NHẬP KHO
+        </Typography>
 
         <Box mt={3} mb={3} display="flex" justifyContent="flex-end" gap={2}>
           {ticket.status === "Chờ xác nhận" && (
@@ -182,7 +236,9 @@ const RtDetail = () => {
 
         <RtForm ticket={ticket} />
 
-        <Typography variant="h5" mt={3} mb={3}>DANH SÁCH HÀNG HÓA NHẬP KHO:</Typography>
+        <Typography variant="h5" mt={3} mb={3}>
+          DANH SÁCH HÀNG HÓA NHẬP KHO:
+        </Typography>
 
         <DataTable
           rows={paginatedDetails}

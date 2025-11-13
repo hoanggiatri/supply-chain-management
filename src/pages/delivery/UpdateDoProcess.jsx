@@ -1,14 +1,36 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Container, Paper, Typography, Box, CircularProgress, Stepper, Step, StepLabel, TextField } from "@mui/material";
-import { Timeline, TimelineItem, TimelineSeparator, TimelineConnector, TimelineContent, TimelineDot, TimelineOppositeContent } from "@mui/lab";
-import { getAllDeliveryProcesses, createDeliveryProcess } from "@/services/delivery/DoProcessService";
+import {
+  Container,
+  Paper,
+  Typography,
+  Box,
+  CircularProgress,
+  Stepper,
+  Step,
+  StepLabel,
+  TextField,
+} from "@mui/material";
+import {
+  Timeline,
+  TimelineItem,
+  TimelineSeparator,
+  TimelineConnector,
+  TimelineContent,
+  TimelineDot,
+  TimelineOppositeContent,
+} from "@mui/lab";
+import {
+  getAllDeliveryProcesses,
+  createDeliveryProcess,
+} from "@/services/delivery/DoProcessService";
 import { getDeliveryOrderById } from "@/services/delivery/DoService";
 import DeliveryStep from "@/components/delivery/DeliveryStep";
 import dayjs from "dayjs";
 import StepLine from "@/components/delivery/StepLine";
 import { getSoById } from "@/services/sale/SoService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
+import toastrService from "@/services/toastrService";
 
 const UpdateDoProcess = () => {
   const { doId } = useParams();
@@ -33,7 +55,9 @@ const UpdateDoProcess = () => {
         const soData = await getSoById(doData.soId, token);
         setSo(soData);
       } catch (err) {
-        alert(err.response?.data?.message || "Không thể tải tiến trình vận chuyển!");
+        toastrService.error(
+          err.response?.data?.message || "Không thể tải tiến trình vận chuyển!"
+        );
       } finally {
         setLoading(false);
       }
@@ -63,7 +87,9 @@ const UpdateDoProcess = () => {
       setIsEditing(false);
       setNewMidLocation("");
     } catch (err) {
-      alert(err.response?.data?.message || "Không thể thêm điểm dừng!");
+      toastrService.error(
+        err.response?.data?.message || "Không thể thêm điểm dừng!"
+      );
     }
   };
 

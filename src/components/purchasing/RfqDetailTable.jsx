@@ -13,6 +13,7 @@ import {
 import { Delete } from "@mui/icons-material";
 import SelectAutocomplete from "@components/content-components/SelectAutocomplete";
 import { getAllItemsInCompany } from "@/services/general/ItemService";
+import toastrService from "@/services/toastrService";
 
 const RfqDetailTable = ({
   rfqDetails,
@@ -32,7 +33,7 @@ const RfqDetailTable = ({
         console.log("data", data);
         setMyItems(data);
       } catch (err) {
-        alert("Lỗi khi tải danh sách hàng hóa công ty mình.");
+        toastrService.error("Lỗi khi tải danh sách hàng hóa công ty mình.");
       }
     };
     fetchMyItems();
@@ -46,7 +47,9 @@ const RfqDetailTable = ({
         const sellableItems = data.filter((item) => item.isSellable);
         setSupplierItems(sellableItems);
       } catch (err) {
-        alert("Lỗi khi tải danh sách hàng hóa của công ty cung cấp.");
+        toastrService.error(
+          "Lỗi khi tải danh sách hàng hóa của công ty cung cấp."
+        );
       }
     };
     fetchSupplierItems();

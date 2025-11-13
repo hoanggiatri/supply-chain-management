@@ -5,6 +5,7 @@ import UserForm from "@components/general/UserForm";
 import UpdatePasswordForm from "@components/general/UpdatePasswordForm";
 import { getUserById, updateUser } from "@/services/general/UserService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
+import toastrService from "@/services/toastrService";
 
 const EditUser = () => {
   const { userId } = useParams();
@@ -22,7 +23,10 @@ const EditUser = () => {
         const data = await getUserById(userId, token);
         setUser(data);
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi xảy ra khi lấy thông tin người dùng!");
+        toastrService.error(
+          error.response?.data?.message ||
+            "Có lỗi xảy ra khi lấy thông tin người dùng!"
+        );
       }
     };
 
@@ -60,10 +64,12 @@ const EditUser = () => {
     const token = localStorage.getItem("token");
     try {
       await updateUser(userId, user, token);
-      alert("Cập nhật tài khoản thành công!");
+      toastrService.success("Cập nhật tài khoản thành công!");
       navigate(-1);
     } catch (error) {
-      alert(error.response?.data?.message || "Lỗi khi cập nhật tài khoản!");
+      toastrService.error(
+        error.response?.data?.message || "Lỗi khi cập nhật tài khoản!"
+      );
     }
   };
 
@@ -73,16 +79,30 @@ const EditUser = () => {
 
   return (
     <Container>
-      <Paper className="paper-container" elevation={3} >
-        <Typography className="page-title" variant="h4" >
+      <Paper className="paper-container" elevation={3}>
+        <Typography className="page-title" variant="h4">
           CHỈNH SỬA TÀI KHOẢN
         </Typography>
 
-        <UserForm user={user} onChange={handleChange} errors={errors} role={role} />
+        <UserForm
+          user={user}
+          onChange={handleChange}
+          errors={errors}
+          role={role}
+        />
 
-        <Box mt={3} display="flex" justifyContent="space-between" alignItems="center">
+        <Box
+          mt={3}
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+        >
           {!showPasswordForm ? (
-            <Button variant="contained" color="success" onClick={() => setShowPasswordForm(true)}>
+            <Button
+              variant="contained"
+              color="success"
+              onClick={() => setShowPasswordForm(true)}
+            >
               Thay đổi mật khẩu
             </Button>
           ) : (
@@ -90,7 +110,11 @@ const EditUser = () => {
           )}
 
           <Box display="flex" gap={2}>
-            <Button variant="outlined" color="default" onClick={() => navigate(`/user/${userId}`)}>
+            <Button
+              variant="outlined"
+              color="default"
+              onClick={() => navigate(`/user/${userId}`)}
+            >
               Hủy
             </Button>
             <Button variant="contained" color="default" onClick={handleSave}>
@@ -100,10 +124,12 @@ const EditUser = () => {
         </Box>
         {showPasswordForm && (
           <Box mt={3}>
-            <UpdatePasswordForm userId={userId} onSuccess={() => setShowPasswordForm(false)} />
+            <UpdatePasswordForm
+              userId={userId}
+              onSuccess={() => setShowPasswordForm(false)}
+            />
           </Box>
         )}
-
       </Paper>
     </Container>
   );

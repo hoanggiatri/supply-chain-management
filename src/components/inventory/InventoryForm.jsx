@@ -3,6 +3,7 @@ import { Grid, TextField } from "@mui/material";
 import SelectAutocomplete from "../content-components/SelectAutocomplete";
 import { getAllItemsInCompany } from "@/services/general/ItemService";
 import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
+import toastrService from "@/services/toastrService";
 
 const InventoryForm = ({ inventory, onChange, setInventory, errors }) => {
   const [items, setItems] = useState([]);
@@ -17,17 +18,24 @@ const InventoryForm = ({ inventory, onChange, setInventory, errors }) => {
         const itemsData = await getAllItemsInCompany(companyId, token);
         setItems(itemsData);
 
-        const warehousesData = await getAllWarehousesInCompany(companyId, token);
+        const warehousesData = await getAllWarehousesInCompany(
+          companyId,
+          token
+        );
         setWarehouses(warehousesData);
       } catch (error) {
-        alert(error?.response?.data?.message || "Có lỗi khi tải dữ liệu!");
+        toastrService.error(
+          error?.response?.data?.message || "Có lỗi khi tải dữ liệu!"
+        );
       }
     };
     fetchData();
   }, [companyId, token]);
 
   const handleWarehouseChange = (selected) => {
-    const selectedWarehouse = warehouses.find((warehouse) => warehouse.warehouseId === selected?.value);
+    const selectedWarehouse = warehouses.find(
+      (warehouse) => warehouse.warehouseId === selected?.value
+    );
     setInventory((prev) => ({
       ...prev,
       warehouseCode: selectedWarehouse?.warehouseCode || "",
@@ -50,7 +58,10 @@ const InventoryForm = ({ inventory, onChange, setInventory, errors }) => {
     <Grid container spacing={2} mt={2}>
       <Grid item xs={12} sm={6}>
         <SelectAutocomplete
-          options={warehouses.map(wh => ({ label: wh.warehouseCode + " - " + wh.warehouseName, value: wh.warehouseId }))}
+          options={warehouses.map((wh) => ({
+            label: wh.warehouseCode + " - " + wh.warehouseName,
+            value: wh.warehouseId,
+          }))}
           value={inventory.warehouseId}
           onChange={handleWarehouseChange}
           placeholder="Chọn kho"
@@ -62,7 +73,10 @@ const InventoryForm = ({ inventory, onChange, setInventory, errors }) => {
 
       <Grid item xs={12} sm={6}>
         <SelectAutocomplete
-          options={items.map(item => ({ label: item.itemCode + " - " + item.itemName, value: item.itemId }))}
+          options={items.map((item) => ({
+            label: item.itemCode + " - " + item.itemName,
+            value: item.itemId,
+          }))}
           value={inventory.itemId}
           onChange={handleItemChange}
           placeholder="Chọn hàng hóa"

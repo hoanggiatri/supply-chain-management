@@ -9,6 +9,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import DataTable from "@components/content-components/DataTable";
 import { getAllCompanies } from "@/services/general/CompanyService";
+import toastrService from "@/services/toastrService";
 
 const AllCompanies = () => {
   const [companies, setCompanies] = useState([]);
@@ -30,7 +31,7 @@ const AllCompanies = () => {
         });
         setCompanies(data);
       } catch (error) {
-        alert(
+        toastrService.error(
           error.response?.data?.message ||
             "Có lỗi xảy ra khi lấy danh sách công ty!"
         );

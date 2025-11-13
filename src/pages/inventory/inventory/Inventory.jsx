@@ -1,10 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { Container, TableRow, TableCell, Typography, Paper, Box, Button, Grid } from "@mui/material";
+import {
+  Container,
+  TableRow,
+  TableCell,
+  Typography,
+  Paper,
+  Box,
+  Button,
+  Grid,
+} from "@mui/material";
 import DataTable from "@components/content-components/DataTable";
 import { getAllInventory } from "@/services/inventory/InventoryService";
 import { getAllItemsInCompany } from "@/services/general/ItemService";
 import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
 import SelectAutocomplete from "@components/content-components/SelectAutocomplete";
+import toastrService from "@/services/toastrService";
 
 const Inventory = () => {
   const [inventories, setInventories] = useState([]);
@@ -25,11 +35,14 @@ const Inventory = () => {
     const fetchItemsAndWarehouses = async () => {
       try {
         const itemsData = await getAllItemsInCompany(companyId, token);
-        const warehousesData = await getAllWarehousesInCompany(companyId, token);
+        const warehousesData = await getAllWarehousesInCompany(
+          companyId,
+          token
+        );
         setItems(itemsData);
         setWarehouses(warehousesData);
       } catch (error) {
-        alert("Có lỗi khi tải dữ liệu kho và hàng hóa!");
+        toastrService.error("Có lỗi khi tải dữ liệu kho và hàng hóa!");
       }
     };
     fetchItemsAndWarehouses();
@@ -56,13 +69,16 @@ const Inventory = () => {
         ? items.find((i) => i.itemCode === selectedItemCode)?.itemId || 0
         : 0;
       const warehouseId = selectedWarehouseCode
-        ? warehouses.find((w) => w.warehouseCode === selectedWarehouseCode)?.warehouseId || 0
+        ? warehouses.find((w) => w.warehouseCode === selectedWarehouseCode)
+            ?.warehouseId || 0
         : 0;
 
       const data = await getAllInventory(itemId, warehouseId, companyId, token);
       setInventories(data);
     } catch (error) {
-      alert(error.response?.data?.message || "Có lỗi khi lấy tồn kho!");
+      toastrService.error(
+        error.response?.data?.message || "Có lỗi khi lấy tồn kho!"
+      );
     }
   };
 
@@ -78,30 +94,47 @@ const Inventory = () => {
   return (
     <Container>
       <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">TỒN KHO</Typography>
+        <Typography className="page-title" variant="h4">
+          TỒN KHO
+        </Typography>
 
         <Box mt={3} mb={3}>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={5}>
               <SelectAutocomplete
-                options={items.map((item) => ({ label: item.itemCode  + " - " + item.itemName, value: item.itemCode }))}
+                options={items.map((item) => ({
+                  label: item.itemCode + " - " + item.itemName,
+                  value: item.itemCode,
+                }))}
                 value={selectedItemCode}
-                onChange={(selected) => setSelectedItemCode(selected?.value || "")}
+                onChange={(selected) =>
+                  setSelectedItemCode(selected?.value || "")
+                }
                 placeholder="Chọn hàng hóa"
               />
             </Grid>
 
             <Grid item xs={12} sm={5}>
               <SelectAutocomplete
-                options={warehouses.map((w) => ({ label: w.warehouseCode + " - " + w.warehouseName, value: w.warehouseCode }))}
+                options={warehouses.map((w) => ({
+                  label: w.warehouseCode + " - " + w.warehouseName,
+                  value: w.warehouseCode,
+                }))}
                 value={selectedWarehouseCode}
-                onChange={(selected) => setSelectedWarehouseCode(selected?.value || "")}
+                onChange={(selected) =>
+                  setSelectedWarehouseCode(selected?.value || "")
+                }
                 placeholder="Chọn kho"
               />
             </Grid>
 
             <Grid item xs={12} sm={2}>
-              <Button variant="contained" color="default" fullWidth onClick={handleViewInventory}>
+              <Button
+                variant="contained"
+                color="default"
+                fullWidth
+                onClick={handleViewInventory}
+              >
                 Xem tồn kho
               </Button>
             </Grid>

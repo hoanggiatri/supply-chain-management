@@ -1,9 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { Grid, TextField, FormControl, InputLabel, Select, MenuItem, FormHelperText } from "@mui/material";
+import {
+  Grid,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  FormHelperText,
+} from "@mui/material";
 import { getAllItemsInCompany } from "@/services/general/ItemService";
 import SelectAutocomplete from "@components/content-components/SelectAutocomplete";
+import toastrService from "@/services/toastrService";
 
-const StageForm = ({ stage, onChange, errors = {}, readOnlyFields, setStage }) => {
+const StageForm = ({
+  stage,
+  onChange,
+  errors = {},
+  readOnlyFields,
+  setStage,
+}) => {
   const [items, setItems] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
   const token = localStorage.getItem("token");
@@ -16,10 +31,14 @@ const StageForm = ({ stage, onChange, errors = {}, readOnlyFields, setStage }) =
       try {
         const data = await getAllItemsInCompany(companyId, token);
         const filtered = data.filter(
-          (item) => item.itemType === "Thành phẩm" || item.itemType === "Bán thành phẩm"
+          (item) =>
+            item.itemType === "Thành phẩm" || item.itemType === "Bán thành phẩm"
         );
 
-        if (stage?.itemCode && !filtered.some(item => item.itemCode === stage.itemCode)) {
+        if (
+          stage?.itemCode &&
+          !filtered.some((item) => item.itemCode === stage.itemCode)
+        ) {
           filtered.unshift({
             itemCode: stage.itemCode,
             itemName: stage.itemName,
@@ -30,14 +49,18 @@ const StageForm = ({ stage, onChange, errors = {}, readOnlyFields, setStage }) =
         setItems(filtered);
         setFilteredItems(filtered);
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi khi lấy hàng hóa!");
+        toastrService.error(
+          error.response?.data?.message || "Có lỗi khi lấy hàng hóa!"
+        );
       }
     };
     fetchItems();
   }, [companyId, token, stage]);
 
   const handleItemCodeChange = (selected) => {
-    const selectedItem = items.find((item) => item.itemCode === selected?.value);
+    const selectedItem = items.find(
+      (item) => item.itemCode === selected?.value
+    );
     setStage((prev) => ({
       ...prev,
       itemCode: selectedItem ? selectedItem.itemCode : "",
@@ -49,15 +72,24 @@ const StageForm = ({ stage, onChange, errors = {}, readOnlyFields, setStage }) =
   return (
     <Grid container spacing={2}>
       <Grid item xs={12} sm={6}>
-        <TextField fullWidth label="Mã Stage" name="stageCode" value={stage.stageCode} onChange={onChange}
-          placeholder="Mã Stage được tạo tự động" required
+        <TextField
+          fullWidth
+          label="Mã Stage"
+          name="stageCode"
+          value={stage.stageCode}
+          onChange={onChange}
+          placeholder="Mã Stage được tạo tự động"
+          required
           inputProps={{ readOnly: isFieldReadOnly("stageCode") }}
         />
       </Grid>
 
       <Grid item xs={12} sm={6}>
         <SelectAutocomplete
-          options={filteredItems.map(item => ({ label: item.itemCode + " - " + item.itemName, value: item.itemCode }))}
+          options={filteredItems.map((item) => ({
+            label: item.itemCode + " - " + item.itemName,
+            value: item.itemCode,
+          }))}
           value={stage.itemCode}
           onChange={handleItemCodeChange}
           placeholder="Chọn hàng hóa"
@@ -69,8 +101,14 @@ const StageForm = ({ stage, onChange, errors = {}, readOnlyFields, setStage }) =
       </Grid>
 
       <Grid item xs={12} sm={6}>
-        <TextField fullWidth label="Mô tả" name="description" value={stage.description}
-          onChange={onChange} multiline minRows={3}
+        <TextField
+          fullWidth
+          label="Mô tả"
+          name="description"
+          value={stage.description}
+          onChange={onChange}
+          multiline
+          minRows={3}
           InputProps={{ readOnly: isFieldReadOnly("description") }}
         />
       </Grid>
@@ -78,7 +116,13 @@ const StageForm = ({ stage, onChange, errors = {}, readOnlyFields, setStage }) =
       <Grid item xs={12} sm={6}>
         <FormControl fullWidth required error={!!errors.status}>
           <InputLabel>Trạng thái</InputLabel>
-          <Select name="status" value={stage.status || ''} label="Trạng thái" onChange={onChange} inputProps={{ readOnly: isFieldReadOnly("status") }} >
+          <Select
+            name="status"
+            value={stage.status || ""}
+            label="Trạng thái"
+            onChange={onChange}
+            inputProps={{ readOnly: isFieldReadOnly("status") }}
+          >
             <MenuItem value="Đang sử dụng">Đang sử dụng</MenuItem>
             <MenuItem value="Ngừng sử dụng">Ngừng sử dụng</MenuItem>
           </Select>

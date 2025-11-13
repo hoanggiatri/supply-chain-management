@@ -32,6 +32,7 @@ import {
 import { createReceiveTicket } from "@/services/inventory/ReceiveTicketService";
 import { getSoById, updateSoStatus } from "@/services/sale/SoService";
 import { createDeliveryOrder } from "@/services/delivery/DoService";
+import toastrService from "@/services/toastrService";
 
 const ItDetail = () => {
   const { ticketId } = useParams();
@@ -53,7 +54,7 @@ const ItDetail = () => {
         const data = await getIssueTicketById(ticketId, token);
         setTicket(data);
       } catch (error) {
-        alert(
+        toastrService.error(
           error.response?.data?.message || "Không thể lấy dữ liệu phiếu xuất."
         );
       } finally {
@@ -88,14 +89,14 @@ const ItDetail = () => {
         createdBy: employeeName,
       };
       await updateIssueTicketStatus(ticket.ticketId, request, token);
-      alert("Xác nhận phiếu xuất kho thành công!");
+      toastrService.success("Xác nhận phiếu xuất kho thành công!");
       setTicket((prev) => ({
         ...prev,
         status: "Chờ xuất kho",
         createdBy: employeeName,
       }));
     } catch (error) {
-      alert(
+      toastrService.error(
         error.response?.data?.message || "Có lỗi xảy ra khi xác nhận phiếu!"
       );
     }
@@ -153,7 +154,7 @@ const ItDetail = () => {
             token
           );
         } catch (moError) {
-          alert("Cập nhật MO thất bại!");
+          toastrService.error("Cập nhật MO thất bại!");
         }
       }
 
@@ -198,7 +199,7 @@ const ItDetail = () => {
 
           await createReceiveTicket(receiveTicketRequest, token);
         } catch (ttError) {
-          alert("Cập nhật phiếu chuyển kho thất bại!");
+          toastrService.error("Cập nhật phiếu chuyển kho thất bại!");
         }
       }
 
@@ -214,7 +215,7 @@ const ItDetail = () => {
 
           await createDeliveryOrder(doRequest, token);
         } catch (soError) {
-          alert("Cập nhật SO thất bại!");
+          toastrService.error("Cập nhật SO thất bại!");
         }
       }
 
@@ -242,17 +243,19 @@ const ItDetail = () => {
           )
         );
       } catch (inventoryError) {
-        alert("Cập nhật tồn kho thất bại!");
+        toastrService.error("Cập nhật tồn kho thất bại!");
       }
 
-      alert("Xuất kho thành công!");
+      toastrService.success("Xuất kho thành công!");
       setTicket((prev) => ({
         ...prev,
         status: "Đã hoàn thành",
         issueDate: now,
       }));
     } catch (error) {
-      alert(error.response?.data?.message || "Có lỗi xảy ra khi xuất kho!");
+      toastrService.error(
+        error.response?.data?.message || "Có lỗi xảy ra khi xuất kho!"
+      );
     }
   };
 

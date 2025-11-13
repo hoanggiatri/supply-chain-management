@@ -1,7 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { Grid, TextField, FormControl, InputLabel, Select, MenuItem, FormHelperText } from "@mui/material";
+import {
+  Grid,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  FormHelperText,
+} from "@mui/material";
 import { getAllItemsInCompany } from "@/services/general/ItemService";
 import SelectAutocomplete from "@components/content-components/SelectAutocomplete";
+import toastrService from "@/services/toastrService";
 
 const BomForm = ({ bom, onChange, errors = {}, readOnlyFields, setBom }) => {
   const [items, setItems] = useState([]);
@@ -16,10 +25,14 @@ const BomForm = ({ bom, onChange, errors = {}, readOnlyFields, setBom }) => {
       try {
         const data = await getAllItemsInCompany(companyId, token);
         const filtered = data.filter(
-          (item) => item.itemType === "Thành phẩm" || item.itemType === "Bán thành phẩm"
+          (item) =>
+            item.itemType === "Thành phẩm" || item.itemType === "Bán thành phẩm"
         );
 
-        if (bom?.itemCode && !filtered.some(item => item.itemCode === bom.itemCode)) {
+        if (
+          bom?.itemCode &&
+          !filtered.some((item) => item.itemCode === bom.itemCode)
+        ) {
           filtered.unshift({
             itemCode: bom.itemCode,
             itemName: bom.itemName,
@@ -30,14 +43,18 @@ const BomForm = ({ bom, onChange, errors = {}, readOnlyFields, setBom }) => {
         setItems(filtered);
         setFilteredItems(filtered);
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi khi lấy hàng hóa!");
+        toastrService.error(
+          error.response?.data?.message || "Có lỗi khi lấy hàng hóa!"
+        );
       }
     };
     fetchItems();
   }, [companyId, token, bom]);
 
   const handleItemCodeChange = (selected) => {
-    const selectedItem = items.find((item) => item.itemCode === selected?.value);
+    const selectedItem = items.find(
+      (item) => item.itemCode === selected?.value
+    );
     setBom((prev) => ({
       ...prev,
       itemCode: selectedItem ? selectedItem.itemCode : "",
@@ -49,15 +66,24 @@ const BomForm = ({ bom, onChange, errors = {}, readOnlyFields, setBom }) => {
   return (
     <Grid container spacing={2}>
       <Grid item xs={12} sm={6}>
-        <TextField fullWidth label="Mã BOM" name="bomCode" value={bom.bomCode} onChange={onChange}
-          placeholder="Mã BOM được tạo tự động" required
+        <TextField
+          fullWidth
+          label="Mã BOM"
+          name="bomCode"
+          value={bom.bomCode}
+          onChange={onChange}
+          placeholder="Mã BOM được tạo tự động"
+          required
           inputProps={{ readOnly: isFieldReadOnly("bomCode") }}
         />
       </Grid>
 
       <Grid item xs={12} sm={6}>
         <SelectAutocomplete
-          options={filteredItems.map(item => ({ label: item.itemCode + " - " + item.itemName, value: item.itemCode }))}
+          options={filteredItems.map((item) => ({
+            label: item.itemCode + " - " + item.itemName,
+            value: item.itemCode,
+          }))}
           value={bom.itemCode}
           onChange={handleItemCodeChange}
           placeholder="Chọn hàng hóa"
@@ -66,12 +92,18 @@ const BomForm = ({ bom, onChange, errors = {}, readOnlyFields, setBom }) => {
           size="small"
           disabled={isFieldReadOnly("itemCode")}
         />
-
       </Grid>
 
       <Grid item xs={12} sm={6}>
-        <TextField fullWidth label="Tên hàng hóa" name="itemName" value={bom.itemName} onChange={onChange}
-          required error={!!errors.itemName} helperText={errors.itemName}
+        <TextField
+          fullWidth
+          label="Tên hàng hóa"
+          name="itemName"
+          value={bom.itemName}
+          onChange={onChange}
+          required
+          error={!!errors.itemName}
+          helperText={errors.itemName}
           InputProps={{ readOnly: true }}
         />
       </Grid>
@@ -79,7 +111,13 @@ const BomForm = ({ bom, onChange, errors = {}, readOnlyFields, setBom }) => {
       <Grid item xs={12} sm={6}>
         <FormControl fullWidth required error={!!errors.status}>
           <InputLabel>Trạng thái</InputLabel>
-          <Select name="status" value={bom.status || ''} label="Trạng thái" onChange={onChange} inputProps={{ readOnly: isFieldReadOnly("status") }} >
+          <Select
+            name="status"
+            value={bom.status || ""}
+            label="Trạng thái"
+            onChange={onChange}
+            inputProps={{ readOnly: isFieldReadOnly("status") }}
+          >
             <MenuItem value="Đang sử dụng">Đang sử dụng</MenuItem>
             <MenuItem value="Ngừng sử dụng">Ngừng sử dụng</MenuItem>
           </Select>
@@ -88,8 +126,14 @@ const BomForm = ({ bom, onChange, errors = {}, readOnlyFields, setBom }) => {
       </Grid>
 
       <Grid item xs={12} sm={6}>
-        <TextField fullWidth label="Mô tả" name="description" value={bom.description}
-          onChange={onChange} multiline minRows={3}
+        <TextField
+          fullWidth
+          label="Mô tả"
+          name="description"
+          value={bom.description}
+          onChange={onChange}
+          multiline
+          minRows={3}
           InputProps={{ readOnly: isFieldReadOnly("description") }}
         />
       </Grid>

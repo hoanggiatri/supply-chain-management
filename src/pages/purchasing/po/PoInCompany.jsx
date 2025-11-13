@@ -1,10 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { Container, Typography, Paper, TableRow, TableCell } from "@mui/material";
+import {
+  Container,
+  Typography,
+  Paper,
+  TableRow,
+  TableCell,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import DataTable from "@/components/content-components/DataTable";
 import StatusSummaryCard from "@/components/content-components/StatusSummaryCard";
 import { getAllPosInCompany } from "@/services/purchasing/PoService";
+import toastrService from "@/services/toastrService";
 
 const PoInCompany = () => {
   const [pos, setPos] = useState([]);
@@ -26,7 +33,10 @@ const PoInCompany = () => {
         const data = await getAllPosInCompany(companyId, token);
         setPos(data);
       } catch (error) {
-        alert(error.response?.data?.message || "Không thể lấy danh sách đơn mua hàng!");
+        toastrService.error(
+          error.response?.data?.message ||
+            "Không thể lấy danh sách đơn mua hàng!"
+        );
       }
     };
     fetchPos();
@@ -55,9 +65,9 @@ const PoInCompany = () => {
   const columns = [
     { id: "poCode", label: "Mã đơn hàng" },
     { id: "quotationCode", label: "Mã báo giá" },
-    { id: "supplierCompanyCode", label: "Mã NCC"},
-    { id: "supplierCompanyName", label: "Tên NCC"},
-    { id: "paymentMethod", label: "Phương thức thanh toán"},
+    { id: "supplierCompanyCode", label: "Mã NCC" },
+    { id: "supplierCompanyName", label: "Tên NCC" },
+    { id: "paymentMethod", label: "Phương thức thanh toán" },
     { id: "createdBy", label: "Người tạo" },
     { id: "createdOn", label: "Ngày tạo" },
     { id: "status", label: "Trạng thái" },
@@ -72,7 +82,15 @@ const PoInCompany = () => {
 
         <StatusSummaryCard
           data={pos}
-          statusLabels={["Tất cả", "Chờ xác nhận", "Đã xác nhận", "Đang vận chuyển", "Chờ nhập kho", "Đã hoàn thành", "Đã hủy"]}
+          statusLabels={[
+            "Tất cả",
+            "Chờ xác nhận",
+            "Đã xác nhận",
+            "Đang vận chuyển",
+            "Chờ nhập kho",
+            "Đã hoàn thành",
+            "Đã hủy",
+          ]}
           getStatus={(po) => po.status}
           statusColors={{
             "Tất cả": "#000",
@@ -112,7 +130,9 @@ const PoInCompany = () => {
               <TableCell>{po.supplierCompanyName}</TableCell>
               <TableCell>{po.paymentMethod}</TableCell>
               <TableCell>{po.createdBy}</TableCell>
-              <TableCell>{po.createdOn ? new Date(po.createdOn).toLocaleString() : ""}</TableCell>
+              <TableCell>
+                {po.createdOn ? new Date(po.createdOn).toLocaleString() : ""}
+              </TableCell>
               <TableCell>{po.status}</TableCell>
             </TableRow>
           )}

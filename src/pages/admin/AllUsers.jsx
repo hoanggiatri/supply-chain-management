@@ -1,8 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, TableRow, TableCell } from "@mui/material";
+import {
+  Container,
+  Paper,
+  Typography,
+  TableRow,
+  TableCell,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import DataTable from "@components/content-components/DataTable";
 import { getAllUsers } from "@/services/general/UserService";
+import toastrService from "@/services/toastrService";
 
 const AllUsers = () => {
   const [users, setUsers] = useState([]);
@@ -21,7 +28,10 @@ const AllUsers = () => {
         const data = await getAllUsers(token);
         setUsers(data);
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi xảy ra khi lấy danh sách người dùng!");
+        toastrService.error(
+          error.response?.data?.message ||
+            "Có lỗi xảy ra khi lấy danh sách người dùng!"
+        );
       }
     };
 

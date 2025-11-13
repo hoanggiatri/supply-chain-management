@@ -12,6 +12,7 @@ import {
 import { getAllCompanies } from "@/services/general/CompanyService";
 import { Search } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
+import toastrService from "@/services/toastrService";
 
 const SupplierSearch = () => {
   const [suppliers, setSuppliers] = useState([]);
@@ -33,7 +34,7 @@ const SupplierSearch = () => {
         setSuppliers(filtered);
         setFilteredSuppliers(filtered);
       } catch (err) {
-        alert("Lỗi khi tải nhà cung cấp!");
+        toastrService.error("Lỗi khi tải nhà cung cấp!");
       }
     };
     fetchData();

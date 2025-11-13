@@ -3,6 +3,7 @@ import { Container, Typography, Button, Grid, Paper } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { createInventory } from "@/services/inventory/InventoryService";
 import InventoryForm from "@/components/inventory/InventoryForm";
+import toastrService from "@/services/toastrService";
 
 const CreateInventory = () => {
   const navigate = useNavigate();
@@ -23,14 +24,16 @@ const CreateInventory = () => {
     const formErrors = {};
     if (!inventory.warehouseId) formErrors.warehouseId = "Phải chọn kho";
     if (!inventory.itemId) formErrors.itemId = "Phải chọn hàng hóa";
-    if (inventory.quantity === "" || inventory.quantity < 0) formErrors.quantity = "Số lượng phải >= 0";
-    if (inventory.onDemandQuantity === "" || inventory.onDemandQuantity < 0) formErrors.onDemandQuantity = "Số lượng cần dùng phải >= 0";
+    if (inventory.quantity === "" || inventory.quantity < 0)
+      formErrors.quantity = "Số lượng phải >= 0";
+    if (inventory.onDemandQuantity === "" || inventory.onDemandQuantity < 0)
+      formErrors.onDemandQuantity = "Số lượng cần dùng phải >= 0";
     return formErrors;
   };
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
-  
+
     let newValue = value;
     if (type === "number") {
       const num = parseFloat(value);
@@ -40,10 +43,10 @@ const CreateInventory = () => {
         newValue = num < 0 ? 0 : num;
       }
     }
-  
+
     setInventory((prev) => ({ ...prev, [name]: newValue }));
   };
-  
+
   const handleSubmit = async () => {
     const formErrors = validateForm();
     if (Object.keys(formErrors).length > 0) {
@@ -62,11 +65,13 @@ const CreateInventory = () => {
       console.log(inv);
 
       await createInventory(inv, token);
-      alert("Thêm mới tồn kho thành công!");
+      toastrService.success("Thêm mới tồn kho thành công!");
       navigate("/inventory-count");
     } catch (error) {
       console.log(error.response);
-      alert(error.response?.data?.message || "Lỗi khi tạo tồn kho!");
+      toastrService.error(
+        error.response?.data?.message || "Lỗi khi tạo tồn kho!"
+      );
     }
   };
 

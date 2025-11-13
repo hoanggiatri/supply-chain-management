@@ -1,8 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { Container, TableRow, TableCell, Typography, Paper, Box, Button } from "@mui/material";
+import {
+  Container,
+  TableRow,
+  TableCell,
+  Typography,
+  Paper,
+  Box,
+  Button,
+} from "@mui/material";
 import DataTable from "@components/content-components/DataTable";
 import { getAllStagesInCompany } from "@/services/manufacturing/StageService";
 import { useNavigate } from "react-router-dom";
+import toastrService from "@/services/toastrService";
 
 const StageInCompany = () => {
   const [stages, setStages] = useState([]);
@@ -22,7 +31,10 @@ const StageInCompany = () => {
         const data = await getAllStagesInCompany(companyId, token);
         setStages(data);
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi xảy ra khi lấy danh sách Stage!");
+        toastrService.error(
+          error.response?.data?.message ||
+            "Có lỗi xảy ra khi lấy danh sách Stage!"
+        );
       }
     };
 
@@ -59,7 +71,11 @@ const StageInCompany = () => {
           DANH SÁCH QUY TRÌNH SẢN XUẤT
         </Typography>
         <Box mt={3} mb={3}>
-          <Button variant="contained" color="default" onClick={() => navigate("/create-stage")}>
+          <Button
+            variant="contained"
+            color="default"
+            onClick={() => navigate("/create-stage")}
+          >
             Thêm mới
           </Button>
         </Box>

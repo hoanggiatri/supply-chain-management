@@ -3,6 +3,7 @@ import { Container, Typography, Button, Grid, Paper } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { createPlant } from "@/services/general/ManufacturePlantService";
 import PlantForm from "@components/general/PlantForm";
+import toastrService from "@/services/toastrService";
 
 const CreatePlant = () => {
   const navigate = useNavigate();
@@ -39,10 +40,10 @@ const CreatePlant = () => {
     try {
       const { companyId: _cid, plantCode, ...payload } = plant || {};
       await createPlant(companyId, payload, token);
-      alert("Tạo xưởng thành công!");
+      toastrService.success("Tạo xưởng thành công!");
       navigate("/plants");
     } catch (err) {
-      alert(err.response?.data?.message || "Lỗi khi tạo xưởng!");
+      toastrService.error(err.response?.data?.message || "Lỗi khi tạo xưởng!");
     }
   };
 

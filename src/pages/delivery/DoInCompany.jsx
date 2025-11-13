@@ -1,10 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { Container, Typography, Paper, TableRow, TableCell } from "@mui/material";
+import {
+  Container,
+  Typography,
+  Paper,
+  TableRow,
+  TableCell,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import DataTable from "@/components/content-components/DataTable";
 import StatusSummaryCard from "@/components/content-components/StatusSummaryCard";
 import { getAllDeliveryOrdersInCompany } from "@/services/delivery/DoService";
+import toastrService from "@/services/toastrService";
 
 const DoInCompany = () => {
   const [dos, setDos] = useState([]);
@@ -26,7 +33,9 @@ const DoInCompany = () => {
         const data = await getAllDeliveryOrdersInCompany(companyId, token);
         setDos(data);
       } catch (error) {
-        alert(error.response?.data?.message || "Không thể lấy danh sách đơn vận chuyển!");
+        toastrService.error(
+          error.response?.data?.message || "Không thể lấy danh sách đơn vận chuyển!"
+        );
       }
     };
     fetchDos();

@@ -6,6 +6,7 @@ import RfqForm from "@/components/purchasing/RfqForm";
 import RfqDetailTable from "@/components/purchasing/RfqDetailTable";
 import dayjs from "dayjs";
 import { getCompanyById } from "@/services/general/CompanyService";
+import toastrService from "@/services/toastrService";
 
 const CreateRfq = () => {
   const navigate = useNavigate();
@@ -45,7 +46,9 @@ const CreateRfq = () => {
           }));
         }
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi khi tải dữ liệu!");
+        toastrService.error(
+          error.response?.data?.message || "Có lỗi khi tải dữ liệu!"
+        );
       }
     };
     fetchData();
@@ -121,11 +124,11 @@ const CreateRfq = () => {
       };
 
       await createRfq(request, token);
-      alert("Tạo RFQ thành công!");
+      toastrService.success("Tạo RFQ thành công!");
       navigate(-1);
     } catch (error) {
       console.error(error);
-      alert(error.response?.data?.message || "Lỗi khi tạo RFQ!");
+      toastrService.error(error.response?.data?.message || "Lỗi khi tạo RFQ!");
     }
   };
 

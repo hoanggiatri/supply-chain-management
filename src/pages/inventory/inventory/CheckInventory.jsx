@@ -29,6 +29,7 @@ import {
   updateTransferTicket,
 } from "@/services/inventory/TransferTicketService";
 import { getPoById } from "@/services/purchasing/PoService";
+import toastrService from "@/services/toastrService";
 
 const CheckInventory = () => {
   const [warehouses, setWarehouses] = useState([]);
@@ -58,7 +59,9 @@ const CheckInventory = () => {
         const data = await getAllWarehousesInCompany(companyId, token);
         setWarehouses(data);
       } catch (error) {
-        alert(error.response?.data?.message || "Không thể tải danh sách kho!");
+        toastrService.error(
+          error.response?.data?.message || "Không thể tải danh sách kho!"
+        );
       }
     };
     fetchWarehouses();
@@ -85,7 +88,9 @@ const CheckInventory = () => {
           setPoDetails(po.purchaseOrderDetails);
         }
       } catch (error) {
-        alert(error.response?.data?.message || "Không thể tải dữ liệu!");
+        toastrService.error(
+          error.response?.data?.message || "Không thể tải dữ liệu!"
+        );
       }
     };
     fetchDataByType();
@@ -112,7 +117,7 @@ const CheckInventory = () => {
 
   const handleCheckInventory = async () => {
     if (!selectedWarehouseId) {
-      alert("Vui lòng chọn kho!");
+      toastrService.warning("Vui lòng chọn kho!");
       return;
     }
 
@@ -206,7 +211,9 @@ const CheckInventory = () => {
 
       setInventoryResults(results);
     } catch (error) {
-      alert(error.response?.data?.message || "Lỗi khi tải tồn kho!");
+      toastrService.error(
+        error.response?.data?.message || "Lỗi khi tải tồn kho!"
+      );
     } finally {
       setLoading(false);
     }
@@ -214,7 +221,7 @@ const CheckInventory = () => {
 
   const handleConfirm = async () => {
     if (inventoryResults.length === 0) {
-      alert("Vui lòng kiểm tra tồn kho trước!");
+      toastrService.warning("Vui lòng kiểm tra tồn kho trước!");
       return;
     }
 
@@ -251,7 +258,7 @@ const CheckInventory = () => {
             )
           );
 
-          alert("Đã xác nhận công lệnh sản xuất!");
+          toastrService.success("Đã xác nhận công lệnh sản xuất!");
           navigate(-1);
         }
 
@@ -301,7 +308,7 @@ const CheckInventory = () => {
             )
           );
 
-          alert("Đã xác nhận phiếu chuyển kho!");
+          toastrService.success("Đã xác nhận phiếu chuyển kho!");
           navigate(-1);
         }
 
@@ -310,10 +317,12 @@ const CheckInventory = () => {
           navigate(`/create-so/${id}`);
         }
       } else {
-        alert("Có nguyên liệu không đủ số lượng!");
+        toastrService.warning("Có nguyên liệu không đủ số lượng!");
       }
     } catch (error) {
-      alert(error.response?.data?.message || "Lỗi khi xác nhận tồn kho!");
+      toastrService.error(
+        error.response?.data?.message || "Lỗi khi xác nhận tồn kho!"
+      );
     } finally {
       setLoading(false);
     }

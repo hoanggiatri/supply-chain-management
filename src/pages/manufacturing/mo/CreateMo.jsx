@@ -6,12 +6,13 @@ import { getAllItemsInCompany } from "@/services/general/ItemService";
 import { getAllLinesInCompany } from "@/services/general/ManufactureLineService";
 import MoForm from "@/components/manufacturing/MoForm";
 import dayjs from "dayjs";
+import toastrService from "@/services/toastrService";
 
 const CreateMo = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const companyId = localStorage.getItem("companyId");
-  const employeeName = localStorage.getItem("employeeName")
+  const employeeName = localStorage.getItem("employeeName");
 
   const [errors, setErrors] = useState({});
   const [items, setItems] = useState([]);
@@ -40,7 +41,9 @@ const CreateMo = () => {
         const linesData = await getAllLinesInCompany(companyId, token);
         setLines(linesData);
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi khi lấy dữ liệu!");
+        toastrService.error(
+          error.response?.data?.message || "Có lỗi khi lấy dữ liệu!"
+        );
       }
     };
     fetchItemsAndLines();
@@ -51,10 +54,14 @@ const CreateMo = () => {
     if (!mo.itemId) formErrors.itemCode = "Phải chọn hàng hóa";
     if (!mo.lineId) formErrors.lineCode = "Phải chọn dây chuyền sản xuất";
     if (!mo.type?.trim()) formErrors.type = "Loại không được để trống";
-    if (mo.quantity === "" || mo.quantity <= 0) formErrors.quantity = "Số lượng phải > 0";
-    if (!mo.status?.trim()) formErrors.status = "Trạng thái không được để trống";
-    if (!mo.estimatedStartTime) formErrors.estimatedStartTime = "Phải chọn ngày bắt đầu dự kiến";
-    if (!mo.estimatedEndTime) formErrors.estimatedEndTime = "Phải chọn ngày kết thúc dự kiến";
+    if (mo.quantity === "" || mo.quantity <= 0)
+      formErrors.quantity = "Số lượng phải > 0";
+    if (!mo.status?.trim())
+      formErrors.status = "Trạng thái không được để trống";
+    if (!mo.estimatedStartTime)
+      formErrors.estimatedStartTime = "Phải chọn ngày bắt đầu dự kiến";
+    if (!mo.estimatedEndTime)
+      formErrors.estimatedEndTime = "Phải chọn ngày kết thúc dự kiến";
     if (mo.estimatedStartTime && mo.estimatedEndTime) {
       const start = new Date(mo.estimatedStartTime);
       const end = new Date(mo.estimatedEndTime);
@@ -67,7 +74,7 @@ const CreateMo = () => {
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
-  
+
     let newValue = value;
     if (type === "number") {
       const num = parseFloat(value);
@@ -77,7 +84,7 @@ const CreateMo = () => {
         newValue = num < 0 ? 0 : num;
       }
     }
-  
+
     setMo((prev) => ({ ...prev, [name]: newValue }));
   };
 
@@ -108,11 +115,11 @@ const CreateMo = () => {
       console.log(mo.estimatedStartTime);
 
       await createMo(request, token);
-      alert("Tạo công lệnh thành công!");
+      toastrService.success("Tạo công lệnh thành công!");
       navigate("/mos");
     } catch (error) {
       console.log(error.response);
-      alert(error.response?.data?.message || "Lỗi khi tạo MO!");
+      toastrService.error(error.response?.data?.message || "Lỗi khi tạo MO!");
     }
   };
 
@@ -131,7 +138,7 @@ const CreateMo = () => {
           mo={mo}
           onChange={handleChange}
           errors={errors}
-          readOnlyFields={{ moCode: true, status:true }}
+          readOnlyFields={{ moCode: true, status: true }}
           setMo={setMo}
           items={items}
           lines={lines}

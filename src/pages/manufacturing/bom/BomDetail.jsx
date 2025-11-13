@@ -13,6 +13,7 @@ import DataTable from "@/components/content-components/DataTable";
 import BomForm from "@/components/manufacturing/BomForm";
 import { getBomByItemId, deleteBom } from "@/services/manufacturing/BomService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
+import toastrService from "@/services/toastrService";
 
 const BomDetail = () => {
   const { itemId } = useParams();
@@ -36,7 +37,9 @@ const BomDetail = () => {
         setBom(data);
         setBomDetails(Array.isArray(data.bomDetails) ? data.bomDetails : []);
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi khi lấy thông tin BOM!");
+        toastrService.error(
+          error.response?.data?.message || "Có lỗi khi lấy thông tin BOM!"
+        );
       } finally {
         setLoading(false);
       }
@@ -95,10 +98,12 @@ const BomDetail = () => {
     const token = localStorage.getItem("token");
     try {
       await deleteBom(bom.bomId, token);
-      alert("Xóa BOM thành công!");
+      toastrService.success("Xóa BOM thành công!");
       navigate("/boms");
     } catch (error) {
-      alert(error.response?.data?.message || "Có lỗi xảy ra khi xóa BOM!");
+      toastrService.error(
+        error.response?.data?.message || "Có lỗi xảy ra khi xóa BOM!"
+      );
     }
   };
 

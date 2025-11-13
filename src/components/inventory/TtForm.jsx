@@ -1,9 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { Grid, TextField, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import {
+  Grid,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from "@mui/material";
 import SelectAutocomplete from "@components/content-components/SelectAutocomplete";
 import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
+import toastrService from "@/services/toastrService";
 
-const TtForm = ({ ticket, onChange, errors = {}, readOnlyFields, setTicket }) => {
+const TtForm = ({
+  ticket,
+  onChange,
+  errors = {},
+  readOnlyFields,
+  setTicket,
+}) => {
   const [filteredFromWarehouses, setFilteredFromWarehouses] = useState([]);
   const [filteredToWarehouses, setFilteredToWarehouses] = useState([]);
   const [fromWarehouses, setFromWarehouses] = useState([]);
@@ -21,7 +35,12 @@ const TtForm = ({ ticket, onChange, errors = {}, readOnlyFields, setTicket }) =>
 
         const fromWarehouses = data;
         const toWarehouses = data;
-        if (ticket?.fromWarehouseCode && !fromWarehouses.some(w => w.warehouseCode === ticket.fromWarehouseCode)) {
+        if (
+          ticket?.fromWarehouseCode &&
+          !fromWarehouses.some(
+            (w) => w.warehouseCode === ticket.fromWarehouseCode
+          )
+        ) {
           fromWarehouses.unshift({
             warehouseCode: ticket.fromWarehouseCode,
             warehouseName: ticket.fromWarehouseName,
@@ -29,7 +48,10 @@ const TtForm = ({ ticket, onChange, errors = {}, readOnlyFields, setTicket }) =>
           });
         }
 
-        if (ticket?.toWarehouseCode && !toWarehouses.some(w => w.warehouseCode === ticket.toWarehouseCode)) {
+        if (
+          ticket?.toWarehouseCode &&
+          !toWarehouses.some((w) => w.warehouseCode === ticket.toWarehouseCode)
+        ) {
           toWarehouses.unshift({
             warehouseCode: ticket.toWarehouseCode,
             warehouseName: ticket.toWarehouseName,
@@ -45,18 +67,19 @@ const TtForm = ({ ticket, onChange, errors = {}, readOnlyFields, setTicket }) =>
 
         setToWarehouses(toWarehouses);
         setFilteredToWarehouses(toWarehouses);
-
-
-
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi khi lấy hàng hóa!");
+        toastrService.error(
+          error.response?.data?.message || "Có lỗi khi lấy hàng hóa!"
+        );
       }
     };
     fetchWarehouses();
   }, [companyId, token, ticket]);
 
   const handleFromWarehouseChange = (selected) => {
-    const selectedWarehouse = fromWarehouses.find(w => w.warehouseCode === selected?.value);
+    const selectedWarehouse = fromWarehouses.find(
+      (w) => w.warehouseCode === selected?.value
+    );
     setTicket((prev) => ({
       ...prev,
       fromWarehouseId: selectedWarehouse?.warehouseId || "",
@@ -66,7 +89,9 @@ const TtForm = ({ ticket, onChange, errors = {}, readOnlyFields, setTicket }) =>
   };
 
   const handleToWarehouseChange = (selected) => {
-    const selectedWarehouse = toWarehouses.find(w => w.warehouseCode === selected?.value);
+    const selectedWarehouse = toWarehouses.find(
+      (w) => w.warehouseCode === selected?.value
+    );
     setTicket((prev) => ({
       ...prev,
       toWarehouseId: selectedWarehouse?.warehouseId || "",
@@ -79,23 +104,35 @@ const TtForm = ({ ticket, onChange, errors = {}, readOnlyFields, setTicket }) =>
     <Grid container spacing={2}>
       <Grid item xs={12} sm={6}>
         <TextField
-          fullWidth label="Mã phiếu" name="ticketCode" value={ticket.ticketCode}
-          onChange={onChange} placeholder="Mã phiếu được tạo tự động"
+          fullWidth
+          label="Mã phiếu"
+          name="ticketCode"
+          value={ticket.ticketCode}
+          onChange={onChange}
+          placeholder="Mã phiếu được tạo tự động"
           InputProps={{ readOnly: isFieldReadOnly("ticketCode") }}
         />
       </Grid>
 
       <Grid item xs={12} sm={6}>
         <TextField
-          fullWidth label="Lý do" name="reason" value={ticket.reason}
-          onChange={onChange} error={!!errors.reason} helperText={errors.reason}
+          fullWidth
+          label="Lý do"
+          name="reason"
+          value={ticket.reason}
+          onChange={onChange}
+          error={!!errors.reason}
+          helperText={errors.reason}
           InputProps={{ readOnly: isFieldReadOnly("reason") }}
         />
       </Grid>
 
       <Grid item xs={12} sm={6}>
         <SelectAutocomplete
-          options={filteredFromWarehouses.map(w => ({ label: w.warehouseCode + " - " + w.warehouseName, value: w.warehouseCode }))}
+          options={filteredFromWarehouses.map((w) => ({
+            label: w.warehouseCode + " - " + w.warehouseName,
+            value: w.warehouseCode,
+          }))}
           value={ticket.fromWarehouseCode}
           onChange={handleFromWarehouseChange}
           placeholder="Chọn kho xuất"
@@ -108,7 +145,10 @@ const TtForm = ({ ticket, onChange, errors = {}, readOnlyFields, setTicket }) =>
 
       <Grid item xs={12} sm={6}>
         <SelectAutocomplete
-          options={filteredToWarehouses.map(w => ({ label: w.warehouseCode + " - " + w.warehouseName, value: w.warehouseCode }))}
+          options={filteredToWarehouses.map((w) => ({
+            label: w.warehouseCode + " - " + w.warehouseName,
+            value: w.warehouseCode,
+          }))}
           value={ticket.toWarehouseCode}
           onChange={handleToWarehouseChange}
           placeholder="Chọn kho nhập"
@@ -123,8 +163,11 @@ const TtForm = ({ ticket, onChange, errors = {}, readOnlyFields, setTicket }) =>
         <FormControl fullWidth error={!!errors.status}>
           <InputLabel>Trạng thái</InputLabel>
           <Select
-            name="status" value={ticket.status || ""} label="Trạng thái"
-            onChange={onChange} inputProps={{ readOnly: isFieldReadOnly("status") }}
+            name="status"
+            value={ticket.status || ""}
+            label="Trạng thái"
+            onChange={onChange}
+            inputProps={{ readOnly: isFieldReadOnly("status") }}
           >
             <MenuItem value="Chờ xác nhận">Chờ xác nhận</MenuItem>
             <MenuItem value="Chờ xuất kho">Chờ xuất kho</MenuItem>

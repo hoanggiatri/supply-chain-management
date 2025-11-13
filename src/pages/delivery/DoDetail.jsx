@@ -21,6 +21,7 @@ import { getPoById, updatePoStatus } from "@/services/purchasing/PoService";
 import { createDeliveryProcess } from "@/services/delivery/DoProcessService";
 import { createReceiveTicket } from "@/services/inventory/ReceiveTicketService";
 import dayjs from "dayjs";
+import toastrService from "@/services/toastrService";
 
 const DoDetail = () => {
   const { doId } = useParams();
@@ -49,7 +50,7 @@ const DoDetail = () => {
 
         setDetails(doData.deliveryOrderDetails || []);
       } catch (err) {
-        alert(
+        toastrService.error(
           err.response?.data?.message || "Không thể tải dữ liệu đơn giao hàng!"
         );
       } finally {
@@ -84,9 +85,9 @@ const DoDetail = () => {
       await updateSoStatus(so.soId, "Đang vận chuyển", token);
       await updatePoStatus(so.poId, "Đang vận chuyển", token);
 
-      alert("Xác nhận đơn vận chuyển thành công!");
+      toastrService.success("Xác nhận đơn vận chuyển thành công!");
     } catch (error) {
-      alert(
+      toastrService.error(
         error.response?.data?.message || "Có lỗi xảy ra khi xác nhận phiếu!"
       );
     }
@@ -111,9 +112,11 @@ const DoDetail = () => {
       );
       setDeliveryOrder((prev) => ({ ...prev, status: "Đang vận chuyển" }));
 
-      alert("Lấy hàng thành công!");
+      toastrService.success("Lấy hàng thành công!");
     } catch (error) {
-      alert(error.response?.data?.message || "Có lỗi xảy ra khi lấy hàng!");
+      toastrService.error(
+        error.response?.data?.message || "Có lỗi xảy ra khi lấy hàng!"
+      );
     }
   };
 
@@ -158,9 +161,9 @@ const DoDetail = () => {
       };
 
       await createReceiveTicket(receiveTicketRequest, token);
-      alert("Đã hoàn thành đơn vận chuyển!");
+      toastrService.success("Đã hoàn thành đơn vận chuyển!");
     } catch (error) {
-      alert(
+      toastrService.error(
         error.response?.data?.message ||
           "Có lỗi xảy ra khi hoàn thành đơn vận chuyển!"
       );
