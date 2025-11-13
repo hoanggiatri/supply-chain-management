@@ -1,10 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { Container, Typography, Paper, TableRow, TableCell } from "@mui/material";
+import {
+  Container,
+  Typography,
+  Paper,
+  TableRow,
+  TableCell,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import DataTable from "@/components/content-components/DataTable";
 import StatusSummaryCard from "@/components/content-components/StatusSummaryCard";
 import { getAllSosInCompany } from "@/services/sale/SoService";
+import toastrService from "@/services/toastrService";
 
 const SoInCompany = () => {
   const [sos, setSos] = useState([]);
@@ -26,7 +33,10 @@ const SoInCompany = () => {
         const data = await getAllSosInCompany(companyId, token);
         setSos(data);
       } catch (error) {
-        alert(error.response?.data?.message || "Không thể lấy danh sách đơn bán hàng!");
+        toastrService.error(
+          error.response?.data?.message ||
+            "Không thể lấy danh sách đơn bán hàng!"
+        );
       }
     };
     fetchSos();
@@ -72,14 +82,20 @@ const SoInCompany = () => {
 
         <StatusSummaryCard
           data={sos}
-          statusLabels={["Tất cả", "Chờ xuất kho", "Chờ vận chuyển", "Đang vận chuyển", "Đã hoàn thành"]}
+          statusLabels={[
+            "Tất cả",
+            "Chờ xuất kho",
+            "Chờ vận chuyển",
+            "Đang vận chuyển",
+            "Đã hoàn thành",
+          ]}
           getStatus={(so) => so.status}
           statusColors={{
             "Tất cả": "#000",
             "Chờ xuất kho": theme.palette.secondary.main,
             "Chờ vận chuyển": theme.palette.warning.main,
             "Đang vận chuyển": theme.palette.primary.main,
-            "Đã hoàn thành": theme.palette.success.main
+            "Đã hoàn thành": theme.palette.success.main,
           }}
           onSelectStatus={setFilterStatus}
           selectedStatus={filterStatus}
@@ -110,7 +126,9 @@ const SoInCompany = () => {
               <TableCell>{so.customerCompanyName}</TableCell>
               <TableCell>{so.paymentMethod}</TableCell>
               <TableCell>{so.createdBy}</TableCell>
-              <TableCell>{so.createdOn ? new Date(so.createdOn).toLocaleString() : ""}</TableCell>
+              <TableCell>
+                {so.createdOn ? new Date(so.createdOn).toLocaleString() : ""}
+              </TableCell>
               <TableCell>{so.status}</TableCell>
             </TableRow>
           )}

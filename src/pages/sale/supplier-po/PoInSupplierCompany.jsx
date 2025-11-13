@@ -1,10 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { Container, Typography, Paper, TableRow, TableCell } from "@mui/material";
+import {
+  Container,
+  Typography,
+  Paper,
+  TableRow,
+  TableCell,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import DataTable from "@/components/content-components/DataTable";
 import StatusSummaryCard from "@/components/content-components/StatusSummaryCard";
 import { getAllPosInSupplierCompany } from "@/services/purchasing/PoService";
+import toastrService from "@/services/toastrService";
 
 const PoInSupplierCompany = () => {
   const [pos, setPos] = useState([]);
@@ -24,10 +31,15 @@ const PoInSupplierCompany = () => {
     const fetchPos = async () => {
       try {
         const data = await getAllPosInSupplierCompany(companyId, token);
-        const filteredData = data.filter(po => po.status === "Chờ xác nhận" || po.status === "Đã xác nhận");
+        const filteredData = data.filter(
+          (po) => po.status === "Chờ xác nhận" || po.status === "Đã xác nhận"
+        );
         setPos(filteredData);
       } catch (error) {
-        alert(error.response?.data?.message || "Không thể lấy danh sách đơn mua hàng!");
+        toastrService.error(
+          error.response?.data?.message ||
+            "Không thể lấy danh sách đơn mua hàng!"
+        );
       }
     };
     fetchPos();
@@ -56,9 +68,9 @@ const PoInSupplierCompany = () => {
   const columns = [
     { id: "poCode", label: "Mã đơn hàng" },
     { id: "quotationCode", label: "Mã báo giá" },
-    { id: "companyCode", label: "Mã khách hàng"},
-    { id: "companyName", label: "Tên khách hàng"},
-    { id: "paymentMethod", label: "Phương thức thanh toán"},
+    { id: "companyCode", label: "Mã khách hàng" },
+    { id: "companyName", label: "Tên khách hàng" },
+    { id: "paymentMethod", label: "Phương thức thanh toán" },
     { id: "createdOn", label: "Ngày đặt hàng" },
     { id: "status", label: "Trạng thái" },
   ];
@@ -107,7 +119,9 @@ const PoInSupplierCompany = () => {
               <TableCell>{po.companyCode}</TableCell>
               <TableCell>{po.companyName}</TableCell>
               <TableCell>{po.paymentMethod}</TableCell>
-              <TableCell>{po.createdOn ? new Date(po.createdOn).toLocaleString() : ""}</TableCell>
+              <TableCell>
+                {po.createdOn ? new Date(po.createdOn).toLocaleString() : ""}
+              </TableCell>
               <TableCell>{po.status}</TableCell>
             </TableRow>
           )}

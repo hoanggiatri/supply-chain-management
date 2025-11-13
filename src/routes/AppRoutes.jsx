@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import NavBarLayout from "@layouts/NavBarLayout";
 import SideBarLayout from "@layouts/SideBarLayout";
 import PrivateRoute from "./PrivateRoute";
+import PublicRoute from "./PublicRoute";
 
 import DefaultPage from "@pages/DefaultPage";
 
@@ -138,27 +139,47 @@ function AppRoutes() {
       <Routes>
         <Route element={<NavBarLayout />}>
           <Route path="/" element={<DefaultPage />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/otp-verification" element={<OtpVerification />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route
+            path="/register"
+            element={<PublicRoute element={<Register />} />}
+          />
+          <Route
+            path="/otp-verification"
+            element={<PublicRoute element={<OtpVerification />} />}
+          />
+          <Route path="/login" element={<PublicRoute element={<Login />} />} />
+          <Route
+            path="/forgot-password"
+            element={<PublicRoute element={<ForgotPassword />} />}
+          />
           <Route
             path="/verify-forgot-password-otp"
-            element={<OtpForgotPassword />}
+            element={<PublicRoute element={<OtpForgotPassword />} />}
           />
-          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route
+            path="/reset-password"
+            element={<PublicRoute element={<ResetPassword />} />}
+          />
 
-          <Route path="/login-admin" element={<AdminLogin />} />
+          <Route
+            path="/login-admin"
+            element={
+              <PublicRoute
+                element={<AdminLogin />}
+                redirectPath="/admin/dashboard"
+              />
+            }
+          />
           <Route path="/admin-verify-otp/:email" element={<AdminVerifyOtp />} />
         </Route>
 
-        <Route element={<SideBarLayout role={"S-ADMIN"} />}>
+        <Route element={<SideBarLayout role={"s_admin"} />}>
           <Route
             path="/admin/dashboard"
             element={
               <PrivateRoute
                 element={<Dashboard />}
-                allowedRoles={["S-ADMIN"]}
+                allowedRoles={["s_admin"]}
               />
             }
           />
@@ -167,14 +188,14 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<AllCompanies />}
-                allowedRoles={["S-ADMIN"]}
+                allowedRoles={["s_admin"]}
               />
             }
           />
           <Route
             path="/admin/company/:companyId"
             element={
-              <PrivateRoute element={<Company />} allowedRoles={["S-ADMIN"]} />
+              <PrivateRoute element={<Company />} allowedRoles={["s_admin"]} />
             }
           />
           <Route
@@ -182,7 +203,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<UpdateCompany />}
-                allowedRoles={["S-ADMIN"]}
+                allowedRoles={["s_admin"]}
               />
             }
           />
@@ -190,13 +211,13 @@ function AppRoutes() {
           <Route
             path="/admin/all-user"
             element={
-              <PrivateRoute element={<AllUsers />} allowedRoles={["S-ADMIN"]} />
+              <PrivateRoute element={<AllUsers />} allowedRoles={["s_admin"]} />
             }
           />
           <Route
             path="/admin/user/:userId"
             element={
-              <PrivateRoute element={<User />} allowedRoles={["S-ADMIN"]} />
+              <PrivateRoute element={<User />} allowedRoles={["s_admin"]} />
             }
           />
           <Route
@@ -204,7 +225,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<UpdateUser />}
-                allowedRoles={["S-ADMIN"]}
+                allowedRoles={["s_admin"]}
               />
             }
           />
@@ -216,7 +237,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<HomePage />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
               />
             }
           />
@@ -225,7 +246,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<MyProfile />}
-                allowedRoles={["c_admin", "USER", "S-ADMIN"]}
+                allowedRoles={["c_admin", "user", "s_admin"]}
               />
             }
           />
@@ -291,7 +312,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<EditEmployee />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
               />
             }
           />
@@ -328,7 +349,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<EditUser />}
-                allowedRoles={["c_admin", "USER", "S-ADMIN"]}
+                allowedRoles={["c_admin", "user", "s_admin"]}
               />
             }
           />
@@ -489,7 +510,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<BomInCompany />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Sản xuất"]}
               />
             }
@@ -499,7 +520,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<CreateBom />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Sản xuất"]}
               />
             }
@@ -509,7 +530,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<BomDetail />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Sản xuất"]}
               />
             }
@@ -519,7 +540,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<EditBom />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Sản xuất"]}
               />
             }
@@ -530,7 +551,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<MoInCompany />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Sản xuất"]}
               />
             }
@@ -540,7 +561,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<CreateMo />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Sản xuất"]}
               />
             }
@@ -550,7 +571,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<MoDetail />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Sản xuất"]}
               />
             }
@@ -560,7 +581,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<EditMo />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Sản xuất"]}
               />
             }
@@ -570,7 +591,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<ManufactureReport />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Sản xuất"]}
               />
             }
@@ -581,7 +602,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<StageInCompany />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Sản xuất"]}
               />
             }
@@ -591,7 +612,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<CreateStage />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Sản xuất"]}
               />
             }
@@ -601,7 +622,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<StageDetail />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Sản xuất"]}
               />
             }
@@ -611,7 +632,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<EditStage />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Sản xuất"]}
               />
             }
@@ -622,7 +643,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<Inventory />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
               />
             }
           />
@@ -631,7 +652,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<CheckInventory />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
               />
             }
           />
@@ -640,7 +661,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<InventoryCount />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Kho"]}
               />
             }
@@ -650,7 +671,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<CreateInventory />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Kho"]}
               />
             }
@@ -661,7 +682,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<ItInCompany />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Kho"]}
               />
             }
@@ -671,7 +692,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<ItDetail />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Kho"]}
               />
             }
@@ -681,7 +702,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<IssueReport />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Kho"]}
               />
             }
@@ -692,7 +713,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<RtInCompany />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Kho"]}
               />
             }
@@ -702,7 +723,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<RtDetail />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Kho"]}
               />
             }
@@ -712,7 +733,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<ReceiveReport />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Kho"]}
               />
             }
@@ -723,7 +744,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<TtInCompany />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Kho"]}
               />
             }
@@ -733,7 +754,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<TtDetail />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Kho"]}
               />
             }
@@ -743,7 +764,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<EditTt />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Kho"]}
               />
             }
@@ -753,7 +774,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<CreateTt />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Kho"]}
               />
             }
@@ -764,7 +785,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<SupplierSearch />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Mua hàng"]}
               />
             }
@@ -774,7 +795,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<SupplierDetail />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Mua hàng"]}
               />
             }
@@ -785,7 +806,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<CreateRfq />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Mua hàng"]}
               />
             }
@@ -795,7 +816,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<RfqInCompany />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Mua hàng"]}
               />
             }
@@ -805,7 +826,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<RfqDetail />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Mua hàng"]}
               />
             }
@@ -816,7 +837,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<RfqInSupplierCompany />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Bán hàng"]}
               />
             }
@@ -826,7 +847,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<SupplierRfqDetail />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Bán hàng"]}
               />
             }
@@ -837,7 +858,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<CreateQuotation />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Bán hàng"]}
               />
             }
@@ -847,7 +868,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<QuotationInCompany />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Bán hàng"]}
               />
             }
@@ -857,7 +878,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<QuotationDetail />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Bán hàng"]}
               />
             }
@@ -868,7 +889,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<QuotationInCustomerCompany />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Mua hàng"]}
               />
             }
@@ -878,7 +899,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<CustomerQuotationDetail />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Mua hàng"]}
               />
             }
@@ -889,7 +910,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<CreatePo />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Mua hàng"]}
               />
             }
@@ -899,7 +920,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<PoInCompany />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Mua hàng"]}
               />
             }
@@ -909,7 +930,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<PoDetail />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Mua hàng"]}
               />
             }
@@ -919,7 +940,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<PurchaseReport />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Mua hàng"]}
               />
             }
@@ -930,7 +951,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<PoInSupplierCompany />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Bán hàng"]}
               />
             }
@@ -940,7 +961,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<SupplierPoDetail />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Bán hàng"]}
               />
             }
@@ -951,7 +972,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<CreateSo />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Bán hàng"]}
               />
             }
@@ -961,7 +982,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<SoInCompany />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Bán hàng"]}
               />
             }
@@ -971,7 +992,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<SoDetail />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Bán hàng"]}
               />
             }
@@ -981,7 +1002,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<SalesReport />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Bán hàng"]}
               />
             }
@@ -992,7 +1013,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<DoInCompany />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Vận chuyển"]}
               />
             }
@@ -1002,7 +1023,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<DoDetail />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Vận chuyển"]}
               />
             }
@@ -1012,7 +1033,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<UpdateDoProcess />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Vận chuyển"]}
               />
             }
@@ -1022,7 +1043,7 @@ function AppRoutes() {
             element={
               <PrivateRoute
                 element={<DoProcess />}
-                allowedRoles={["c_admin", "USER"]}
+                allowedRoles={["c_admin", "user"]}
                 allowedDepartments={["Quản trị", "Vận chuyển"]}
               />
             }

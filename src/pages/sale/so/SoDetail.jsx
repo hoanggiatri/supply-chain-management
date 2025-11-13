@@ -1,6 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Container, Paper, Typography, TableRow, TableCell, Grid, Box, Button } from "@mui/material";
+import {
+  Container,
+  Paper,
+  Typography,
+  TableRow,
+  TableCell,
+  Grid,
+  Box,
+  Button,
+} from "@mui/material";
 import { getSoById } from "@/services/sale/SoService";
 import SoForm from "@/components/sale/SoForm";
 import DataTable from "@/components/content-components/DataTable";
@@ -8,6 +17,7 @@ import LoadingPaper from "@/components/content-components/LoadingPaper";
 import { getPoById } from "@/services/purchasing/PoService";
 import { getInvoicePdf } from "@/services/sale/InvoiceService";
 import { getDeliveryOrderBySoId } from "@/services/delivery/DoService";
+import toastrService from "@/services/toastrService";
 
 const SoDetail = () => {
   const { soId } = useParams();
@@ -49,7 +59,9 @@ const SoDetail = () => {
         }));
         setSoDetails(details);
       } catch (err) {
-        alert(err.response?.data?.message || "Không thể tải dữ liệu đơn bán hàng!");
+        toastrService.error(
+          err.response?.data?.message || "Không thể tải dữ liệu đơn bán hàng!"
+        );
       } finally {
         setLoading(false);
       }
@@ -74,28 +86,45 @@ const SoDetail = () => {
     return 0;
   });
 
-  const paginatedDetails = sortedDetails.slice((page - 1) * rowsPerPage, (page - 1) * rowsPerPage + rowsPerPage);
+  const paginatedDetails = sortedDetails.slice(
+    (page - 1) * rowsPerPage,
+    (page - 1) * rowsPerPage + rowsPerPage
+  );
 
   if (!so || !po) return <LoadingPaper title="CHI TIẾT ĐƠN BÁN HÀNG" />;
 
   return (
     <Container>
       <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">CHI TIẾT ĐƠN BÁN HÀNG</Typography>
+        <Typography className="page-title" variant="h4">
+          CHI TIẾT ĐƠN BÁN HÀNG
+        </Typography>
 
-        {so && (so.status === "Đang vận chuyển") && (
+        {so && so.status === "Đang vận chuyển" && (
           <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
-            <Button variant="contained" color="success" onClick={() => navigate(`/do-process/${deliveryOrder.doId}`)}>
+            <Button
+              variant="contained"
+              color="success"
+              onClick={() => navigate(`/do-process/${deliveryOrder.doId}`)}
+            >
               Thông tin vận chuyển
             </Button>
           </Box>
         )}
         {so && so.status === "Đã hoàn thành" && (
           <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
-            <Button variant="contained" color="default" onClick={() => getInvoicePdf(so.soId, token)}>
+            <Button
+              variant="contained"
+              color="default"
+              onClick={() => getInvoicePdf(so.soId, token)}
+            >
               Xem hóa đơn
             </Button>
-            <Button variant="contained" color="success" onClick={() => navigate(`/do-process/${deliveryOrder.doId}`)}>
+            <Button
+              variant="contained"
+              color="success"
+              onClick={() => navigate(`/do-process/${deliveryOrder.doId}`)}
+            >
               Thông tin vận chuyển
             </Button>
           </Box>
@@ -103,7 +132,9 @@ const SoDetail = () => {
 
         <SoForm po={po} so={so} readOnly />
 
-        <Typography variant="h5" mt={3} mb={3}>DANH SÁCH HÀNG HÓA:</Typography>
+        <Typography variant="h5" mt={3} mb={3}>
+          DANH SÁCH HÀNG HÓA:
+        </Typography>
 
         <DataTable
           rows={paginatedDetails}
@@ -133,7 +164,10 @@ const SoDetail = () => {
               <TableCell>{row.discount.toLocaleString()}</TableCell>
               <TableCell>
                 <Typography fontWeight="bold">
-                  {(row.itemPrice * row.quantity - row.discount).toLocaleString()}
+                  {(
+                    row.itemPrice * row.quantity -
+                    row.discount
+                  ).toLocaleString()}
                 </Typography>
               </TableCell>
             </TableRow>
@@ -143,12 +177,26 @@ const SoDetail = () => {
         <Grid container justifyContent="flex-end" mt={3}>
           <Grid item>
             {[
-              { label: "Tổng tiền hàng (VNĐ):", value: so.subTotal.toLocaleString() },
+              {
+                label: "Tổng tiền hàng (VNĐ):",
+                value: so.subTotal.toLocaleString(),
+              },
               { label: "Thuế (%):", value: so.taxRate },
-              { label: "Tiền thuế (VNĐ):", value: so.taxAmount.toLocaleString() },
-              { label: "Tổng cộng (VNĐ):", value: so.totalAmount.toLocaleString() },
+              {
+                label: "Tiền thuế (VNĐ):",
+                value: so.taxAmount.toLocaleString(),
+              },
+              {
+                label: "Tổng cộng (VNĐ):",
+                value: so.totalAmount.toLocaleString(),
+              },
             ].map((item, index) => (
-              <Grid container key={index} justifyContent="space-between" spacing={2}>
+              <Grid
+                container
+                key={index}
+                justifyContent="space-between"
+                spacing={2}
+              >
                 <Grid item mb={2}>
                   <Typography fontWeight="bold">{item.label}</Typography>
                 </Grid>

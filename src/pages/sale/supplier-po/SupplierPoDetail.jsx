@@ -1,10 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, TableRow, TableCell, Grid, Box, Button } from "@mui/material";
+import {
+  Container,
+  Paper,
+  Typography,
+  TableRow,
+  TableCell,
+  Grid,
+  Box,
+  Button,
+} from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import DataTable from "@/components/content-components/DataTable";
 import { getPoById } from "@/services/purchasing/PoService";
 import SupplierPoForm from "@/components/purchasing/SupplierPoForm";
+import toastrService from "@/services/toastrService";
 
 const SupplierPoDetail = () => {
   const { poId } = useParams();
@@ -29,7 +39,10 @@ const SupplierPoDetail = () => {
         setPo(poData);
         setDetails(poData.purchaseOrderDetails || []);
       } catch (error) {
-        alert(error.response?.poData?.message || "Không thể tải chi tiết đơn mua hàng!");
+        toastrService.error(
+          error.response?.poData?.message ||
+            "Không thể tải chi tiết đơn mua hàng!"
+        );
       } finally {
         setLoading(false);
       }
@@ -93,13 +106,17 @@ const SupplierPoDetail = () => {
 
         <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
           {po.status === "Chờ xác nhận" && (
-            <Button variant="contained" color="default" onClick={() => handleConfirm("po", po.poId)}>
+            <Button
+              variant="contained"
+              color="default"
+              onClick={() => handleConfirm("po", po.poId)}
+            >
               Xác nhận
             </Button>
           )}
         </Box>
 
-        <SupplierPoForm po={po}/>
+        <SupplierPoForm po={po} />
 
         <Typography variant="h5" mt={3} mb={3}>
           DANH SÁCH HÀNG HÓA:
@@ -128,7 +145,10 @@ const SupplierPoDetail = () => {
               <TableCell>{detail.discount.toLocaleString()}</TableCell>
               <TableCell>
                 <Typography fontWeight="bold">
-                  {(detail.itemPrice * detail.quantity - detail.discount).toLocaleString()}
+                  {(
+                    detail.itemPrice * detail.quantity -
+                    detail.discount
+                  ).toLocaleString()}
                 </Typography>
               </TableCell>
             </TableRow>
@@ -138,12 +158,26 @@ const SupplierPoDetail = () => {
         <Grid container justifyContent="flex-end" mt={2}>
           <Grid item>
             {[
-              { label: "Tổng tiền hàng (VNĐ):", value: po.subTotal.toLocaleString() },
+              {
+                label: "Tổng tiền hàng (VNĐ):",
+                value: po.subTotal.toLocaleString(),
+              },
               { label: "Thuế (%):", value: po.taxRate },
-              { label: "Tiền thuế (VNĐ):", value: po.taxAmount.toLocaleString() },
-              { label: "Tổng cộng (VNĐ):", value: po.totalAmount.toLocaleString() },
+              {
+                label: "Tiền thuế (VNĐ):",
+                value: po.taxAmount.toLocaleString(),
+              },
+              {
+                label: "Tổng cộng (VNĐ):",
+                value: po.totalAmount.toLocaleString(),
+              },
             ].map((item, index) => (
-              <Grid container key={index} justifyContent="space-between" spacing={2}>
+              <Grid
+                container
+                key={index}
+                justifyContent="space-between"
+                spacing={2}
+              >
                 <Grid item mb={3}>
                   <Typography fontWeight="bold">{item.label}</Typography>
                 </Grid>

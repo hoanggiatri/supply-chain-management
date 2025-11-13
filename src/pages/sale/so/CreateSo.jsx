@@ -17,6 +17,7 @@ import LoadingPaper from "@/components/content-components/LoadingPaper";
 import DataTable from "@/components/content-components/DataTable";
 import { increaseOnDemand } from "@/services/inventory/InventoryService";
 import { createIssueTicket } from "@/services/inventory/IssueTicketService";
+import toastrService from "@/services/toastrService";
 
 const CreateSo = () => {
   const { poId } = useParams();
@@ -70,7 +71,9 @@ const CreateSo = () => {
 
         setSoDetails(details);
       } catch (err) {
-        alert(err.response?.data?.message || "Không thể tải dữ liệu!");
+        toastrService.error(
+          err.response?.data?.message || "Không thể tải dữ liệu!"
+        );
       } finally {
         setLoading(false);
       }
@@ -124,10 +127,12 @@ const CreateSo = () => {
 
       await updatePoStatus(poId, "Đã xác nhận", token);
 
-      alert("Tạo đơn bán hàng thành công!");
+      toastrService.success("Tạo đơn bán hàng thành công!");
       navigate("/supplier-pos");
     } catch (err) {
-      alert(err.response?.data?.message || "Không thể tạo đơn bán hàng!");
+      toastrService.error(
+        err.response?.data?.message || "Không thể tạo đơn bán hàng!"
+      );
     }
   };
 

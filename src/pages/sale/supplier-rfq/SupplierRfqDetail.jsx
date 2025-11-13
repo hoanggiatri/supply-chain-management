@@ -1,10 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, TableRow, TableCell, Button, Box } from "@mui/material";
+import {
+  Container,
+  Paper,
+  Typography,
+  TableRow,
+  TableCell,
+  Button,
+  Box,
+} from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import DataTable from "@/components/content-components/DataTable";
 import { getRfqById } from "@/services/purchasing/RfqService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import SupplierRfqForm from "@/components/purchasing/SupplierRfqForm";
+import toastrService from "@/services/toastrService";
 
 const SupplierRfqDetail = () => {
   const { rfqId } = useParams();
@@ -26,7 +35,7 @@ const SupplierRfqDetail = () => {
         const data = await getRfqById(rfqId, token);
         setRfq(data);
       } catch (error) {
-        alert(error.response?.data?.message || "Lỗi khi tải RFQ");
+        toastrService.error(error.response?.data?.message || "Lỗi khi tải RFQ");
       } finally {
         setLoading(false);
       }
@@ -41,15 +50,19 @@ const SupplierRfqDetail = () => {
     { id: "note", label: "Ghi chú" },
   ];
 
-  const filteredDetails = rfq?.rfqDetails?.sort((a, b) => {
-    if (orderBy && a[orderBy] !== undefined && b[orderBy] !== undefined) {
-      if (a[orderBy] < b[orderBy]) return order === "asc" ? -1 : 1;
-      if (a[orderBy] > b[orderBy]) return order === "asc" ? 1 : -1;
-    }
-    return 0;
-  }) || [];
+  const filteredDetails =
+    rfq?.rfqDetails?.sort((a, b) => {
+      if (orderBy && a[orderBy] !== undefined && b[orderBy] !== undefined) {
+        if (a[orderBy] < b[orderBy]) return order === "asc" ? -1 : 1;
+        if (a[orderBy] > b[orderBy]) return order === "asc" ? 1 : -1;
+      }
+      return 0;
+    }) || [];
 
-  const paginatedDetails = filteredDetails.slice((page - 1) * rowsPerPage, (page - 1) * rowsPerPage + rowsPerPage);
+  const paginatedDetails = filteredDetails.slice(
+    (page - 1) * rowsPerPage,
+    (page - 1) * rowsPerPage + rowsPerPage
+  );
 
   const handleRequestSort = (property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -68,7 +81,11 @@ const SupplierRfqDetail = () => {
 
         {rfq.status === "Chưa báo giá" && (
           <Box mt={3} mb={3} display="flex" justifyContent="flex-end" gap={2}>
-            <Button variant="contained" color="default" onClick={() => navigate(`/create-quotation/${rfqId}`)}>
+            <Button
+              variant="contained"
+              color="default"
+              onClick={() => navigate(`/create-quotation/${rfqId}`)}
+            >
               Gửi báo giá
             </Button>
           </Box>
@@ -89,7 +106,10 @@ const SupplierRfqDetail = () => {
           page={page}
           rowsPerPage={rowsPerPage}
           onPageChange={(e, newPage) => setPage(newPage)}
-          onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value)); setPage(1); }}
+          onRowsPerPageChange={(e) => {
+            setRowsPerPage(parseInt(e.target.value));
+            setPage(1);
+          }}
           search={search}
           setSearch={setSearch}
           isLoading={loading}

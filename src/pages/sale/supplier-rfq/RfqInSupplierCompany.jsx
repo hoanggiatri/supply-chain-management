@@ -1,10 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { Container, TableRow, TableCell, Typography, Paper } from "@mui/material";
+import {
+  Container,
+  TableRow,
+  TableCell,
+  Typography,
+  Paper,
+} from "@mui/material";
 import DataTable from "@components/content-components/DataTable";
 import StatusSummaryCard from "@/components/content-components/StatusSummaryCard";
 import { getAllRfqsInRequestedCompany } from "@/services/purchasing/RfqService";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
+import toastrService from "@/services/toastrService";
 
 const RfqInSupplierCompany = () => {
   const [rfqs, setRfqs] = useState([]);
@@ -24,19 +31,25 @@ const RfqInSupplierCompany = () => {
     const fetchRfqs = async () => {
       try {
         const data = await getAllRfqsInRequestedCompany(companyId, token);
-        const filteredData = data.filter(rfq => rfq.status === "Chưa báo giá");
+        const filteredData = data.filter(
+          (rfq) => rfq.status === "Chưa báo giá"
+        );
         setRfqs(filteredData);
       } catch (error) {
-        alert(error.response?.data?.message || "Có lỗi khi lấy danh sách yêu cầu báo giá!");
+        toastrService.error(
+          error.response?.data?.message ||
+            "Có lỗi khi lấy danh sách yêu cầu báo giá!"
+        );
       }
     };
 
     fetchRfqs();
   }, [companyId, token]);
 
-  const filteredRfqs = !filterStatus || filterStatus === "Tất cả"
-    ? rfqs
-    : rfqs.filter((rfq) => rfq.status === filterStatus);
+  const filteredRfqs =
+    !filterStatus || filterStatus === "Tất cả"
+      ? rfqs
+      : rfqs.filter((rfq) => rfq.status === filterStatus);
 
   const handleRequestSort = (property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -101,8 +114,14 @@ const RfqInSupplierCompany = () => {
             >
               <TableCell>{rfq.rfqCode || ""}</TableCell>
               <TableCell>{rfq.companyName || ""}</TableCell>
-              <TableCell>{rfq.needByDate ? new Date(rfq.needByDate).toLocaleString() : ""}</TableCell>
-              <TableCell>{rfq.createdOn ? new Date(rfq.createdOn).toLocaleString() : ""}</TableCell>
+              <TableCell>
+                {rfq.needByDate
+                  ? new Date(rfq.needByDate).toLocaleString()
+                  : ""}
+              </TableCell>
+              <TableCell>
+                {rfq.createdOn ? new Date(rfq.createdOn).toLocaleString() : ""}
+              </TableCell>
               <TableCell>{rfq.status || ""}</TableCell>
             </TableRow>
           )}

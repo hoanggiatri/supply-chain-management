@@ -1,11 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { Container, Typography, Paper, Grid, Button, TextField } from "@mui/material";
+import {
+  Container,
+  Typography,
+  Paper,
+  Grid,
+  Button,
+  TextField,
+} from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 import { getRfqById, updateRfqStatus } from "@/services/purchasing/RfqService";
 import { createQuotation } from "@/services/sale/QuotationService";
 import QuotationForm from "@/components/sale/QuotationForm";
 import QuotationDetailTable from "@/components/sale/QuotationDetailTable";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
+import toastrService from "@/services/toastrService";
 
 const CreateQuotation = () => {
   const navigate = useNavigate();
@@ -46,7 +54,7 @@ const CreateQuotation = () => {
         }));
         setQuotationDetails(details);
       } catch (e) {
-        alert(e.response?.data?.message || "Lỗi khi tải RFQ!");
+        toastrService.error(e.response?.data?.message || "Lỗi khi tải RFQ!");
       }
     };
     fetchRfq();
@@ -54,7 +62,7 @@ const CreateQuotation = () => {
 
   useEffect(() => {
     const subTotal = quotationDetails.reduce(
-      (sum, d) => sum + ((d.itemPrice * d.quantity - d.discount) || 0),
+      (sum, d) => sum + (d.itemPrice * d.quantity - d.discount || 0),
       0
     );
     const taxAmount = (subTotal * quotation.taxRate) / 100;
@@ -64,7 +72,7 @@ const CreateQuotation = () => {
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
-  
+
     let newValue = value;
     if (type === "number") {
       const num = parseFloat(value);
@@ -74,7 +82,7 @@ const CreateQuotation = () => {
         newValue = num < 0 ? 0 : num;
       }
     }
-  
+
     setQuotation((prev) => ({ ...prev, [name]: newValue }));
   };
 
@@ -96,11 +104,11 @@ const CreateQuotation = () => {
 
       await updateRfqStatus(rfqId, "Đã báo giá", token);
 
-      alert("Gửi báo giá thành công!");
+      toastrService.success("Gửi báo giá thành công!");
       navigate("/supplier-rfqs");
     } catch (e) {
       console.error(e);
-      alert(e.response?.data?.message || "Lỗi khi gửi báo giá!");
+      toastrService.error(e.response?.data?.message || "Lỗi khi gửi báo giá!");
     }
   };
 
@@ -113,7 +121,7 @@ const CreateQuotation = () => {
           TẠO BÁO GIÁ
         </Typography>
 
-        <QuotationForm rfq={rfq} quotation={quotation}/>
+        <QuotationForm rfq={rfq} quotation={quotation} />
 
         <Typography variant="h5" mt={3} mb={2}>
           DANH SÁCH HÀNG HÓA BÁO GIÁ:
@@ -127,12 +135,29 @@ const CreateQuotation = () => {
         <Grid container justifyContent="flex-end" mt={2}>
           <Grid item>
             {[
-              { label: "Tổng tiền hàng (VNĐ):", value: quotation.subTotal.toLocaleString(), isInput: false },
+              {
+                label: "Tổng tiền hàng (VNĐ):",
+                value: quotation.subTotal.toLocaleString(),
+                isInput: false,
+              },
               { label: "Thuế (%):", value: quotation.taxRate, isInput: true },
-              { label: "Tiền thuế (VNĐ):", value: quotation.taxAmount.toLocaleString(), isInput: false },
-              { label: "Tổng cộng (VNĐ):", value: quotation.totalAmount.toLocaleString(), isInput: false },
+              {
+                label: "Tiền thuế (VNĐ):",
+                value: quotation.taxAmount.toLocaleString(),
+                isInput: false,
+              },
+              {
+                label: "Tổng cộng (VNĐ):",
+                value: quotation.totalAmount.toLocaleString(),
+                isInput: false,
+              },
             ].map((item, index) => (
-              <Grid container key={index} justifyContent="space-between" spacing={2}>
+              <Grid
+                container
+                key={index}
+                justifyContent="space-between"
+                spacing={2}
+              >
                 <Grid item mb={3}>
                   <Typography fontWeight="bold">{item.label}</Typography>
                 </Grid>
@@ -165,7 +190,11 @@ const CreateQuotation = () => {
             </Button>
           </Grid>
           <Grid item>
-            <Button variant="outlined" color="default" onClick={() => navigate(-1)}>
+            <Button
+              variant="outlined"
+              color="default"
+              onClick={() => navigate(-1)}
+            >
               Hủy
             </Button>
           </Grid>

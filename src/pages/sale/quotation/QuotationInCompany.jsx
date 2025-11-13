@@ -1,10 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { Container, TableRow, TableCell, Typography, Paper } from "@mui/material";
+import {
+  Container,
+  TableRow,
+  TableCell,
+  Typography,
+  Paper,
+} from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import DataTable from "@/components/content-components/DataTable";
 import StatusSummaryCard from "@/components/content-components/StatusSummaryCard";
 import { getAllQuotationsInCompany } from "@/services/sale/QuotationService";
+import toastrService from "@/services/toastrService";
 
 const QuotationInCompany = () => {
   const [quotations, setQuotations] = useState([]);
@@ -27,15 +34,18 @@ const QuotationInCompany = () => {
         const data = await getAllQuotationsInCompany(companyId, token);
         setQuotations(data);
       } catch (error) {
-        alert(error.response?.data?.message || "Không thể lấy danh sách báo giá!");
+        toastrService.error(
+          error.response?.data?.message || "Không thể lấy danh sách báo giá!"
+        );
       }
     };
     fetchQuotations();
   }, [companyId, token]);
 
-  const filteredQuotations = !filterStatus || filterStatus === "Tất cả"
-    ? quotations
-    : quotations.filter((q) => q.status === filterStatus);
+  const filteredQuotations =
+    !filterStatus || filterStatus === "Tất cả"
+      ? quotations
+      : quotations.filter((q) => q.status === filterStatus);
 
   const handleRequestSort = (property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -103,7 +113,9 @@ const QuotationInCompany = () => {
               <TableCell>{q.quotationCode}</TableCell>
               <TableCell>{q.rfqCode}</TableCell>
               <TableCell>{q.createdBy}</TableCell>
-              <TableCell>{q.createdOn ? new Date(q.createdOn).toLocaleString() : ""}</TableCell>
+              <TableCell>
+                {q.createdOn ? new Date(q.createdOn).toLocaleString() : ""}
+              </TableCell>
               <TableCell>{q.status}</TableCell>
             </TableRow>
           )}

@@ -1,11 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, TableRow, TableCell, Grid, Box, Button } from "@mui/material";
+import {
+  Container,
+  Paper,
+  Typography,
+  TableRow,
+  TableCell,
+  Grid,
+  Box,
+  Button,
+} from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import DataTable from "@/components/content-components/DataTable";
 import QuotationForm from "@/components/sale/QuotationForm";
 import { getQuotationByRfq } from "@/services/sale/QuotationService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import { getRfqById } from "@/services/purchasing/RfqService";
+import toastrService from "@/services/toastrService";
 
 const QuotationDetail = () => {
   const { rfqId } = useParams();
@@ -33,7 +43,9 @@ const QuotationDetail = () => {
         setQuotation(data);
         setQuotationDetails(data.quotationDetails || []);
       } catch (e) {
-        alert(e.response?.data?.message || "Không thể tải báo giá!");
+        toastrService.error(
+          e.response?.data?.message || "Không thể tải báo giá!"
+        );
       } finally {
         setLoading(false);
       }
@@ -67,8 +79,7 @@ const QuotationDetail = () => {
   };
 
   const filteredDetails = Array.isArray(quotationDetails)
-    ? quotationDetails
-      .sort((a, b) => {
+    ? quotationDetails.sort((a, b) => {
         if (orderBy) {
           if (a[orderBy] < b[orderBy]) return order === "asc" ? -1 : 1;
           if (a[orderBy] > b[orderBy]) return order === "asc" ? 1 : -1;
@@ -76,7 +87,6 @@ const QuotationDetail = () => {
         return 0;
       })
     : [];
-
 
   const paginatedDetails = filteredDetails.slice(
     (page - 1) * rowsPerPage,
@@ -93,12 +103,16 @@ const QuotationDetail = () => {
         </Typography>
 
         <Box mt={3} display="flex" justifyContent="flex-start" gap={2}>
-          <Button variant="contained" color="info" onClick={() => navigate(`/supplier-rfq/${rfqId}`)}>
+          <Button
+            variant="contained"
+            color="info"
+            onClick={() => navigate(`/supplier-rfq/${rfqId}`)}
+          >
             Xem yêu cầu báo giá
           </Button>
         </Box>
 
-        <QuotationForm rfq={rfq} quotation={quotation}/>
+        <QuotationForm rfq={rfq} quotation={quotation} />
 
         <Typography variant="h5" mt={3} mb={3}>
           DANH SÁCH HÀNG HÓA BÁO GIÁ:
@@ -127,7 +141,10 @@ const QuotationDetail = () => {
               <TableCell>{detail.discount.toLocaleString()}</TableCell>
               <TableCell>
                 <Typography fontWeight="bold">
-                  {(detail.itemPrice * detail.quantity - detail.discount).toLocaleString()}
+                  {(
+                    detail.itemPrice * detail.quantity -
+                    detail.discount
+                  ).toLocaleString()}
                 </Typography>
               </TableCell>
             </TableRow>
@@ -136,12 +153,26 @@ const QuotationDetail = () => {
         <Grid container justifyContent="flex-end" mt={2}>
           <Grid item>
             {[
-              { label: "Tổng tiền hàng (VNĐ):", value: quotation.subTotal.toLocaleString() },
+              {
+                label: "Tổng tiền hàng (VNĐ):",
+                value: quotation.subTotal.toLocaleString(),
+              },
               { label: "Thuế (%):", value: quotation.taxRate },
-              { label: "Tiền thuế (VNĐ):", value: quotation.taxAmount.toLocaleString() },
-              { label: "Tổng cộng (VNĐ):", value: quotation.totalAmount.toLocaleString() },
+              {
+                label: "Tiền thuế (VNĐ):",
+                value: quotation.taxAmount.toLocaleString(),
+              },
+              {
+                label: "Tổng cộng (VNĐ):",
+                value: quotation.totalAmount.toLocaleString(),
+              },
             ].map((item, index) => (
-              <Grid container key={index} justifyContent="space-between" spacing={2}>
+              <Grid
+                container
+                key={index}
+                justifyContent="space-between"
+                spacing={2}
+              >
                 <Grid item mb={3}>
                   <Typography fontWeight="bold">{item.label}</Typography>
                 </Grid>
