@@ -91,8 +91,8 @@ const EditStage = () => {
     }
 
     try {
-      console.log("edit");
       const request = {
+        itemId: Number(stage.itemId || itemId),
         description: stage.description,
         status: stage.status,
         stageDetails: stageDetails.map((detail) => ({

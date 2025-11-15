@@ -30,6 +30,7 @@ import {
 } from "@/services/inventory/TransferTicketService";
 import { getPoById } from "@/services/purchasing/PoService";
 import toastrService from "@/services/toastrService";
+import dayjs from "dayjs";
 
 const CheckInventory = () => {
   const [warehouses, setWarehouses] = useState([]);
@@ -219,6 +220,11 @@ const CheckInventory = () => {
     }
   };
 
+  const toISO8601String = (dateString) => {
+    if (!dateString) return null;
+    return dayjs(dateString).toISOString();
+  };
+
   const handleConfirm = async () => {
     if (inventoryResults.length === 0) {
       toastrService.warning("Vui lòng kiểm tra tồn kho trước!");
@@ -230,7 +236,16 @@ const CheckInventory = () => {
       if (allEnough) {
         if (type === "mo") {
           const mo = await getMoById(id, token);
-          const updatedMo = { ...mo, status: "Chờ sản xuất" };
+          // Only send allowed fields, exclude read-only and computed fields
+          const updatedMo = {
+            itemId: Number(mo.itemId),
+            lineId: Number(mo.lineId),
+            type: mo.type,
+            quantity: mo.quantity,
+            estimatedStartTime: toISO8601String(mo.estimatedStartTime),
+            estimatedEndTime: toISO8601String(mo.estimatedEndTime),
+            status: "Chờ sản xuất",
+          };
           await updateMo(id, updatedMo, token);
 
           const issueTicketRequest = {
