@@ -1,11 +1,18 @@
 import axios from "axios";
 import { API_BASE_URL as BASE_URL } from "../../config/api";
-const axiosAuth = (token) => ({
-  headers: { Authorization: `Bearer ${token}` },
+const axiosAuth = (token, config = {}) => ({
+  ...config,
+  headers: {
+    Authorization: `Bearer ${token}`,
+    ...(config.headers || {}),
+  },
 });
 
-export const getAllEmployeesInCompany = async (companyId, token) => {
-  const res = await axios.get(`${BASE_URL}/employees/company/${companyId}`, axiosAuth(token));
+export const getAllEmployeesInCompany = async (companyId, token, config = {}) => {
+  const res = await axios.get(
+    `${BASE_URL}/employees/company/${companyId}`,
+    axiosAuth(token, config)
+  );
   return res.data;
 };
 

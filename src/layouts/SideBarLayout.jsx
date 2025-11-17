@@ -12,18 +12,42 @@ const SideBarLayout = ({ role }) => {
   };
 
   return (
-    <div style={{ display: "flex" }}>
+    <Box sx={{ display: "flex", minHeight: "100vh" }}>
       {role === "S-ADMIN" && (
         <AdminSideBar openSidebar={openSidebar} toggleSidebar={toggleSidebar} />
       )}
       {role !== "S-ADMIN" && (
         <SideBar openSidebar={openSidebar} toggleSidebar={toggleSidebar} />
       )}
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-        <Header toggleSidebar={toggleSidebar} />
-        <Outlet />
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          display: "flex",
+          flexDirection: "column",
+          minWidth: 0, // Prevent overflow
+        }}
+      >
+        {/* Fixed Header */}
+        <Box
+          sx={{
+            position: "sticky",
+            top: 0,
+            zIndex: 1100,
+            bgcolor: "background.paper",
+            borderBottom: 1,
+            borderColor: "divider",
+          }}
+        >
+          <Header toggleSidebar={toggleSidebar} />
+        </Box>
+
+        {/* Scrollable Content */}
+        <Box sx={{ p: 3, flexGrow: 1, overflowY: "auto" }}>
+          <Outlet />
+        </Box>
       </Box>
-    </div>
+    </Box>
   );
 };
 

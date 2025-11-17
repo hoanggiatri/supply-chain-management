@@ -1,7 +1,11 @@
 import axios from "axios";
 import { API_BASE_URL as BASE_URL } from "../../config/api";
-const axiosAuth = (token) => ({
-  headers: { Authorization: `Bearer ${token}` },
+const axiosAuth = (token, config = {}) => ({
+  ...config,
+  headers: {
+    Authorization: `Bearer ${token}`,
+    ...(config.headers || {}),
+  },
 });
 
 export const getAllUsers = async (token) => {
@@ -9,8 +13,11 @@ export const getAllUsers = async (token) => {
   return response.data;
 };
 
-export const getAllUsersInCompany = async (companyId, token) => {
-  const response = await axios.get(`${BASE_URL}/users/company/${companyId}`, axiosAuth(token));
+export const getAllUsersInCompany = async (companyId, token, config = {}) => {
+  const response = await axios.get(
+    `${BASE_URL}/users/company/${companyId}`,
+    axiosAuth(token, config)
+  );
   return response.data;
 };
 

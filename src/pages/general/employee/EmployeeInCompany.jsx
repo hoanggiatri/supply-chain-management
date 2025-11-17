@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Container,
   TableRow,
@@ -21,24 +21,59 @@ const EmployeeInCompany = () => {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const navigate = useNavigate();
+  const fetchTimeoutRef = useRef(null);
+  const abortControllerRef = useRef(null);
+  const lastFetchRef = useRef(0);
+  const FETCH_DEBOUNCE_MS = 500;
 
   const token = localStorage.getItem("token");
   const companyId = localStorage.getItem("companyId");
 
   useEffect(() => {
-    const fetchEmployees = async () => {
-      try {
-        const employees = await getAllEmployeesInCompany(companyId, token);
-        setEmployees(employees);
-      } catch (error) {
-        toastrService.error(
-          error.response?.data?.message ||
-            "Có lỗi xảy ra khi lấy danh sách nhân viên!"
-        );
-      }
+    if (!companyId || !token) {
+      return;
+    }
+
+    let isMounted = true;
+
+    const scheduleFetchEmployees = () => {
+      const now = Date.now();
+      const elapsed = now - lastFetchRef.current;
+      const delay =
+        elapsed >= FETCH_DEBOUNCE_MS ? 0 : FETCH_DEBOUNCE_MS - elapsed;
+
+      clearTimeout(fetchTimeoutRef.current);
+      fetchTimeoutRef.current = setTimeout(async () => {
+        abortControllerRef.current?.abort();
+        const controller = new AbortController();
+        abortControllerRef.current = controller;
+
+        try {
+          const employees = await getAllEmployeesInCompany(companyId, token, {
+            signal: controller.signal,
+          });
+          if (!isMounted) return;
+          setEmployees(employees);
+          lastFetchRef.current = Date.now();
+        } catch (error) {
+          if (error?.code === "ERR_CANCELED") {
+            return;
+          }
+          toastrService.error(
+            error.response?.data?.message ||
+              "Có lỗi xảy ra khi lấy danh sách nhân viên!"
+          );
+        }
+      }, delay);
     };
 
-    fetchEmployees();
+    scheduleFetchEmployees();
+
+    return () => {
+      isMounted = false;
+      clearTimeout(fetchTimeoutRef.current);
+      abortControllerRef.current?.abort();
+    };
   }, [companyId, token]);
 
   const handleRequestSort = (property) => {
@@ -54,6 +89,18 @@ const EmployeeInCompany = () => {
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(Number(event.target.value));
     setPage(1);
+  };
+
+  const statusLabels = {
+    active: "Đang hoạt động",
+    inactive: "Ngừng hoạt động",
+    resigned: "Đã nghỉ",
+  };
+
+  const genderLabels = {
+    male: "Nam",
+    female: "Nữ",
+    other: "Khác",
   };
 
   const columns = [
@@ -106,11 +153,15 @@ const EmployeeInCompany = () => {
               <TableCell>{emp.employeeName || ""}</TableCell>
               <TableCell>{emp.departmentName || ""}</TableCell>
               <TableCell>{emp.position || ""}</TableCell>
-              <TableCell>{emp.gender || ""}</TableCell>
+              <TableCell>
+                {genderLabels[emp.gender] || emp.gender || ""}
+              </TableCell>
               <TableCell>{emp.dateOfBirth || ""}</TableCell>
               <TableCell>{emp.email || ""}</TableCell>
               <TableCell>{emp.phoneNumber || ""}</TableCell>
-              <TableCell>{emp.status || ""}</TableCell>
+              <TableCell>
+                {statusLabels[emp.status] || emp.status || ""}
+              </TableCell>
             </TableRow>
           )}
         />

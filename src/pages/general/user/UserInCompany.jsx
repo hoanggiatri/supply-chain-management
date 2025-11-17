@@ -1,5 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { Container, TableRow, TableCell, Typography, Paper, } from "@mui/material";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  Container,
+  TableRow,
+  TableCell,
+  Typography,
+  Paper,
+} from "@mui/material";
 import DataTable from "@components/content-components/DataTable";
 import { getAllUsersInCompany } from "@/services/general/UserService";
 import { useNavigate } from "react-router-dom";
@@ -13,21 +19,58 @@ const UserInCompany = () => {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const navigate = useNavigate();
+  const fetchTimeoutRef = useRef(null);
+  const abortControllerRef = useRef(null);
+  const lastFetchRef = useRef(0);
+  const FETCH_DEBOUNCE_MS = 500;
 
   const token = localStorage.getItem("token");
   const companyId = localStorage.getItem("companyId");
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const users = await getAllUsersInCompany(companyId, token);
-        setUsers(users);
-      } catch (error) {
-        toastrService.error(error.response?.data?.message || "Lỗi khi tải danh sách người dùng!");
-      }
+    if (!companyId || !token) {
+      return;
+    }
+
+    let isMounted = true;
+
+    const scheduleFetchUsers = () => {
+      const now = Date.now();
+      const elapsed = now - lastFetchRef.current;
+      const delay =
+        elapsed >= FETCH_DEBOUNCE_MS ? 0 : FETCH_DEBOUNCE_MS - elapsed;
+
+      clearTimeout(fetchTimeoutRef.current);
+      fetchTimeoutRef.current = setTimeout(async () => {
+        abortControllerRef.current?.abort();
+        const controller = new AbortController();
+        abortControllerRef.current = controller;
+
+        try {
+          const users = await getAllUsersInCompany(companyId, token, {
+            signal: controller.signal,
+          });
+          if (!isMounted) return;
+          setUsers(users.data);
+          lastFetchRef.current = Date.now();
+        } catch (error) {
+          if (error?.code === "ERR_CANCELED") {
+            return;
+          }
+          toastrService.error(
+            error.response?.data?.message || "Lỗi khi tải danh sách người dùng!"
+          );
+        }
+      }, delay);
     };
 
-    fetchUsers();
+    scheduleFetchUsers();
+
+    return () => {
+      isMounted = false;
+      clearTimeout(fetchTimeoutRef.current);
+      abortControllerRef.current?.abort();
+    };
   }, [companyId, token]);
 
   const handleRequestSort = (property) => {
@@ -45,6 +88,18 @@ const UserInCompany = () => {
     setPage(1);
   };
 
+  const roleLabels = {
+    c_admin: "Quản trị công ty",
+    s_admin: "Quản trị hệ thống",
+    user: "Nhân viên",
+  };
+
+  const statusLabels = {
+    active: "Đang hoạt động",
+    inactive: "Ngừng hoạt động",
+    resigned: "Đã nghỉ",
+  };
+
   const columns = [
     { id: "employeeCode", label: "Mã nhân viên" },
     { id: "email", label: "Email" },
@@ -54,9 +109,9 @@ const UserInCompany = () => {
 
   return (
     <Container>
-      <Paper className="paper-container" elevation={3} >
-        <Typography className="page-title" variant="h4" >
-          DÁNH SÁCH TÀI KHOẢN
+      <Paper className="paper-container" elevation={3}>
+        <Typography className="page-title" variant="h4">
+          DANH SÁCH TÀI KHOẢN
         </Typography>
 
         <DataTable
@@ -72,11 +127,18 @@ const UserInCompany = () => {
           search={search}
           setSearch={setSearch}
           renderRow={(user) => (
-            <TableRow key={user.employeeId} hover sx={{ cursor: "pointer" }} onClick={() => navigate(`/user/${user.userId}`)}>
+            <TableRow
+              key={user.employeeId}
+              hover
+              sx={{ cursor: "pointer" }}
+              onClick={() => navigate(`/user/${user.userId}`)}
+            >
               <TableCell>{user.employeeCode || ""}</TableCell>
               <TableCell>{user.email || ""}</TableCell>
-              <TableCell>{user.role || ""}</TableCell>
-              <TableCell>{user.status || ""}</TableCell>
+              <TableCell>{roleLabels[user.role] || user.role || ""}</TableCell>
+              <TableCell>
+                {statusLabels[user.status] || user.status || ""}
+              </TableCell>
             </TableRow>
           )}
         />
