@@ -54,8 +54,8 @@ const EditEmployee = () => {
       try {
         const data = await getEmployeeById(employeeId, token);
 
-        if (data.avatarUrl) {
-          data.avatarUrl = `${data.avatarUrl}?t=${Date.now()}`;
+        if (data.avatar) {
+          data.avatar = `${data.avatar}?t=${Date.now()}`;
         }
 
         setEmployee(data);
@@ -121,18 +121,18 @@ const EditEmployee = () => {
     const token = localStorage.getItem("token");
 
     try {
-      const newAvatarUrl = await updateEmployeeAvatar(
-        employeeId,
-        avatarFile,
-        token
-      );
-      const updatedAvatarUrl = `${newAvatarUrl}?${Date.now()}`;
+      await updateEmployeeAvatar(employeeId, avatarFile, token);
 
-      setEmployee((prev) => ({
-        ...prev,
-        avatarUrl: updatedAvatarUrl,
-      }));
+      // Fetch lại thông tin employee từ server để lấy URL avatar mới
+      const updatedEmployee = await getEmployeeById(employeeId, token);
 
+      // Thêm timestamp để tránh cache
+      if (updatedEmployee.avatar) {
+        updatedEmployee.avatar = `${updatedEmployee.avatar}?t=${Date.now()}`;
+      }
+
+      setEmployee(updatedEmployee);
+      setEditedEmployee(updatedEmployee);
       setAvatarFile(null);
       setAvatarPreview(null);
 
@@ -164,7 +164,7 @@ const EditEmployee = () => {
           <img
             src={
               avatarPreview ||
-              employee.avatarUrl ||
+              employee.avatar ||
               "https://img.freepik.com/premium-vector/default-avatar-profile-icon-social-media-user-image-gray-avatar-icon-blank-profile-silhouette-vector-illustration_561158-3383.jpg"
             }
             alt="avatar"

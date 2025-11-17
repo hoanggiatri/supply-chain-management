@@ -29,7 +29,9 @@ const EmployeeForm = ({
         const data = await getAllDepartmentsInCompany(companyId, token);
         setDepartments(data);
       } catch (error) {
-        toastrService.error(error.response?.data?.message || "Có lỗi khi lấy bộ phận!");
+        toastrService.error(
+          error.response?.data?.message || "Có lỗi khi lấy bộ phận!"
+        );
       }
     };
     fetchDepartments();
@@ -113,7 +115,7 @@ const EmployeeForm = ({
           type="date"
           name="dateOfBirth"
           label="Ngày sinh"
-          value={employee.dateOfBirth}
+          value={employee.dateOfBirth || ""}
           InputLabelProps={{ shrink: true }}
           onChange={onChange}
           InputProps={{ readOnly: isFieldReadOnly("dateOfBirth") }}
@@ -144,7 +146,7 @@ const EmployeeForm = ({
           fullWidth
           label="Địa chỉ"
           name="address"
-          value={employee.address}
+          value={employee.address || ""}
           onChange={onChange}
           InputProps={{ readOnly: isFieldReadOnly("address") }}
         />
@@ -168,7 +170,7 @@ const EmployeeForm = ({
           fullWidth
           label="Số điện thoại"
           name="phoneNumber"
-          value={employee.phoneNumber}
+          value={employee.phoneNumber || ""}
           onChange={onChange}
           error={!!errors.phoneNumber}
           helperText={errors.phoneNumber}

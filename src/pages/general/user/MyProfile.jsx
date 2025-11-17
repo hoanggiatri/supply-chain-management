@@ -17,16 +17,19 @@ const MyProfile = () => {
 
   const role = localStorage.getItem("role");
   const token = localStorage.getItem("token");
-
+  const employeeId = localStorage.getItem("employeeId");
   useEffect(() => {
     const fetchData = async () => {
-      const employeeId = localStorage.getItem("employeeId");
-
       try {
         const employeeRes = await getEmployeeById(employeeId, token);
-        if (employeeRes.avatarUrl) {
-          employeeRes.avatarUrl = `${employeeRes.avatarUrl}?t=${Date.now()}`;
+        if (employeeRes.avatar) {
+          employeeRes.avatar = `${employeeRes.avatar}?t=${Date.now()}`;
         }
+        // Xử lý các giá trị null
+        if (!employeeRes.gender) employeeRes.gender = "";
+        if (!employeeRes.address) employeeRes.address = "";
+        if (!employeeRes.phoneNumber) employeeRes.phoneNumber = "";
+        if (!employeeRes.dateOfBirth) employeeRes.dateOfBirth = "";
         setEmployee(employeeRes);
 
         const userRes = await getUserByEmployeeId(employeeId, token);
@@ -61,7 +64,7 @@ const MyProfile = () => {
             <Box mb={3}>
               <img
                 src={
-                  employee.avatarUrl ||
+                  employee.avatar ||
                   "https://img.freepik.com/premium-vector/default-avatar-profile-icon-social-media-user-image-gray-avatar-icon-blank-profile-silhouette-vector-illustration_561158-3383.jpg"
                 }
                 alt="avatar"
@@ -85,9 +88,7 @@ const MyProfile = () => {
               <Button
                 variant="contained"
                 color="default"
-                onClick={() =>
-                  navigate(`/employee/${employee.employeeId}/edit`)
-                }
+                onClick={() => navigate(`/employee/${employee.id}/edit`)}
               >
                 Sửa thông tin
               </Button>
@@ -111,7 +112,7 @@ const MyProfile = () => {
               <Button
                 variant="contained"
                 color="default"
-                onClick={() => navigate(`/user/${user.userId}/edit`)}
+                onClick={() => navigate(`/user/${employeeId}/edit`)}
               >
                 Sửa tài khoản
               </Button>

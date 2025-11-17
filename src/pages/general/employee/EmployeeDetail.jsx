@@ -2,7 +2,10 @@ import React, { useEffect, useState } from "react";
 import { Container, Paper, Typography, Box, Button } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import EmployeeForm from "@components/general/EmployeeForm";
-import { getEmployeeById, deleteEmployee } from "@/services/general/EmployeeService";
+import {
+  getEmployeeById,
+  deleteEmployee,
+} from "@/services/general/EmployeeService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import toastrService from "@/services/toastrService";
 
@@ -16,12 +19,15 @@ const EmployeeDetail = () => {
       const token = localStorage.getItem("token");
       try {
         const data = await getEmployeeById(employeeId, token);
-        if (data.avatarUrl) {
-          data.avatarUrl = `${data.avatarUrl}?t=${Date.now()}`;
+        if (data.avatar) {
+          data.avatar = `${data.avatar}?t=${Date.now()}`;
         }
         setEmployee(data);
       } catch (error) {
-        toastrService.error(error.response?.data?.message || "Có lỗi xảy ra khi lấy thông tin nhân viên!");
+        toastrService.error(
+          error.response?.data?.message ||
+            "Có lỗi xảy ra khi lấy thông tin nhân viên!"
+        );
       }
     };
 
@@ -37,7 +43,9 @@ const EmployeeDetail = () => {
       toastrService.success("Xóa nhân viên và tài khoản liên quan thành công!");
       navigate("/employees");
     } catch (error) {
-      toastrService.error(error.response?.data?.message || "Có lỗi xảy ra khi xóa nhân viên!");
+      toastrService.error(
+        error.response?.data?.message || "Có lỗi xảy ra khi xóa nhân viên!"
+      );
     }
   };
 
@@ -47,26 +55,40 @@ const EmployeeDetail = () => {
 
   return (
     <Container>
-      <Paper className="paper-container" elevation={3} >
-        <Typography className="page-title" variant="h4" >
+      <Paper className="paper-container" elevation={3}>
+        <Typography className="page-title" variant="h4">
           THÔNG TIN NHÂN VIÊN
         </Typography>
 
         <Box mb={3}>
           <img
             src={
-              employee.avatarUrl ||
+              employee.avatar ||
               "https://img.freepik.com/premium-vector/default-avatar-profile-icon-social-media-user-image-gray-avatar-icon-blank-profile-silhouette-vector-illustration_561158-3383.jpg"
             }
             alt="avatar"
-            style={{ width: 120, height: 120, objectFit: "cover", borderRadius: "50%" }}
+            style={{
+              width: 120,
+              height: 120,
+              objectFit: "cover",
+              borderRadius: "50%",
+            }}
           />
         </Box>
 
-        <EmployeeForm employee={employee} onChange={() => { }} errors={{}} readOnlyFields={Object.keys(employee)} />
+        <EmployeeForm
+          employee={employee}
+          onChange={() => {}}
+          errors={{}}
+          readOnlyFields={Object.keys(employee)}
+        />
 
         <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
-          <Button variant="contained" color="default" onClick={() => navigate(`/employee/${employeeId}/edit`)}>
+          <Button
+            variant="contained"
+            color="default"
+            onClick={() => navigate(`/employee/${employeeId}/edit`)}
+          >
             Sửa
           </Button>
           <Button variant="contained" color="error" onClick={handleDelete}>

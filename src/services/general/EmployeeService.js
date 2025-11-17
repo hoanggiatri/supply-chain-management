@@ -31,7 +31,7 @@ export const deleteEmployee = async (employeeId, token) => {
 
 export const updateEmployeeAvatar = async (employeeId, file, token) => {
   const formData = new FormData();
-  formData.append("avatar", file);
+  formData.append("file", file);
 
   const res = await axios.post(`${BASE_URL}/employees/${employeeId}/avatar`, formData, {
     headers: {
