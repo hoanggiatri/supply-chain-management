@@ -1,9 +1,29 @@
 import React from "react";
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, IconButton, Button } from "@mui/material";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  IconButton,
+  Button,
+} from "@mui/material";
 import { Delete } from "@mui/icons-material";
 
-const StageDetailTable = ({ stageDetails, setStageDetails, errors }) => {
+const StageDetailTable = ({
+  stageDetails,
+  setStageDetails,
+  errors = [],
+  readOnly = false,
+}) => {
+  const canEdit = !readOnly && typeof setStageDetails === "function";
+
   const handleDetailChange = (index, field, value, type) => {
+    if (!canEdit) {
+      return;
+    }
     let newValue = value;
 
     if (type === "number") {
@@ -14,8 +34,8 @@ const StageDetailTable = ({ stageDetails, setStageDetails, errors }) => {
         newValue = num < 0 ? 0 : num;
       }
     }
-  
-    setStageDetails(prev =>
+
+    setStageDetails((prev) =>
       prev.map((detail, i) =>
         i === index ? { ...detail, [field]: newValue } : detail
       )
@@ -23,19 +43,26 @@ const StageDetailTable = ({ stageDetails, setStageDetails, errors }) => {
   };
 
   const handleAddRow = () => {
-    setStageDetails(prev => [
+    if (!canEdit) {
+      return;
+    }
+    setStageDetails((prev) => [
       ...prev,
       {
         stageName: "",
         stageOrder: prev.length + 1,
         estimatedTime: 0,
-        description: ""
-      }
+        description: "",
+      },
     ]);
   };
 
   const handleDeleteRow = (index) => {
-    const updated = stageDetails.filter((_, i) => i !== index)
+    if (!canEdit) {
+      return;
+    }
+    const updated = stageDetails
+      .filter((_, i) => i !== index)
       .map((detail, i) => ({ ...detail, stageOrder: i + 1 })); // update lại stageOrder sau khi xóa
     setStageDetails(updated);
   };
@@ -61,9 +88,22 @@ const StageDetailTable = ({ stageDetails, setStageDetails, errors }) => {
                   <TextField
                     size="small"
                     value={detail.stageName}
-                    onChange={(e) => handleDetailChange(index, "stageName", e.target.value)}
-                    error={!!errors?.find(err => err.index === index && err.field === "stageName")}
-                    helperText={errors?.find(err => err.index === index && err.field === "stageName")?.message}
+                    onChange={(e) =>
+                      handleDetailChange(index, "stageName", e.target.value)
+                    }
+                    error={
+                      !!errors?.find(
+                        (err) =>
+                          err.index === index && err.field === "stageName"
+                      )
+                    }
+                    helperText={
+                      errors?.find(
+                        (err) =>
+                          err.index === index && err.field === "stageName"
+                      )?.message
+                    }
+                    disabled={readOnly}
                   />
                 </TableCell>
                 <TableCell>
@@ -72,22 +112,45 @@ const StageDetailTable = ({ stageDetails, setStageDetails, errors }) => {
                     size="small"
                     value={detail.estimatedTime}
                     inputProps={{ min: 0 }}
-                    onChange={(e) => handleDetailChange(index, "estimatedTime", e.target.value, "number")}
-                    error={!!errors?.find(err => err.index === index && err.field === "estimatedTime")}
-                    helperText={errors?.find(err => err.index === index && err.field === "estimatedTime")?.message}
+                    onChange={(e) =>
+                      handleDetailChange(
+                        index,
+                        "estimatedTime",
+                        e.target.value,
+                        "number"
+                      )
+                    }
+                    error={
+                      !!errors?.find(
+                        (err) =>
+                          err.index === index && err.field === "estimatedTime"
+                      )
+                    }
+                    helperText={
+                      errors?.find(
+                        (err) =>
+                          err.index === index && err.field === "estimatedTime"
+                      )?.message
+                    }
+                    disabled={readOnly}
                   />
                 </TableCell>
                 <TableCell>
                   <TextField
                     size="small"
                     value={detail.description}
-                    onChange={(e) => handleDetailChange(index, "description", e.target.value)}
+                    onChange={(e) =>
+                      handleDetailChange(index, "description", e.target.value)
+                    }
+                    disabled={readOnly}
                   />
                 </TableCell>
                 <TableCell>
-                  <IconButton onClick={() => handleDeleteRow(index)}>
-                    <Delete />
-                  </IconButton>
+                  {!readOnly && (
+                    <IconButton onClick={() => handleDeleteRow(index)}>
+                      <Delete />
+                    </IconButton>
+                  )}
                 </TableCell>
               </TableRow>
             ))}
@@ -95,9 +158,11 @@ const StageDetailTable = ({ stageDetails, setStageDetails, errors }) => {
         </Table>
       </TableContainer>
 
-      <Button color="default" sx={{ m: 0.5 }} onClick={handleAddRow}>
-        Thêm công đoạn
-      </Button>
+      {!readOnly && (
+        <Button color="default" sx={{ m: 0.5 }} onClick={handleAddRow}>
+          Thêm công đoạn
+        </Button>
+      )}
     </>
   );
 };

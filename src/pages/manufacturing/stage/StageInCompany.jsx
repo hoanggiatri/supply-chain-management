@@ -96,7 +96,7 @@ const StageInCompany = () => {
               key={stage.stageId}
               hover
               sx={{ cursor: "pointer" }}
-              onClick={() => navigate(`/stage/${stage.itemId}`)}
+              onClick={() => navigate(`/stage/${stage.stageId}`)}
             >
               <TableCell>{stage.stageCode || ""}</TableCell>
               <TableCell>{stage.itemCode || ""}</TableCell>

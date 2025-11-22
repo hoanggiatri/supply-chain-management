@@ -33,3 +33,8 @@ export const deleteStage = async (stageId, token) => {
   const response = await axios.delete(`${BASE_URL}/manufacture-stage/${stageId}`, axiosAuth(token));
   return response.data;
 };
+
+export const checkIsItemCreatedStage = async (itemId, token) => {
+  const response = await axios.get(`${BASE_URL}/manufacture-stage/is-item-created-stage/${itemId}`, axiosAuth(token));
+  return response.data;
+};

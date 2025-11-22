@@ -404,6 +404,7 @@ const CheckInventory = () => {
             onRowsPerPageChange={handleChangeRowsPerPage}
             search={search}
             setSearch={setSearch}
+            height="calc(100vh - 500px)"
             renderRow={(row, index) => (
               <TableRow key={`${row.itemId || row.supplierItemId}-${index}`}>
                 <TableCell>

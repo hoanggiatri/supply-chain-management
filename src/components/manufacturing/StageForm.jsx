@@ -35,6 +35,8 @@ const StageForm = ({
             item.itemType === "Thành phẩm" || item.itemType === "Bán thành phẩm"
         );
 
+        // Chỉ thêm item hiện tại vào danh sách nếu chưa có (cho trường hợp edit)
+        // Không cần thêm stage vào dependency vì sẽ gây gọi lại API không cần thiết
         if (
           stage?.itemCode &&
           !filtered.some((item) => item.itemCode === stage.itemCode)
@@ -55,7 +57,8 @@ const StageForm = ({
       }
     };
     fetchItems();
-  }, [companyId, token, stage]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [companyId, token]);
 
   const handleItemCodeChange = (selected) => {
     const selectedItem = items.find(

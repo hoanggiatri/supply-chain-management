@@ -618,7 +618,7 @@ function AppRoutes() {
             }
           />
           <Route
-            path="/stage/:itemId"
+            path="/stage/:stageId"
             element={
               <PrivateRoute
                 element={<StageDetail />}
@@ -628,7 +628,7 @@ function AppRoutes() {
             }
           />
           <Route
-            path="/stage/:itemId/edit"
+            path="/stage/:stageId/edit"
             element={
               <PrivateRoute
                 element={<EditStage />}

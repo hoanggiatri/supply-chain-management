@@ -112,14 +112,24 @@ const CreateMo = () => {
         createdBy: employeeName,
       };
 
-      console.log(mo.estimatedStartTime);
+      const response = await createMo(request, token);
 
-      await createMo(request, token);
+      // Kiểm tra statusCode trong response body
+      if (response?.statusCode === 404) {
+        toastrService.error(response?.message || "Hàng hóa chưa có BOM!");
+        return;
+      }
+
       toastrService.success("Tạo công lệnh thành công!");
       navigate("/mos");
     } catch (error) {
-      console.log(error.response);
-      toastrService.error(error.response?.data?.message || "Lỗi khi tạo MO!");
+      const errorData = error.response?.data;
+      // Kiểm tra statusCode trong error response body
+      if (errorData?.statusCode === 404) {
+        toastrService.error(errorData?.message || "Hàng hóa chưa có BOM!");
+      } else {
+        toastrService.error(errorData?.message || "Lỗi khi tạo MO!");
+      }
     }
   };
 

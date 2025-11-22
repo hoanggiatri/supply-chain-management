@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import { Container, Typography, Button, Grid, Paper } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { createStage } from "@/services/manufacturing/StageService";
+import {
+  createStage,
+  checkIsItemCreatedStage,
+} from "@/services/manufacturing/StageService";
 import StageForm from "@/components/manufacturing/StageForm";
 import StageDetailTable from "@/components/manufacturing/StageDetailTable";
 import toastrService from "@/services/toastrService";
@@ -57,6 +60,30 @@ const CreateStage = () => {
     setStage((prev) => ({ ...prev, [name]: value }));
   };
 
+  const performCreateStage = async () => {
+    const request = {
+      itemId: stage.itemId,
+      description: stage.description,
+      status: stage.status,
+      stageDetails: stageDetails.map((detail) => ({
+        stageName: detail.stageName,
+        stageOrder: detail.stageOrder,
+        estimatedTime: detail.estimatedTime,
+        description: detail.description,
+      })),
+    };
+
+    try {
+      await createStage(request, token);
+      toastrService.success("Tạo công đoạn sản xuất thành công!");
+      navigate("/stages");
+    } catch (error) {
+      toastrService.error(
+        error.response?.data?.message || "Lỗi khi tạo Stage!"
+      );
+    }
+  };
+
   const handleSubmit = async () => {
     const validationErrors = validateForm();
     const stageDetailErrors = validateStageDetails();
@@ -70,25 +97,34 @@ const CreateStage = () => {
     }
 
     try {
-      const request = {
-        itemId: stage.itemId,
-        description: stage.description,
-        status: stage.status,
-        stageDetails: stageDetails.map((detail) => ({
-          stageName: detail.stageName,
-          stageOrder: detail.stageOrder,
-          estimatedTime: detail.estimatedTime,
-          description: detail.description,
-        })),
-      };
+      // Kiểm tra item đã có stage chưa
+      const checkResult = await checkIsItemCreatedStage(stage.itemId, token);
+      // API trả về boolean (true/false)
+      const isCreated = checkResult === true || checkResult === "true";
 
-      await createStage(request, token);
-      toastrService.success("Tạo công đoạn sản xuất thành công!");
-      navigate("/stages");
+      if (isCreated) {
+        // Hiển thị dialog xác nhận
+        const result = await toastrService.confirm(
+          "Hàng hóa đã được tạo. Nếu tiếp tục tạo sẽ vô hiệu quy trình sản xuất đã có.",
+          "Xác nhận",
+          {
+            confirmButtonText: "Yes",
+            cancelButtonText: "No",
+          }
+        );
+
+        if (result.isConfirmed) {
+          // Người dùng chọn Yes => tiếp tục tạo
+          await performCreateStage();
+        }
+        // Người dùng chọn No => không làm gì
+      } else {
+        // Item chưa có stage => tạo bình thường
+        await performCreateStage();
+      }
     } catch (error) {
-      console.log(error.response);
       toastrService.error(
-        error.response?.data?.message || "Lỗi khi tạo Stage!"
+        error.response?.data?.message || "Lỗi khi kiểm tra hoặc tạo Stage!"
       );
     }
   };

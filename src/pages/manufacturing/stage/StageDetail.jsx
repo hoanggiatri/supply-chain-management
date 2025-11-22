@@ -12,14 +12,14 @@ import { useParams, useNavigate } from "react-router-dom";
 import DataTable from "@/components/content-components/DataTable";
 import StageForm from "@/components/manufacturing/StageForm";
 import {
-  getStageByItemId,
   deleteStage,
+  getStageById,
 } from "@/services/manufacturing/StageService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import toastrService from "@/services/toastrService";
 
 const StageDetail = () => {
-  const { itemId } = useParams();
+  const { stageId } = useParams();
   const [stage, setStage] = useState(null);
   const [stageDetails, setStageDetails] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -36,7 +36,7 @@ const StageDetail = () => {
     const fetchStage = async () => {
       setLoading(true);
       try {
-        const data = await getStageByItemId(itemId, token);
+        const data = await getStageById(stageId, token);
         setStage(data);
         setStageDetails(
           Array.isArray(data.stageDetails) ? data.stageDetails : []
@@ -50,7 +50,7 @@ const StageDetail = () => {
       }
     };
     fetchStage();
-  }, [itemId, token]);
+  }, [stageId, token]);
 
   const readOnlyFields = {
     stageCode: true,
@@ -159,7 +159,7 @@ const StageDetail = () => {
           <Button
             variant="contained"
             color="default"
-            onClick={() => navigate(`/stage/${itemId}/edit`)}
+            onClick={() => navigate(`/stage/${stageId}/edit`)}
           >
             Sửa
           </Button>

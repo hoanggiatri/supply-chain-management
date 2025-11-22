@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Container, Typography, Button, Grid, Paper } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  getStageByItemId,
   updateStage,
+  getStageById,
 } from "@/services/manufacturing/StageService";
 import StageForm from "@/components/manufacturing/StageForm";
 import StageDetailTable from "@/components/manufacturing/StageDetailTable";
@@ -11,7 +11,7 @@ import LoadingPaper from "@/components/content-components/LoadingPaper";
 import toastrService from "@/services/toastrService";
 
 const EditStage = () => {
-  const { itemId } = useParams();
+  const { stageId } = useParams();
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
@@ -23,7 +23,7 @@ const EditStage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const stageData = await getStageByItemId(itemId, token);
+        const stageData = await getStageById(stageId, token);
         setStage({
           ...stageData,
           stageCode: stageData.stageCode || "",
@@ -40,7 +40,7 @@ const EditStage = () => {
       }
     };
     fetchData();
-  }, [itemId, token]);
+  }, [stageId, token]);
 
   const validateForm = () => {
     const formErrors = {};
@@ -92,18 +92,11 @@ const EditStage = () => {
 
     try {
       const request = {
-        itemId: Number(stage.itemId || itemId),
         description: stage.description,
         status: stage.status,
-        stageDetails: stageDetails.map((detail) => ({
-          stageOrder: detail.stageOrder,
-          stageName: detail.stageName,
-          estimatedTime: detail.estimatedTime,
-          description: detail.description,
-        })),
       };
 
-      await updateStage(stage.stageId, request, token);
+      await updateStage(stageId, request, token);
       toastrService.success("Cập nhật công đoạn thành công!");
       navigate(-1);
     } catch (error) {
@@ -142,8 +135,8 @@ const EditStage = () => {
 
         <StageDetailTable
           stageDetails={stageDetails}
-          setStageDetails={setStageDetails}
           errors={errors.stageDetailErrors}
+          readOnly
         />
 
         <Grid container spacing={2} mt={3} justifyContent="flex-end">
