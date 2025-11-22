@@ -152,6 +152,7 @@ const Inventory = () => {
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
           search={search}
+          height="calc(100vh - 360px)"
           setSearch={setSearch}
           renderRow={(inv, index) => (
             <TableRow key={index} hover>

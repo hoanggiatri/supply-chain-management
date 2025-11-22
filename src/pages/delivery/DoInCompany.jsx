@@ -34,7 +34,8 @@ const DoInCompany = () => {
         setDos(data);
       } catch (error) {
         toastrService.error(
-          error.response?.data?.message || "Không thể lấy danh sách đơn vận chuyển!"
+          error.response?.data?.message ||
+            "Không thể lấy danh sách đơn vận chuyển!"
         );
       }
     };
@@ -79,7 +80,13 @@ const DoInCompany = () => {
 
         <StatusSummaryCard
           data={dos}
-          statusLabels={["Tất cả", "Chờ xác nhận", "Chờ lấy hàng", "Đang vận chuyển", "Đã hoàn thành"]}
+          statusLabels={[
+            "Tất cả",
+            "Chờ xác nhận",
+            "Chờ lấy hàng",
+            "Đang vận chuyển",
+            "Đã hoàn thành",
+          ]}
           getStatus={(ord) => ord.status}
           statusColors={{
             "Tất cả": "#000",
@@ -104,6 +111,7 @@ const DoInCompany = () => {
           onRowsPerPageChange={handleChangeRowsPerPage}
           search={search}
           setSearch={setSearch}
+          height="calc(100vh - 380px)"
           renderRow={(ord) => (
             <TableRow
               key={ord.doId}
@@ -114,8 +122,14 @@ const DoInCompany = () => {
               <TableCell>{ord.doCode}</TableCell>
               <TableCell>{ord.soCode}</TableCell>
               <TableCell>{ord.createdBy}</TableCell>
-              <TableCell>{ord.createdOn ? new Date(ord.createdOn).toLocaleString() : ""}</TableCell>
-              <TableCell>{ord.lastUpdatedOn ? new Date(ord.lastUpdatedOn).toLocaleString() : ""}</TableCell>
+              <TableCell>
+                {ord.createdOn ? new Date(ord.createdOn).toLocaleString() : ""}
+              </TableCell>
+              <TableCell>
+                {ord.lastUpdatedOn
+                  ? new Date(ord.lastUpdatedOn).toLocaleString()
+                  : ""}
+              </TableCell>
               <TableCell>{ord.status}</TableCell>
             </TableRow>
           )}

@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { IconButton, Box, Popover, Typography } from '@mui/material';
+import React, { useState } from "react";
+import { IconButton, Box, Popover, Typography } from "@mui/material";
 import {
   Menu as MenuIcon,
   Person as PersonIcon,
   Notifications as NotificationsIcon,
-  Settings as SettingsIcon
-} from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
+  Settings as SettingsIcon,
+} from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
 
 const Header = ({ toggleSidebar }) => {
   const [anchorElNotif, setAnchorElNotif] = useState(null);
@@ -14,7 +14,7 @@ const Header = ({ toggleSidebar }) => {
   const navigate = useNavigate();
 
   const handleProfileClick = () => {
-    navigate('/my-profile');
+    navigate("/my-profile");
   };
 
   const handleNotifClick = (event) => {
@@ -34,12 +34,27 @@ const Header = ({ toggleSidebar }) => {
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0px 15px', alignItems: 'center' }}>
-      <IconButton onClick={toggleSidebar} color="inherit"><MenuIcon /></IconButton>
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <IconButton color="inherit" onClick={handleProfileClick}><PersonIcon /></IconButton>
-        <IconButton color="inherit" onClick={handleNotifClick}><NotificationsIcon /></IconButton>
-        <IconButton color="inherit" onClick={handleSettingClick}><SettingsIcon /></IconButton>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        padding: "0px 15px",
+        alignItems: "center",
+      }}
+    >
+      <IconButton onClick={toggleSidebar} color="inherit">
+        <MenuIcon />
+      </IconButton>
+      <Box sx={{ display: "flex", alignItems: "center" }}>
+        <IconButton color="inherit" onClick={handleProfileClick}>
+          <PersonIcon />
+        </IconButton>
+        <IconButton color="inherit" onClick={handleNotifClick}>
+          <NotificationsIcon />
+        </IconButton>
+        <IconButton color="inherit" onClick={handleSettingClick}>
+          <SettingsIcon />
+        </IconButton>
       </Box>
 
       <Popover
@@ -47,8 +62,8 @@ const Header = ({ toggleSidebar }) => {
         open={Boolean(anchorElNotif)}
         anchorEl={anchorElNotif}
         onClose={handleNotifClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'center' }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        transformOrigin={{ vertical: "top", horizontal: "center" }}
       >
         <Typography sx={{ p: 2 }}>Không có thông báo</Typography>
       </Popover>
@@ -58,8 +73,8 @@ const Header = ({ toggleSidebar }) => {
         open={Boolean(anchorElSetting)}
         anchorEl={anchorElSetting}
         onClose={handleSettingClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'center' }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        transformOrigin={{ vertical: "top", horizontal: "center" }}
       >
         <Typography sx={{ p: 2 }}>Không có nội dung thiết lập</Typography>
       </Popover>

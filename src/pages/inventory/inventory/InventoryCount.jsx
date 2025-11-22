@@ -212,6 +212,7 @@ const InventoryCount = () => {
             setOrderBy(property);
           }}
           page={page}
+          height="calc(100vh - 450px)"
           rowsPerPage={rowsPerPage}
           onPageChange={(event, newPage) => setPage(newPage)}
           onRowsPerPageChange={(event) => {

@@ -104,6 +104,7 @@ const RfqInSupplierCompany = () => {
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
           search={search}
+          height="calc(100vh - 380px)"
           setSearch={setSearch}
           renderRow={(rfq) => (
             <TableRow

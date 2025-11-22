@@ -126,6 +126,7 @@ const TransferTicketInCompany = () => {
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
           search={search}
+          height="calc(100vh - 450px)"
           setSearch={setSearch}
           renderRow={(ticket) => (
             <TableRow

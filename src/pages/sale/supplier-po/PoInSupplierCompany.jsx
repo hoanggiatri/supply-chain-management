@@ -107,6 +107,7 @@ const PoInSupplierCompany = () => {
           onRowsPerPageChange={handleChangeRowsPerPage}
           search={search}
           setSearch={setSearch}
+          height="calc(100vh - 380px)"
           renderRow={(po) => (
             <TableRow
               key={po.poId}

@@ -126,6 +126,7 @@ const MoInCompany = () => {
           orderBy={orderBy}
           onRequestSort={handleRequestSort}
           page={page}
+          height="calc(100vh - 450px)"
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}

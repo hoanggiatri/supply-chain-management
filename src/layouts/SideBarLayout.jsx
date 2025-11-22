@@ -13,10 +13,10 @@ const SideBarLayout = ({ role }) => {
 
   return (
     <Box sx={{ display: "flex", minHeight: "100vh" }}>
-      {role === "S-ADMIN" && (
+      {role === "s-admin" && (
         <AdminSideBar openSidebar={openSidebar} toggleSidebar={toggleSidebar} />
       )}
-      {role !== "S-ADMIN" && (
+      {role !== "s-admin" && (
         <SideBar openSidebar={openSidebar} toggleSidebar={toggleSidebar} />
       )}
       <Box
@@ -43,7 +43,7 @@ const SideBarLayout = ({ role }) => {
         </Box>
 
         {/* Scrollable Content */}
-        <Box sx={{ p: 3, flexGrow: 1, overflowY: "auto" }}>
+        <Box sx={{ p: 0, flexGrow: 1, overflowY: "auto" }}>
           <Outlet />
         </Box>
       </Box>

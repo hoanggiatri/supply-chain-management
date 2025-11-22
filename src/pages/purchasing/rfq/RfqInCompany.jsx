@@ -126,6 +126,7 @@ const RfqInCompany = () => {
           onRowsPerPageChange={handleChangeRowsPerPage}
           search={search}
           setSearch={setSearch}
+          height="calc(100vh - 450px)"
           renderRow={(rfq) => (
             <TableRow
               key={rfq.rfqCode}

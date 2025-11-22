@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Container, Grid, Paper, Typography } from "@mui/material";
-import { getAllCompanies, monthlyCompanyReport } from "@/services/general/CompanyService";
+import {
+  getAllCompanies,
+  monthlyCompanyReport,
+} from "@/services/general/CompanyService";
 import { getAllUsers, monthlyUserReport } from "@/services/general/UserService";
 import PieChart from "@/components/content-components/PieChart";
 import MonthlyBarChart from "@/components/content-components/MonthlyBarChart";
@@ -32,57 +35,68 @@ const Dashboard = () => {
   if (companies.length === 0 && users.length === 0) {
     return <LoadingPaper title="DASHBOARD HỆ THỐNG" />;
   }
-  const currentMonthNewCompanies = monthlyCompanyData[monthlyCompanyData.length - 1]?.totalQuantity || 0;
-  const percentCompanyThisMonth = ((currentMonthNewCompanies / companies.length) * 100).toFixed(2);
-  const currentMonthNewUsers = monthlyUserData[monthlyUserData.length - 1]?.totalQuantity || 0;
-  const percentUserThisMonth = ((currentMonthNewUsers / users.length) * 100).toFixed(2);
+  const currentMonthNewCompanies =
+    monthlyCompanyData[monthlyCompanyData.length - 1]?.totalQuantity || 0;
+  const percentCompanyThisMonth = (
+    (currentMonthNewCompanies / companies.length) *
+    100
+  ).toFixed(2);
+  const currentMonthNewUsers =
+    monthlyUserData[monthlyUserData.length - 1]?.totalQuantity || 0;
+  const percentUserThisMonth = (
+    (currentMonthNewUsers / users.length) *
+    100
+  ).toFixed(2);
 
   const companyTypeData = [
     {
       label: "Doanh nghiệp sản xuất",
-      value: companies.filter((c) => c.companyType === "Doanh nghiệp sản xuất").length
+      value: companies.filter((c) => c.companyType === "Doanh nghiệp sản xuất")
+        .length,
     },
     {
       label: "Doanh nghiệp thương mại",
-      value: companies.filter((c) => c.companyType === "Doanh nghiệp thương mại").length
-    }
+      value: companies.filter(
+        (c) => c.companyType === "Doanh nghiệp thương mại"
+      ).length,
+    },
   ];
 
   const companyStatusData = [
     {
       label: "Đang hoạt động",
-      value: companies.filter((c) => c.status === "Đang hoạt động").length
+      value: companies.filter((c) => c.status === "Đang hoạt động").length,
     },
     {
       label: "Ngừng hoạt động",
-      value: companies.filter((c) => c.status === "Ngừng hoạt động").length
-    }
+      value: companies.filter((c) => c.status === "Ngừng hoạt động").length,
+    },
   ];
 
   const userRoleData = [
     {
       label: "Quản trị viên hệ thống",
-      value: users.filter((u) => u.role === "S-ADMIN").length
+      value: users.filter((u) => u.role === "s-admin").length,
     },
     {
       label: "Quản trị viên công ty",
-      value: users.filter((u) => u.role === "C-ADMIN").length
+      value: users.filter((u) => u.role === "c-admin").length,
     },
     {
       label: "Người dùng",
-      value: users.filter((u) => u.role === "USER").length
-    }
+      value: users.filter((u) => u.role === "user").length,
+    },
   ];
 
   const userStatusData = [
     {
       label: "Đang hoạt động",
-      value: users.filter((u) => u.status === "Đang hoạt động").length
+      value: users.filter((u) => u.status === "Đang hoạt động").length,
     },
     {
       label: "Đã bị khóa",
-      value: users.filter((u) => u.status === "Đã bị khóa").length
-    }
+      value: users.filter((u) => u.status === "Đã bị khóa").length,
+    },
   ];
 
   return (
@@ -93,8 +107,14 @@ const Dashboard = () => {
             <Paper sx={{ padding: 2, textAlign: "center" }}>
               <Typography variant="h4">Số lượng công ty</Typography>
               <Typography variant="h1">{companies.length}</Typography>
-              <Typography variant="subtitle1" color="green" display="flex" alignItems="center" justifyContent="center">
-                <ArrowUpward sx={{ color: "green" }}/>
+              <Typography
+                variant="subtitle1"
+                color="green"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+              >
+                <ArrowUpward sx={{ color: "green" }} />
                 {currentMonthNewCompanies} công ty ({percentCompanyThisMonth}%)
               </Typography>
             </Paper>
@@ -103,8 +123,14 @@ const Dashboard = () => {
             <Paper sx={{ padding: 2, textAlign: "center" }}>
               <Typography variant="h4">Số lượng người dùng</Typography>
               <Typography variant="h1">{users.length}</Typography>
-              <Typography variant="subtitle1" color="green" display="flex" alignItems="center" justifyContent="center">
-                <ArrowUpward sx={{ color: "green" }}/>
+              <Typography
+                variant="subtitle1"
+                color="green"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+              >
+                <ArrowUpward sx={{ color: "green" }} />
                 {currentMonthNewUsers} người dùng ({percentUserThisMonth}%)
               </Typography>
             </Paper>
@@ -113,16 +139,36 @@ const Dashboard = () => {
 
         <Grid container spacing={4}>
           <Grid item xs={6} md={3}>
-            <PieChart data={companyTypeData} labelField="label" valueField="value" title="Loại công ty" />
+            <PieChart
+              data={companyTypeData}
+              labelField="label"
+              valueField="value"
+              title="Loại công ty"
+            />
           </Grid>
           <Grid item xs={6} md={3}>
-            <PieChart data={companyStatusData} labelField="label" valueField="value" title="Trạng thái công ty" />
+            <PieChart
+              data={companyStatusData}
+              labelField="label"
+              valueField="value"
+              title="Trạng thái công ty"
+            />
           </Grid>
           <Grid item xs={6} md={3}>
-            <PieChart data={userRoleData} labelField="label" valueField="value" title="Phân quyền người dùng" />
+            <PieChart
+              data={userRoleData}
+              labelField="label"
+              valueField="value"
+              title="Phân quyền người dùng"
+            />
           </Grid>
           <Grid item xs={6} md={3}>
-            <PieChart data={userStatusData} labelField="label" valueField="value" title="Trạng thái người dùng" />
+            <PieChart
+              data={userStatusData}
+              labelField="label"
+              valueField="value"
+              title="Trạng thái người dùng"
+            />
           </Grid>
 
           <Grid item xs={12} md={6}>

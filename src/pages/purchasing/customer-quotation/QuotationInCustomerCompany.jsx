@@ -110,6 +110,7 @@ const QuotationInCustomerCompany = () => {
           onRowsPerPageChange={handleChangeRowsPerPage}
           search={search}
           setSearch={setSearch}
+          height="calc(100vh - 380px)"
           renderRow={(quotation) => (
             <TableRow
               key={quotation.quotationCode}

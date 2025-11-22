@@ -27,12 +27,12 @@ const getStatusLabel = (statusValue) => {
 };
 
 const UserForm = ({ user, onChange, errors, role, readOnly }) => {
-  const isReadOnly = readOnly || role === "USER";
+  const isReadOnly = readOnly || role === "user";
 
   return (
     <Grid container spacing={2}>
       <Grid item xs={12} sm={6}>
-        {(role === "C-ADMIN" || role === "USER") && (
+        {(role === "c-admin" || role === "user") && (
           <TextField
             fullWidth
             label="Mã nhân viên"
@@ -44,7 +44,7 @@ const UserForm = ({ user, onChange, errors, role, readOnly }) => {
             helperText={errors.employeeCode}
           />
         )}
-        {role === "S-ADMIN" && (
+        {role === "s-admin" && (
           <TextField
             fullWidth
             label="Username"
