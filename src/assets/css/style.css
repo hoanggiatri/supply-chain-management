@@ -1,25 +1,98 @@
+/* Smooth scrolling */
+* {
+  scroll-behavior: smooth;
+}
+
+/* Paper Container */
 .paper-container {
   padding: 32px;
   margin-top: 24px;
-  border-radius: 8px;
-  background-color: white;
-  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.25);
+  border-radius: 12px;
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
 }
 
+.paper-container:hover {
+  box-shadow: 0px 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+/* Page Title */
 .page-title {
   text-align: center;
   margin-bottom: 24px;
+  font-weight: 600;
 }
 
+/* API Error */
 .api-error {
   margin-top: 16px;
   font-size: 0.9rem;
   font-weight: 500;
-  background-color: #ffebee;
+  background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
   border-radius: 8px;
-  padding: 8px 12px;
+  padding: 12px 16px;
   border: 1px solid #f44336;
   color: #d32f2f;
   text-align: center;
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Animations */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Button Hover Effects */
+button {
+  transition: all 0.3s ease !important;
+}
+
+/* Link Hover Effects */
+a {
+  transition: all 0.2s ease;
+}
+
+/* Card Animations */
+.MuiCard-root {
+  transition: all 0.3s ease;
+}
+
+/* Input Focus Effects */
+.MuiTextField-root input:focus,
+.MuiOutlinedInput-root:focus-within {
+  transition: all 0.2s ease;
+}
+
+/* Smooth transitions for theme changes */
+body,
+.MuiPaper-root,
+.MuiAppBar-root,
+.MuiDrawer-paper {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Fix SweetAlert2 z-index */
+.swal2-container {
+  z-index: 9999 !important;
+}
+
+.swal2-popup {
+  z-index: 10000 !important;
 }
 

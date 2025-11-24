@@ -1,20 +1,33 @@
 import React, { useState } from "react";
-import { IconButton, Box, Popover, Typography } from "@mui/material";
+import { IconButton, Box, Popover, Badge, Avatar, Tooltip } from "@mui/material";
 import {
   Menu as MenuIcon,
-  Person as PersonIcon,
   Notifications as NotificationsIcon,
-  Settings as SettingsIcon,
+  LightMode as LightModeIcon,
+  DarkMode as DarkModeIcon,
 } from "@mui/icons-material";
-import { useNavigate } from "react-router-dom";
+import { useThemeMode } from "../../contexts/ThemeContext";
+import { useNotifications } from "../../contexts/NotificationContext";
+import NotificationPanel from "./NotificationPanel";
+import UserProfileMenu from "./UserProfileMenu";
+import GlobalSearch from "./GlobalSearch";
 
 const Header = ({ toggleSidebar }) => {
   const [anchorElNotif, setAnchorElNotif] = useState(null);
-  const [anchorElSetting, setAnchorElSetting] = useState(null);
-  const navigate = useNavigate();
+  const [anchorElProfile, setAnchorElProfile] = useState(null);
+  const { mode, toggleTheme } = useThemeMode();
+  const { unreadCount } = useNotifications();
 
-  const handleProfileClick = () => {
-    navigate("/my-profile");
+  // Lấy thông tin user
+  const employeeName = localStorage.getItem('employeeName') || 'User';
+  
+  const getInitials = (name) => {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
   };
 
   const handleNotifClick = (event) => {
@@ -25,36 +38,114 @@ const Header = ({ toggleSidebar }) => {
     setAnchorElNotif(null);
   };
 
-  const handleSettingClick = (event) => {
-    setAnchorElSetting(event.currentTarget);
+  const handleProfileClick = (event) => {
+    setAnchorElProfile(event.currentTarget);
   };
 
-  const handleSettingClose = () => {
-    setAnchorElSetting(null);
+  const handleProfileClose = () => {
+    setAnchorElProfile(null);
   };
 
   return (
-    <div
-      style={{
+    <Box
+      sx={{
         display: "flex",
         justifyContent: "space-between",
-        padding: "0px 15px",
         alignItems: "center",
+        px: 3,
+        py: 0.5,
+        gap: 2,
+        minHeight: 56,
+        bgcolor: 'background.paper',
       }}
     >
-      <IconButton onClick={toggleSidebar} color="inherit">
-        <MenuIcon />
-      </IconButton>
-      <Box sx={{ display: "flex", alignItems: "center" }}>
-        <IconButton color="inherit" onClick={handleProfileClick}>
-          <PersonIcon />
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <IconButton onClick={toggleSidebar} color="inherit">
+          <MenuIcon />
         </IconButton>
-        <IconButton color="inherit" onClick={handleNotifClick}>
-          <NotificationsIcon />
-        </IconButton>
-        <IconButton color="inherit" onClick={handleSettingClick}>
-          <SettingsIcon />
-        </IconButton>
+        <GlobalSearch />
+      </Box>
+      
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <Tooltip title={mode === 'light' ? 'Chế độ tối' : 'Chế độ sáng'}>
+          <IconButton 
+            color="inherit" 
+            onClick={toggleTheme}
+            sx={{
+              transition: 'transform 0.3s ease',
+              '&:hover': {
+                transform: 'rotate(180deg)',
+              }
+            }}
+          >
+            {mode === 'light' ? <DarkModeIcon /> : <LightModeIcon />}
+          </IconButton>
+        </Tooltip>
+
+        <Tooltip title="Thông báo">
+          <IconButton 
+            color="inherit" 
+            onClick={handleNotifClick}
+            sx={{
+              transition: 'transform 0.2s ease',
+              '&:hover': {
+                transform: 'scale(1.1)',
+              }
+            }}
+          >
+            <Badge 
+              badgeContent={unreadCount} 
+              color="error"
+              sx={{
+                '& .MuiBadge-badge': {
+                  animation: unreadCount > 0 ? 'pulse 2s infinite' : 'none',
+                  '@keyframes pulse': {
+                    '0%': {
+                      transform: 'scale(1)',
+                      opacity: 1,
+                    },
+                    '50%': {
+                      transform: 'scale(1.1)',
+                      opacity: 0.8,
+                    },
+                    '100%': {
+                      transform: 'scale(1)',
+                      opacity: 1,
+                    },
+                  },
+                },
+              }}
+            >
+              <NotificationsIcon />
+            </Badge>
+          </IconButton>
+        </Tooltip>
+
+        <Tooltip title="Hồ sơ cá nhân">
+          <IconButton 
+            onClick={handleProfileClick}
+            sx={{
+              p: 0.5,
+              transition: 'transform 0.2s ease',
+              '&:hover': {
+                transform: 'scale(1.05)',
+              }
+            }}
+          >
+            <Avatar
+              sx={{
+                width: 36,
+                height: 36,
+                bgcolor: 'primary.main',
+                fontSize: '0.875rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
+            >
+              {getInitials(employeeName)}
+            </Avatar>
+          </IconButton>
+        </Tooltip>
       </Box>
 
       <Popover
@@ -62,23 +153,69 @@ const Header = ({ toggleSidebar }) => {
         open={Boolean(anchorElNotif)}
         anchorEl={anchorElNotif}
         onClose={handleNotifClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-        transformOrigin={{ vertical: "top", horizontal: "center" }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
+        disableScrollLock
+        slotProps={{
+          paper: {
+            elevation: 8,
+            sx: {
+              mt: 1.5,
+              overflow: 'visible',
+              '&:before': {
+                content: '""',
+                display: 'block',
+                position: 'absolute',
+                top: 0,
+                right: 14,
+                width: 10,
+                height: 10,
+                bgcolor: 'background.paper',
+                transform: 'translateY(-50%) rotate(45deg)',
+                zIndex: 0,
+                boxShadow: 1,
+              },
+            },
+          },
+        }}
       >
-        <Typography sx={{ p: 2 }}>Không có thông báo</Typography>
+        <NotificationPanel />
       </Popover>
 
       <Popover
-        id="setting-popover"
-        open={Boolean(anchorElSetting)}
-        anchorEl={anchorElSetting}
-        onClose={handleSettingClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-        transformOrigin={{ vertical: "top", horizontal: "center" }}
+        id="profile-popover"
+        open={Boolean(anchorElProfile)}
+        anchorEl={anchorElProfile}
+        onClose={handleProfileClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
+        disableScrollLock
+        slotProps={{
+          paper: {
+            elevation: 8,
+            sx: {
+              mt: 1.5,
+              overflow: 'visible',
+              '&:before': {
+                content: '""',
+                display: 'block',
+                position: 'absolute',
+                top: 0,
+                right: 14,
+                width: 10,
+                height: 10,
+                bgcolor: 'background.paper',
+                transform: 'translateY(-50%) rotate(45deg)',
+                zIndex: 0,
+                boxShadow: 1,
+              },
+            },
+          },
+        }}
       >
-        <Typography sx={{ p: 2 }}>Không có nội dung thiết lập</Typography>
+        <UserProfileMenu onClose={handleProfileClose} />
       </Popover>
-    </div>
+    </Box>
   );
 };
 

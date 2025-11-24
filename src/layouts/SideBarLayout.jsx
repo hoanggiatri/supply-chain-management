@@ -4,6 +4,7 @@ import { Box } from "@mui/material";
 import AdminSideBar from "@/components/layout-components/AdminSideBar";
 import SideBar from "@/components/layout-components/SideBar";
 import Header from "@/components/layout-components/Header";
+import Breadcrumbs from "@/components/layout-components/Breadcrumbs";
 
 const SideBarLayout = ({ role }) => {
   const [openSidebar, setOpenSidebar] = useState(true);
@@ -40,10 +41,17 @@ const SideBarLayout = ({ role }) => {
           }}
         >
           <Header toggleSidebar={toggleSidebar} />
+          <Breadcrumbs />
         </Box>
 
         {/* Scrollable Content */}
-        <Box sx={{ p: 0, flexGrow: 1, overflowY: "auto" }}>
+        <Box sx={{ 
+          p: 0, 
+          flexGrow: 1, 
+          overflowY: "auto",
+          bgcolor: 'background.default',
+          backgroundImage: 'radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.03) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(118, 75, 162, 0.03) 0%, transparent 50%)',
+        }}>
           <Outlet />
         </Box>
       </Box>

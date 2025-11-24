@@ -107,10 +107,12 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
         "& .MuiDrawer-paper": {
           width: drawerWidth,
           boxSizing: "border-box",
-          transition: "width 0.3s ease",
+          transition: "width 0.3s ease, background-color 0.3s ease",
           overflowX: "hidden",
           display: "flex",
           flexDirection: "column",
+          borderRight: 0,
+          boxShadow: '4px 0 24px rgba(0,0,0,0.08)',
         },
       }}
     >
@@ -120,31 +122,54 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
           display: "flex",
           alignItems: "center",
           justifyContent: openSidebar ? "space-between" : "center",
-          p: 2,
-          minHeight: 64,
+          p: 2.5,
+          minHeight: 72,
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          color: 'white',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
         }}
       >
         {openSidebar ? (
           <>
             <Box
               sx={{
-                fontSize: "1rem",
-                fontWeight: "bold",
+                fontSize: "1.1rem",
+                fontWeight: 800,
+                letterSpacing: '0.5px',
+                textShadow: '0 2px 4px rgba(0,0,0,0.2)',
               }}
             >
-              Quản lí Chuỗi cung ứng
+              SCMS
             </Box>
-            <IconButton onClick={toggleSidebar} size="small">
+            <IconButton 
+              onClick={toggleSidebar} 
+              size="small"
+              sx={{ 
+                color: 'white',
+                '&:hover': {
+                  bgcolor: 'rgba(255,255,255,0.1)',
+                }
+              }}
+            >
               <ChevronLeft />
             </IconButton>
           </>
         ) : (
-          <IconButton onClick={toggleSidebar} size="small">
+          <IconButton 
+            onClick={toggleSidebar} 
+            size="small"
+            sx={{ 
+              color: 'white',
+              '&:hover': {
+                bgcolor: 'rgba(255,255,255,0.1)',
+              }
+            }}
+          >
             <ChevronRight />
           </IconButton>
         )}
       </Box>
-      <Divider />
+      <Divider sx={{ borderColor: 'rgba(0,0,0,0.12)' }} />
 
       {/* Scrollable Menu */}
       <Box sx={{ flexGrow: 1, overflowY: "auto", overflowX: "hidden" }}>
@@ -156,21 +181,39 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
             selectedPath={selectedPath}
             onSelect={handleSelect}
             collapsed={!openSidebar}
+            color="#1976d2"
           />
 
           <Tooltip
             title={!openSidebar ? "Quản lý thông tin chung" : ""}
             placement="right"
           >
-            <ListItemButton onClick={() => handleToggle("info")}>
+            <ListItemButton 
+              onClick={() => handleToggle("info")}
+              sx={{
+                my: 0.5,
+                mx: 1,
+                borderRadius: 2,
+                '&:hover': {
+                  bgcolor: 'rgba(25, 118, 210, 0.08)',
+                }
+              }}
+            >
               <ListItemIcon>
-                <Info />
+                <Info sx={{ color: '#2196f3', fontSize: '1.5rem' }} />
               </ListItemIcon>
               {openSidebar && (
-                <ListItemText primary="Quản lý thông tin chung" />
+                <ListItemText 
+                  primary="Quản lý thông tin chung"
+                  primaryTypographyProps={{
+                    fontWeight: 600,
+                    fontSize: '0.875rem',
+                    color: '#2196f3',
+                  }}
+                />
               )}
               {openSidebar &&
-                (openMenus.info ? <ExpandLess /> : <ExpandMore />)}
+                (openMenus.info ? <ExpandLess sx={{ color: '#2196f3' }} /> : <ExpandMore sx={{ color: '#2196f3' }} />)}
             </ListItemButton>
           </Tooltip>
 
@@ -188,6 +231,7 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
                 selectedPath={selectedPath}
                 onSelect={handleSelect}
                 collapsed={!openSidebar}
+                color="#2196f3"
               />
               <MenuItem
                 icon={<People />}
@@ -196,6 +240,7 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
                 selectedPath={selectedPath}
                 onSelect={handleSelect}
                 collapsed={!openSidebar}
+                color="#03a9f4"
               />
               <MenuItem
                 icon={<Person />}
@@ -204,6 +249,7 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
                 selectedPath={selectedPath}
                 onSelect={handleSelect}
                 collapsed={!openSidebar}
+                color="#00bcd4"
               />
               <MenuItem
                 icon={<ContactMail />}
@@ -212,6 +258,7 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
                 selectedPath={selectedPath}
                 onSelect={handleSelect}
                 collapsed={!openSidebar}
+                color="#0097a7"
               />
               <MenuItem
                 icon={<Category />}
@@ -220,6 +267,7 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
                 selectedPath={selectedPath}
                 onSelect={handleSelect}
                 collapsed={!openSidebar}
+                color="#00acc1"
               />
               <MenuItem
                 icon={<Warehouse />}
@@ -228,6 +276,7 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
                 selectedPath={selectedPath}
                 onSelect={handleSelect}
                 collapsed={!openSidebar}
+                color="#0288d1"
               />
               {companyType === "Doanh nghiệp sản xuất" && (
                 <>
@@ -238,6 +287,7 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
                     selectedPath={selectedPath}
                     onSelect={handleSelect}
                     collapsed={!openSidebar}
+                    color="#01579b"
                   />
                   <MenuItem
                     icon={<BuildCircle />}
@@ -246,6 +296,7 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
                     selectedPath={selectedPath}
                     onSelect={handleSelect}
                     collapsed={!openSidebar}
+                    color="#0277bd"
                   />
                 </>
               )}
@@ -258,13 +309,32 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
                 title={!openSidebar ? "Quản lý sản xuất" : ""}
                 placement="right"
               >
-                <ListItemButton onClick={() => handleToggle("manufacturing")}>
+                <ListItemButton 
+                  onClick={() => handleToggle("manufacturing")}
+                  sx={{
+                    my: 0.5,
+                    mx: 1,
+                    borderRadius: 2,
+                    '&:hover': {
+                      bgcolor: 'rgba(211, 47, 47, 0.08)',
+                    }
+                  }}
+                >
                   <ListItemIcon>
-                    <Factory />
+                    <Factory sx={{ color: '#d32f2f', fontSize: '1.5rem' }} />
                   </ListItemIcon>
-                  {openSidebar && <ListItemText primary="Quản lý sản xuất" />}
+                  {openSidebar && (
+                    <ListItemText 
+                      primary="Quản lý sản xuất"
+                      primaryTypographyProps={{
+                        fontWeight: 600,
+                        fontSize: '0.875rem',
+                        color: '#d32f2f',
+                      }}
+                    />
+                  )}
                   {openSidebar &&
-                    (openMenus.manufacturing ? <ExpandLess /> : <ExpandMore />)}
+                    (openMenus.manufacturing ? <ExpandLess sx={{ color: '#d32f2f' }} /> : <ExpandMore sx={{ color: '#d32f2f' }} />)}
                 </ListItemButton>
               </Tooltip>
 
@@ -282,6 +352,7 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
                     selectedPath={selectedPath}
                     onSelect={handleSelect}
                     collapsed={!openSidebar}
+                    color="#d32f2f"
                   />
                   <MenuItem
                     icon={<Note />}
@@ -290,6 +361,7 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
                     selectedPath={selectedPath}
                     onSelect={handleSelect}
                     collapsed={!openSidebar}
+                    color="#c62828"
                   />
                   <MenuItem
                     icon={<Schema />}
@@ -298,6 +370,7 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
                     selectedPath={selectedPath}
                     onSelect={handleSelect}
                     collapsed={!openSidebar}
+                    color="#b71c1c"
                   />
                   <MenuItem
                     icon={<BarChart />}
@@ -306,6 +379,7 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
                     selectedPath={selectedPath}
                     onSelect={handleSelect}
                     collapsed={!openSidebar}
+                    color="#e53935"
                   />
                 </List>
               </Collapse>
@@ -313,13 +387,32 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
           )}
 
           <Tooltip title={!openSidebar ? "Quản lý kho" : ""} placement="right">
-            <ListItemButton onClick={() => handleToggle("inventory")}>
+            <ListItemButton 
+              onClick={() => handleToggle("inventory")}
+              sx={{
+                my: 0.5,
+                mx: 1,
+                borderRadius: 2,
+                '&:hover': {
+                  bgcolor: 'rgba(255, 152, 0, 0.08)',
+                }
+              }}
+            >
               <ListItemIcon>
-                <Warehouse />
+                <Warehouse sx={{ color: '#ff9800', fontSize: '1.5rem' }} />
               </ListItemIcon>
-              {openSidebar && <ListItemText primary="Quản lý kho" />}
+              {openSidebar && (
+                <ListItemText 
+                  primary="Quản lý kho"
+                  primaryTypographyProps={{
+                    fontWeight: 600,
+                    fontSize: '0.875rem',
+                    color: '#ff9800',
+                  }}
+                />
+              )}
               {openSidebar &&
-                (openMenus.inventory ? <ExpandLess /> : <ExpandMore />)}
+                (openMenus.inventory ? <ExpandLess sx={{ color: '#ff9800' }} /> : <ExpandMore sx={{ color: '#ff9800' }} />)}
             </ListItemButton>
           </Tooltip>
 
@@ -337,6 +430,7 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
                 selectedPath={selectedPath}
                 onSelect={handleSelect}
                 collapsed={!openSidebar}
+                color="#f57c00"
               />
               <MenuItem
                 icon={<Inventory />}
@@ -345,6 +439,7 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
                 selectedPath={selectedPath}
                 onSelect={handleSelect}
                 collapsed={!openSidebar}
+                color="#ff9800"
               />
               <MenuItem
                 icon={<MoveToInbox />}
@@ -353,6 +448,7 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
                 selectedPath={selectedPath}
                 onSelect={handleSelect}
                 collapsed={!openSidebar}
+                color="#fb8c00"
               />
               <MenuItem
                 icon={<Outbox />}
@@ -361,6 +457,7 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
                 selectedPath={selectedPath}
                 onSelect={handleSelect}
                 collapsed={!openSidebar}
+                color="#f57c00"
               />
               <MenuItem
                 icon={<CompareArrows />}
@@ -369,6 +466,7 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
                 selectedPath={selectedPath}
                 onSelect={handleSelect}
                 collapsed={!openSidebar}
+                color="#ef6c00"
               />
 
               <Tooltip
@@ -403,6 +501,7 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
                     selectedPath={selectedPath}
                     onSelect={handleSelect}
                     collapsed={!openSidebar}
+                    color="#fb8c00"
                   />
                   <MenuItem
                     icon={<Outbox />}
@@ -411,6 +510,7 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
                     selectedPath={selectedPath}
                     onSelect={handleSelect}
                     collapsed={!openSidebar}
+                    color="#f57c00"
                   />
                 </List>
               </Collapse>
@@ -421,13 +521,32 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
             title={!openSidebar ? "Quản lý mua hàng" : ""}
             placement="right"
           >
-            <ListItemButton onClick={() => handleToggle("purchasing")}>
+            <ListItemButton 
+              onClick={() => handleToggle("purchasing")}
+              sx={{
+                my: 0.5,
+                mx: 1,
+                borderRadius: 2,
+                '&:hover': {
+                  bgcolor: 'rgba(156, 39, 176, 0.08)',
+                }
+              }}
+            >
               <ListItemIcon>
-                <ShoppingCart />
+                <ShoppingCart sx={{ color: '#9c27b0', fontSize: '1.5rem' }} />
               </ListItemIcon>
-              {openSidebar && <ListItemText primary="Quản lý mua hàng" />}
+              {openSidebar && (
+                <ListItemText 
+                  primary="Quản lý mua hàng"
+                  primaryTypographyProps={{
+                    fontWeight: 600,
+                    fontSize: '0.875rem',
+                    color: '#9c27b0',
+                  }}
+                />
+              )}
               {openSidebar &&
-                (openMenus.purchasing ? <ExpandLess /> : <ExpandMore />)}
+                (openMenus.purchasing ? <ExpandLess sx={{ color: '#9c27b0' }} /> : <ExpandMore sx={{ color: '#9c27b0' }} />)}
             </ListItemButton>
           </Tooltip>
 
@@ -445,6 +564,7 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
                 selectedPath={selectedPath}
                 onSelect={handleSelect}
                 collapsed={!openSidebar}
+                color="#7b1fa2"
               />
               <MenuItem
                 icon={<RequestQuote />}
@@ -453,6 +573,7 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
                 selectedPath={selectedPath}
                 onSelect={handleSelect}
                 collapsed={!openSidebar}
+                color="#8e24aa"
               />
               <MenuItem
                 icon={<Sell />}
@@ -461,6 +582,7 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
                 selectedPath={selectedPath}
                 onSelect={handleSelect}
                 collapsed={!openSidebar}
+                color="#9c27b0"
               />
               <MenuItem
                 icon={<ListAlt />}
@@ -469,6 +591,7 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
                 selectedPath={selectedPath}
                 onSelect={handleSelect}
                 collapsed={!openSidebar}
+                color="#ab47bc"
               />
               <MenuItem
                 icon={<BarChart />}
@@ -477,6 +600,7 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
                 selectedPath={selectedPath}
                 onSelect={handleSelect}
                 collapsed={!openSidebar}
+                color="#ba68c8"
               />
             </List>
           </Collapse>
@@ -485,13 +609,32 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
             title={!openSidebar ? "Quản lý bán hàng" : ""}
             placement="right"
           >
-            <ListItemButton onClick={() => handleToggle("sales")}>
+            <ListItemButton 
+              onClick={() => handleToggle("sales")}
+              sx={{
+                my: 0.5,
+                mx: 1,
+                borderRadius: 2,
+                '&:hover': {
+                  bgcolor: 'rgba(76, 175, 80, 0.08)',
+                }
+              }}
+            >
               <ListItemIcon>
-                <Sell />
+                <Sell sx={{ color: '#4caf50', fontSize: '1.5rem' }} />
               </ListItemIcon>
-              {openSidebar && <ListItemText primary="Quản lý bán hàng" />}
+              {openSidebar && (
+                <ListItemText 
+                  primary="Quản lý bán hàng"
+                  primaryTypographyProps={{
+                    fontWeight: 600,
+                    fontSize: '0.875rem',
+                    color: '#4caf50',
+                  }}
+                />
+              )}
               {openSidebar &&
-                (openMenus.sales ? <ExpandLess /> : <ExpandMore />)}
+                (openMenus.sales ? <ExpandLess sx={{ color: '#4caf50' }} /> : <ExpandMore sx={{ color: '#4caf50' }} />)}
             </ListItemButton>
           </Tooltip>
 
@@ -509,6 +652,7 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
                 selectedPath={selectedPath}
                 onSelect={handleSelect}
                 collapsed={!openSidebar}
+                color="#388e3c"
               />
               <MenuItem
                 icon={<Sell />}
@@ -517,6 +661,7 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
                 selectedPath={selectedPath}
                 onSelect={handleSelect}
                 collapsed={!openSidebar}
+                color="#43a047"
               />
               <MenuItem
                 icon={<ShoppingBag />}
@@ -525,6 +670,7 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
                 selectedPath={selectedPath}
                 onSelect={handleSelect}
                 collapsed={!openSidebar}
+                color="#4caf50"
               />
               <MenuItem
                 icon={<ListAlt />}
@@ -533,6 +679,7 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
                 selectedPath={selectedPath}
                 onSelect={handleSelect}
                 collapsed={!openSidebar}
+                color="#66bb6a"
               />
               <MenuItem
                 icon={<BarChart />}
@@ -541,6 +688,7 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
                 selectedPath={selectedPath}
                 onSelect={handleSelect}
                 collapsed={!openSidebar}
+                color="#81c784"
               />
             </List>
           </Collapse>
@@ -549,13 +697,32 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
             title={!openSidebar ? "Quản lý vận chuyển" : ""}
             placement="right"
           >
-            <ListItemButton onClick={() => handleToggle("delivery")}>
+            <ListItemButton 
+              onClick={() => handleToggle("delivery")}
+              sx={{
+                my: 0.5,
+                mx: 1,
+                borderRadius: 2,
+                '&:hover': {
+                  bgcolor: 'rgba(0, 172, 193, 0.08)',
+                }
+              }}
+            >
               <ListItemIcon>
-                <LocalShipping />
+                <LocalShipping sx={{ color: '#00acc1', fontSize: '1.5rem' }} />
               </ListItemIcon>
-              {openSidebar && <ListItemText primary="Quản lý vận chuyển" />}
+              {openSidebar && (
+                <ListItemText 
+                  primary="Quản lý vận chuyển"
+                  primaryTypographyProps={{
+                    fontWeight: 600,
+                    fontSize: '0.875rem',
+                    color: '#00acc1',
+                  }}
+                />
+              )}
               {openSidebar &&
-                (openMenus.delivery ? <ExpandLess /> : <ExpandMore />)}
+                (openMenus.delivery ? <ExpandLess sx={{ color: '#00acc1' }} /> : <ExpandMore sx={{ color: '#00acc1' }} />)}
             </ListItemButton>
           </Tooltip>
 
@@ -573,6 +740,7 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
                 selectedPath={selectedPath}
                 onSelect={handleSelect}
                 collapsed={!openSidebar}
+                color="#00acc1"
               />
             </List>
           </Collapse>

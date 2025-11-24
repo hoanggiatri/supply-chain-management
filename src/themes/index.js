@@ -10,9 +10,11 @@ import Palette from './palette';
 import Typography from './typography';
 import CustomShadows from './shadows';
 import componentsOverride from './overrides';
+import { useThemeMode } from '../contexts/ThemeContext';
 
 export default function ThemeCustomization({ children }) {
-  const theme = Palette('light', 'default');
+  const { mode } = useThemeMode();
+  const theme = Palette(mode, 'default');
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const themeTypography = Typography(`'Public Sans', sans-serif`);

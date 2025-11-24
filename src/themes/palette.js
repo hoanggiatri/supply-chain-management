@@ -39,17 +39,20 @@ export default function Palette(mode, presetColor) {
       },
       ...paletteColor,
       text: {
-        primary: paletteColor.grey[700],
-        secondary: paletteColor.grey[500],
-        disabled: paletteColor.grey[400]
+        primary: mode === 'dark' ? '#e3e3e3' : paletteColor.grey[700],
+        secondary: mode === 'dark' ? '#a0a0a0' : paletteColor.grey[500],
+        disabled: mode === 'dark' ? '#6b6b6b' : paletteColor.grey[400]
       },
       action: {
-        disabled: paletteColor.grey[300]
+        disabled: paletteColor.grey[300],
+        hover: mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)',
+        selected: mode === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.08)',
+        disabledBackground: mode === 'dark' ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)',
       },
-      divider: paletteColor.grey[200],
+      divider: mode === 'dark' ? 'rgba(255, 255, 255, 0.15)' : paletteColor.grey[200],
       background: {
-        paper: paletteColor.grey[0],
-        default: paletteColor.grey.A50
+        paper: mode === 'dark' ? '#1a1a1a' : paletteColor.grey[0],
+        default: mode === 'dark' ? '#0d0d0d' : paletteColor.grey.A50
       }
     }
   });
