@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import NavBarLayout from "@layouts/NavBarLayout";
-import SideBarLayout from "@layouts/SideBarLayout";
+import SideBarLayoutMT from "@layouts/SideBarLayoutMT";
 import PrivateRoute from "./PrivateRoute";
 import PublicRoute from "./PublicRoute";
 
@@ -178,7 +178,7 @@ function AppRoutes() {
           <Route path="/admin-verify-otp/:email" element={<AdminVerifyOtp />} />
         </Route>
 
-        <Route element={<SideBarLayout role={"s_admin"} />}>
+        <Route element={<SideBarLayoutMT role={"s_admin"} />}>
           <Route
             path="/admin/dashboard"
             element={
@@ -236,7 +236,7 @@ function AppRoutes() {
           />
         </Route>
 
-        <Route element={<SideBarLayout />}>
+        <Route element={<SideBarLayoutMT />}>
           <Route
             path="/homepage"
             element={
