@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { TextField, Button, Container, Typography } from "@mui/material";
-import { verifyForgotPasswordOtp, sendVerifyOtp } from "@/services/general/AuthService";
+import { Typography, Input, Button, Alert } from "@material-tailwind/react";
+import {
+  verifyForgotPasswordOtp,
+  sendVerifyOtp,
+} from "@/services/general/AuthService";
 import { useNavigate } from "react-router-dom";
 import toastrService from "@/services/toastrService";
 
@@ -26,13 +29,17 @@ const OtpForgotPasswordForm = () => {
   }, [resendTimer]);
 
   const handleChange = (event) => {
-    setOtp(event.target.value);
+    const onlyDigits = event.target.value.replace(/\D/g, "");
+    setOtp(onlyDigits.slice(0, 6));
+    if (errors.otp) {
+      setErrors({ ...errors, otp: "" });
+    }
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (otp.length !== 6) {
+    if (!/^\d{6}$/.test(otp)) {
       setErrors({ otp: "OTP phải có 6 chữ số" });
       return;
     }
@@ -42,7 +49,9 @@ const OtpForgotPasswordForm = () => {
       toastrService.success("Xác thực thành công!");
       navigate("/reset-password");
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Xác thực thất bại! Vui lòng thử lại.";
+      const errorMessage =
+        error.response?.data?.message ||
+        "Xác thực thất bại! Vui lòng thử lại.";
       toastrService.error(errorMessage);
       setErrors((prevErrors) => ({
         ...prevErrors,
@@ -57,29 +66,90 @@ const OtpForgotPasswordForm = () => {
       toastrService.success("Mã OTP đã được gửi lại!");
       setResendTimer(60);
     } catch (error) {
-      toastrService.error(error.response?.data?.message || "Lỗi khi gửi lại OTP. Vui lòng thử lại!");
+      toastrService.error(
+        error.response?.data?.message ||
+          "Lỗi khi gửi lại OTP. Vui lòng thử lại!"
+      );
     }
   };
 
   return (
-    <Container maxWidth="xs">
-      <Typography align="center">
-        Mã xác thực đã được gửi đến email. Vui lòng kiểm tra email và nhập chính xác mã vào ô dưới.
+    <div className="mx-auto max-w-[24rem]">
+      <Typography variant="h3" color="blue-gray" className="mb-2">
+        Xác Thực OTP
       </Typography>
-      <form onSubmit={handleSubmit}>
-        <TextField fullWidth label="Nhập OTP" name="otp" value={otp} onChange={handleChange} error={!!errors.otp} helperText={errors.otp} margin="normal" required />
+      <Typography className="mb-8 text-gray-600 font-normal text-[18px]">
+        Mã xác thực đã được gửi đến email. Vui lòng kiểm tra email và nhập
+        chính xác mã vào ô dưới.
+      </Typography>
 
+      <form onSubmit={handleSubmit} className="text-left">
+        {/* OTP Field */}
+        <div className="mb-6">
+          <label htmlFor="otp">
+            <Typography
+              variant="small"
+              className="mb-2 block font-medium text-gray-900"
+            >
+              Mã OTP (6 chữ số)
+            </Typography>
+          </label>
+          <Input
+            id="otp"
+            color="gray"
+            size="lg"
+            type="text"
+            placeholder="123456"
+            value={otp}
+            onChange={handleChange}
+            error={!!errors.otp}
+            maxLength={6}
+            className="w-full placeholder:opacity-100 !border-t-blue-gray-200 focus:!border-t-gray-900 tracking-widest text-center text-2xl"
+            labelProps={{
+              className: "hidden",
+            }}
+          />
+          {errors.otp && (
+            <Typography variant="small" color="red" className="mt-2">
+              {errors.otp}
+            </Typography>
+          )}
+        </div>
+
+        {/* API Error Alert */}
         {errors.apiError && (
-          <Typography className="api-error">{errors.apiError}</Typography>
+          <Alert color="red" className="mb-6">
+            {errors.apiError}
+          </Alert>
         )}
 
-        <Button type="submit" variant="contained" color="default" fullWidth sx={{ mt: 2 }}>Xác nhận</Button>
-        <Typography align="center" sx={{ mt: 1 }}>
-          Bạn chưa nhận được OTP?
-          <Button color="default" onClick={handleResendOtp} disabled={resendTimer > 0}>{resendTimer > 0 ? `Gửi lại OTP (${resendTimer}s)` : "Gửi lại OTP"}</Button>
+        {/* Submit Button */}
+        <Button type="submit" color="gray" size="lg" className="mt-6" fullWidth>
+          Xác nhận
+        </Button>
+
+        {/* Resend OTP */}
+        <Typography
+          variant="small"
+          color="gray"
+          className="!mt-4 text-center font-normal"
+        >
+          Bạn chưa nhận được OTP?{" "}
+          <button
+            type="button"
+            onClick={handleResendOtp}
+            disabled={resendTimer > 0}
+            className={`font-medium ${
+              resendTimer > 0
+                ? "text-gray-400 cursor-not-allowed"
+                : "text-gray-900 hover:text-blue-500"
+            }`}
+          >
+            {resendTimer > 0 ? `Gửi lại OTP (${resendTimer}s)` : "Gửi lại OTP"}
+          </button>
         </Typography>
       </form>
-    </Container>
+    </div>
   );
 };
 

@@ -1,28 +1,27 @@
-import React, { useState } from "react";
-import {
-  Container,
-  TextField,
-  Button,
-  Typography,
-  IconButton,
-  InputAdornment,
-} from "@mui/material";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { login } from "@/services/general/AuthService";
-import { getEmployeeById } from "@/services/general/EmployeeService";
-import { getDepartmentById } from "@/services/general/DepartmentService";
 import { getCompanyById } from "@/services/general/CompanyService";
-import { useNavigate } from "react-router-dom";
+import { getDepartmentById } from "@/services/general/DepartmentService";
+import { getEmployeeById } from "@/services/general/EmployeeService";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
+import { Alert, Button, Input, Typography } from "@material-tailwind/react";
 import { setupTokenExpirationCheck } from "@utils/tokenUtils";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const LoginForm = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
-  const [showPassword, setShowPassword] = useState(false);
+  const [passwordShown, setPasswordShown] = useState(false);
   const navigate = useNavigate();
+
+  const togglePasswordVisibility = () => setPasswordShown((cur) => !cur);
 
   const handleChange = (event) => {
     setFormData({ ...formData, [event.target.name]: event.target.value });
+    // Clear error for this field when user starts typing
+    if (errors[event.target.name]) {
+      setErrors({ ...errors, [event.target.name]: "" });
+    }
   };
 
   const validateForm = () => {
@@ -78,67 +77,149 @@ const LoginForm = () => {
     }
   };
 
-  return (
-    <Container maxWidth="xs">
-      <Typography align="center">Đăng nhập để sử dụng hệ thống SCMS</Typography>
-      <form onSubmit={handleSubmit}>
-        <TextField
-          fullWidth
-          label="Email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          error={!!errors.email}
-          helperText={errors.email}
-          margin="normal"
-          required
-        />
-        <TextField
-          fullWidth
-          label="Mật khẩu"
-          name="password"
-          type={showPassword ? "text" : "password"}
-          value={formData.password}
-          onChange={handleChange}
-          error={!!errors.password}
-          helperText={errors.password}
-          margin="normal"
-          required
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton onClick={() => setShowPassword(!showPassword)}>
-                  {showPassword ? <VisibilityOff /> : <Visibility />}
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
-        />
+  const inputClasses = (hasError) =>
+    [
+      "w-full",
+      "placeholder:opacity-100",
+      "!border-t-blue-gray-200",
+      "focus:!border-t-gray-900",
+      hasError ? "!border-t-red-500 focus:!border-t-red-500" : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
 
+  return (
+    <div className="mx-auto max-w-[24rem]">
+      <Typography variant="h3" color="blue-gray" className="mb-2">
+        Đăng Nhập
+      </Typography>
+      <Typography className="mb-8 text-gray-600 font-normal text-[18px]">
+        Đăng nhập để sử dụng hệ thống SCMS
+      </Typography>
+
+      <form onSubmit={handleSubmit} className="text-left">
+        {/* Email Field */}
+        <div className="mb-6">
+          <label htmlFor="email">
+            <Typography
+              variant="small"
+              className="mb-2 block font-medium text-gray-900"
+            >
+              Email
+            </Typography>
+          </label>
+          <Input
+            id="email"
+            color="gray"
+            size="lg"
+            type="email"
+            name="email"
+            placeholder="name@mail.com"
+            value={formData.email}
+            onChange={handleChange}
+            error={!!errors.email}
+            className={inputClasses(Boolean(errors.email))}
+            labelProps={{
+              className: "hidden",
+            }}
+          />
+          {errors.email && (
+            <Typography variant="small" color="red" className="mt-2">
+              {errors.email}
+            </Typography>
+          )}
+        </div>
+
+        {/* Password Field */}
+        <div className="mb-6">
+          <label htmlFor="password">
+            <Typography
+              variant="small"
+              className="mb-2 block font-medium text-gray-900"
+            >
+              Mật khẩu
+            </Typography>
+          </label>
+          <div className="relative">
+            <Input
+              id="password"
+              size="lg"
+              name="password"
+              placeholder="********"
+              value={formData.password}
+              onChange={handleChange}
+              error={!!errors.password}
+              labelProps={{
+                className: "hidden",
+              }}
+              className={`${inputClasses(Boolean(errors.password))} pr-10`}
+              type={passwordShown ? "text" : "password"}
+              containerProps={{
+                className: "min-w-0",
+              }}
+            />
+            <button
+              type="button"
+              onClick={togglePasswordVisibility}
+              className="!absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
+            >
+              {passwordShown ? (
+                <EyeIcon className="h-5 w-5 text-blue-gray-500" />
+              ) : (
+                <EyeSlashIcon className="h-5 w-5 text-blue-gray-500" />
+              )}
+            </button>
+          </div>
+          {errors.password && (
+            <Typography variant="small" color="red" className="mt-2">
+              {errors.password}
+            </Typography>
+          )}
+        </div>
+
+        {/* API Error Alert */}
         {errors.apiError && (
-          <Typography className="api-error">{errors.apiError}</Typography>
+          <Alert color="red" className="mb-6">
+            {errors.apiError}
+          </Alert>
         )}
 
-        <Button
-          type="submit"
-          variant="contained"
-          color="default"
-          fullWidth
-          style={{ marginTop: "10px" }}
-        >
+        {/* Login Button */}
+        <Button type="submit" color="gray" size="lg" className="mt-6" fullWidth>
           Đăng nhập
         </Button>
-        <Typography align="center" sx={{ mt: 1 }}>
-          <Button color="default" onClick={() => navigate("/register")}>
-            Đăng ký
-          </Button>{" "}
-          |{" "}
-          <Button color="default" onClick={() => navigate("/forgot-password")}>
+
+        {/* Forgot Password Link */}
+        <div className="!mt-4 flex justify-end">
+          <Typography
+            as="button"
+            type="button"
+            onClick={() => navigate("/forgot-password")}
+            color="blue-gray"
+            variant="small"
+            className="font-medium cursor-pointer hover:text-blue-500"
+          >
             Quên mật khẩu?
-          </Button>
+          </Typography>
+        </div>
+
+        {/* Register Link */}
+        <Typography
+          variant="small"
+          color="gray"
+          className="!mt-4 text-center font-normal"
+        >
+          Chưa có tài khoản?{" "}
+          <button
+            type="button"
+            onClick={() => navigate("/register")}
+            className="font-medium text-gray-900 hover:text-blue-500"
+          >
+            Đăng ký ngay
+          </button>
         </Typography>
       </form>
-    </Container>
+    </div>
   );
 };
 

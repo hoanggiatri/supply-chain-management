@@ -1,17 +1,14 @@
 import React, { useState } from "react";
 import {
-  Grid,
-  TextField,
-  Button,
-  FormControlLabel,
-  Checkbox,
-  Container,
   Typography,
-  MenuItem,
-  IconButton,
-  InputAdornment,
-} from "@mui/material";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
+  Input,
+  Button,
+  Alert,
+  Checkbox,
+  Select,
+  Option,
+} from "@material-tailwind/react";
+import { EyeSlashIcon, EyeIcon } from "@heroicons/react/24/solid";
 import { registerCompany } from "@/services/general/AuthService";
 import { useNavigate } from "react-router-dom";
 import toastrService from "@/services/toastrService";
@@ -32,42 +29,55 @@ const RegisterForm = () => {
     termsAccepted: false,
   });
   const [errors, setErrors] = useState({});
-  const [showPassword, setShowPassword] = useState(false);
+  const [passwordShown, setPasswordShown] = useState(false);
+
+  const togglePasswordVisibility = () => setPasswordShown((cur) => !cur);
 
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
     setFormData({ ...formData, [name]: type === "checkbox" ? checked : value });
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors({ ...errors, [name]: "" });
+    }
+  };
+
+  const handleSelectChange = (value) => {
+    setFormData({ ...formData, companyType: value });
+    if (errors.companyType) {
+      setErrors({ ...errors, companyType: "" });
+    }
   };
 
   const validateForm = () => {
-    const errors = {};
+    const newErrors = {};
     if (!formData.companyName.trim())
-      errors.companyName = "Tên công ty không được để trống";
-    if (!formData.taxCode.trim()) errors.taxCode = "Mã số thuế là bắt buộc";
+      newErrors.companyName = "Tên công ty không được để trống";
+    if (!formData.taxCode.trim()) newErrors.taxCode = "Mã số thuế là bắt buộc";
     if (!formData.address.trim())
-      errors.address = "Địa chỉ không được để trống";
+      newErrors.address = "Địa chỉ không được để trống";
     if (!formData.companyType.trim())
-      errors.companyType = "Loại hình công ty không được để trống";
+      newErrors.companyType = "Loại hình công ty không được để trống";
     if (!formData.mainIndustry.trim())
-      errors.mainIndustry = "Ngành chính không được để trống";
+      newErrors.mainIndustry = "Ngành chính không được để trống";
     if (!formData.representativeName.trim())
-      errors.representativeName = "Người đại diện không được để trống";
+      newErrors.representativeName = "Người đại diện không được để trống";
     if (!formData.phoneNumber.trim())
-      errors.phoneNumber = "Số điện thoại không được để trống";
+      newErrors.phoneNumber = "Số điện thoại không được để trống";
     if (!/^\d{10,11}$/.test(formData.phoneNumber))
-      errors.phoneNumber = "Số điện thoại không hợp lệ";
-    if (!formData.email.trim()) errors.email = "Email không được để trống";
+      newErrors.phoneNumber = "Số điện thoại không hợp lệ";
+    if (!formData.email.trim()) newErrors.email = "Email không được để trống";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
-      errors.email = "Email không hợp lệ";
+      newErrors.email = "Email không hợp lệ";
     if (!formData.employeeCode.trim())
-      errors.employeeCode = "Mã nhân viên không được để trống";
+      newErrors.employeeCode = "Mã nhân viên không được để trống";
     if (!formData.password.trim())
-      errors.password = "Mật khẩu không được để trống";
+      newErrors.password = "Mật khẩu không được để trống";
     if (formData.password.length < 8)
-      errors.password = "Mật khẩu phải có ít nhất 8 ký tự";
+      newErrors.password = "Mật khẩu phải có ít nhất 8 ký tự";
     if (!formData.termsAccepted)
-      errors.termsAccepted = "Bạn phải đồng ý với điều khoản";
-    return errors;
+      newErrors.termsAccepted = "Bạn phải đồng ý với điều khoản";
+    return newErrors;
   };
 
   const handleSubmit = async (event) => {
@@ -82,10 +92,14 @@ const RegisterForm = () => {
       const { termsAccepted, ...payload } = formData;
       await registerCompany(payload);
       localStorage.setItem("registeredEmail", formData.email);
-      toastrService.success("Kiểm tra email để nhận mã OTP.", "Đăng ký thành công!");
+      toastrService.success(
+        "Kiểm tra email để nhận mã OTP.",
+        "Đăng ký thành công!"
+      );
       navigate("/otp-verification");
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Đăng ký thất bại! Vui lòng thử lại.";
+      const errorMessage =
+        error.response?.data?.message || "Đăng ký thất bại! Vui lòng thử lại.";
       toastrService.error(errorMessage);
       setErrors({
         apiError: errorMessage,
@@ -94,199 +108,374 @@ const RegisterForm = () => {
   };
 
   return (
-    <Container maxWidth="lg" style={{ fontSize: "0.9rem" }}>
-      <Typography align="center" sx={{ mb: 2 }}>
+    <div className="mx-auto max-w-4xl px-4">
+      <Typography variant="h3" color="blue-gray" className="mb-2 text-center">
+        Đăng Ký
+      </Typography>
+      <Typography className="mb-8 text-gray-600 font-normal text-center">
         Đăng ký tài khoản để sử dụng hệ thống SCMS
       </Typography>
-      <form onSubmit={handleSubmit}>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Tên công ty"
+
+      <form onSubmit={handleSubmit} className="text-left">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Company Name */}
+          <div>
+            <label htmlFor="companyName">
+              <Typography
+                variant="small"
+                className="mb-2 block font-medium text-gray-900"
+              >
+                Tên công ty <span className="text-red-500">*</span>
+              </Typography>
+            </label>
+            <Input
+              id="companyName"
+              size="lg"
               name="companyName"
+              placeholder="Nhập tên công ty"
               value={formData.companyName}
               onChange={handleChange}
               error={!!errors.companyName}
-              helperText={errors.companyName}
-              required
+              className="!border-t-blue-gray-200 focus:!border-t-gray-900"
+              labelProps={{ className: "hidden" }}
             />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Mã số thuế"
+            {errors.companyName && (
+              <Typography variant="small" color="red" className="mt-2">
+                {errors.companyName}
+              </Typography>
+            )}
+          </div>
+
+          {/* Tax Code */}
+          <div>
+            <label htmlFor="taxCode">
+              <Typography
+                variant="small"
+                className="mb-2 block font-medium text-gray-900"
+              >
+                Mã số thuế <span className="text-red-500">*</span>
+              </Typography>
+            </label>
+            <Input
+              id="taxCode"
+              size="lg"
               name="taxCode"
+              placeholder="Nhập mã số thuế"
               value={formData.taxCode}
               onChange={handleChange}
               error={!!errors.taxCode}
-              helperText={errors.taxCode}
-              required
+              className="!border-t-blue-gray-200 focus:!border-t-gray-900"
+              labelProps={{ className: "hidden" }}
             />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Địa chỉ"
+            {errors.taxCode && (
+              <Typography variant="small" color="red" className="mt-2">
+                {errors.taxCode}
+              </Typography>
+            )}
+          </div>
+
+          {/* Address */}
+          <div>
+            <label htmlFor="address">
+              <Typography
+                variant="small"
+                className="mb-2 block font-medium text-gray-900"
+              >
+                Địa chỉ <span className="text-red-500">*</span>
+              </Typography>
+            </label>
+            <Input
+              id="address"
+              size="lg"
               name="address"
+              placeholder="Nhập địa chỉ"
               value={formData.address}
               onChange={handleChange}
               error={!!errors.address}
-              helperText={errors.address}
-              required
+              className="!border-t-blue-gray-200 focus:!border-t-gray-900"
+              labelProps={{ className: "hidden" }}
             />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              select
-              fullWidth
-              label="Loại hình công ty"
-              name="companyType"
+            {errors.address && (
+              <Typography variant="small" color="red" className="mt-2">
+                {errors.address}
+              </Typography>
+            )}
+          </div>
+
+          {/* Company Type */}
+          <div>
+            <label htmlFor="companyType">
+              <Typography
+                variant="small"
+                className="mb-2 block font-medium text-gray-900"
+              >
+                Loại hình công ty <span className="text-red-500">*</span>
+              </Typography>
+            </label>
+            <Select
+              id="companyType"
+              size="lg"
               value={formData.companyType}
-              onChange={handleChange}
+              onChange={handleSelectChange}
               error={!!errors.companyType}
-              helperText={errors.companyType}
-              required
+              className="!border-t-blue-gray-200 focus:!border-t-gray-900"
+              labelProps={{ className: "hidden" }}
             >
-              <MenuItem value="Doanh nghiệp sản xuất">
+              <Option value="Doanh nghiệp sản xuất">
                 Doanh nghiệp sản xuất
-              </MenuItem>
-              <MenuItem value="Doanh nghiệp thương mại">
+              </Option>
+              <Option value="Doanh nghiệp thương mại">
                 Doanh nghiệp thương mại
-              </MenuItem>
-            </TextField>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Ngành nghề chính"
+              </Option>
+            </Select>
+            {errors.companyType && (
+              <Typography variant="small" color="red" className="mt-2">
+                {errors.companyType}
+              </Typography>
+            )}
+          </div>
+
+          {/* Main Industry */}
+          <div>
+            <label htmlFor="mainIndustry">
+              <Typography
+                variant="small"
+                className="mb-2 block font-medium text-gray-900"
+              >
+                Ngành nghề chính <span className="text-red-500">*</span>
+              </Typography>
+            </label>
+            <Input
+              id="mainIndustry"
+              size="lg"
               name="mainIndustry"
+              placeholder="Nhập ngành nghề chính"
               value={formData.mainIndustry}
               onChange={handleChange}
               error={!!errors.mainIndustry}
-              helperText={errors.mainIndustry}
-              required
+              className="!border-t-blue-gray-200 focus:!border-t-gray-900"
+              labelProps={{ className: "hidden" }}
             />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Người đại diện"
+            {errors.mainIndustry && (
+              <Typography variant="small" color="red" className="mt-2">
+                {errors.mainIndustry}
+              </Typography>
+            )}
+          </div>
+
+          {/* Representative Name */}
+          <div>
+            <label htmlFor="representativeName">
+              <Typography
+                variant="small"
+                className="mb-2 block font-medium text-gray-900"
+              >
+                Người đại diện <span className="text-red-500">*</span>
+              </Typography>
+            </label>
+            <Input
+              id="representativeName"
+              size="lg"
               name="representativeName"
+              placeholder="Nhập tên người đại diện"
               value={formData.representativeName}
               onChange={handleChange}
               error={!!errors.representativeName}
-              helperText={errors.representativeName}
-              required
+              className="!border-t-blue-gray-200 focus:!border-t-gray-900"
+              labelProps={{ className: "hidden" }}
             />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Số điện thoại"
+            {errors.representativeName && (
+              <Typography variant="small" color="red" className="mt-2">
+                {errors.representativeName}
+              </Typography>
+            )}
+          </div>
+
+          {/* Phone Number */}
+          <div>
+            <label htmlFor="phoneNumber">
+              <Typography
+                variant="small"
+                className="mb-2 block font-medium text-gray-900"
+              >
+                Số điện thoại <span className="text-red-500">*</span>
+              </Typography>
+            </label>
+            <Input
+              id="phoneNumber"
+              size="lg"
               name="phoneNumber"
+              placeholder="Nhập số điện thoại"
               value={formData.phoneNumber}
               onChange={handleChange}
               error={!!errors.phoneNumber}
-              helperText={errors.phoneNumber}
-              required
+              className="!border-t-blue-gray-200 focus:!border-t-gray-900"
+              labelProps={{ className: "hidden" }}
             />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Email"
+            {errors.phoneNumber && (
+              <Typography variant="small" color="red" className="mt-2">
+                {errors.phoneNumber}
+              </Typography>
+            )}
+          </div>
+
+          {/* Email */}
+          <div>
+            <label htmlFor="email">
+              <Typography
+                variant="small"
+                className="mb-2 block font-medium text-gray-900"
+              >
+                Email <span className="text-red-500">*</span>
+              </Typography>
+            </label>
+            <Input
+              id="email"
+              size="lg"
+              type="email"
               name="email"
+              placeholder="name@mail.com"
               value={formData.email}
               onChange={handleChange}
               error={!!errors.email}
-              helperText={errors.email}
-              required
+              className="!border-t-blue-gray-200 focus:!border-t-gray-900"
+              labelProps={{ className: "hidden" }}
             />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Mã nhân viên"
+            {errors.email && (
+              <Typography variant="small" color="red" className="mt-2">
+                {errors.email}
+              </Typography>
+            )}
+          </div>
+
+          {/* Employee Code */}
+          <div>
+            <label htmlFor="employeeCode">
+              <Typography
+                variant="small"
+                className="mb-2 block font-medium text-gray-900"
+              >
+                Mã nhân viên <span className="text-red-500">*</span>
+              </Typography>
+            </label>
+            <Input
+              id="employeeCode"
+              size="lg"
               name="employeeCode"
+              placeholder="Nhập mã nhân viên"
               value={formData.employeeCode}
               onChange={handleChange}
               error={!!errors.employeeCode}
-              helperText={errors.employeeCode}
-              required
+              className="!border-t-blue-gray-200 focus:!border-t-gray-900"
+              labelProps={{ className: "hidden" }}
             />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Mật khẩu"
-              name="password"
-              type={showPassword ? "text" : "password"}
-              value={formData.password}
-              onChange={handleChange}
-              error={!!errors.password}
-              helperText={errors.password}
-              required
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={() => setShowPassword(!showPassword)}>
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  name="termsAccepted"
-                  checked={formData.termsAccepted}
-                  onChange={handleChange}
-                  sx={{
-                    ml: 0.5,
-                    "&.Mui-checked": {
-                      color: "#05518b",
-                    },
-                    "&:hover": { backgroundColor: "transparent" },
-                  }}
-                />
-              }
-              label="Tôi đồng ý với điều khoản sử dụng"
-            />
-            {errors.termsAccepted && (
-              <Typography color="error">{errors.termsAccepted}</Typography>
+            {errors.employeeCode && (
+              <Typography variant="small" color="red" className="mt-2">
+                {errors.employeeCode}
+              </Typography>
             )}
-          </Grid>
-          {errors.apiError && (
-            <Grid item xs={12}>
-              <Typography color="error">{errors.apiError}</Typography>
-            </Grid>
-          )}
-          <Grid item xs={12}>
-            <Button
-              type="submit"
-              variant="contained"
-              color="default"
-              fullWidth
-              disabled={!formData.termsAccepted}
-            >
-              Đăng ký
-            </Button>
-          </Grid>
-          <Grid item xs={12}>
-            <Typography align="center">
-              Đã có tài khoản?{" "}
-              <Button color="default" onClick={() => navigate("/login")}>
-                Đăng nhập
-              </Button>
+          </div>
+
+          {/* Password */}
+          <div>
+            <label htmlFor="password">
+              <Typography
+                variant="small"
+                className="mb-2 block font-medium text-gray-900"
+              >
+                Mật khẩu <span className="text-red-500">*</span>
+              </Typography>
+            </label>
+            <div className="relative">
+              <Input
+                id="password"
+                size="lg"
+                name="password"
+                placeholder="********"
+                value={formData.password}
+                onChange={handleChange}
+                error={!!errors.password}
+                className="!border-t-blue-gray-200 focus:!border-t-gray-900 pr-10"
+                type={passwordShown ? "text" : "password"}
+                labelProps={{ className: "hidden" }}
+                containerProps={{ className: "min-w-0" }}
+              />
+              <button
+                type="button"
+                onClick={togglePasswordVisibility}
+                className="!absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
+              >
+                {passwordShown ? (
+                  <EyeIcon className="h-5 w-5 text-blue-gray-500" />
+                ) : (
+                  <EyeSlashIcon className="h-5 w-5 text-blue-gray-500" />
+                )}
+              </button>
+            </div>
+            {errors.password && (
+              <Typography variant="small" color="red" className="mt-2">
+                {errors.password}
+              </Typography>
+            )}
+          </div>
+        </div>
+
+        {/* Terms Checkbox */}
+        <div className="mt-6">
+          <Checkbox
+            name="termsAccepted"
+            checked={formData.termsAccepted}
+            onChange={handleChange}
+            label={
+              <Typography variant="small" color="gray" className="flex font-normal">
+                Tôi đồng ý với điều khoản sử dụng
+              </Typography>
+            }
+            containerProps={{ className: "-ml-2.5" }}
+          />
+          {errors.termsAccepted && (
+            <Typography variant="small" color="red" className="mt-2">
+              {errors.termsAccepted}
             </Typography>
-          </Grid>
-        </Grid>
+          )}
+        </div>
+
+        {/* API Error Alert */}
+        {errors.apiError && (
+          <Alert color="red" className="mt-6">
+            {errors.apiError}
+          </Alert>
+        )}
+
+        {/* Submit Button */}
+        <Button
+          type="submit"
+          color="gray"
+          size="lg"
+          className="mt-6"
+          fullWidth
+          disabled={!formData.termsAccepted}
+        >
+          Đăng ký
+        </Button>
+
+        {/* Login Link */}
+        <Typography
+          variant="small"
+          color="gray"
+          className="!mt-4 text-center font-normal"
+        >
+          Đã có tài khoản?{" "}
+          <button
+            type="button"
+            onClick={() => navigate("/login")}
+            className="font-medium text-gray-900 hover:text-blue-500"
+          >
+            Đăng nhập
+          </button>
+        </Typography>
       </form>
-    </Container>
+    </div>
   );
 };
 

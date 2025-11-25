@@ -1,20 +1,12 @@
-import React, { Component } from "react";
-import { Container, Paper, Typography } from "@mui/material";
+import React from "react";
 import OtpFogotPasswordForm from "@components/auth-form/OtpFogotPasswordForm";
 
-class OtpForgotPassword extends Component {
-  render() {
-    return (
-      <Container maxWidth="sm">
-        <Paper className="paper-container" elevation={3} >
-          <Typography className="page-title" variant="h4" >
-            Xác thực OTP
-          </Typography>
-          <OtpFogotPasswordForm />
-        </Paper>
-      </Container>
-    );
-  }
-}
+const OtpForgotPassword = () => {
+  return (
+    <section className="grid text-center h-screen items-center p-8 bg-gray-50">
+      <OtpFogotPasswordForm />
+    </section>
+  );
+};
 
 export default OtpForgotPassword;

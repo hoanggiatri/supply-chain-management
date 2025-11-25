@@ -1,20 +1,12 @@
-import React, { Component } from "react";
-import { Container, Paper, Typography } from "@mui/material";
+import React from "react";
 import RegisterForm from "@components/auth-form/RegisterForm";
 
-class Register extends Component {
-  render() {
-    return (
-      <Container maxWidth="sm">
-        <Paper className="paper-container" elevation={3} >
-          <Typography className="page-title" variant="h4" >
-            ĐĂNG KÝ
-          </Typography>
-          <RegisterForm />
-        </Paper>
-      </Container>
-    );
-  }
-}
+const Register = () => {
+  return (
+    <section className="grid text-center min-h-screen items-center p-8 bg-gray-50">
+      <RegisterForm />
+    </section>
+  );
+};
 
 export default Register;

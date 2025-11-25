@@ -1,20 +1,12 @@
-import React, { Component } from "react";
-import { Container, Paper, Typography } from "@mui/material";
+import React from "react";
 import ResetPasswordForm from "@components/auth-form/ResetPasswordForm";
 
-class ResetPassword extends Component {
-  render() {
-    return (
-      <Container maxWidth="sm">
-        <Paper className="paper-container" elevation={3} >
-          <Typography className="page-title" variant="h4" >
-            Đặt lại mật khẩu
-          </Typography>
-          <ResetPasswordForm />
-        </Paper>
-      </Container>
-    );
-  }
-}
+const ResetPassword = () => {
+  return (
+    <section className="grid text-center h-screen items-center p-8 bg-gray-50">
+      <ResetPasswordForm />
+    </section>
+  );
+};
 
 export default ResetPassword;

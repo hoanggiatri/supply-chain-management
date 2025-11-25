@@ -1,20 +1,12 @@
-import React, { Component } from "react";
-import { Container, Paper, Typography } from "@mui/material";
+import React from "react";
 import ForgotPasswordForm from "@components/auth-form/ForgotPasswordForm";
 
-class ForgotPassword extends Component {
-  render() {
-    return (
-      <Container maxWidth="sm">
-        <Paper className="paper-container" elevation={3} >
-          <Typography className="page-title" variant="h4" >
-            Lấy lại mật khẩu
-          </Typography>
-          <ForgotPasswordForm />
-        </Paper>
-      </Container>
-    );
-  }
-}
+const ForgotPassword = () => {
+  return (
+    <section className="grid text-center h-screen items-center p-8 bg-gray-50">
+      <ForgotPasswordForm />
+    </section>
+  );
+};
 
 export default ForgotPassword;
