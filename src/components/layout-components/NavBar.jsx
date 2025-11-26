@@ -1,14 +1,14 @@
+import logo from "@assets/img/logo-navbar.png";
+import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import {
+  Button,
+  Collapse,
+  IconButton,
   Navbar,
   Typography,
-  Button,
-  IconButton,
-  Collapse,
 } from "@material-tailwind/react";
-import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import logo from "@assets/img/logo-navbar.png";
-import { useState, useEffect } from "react";
 
 const NavBar = () => {
   const [openNav, setOpenNav] = useState(false);
@@ -56,7 +56,7 @@ const NavBar = () => {
   );
 
   return (
-    <Navbar className="sticky top-0 z-10 h-max max-w-full rounded-none px-4 py-2 lg:px-8 lg:py-3 bg-[#05518B] border-none">
+    <Navbar className="fixed top-0 z-10 h-max max-w-full rounded-none px-4 py-2 lg:px-8 lg:py-3 bg-[#05518B] border-none">
       <div className="flex items-center justify-between text-white">
         <Link to="/" className="flex items-center">
           <img src={logo} alt="Logo" className="h-10 mr-2" />

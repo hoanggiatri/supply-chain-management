@@ -1,17 +1,20 @@
-import React, { useState } from "react";
-import {
-  Typography,
-  Input,
-  Button,
-  Alert,
-  Checkbox,
-  Select,
-  Option,
-} from "@material-tailwind/react";
-import { EyeSlashIcon, EyeIcon } from "@heroicons/react/24/solid";
 import { registerCompany } from "@/services/general/AuthService";
-import { useNavigate } from "react-router-dom";
 import toastrService from "@/services/toastrService";
+import { getButtonProps } from "@/utils/buttonStyles";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
+import {
+  Alert,
+  Button,
+  Card,
+  CardBody,
+  Checkbox,
+  Input,
+  Option,
+  Select,
+  Typography,
+} from "@material-tailwind/react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const RegisterForm = () => {
   const navigate = useNavigate();
@@ -108,39 +111,34 @@ const RegisterForm = () => {
   };
 
   return (
-    <div className="mx-auto max-w-4xl px-4">
-      <Typography variant="h3" color="blue-gray" className="mb-2 text-center">
-        Đăng Ký
-      </Typography>
-      <Typography className="mb-8 text-gray-600 font-normal text-center">
-        Đăng ký tài khoản để sử dụng hệ thống SCMS
-      </Typography>
+    <Card className="w-full max-w-4xl shadow-2xl">
+      <CardBody className="p-8">
+        <div className="text-center mb-6">
+          <Typography variant="h3" color="blue-gray" className="mb-2">
+            Đăng Ký
+          </Typography>
+          <Typography className="text-gray-600 font-normal">
+            Đăng ký tài khoản để sử dụng hệ thống SCMS
+          </Typography>
+        </div>
 
-      <form onSubmit={handleSubmit} className="text-left">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <form onSubmit={handleSubmit} className="text-left">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Company Name */}
           <div>
-            <label htmlFor="companyName">
-              <Typography
-                variant="small"
-                className="mb-2 block font-medium text-gray-900"
-              >
-                Tên công ty <span className="text-red-500">*</span>
-              </Typography>
-            </label>
             <Input
               id="companyName"
               size="lg"
+              color="blue"
               name="companyName"
-              placeholder="Nhập tên công ty"
+              label="Tên công ty"
               value={formData.companyName}
               onChange={handleChange}
               error={!!errors.companyName}
-              className="!border-t-blue-gray-200 focus:!border-t-gray-900"
-              labelProps={{ className: "hidden" }}
+              className="w-full placeholder:opacity-100"
             />
             {errors.companyName && (
-              <Typography variant="small" color="red" className="mt-2">
+              <Typography variant="small" color="red" className="mt-1">
                 {errors.companyName}
               </Typography>
             )}
@@ -148,27 +146,19 @@ const RegisterForm = () => {
 
           {/* Tax Code */}
           <div>
-            <label htmlFor="taxCode">
-              <Typography
-                variant="small"
-                className="mb-2 block font-medium text-gray-900"
-              >
-                Mã số thuế <span className="text-red-500">*</span>
-              </Typography>
-            </label>
             <Input
               id="taxCode"
               size="lg"
+              color="blue"
               name="taxCode"
-              placeholder="Nhập mã số thuế"
+              label="Mã số thuế"
               value={formData.taxCode}
               onChange={handleChange}
               error={!!errors.taxCode}
-              className="!border-t-blue-gray-200 focus:!border-t-gray-900"
-              labelProps={{ className: "hidden" }}
+              className="w-full placeholder:opacity-100"
             />
             {errors.taxCode && (
-              <Typography variant="small" color="red" className="mt-2">
+              <Typography variant="small" color="red" className="mt-1">
                 {errors.taxCode}
               </Typography>
             )}
@@ -176,27 +166,19 @@ const RegisterForm = () => {
 
           {/* Address */}
           <div>
-            <label htmlFor="address">
-              <Typography
-                variant="small"
-                className="mb-2 block font-medium text-gray-900"
-              >
-                Địa chỉ <span className="text-red-500">*</span>
-              </Typography>
-            </label>
             <Input
               id="address"
               size="lg"
+              color="blue"
               name="address"
-              placeholder="Nhập địa chỉ"
+              label="Địa chỉ"
               value={formData.address}
               onChange={handleChange}
               error={!!errors.address}
-              className="!border-t-blue-gray-200 focus:!border-t-gray-900"
-              labelProps={{ className: "hidden" }}
+              className="w-full placeholder:opacity-100"
             />
             {errors.address && (
-              <Typography variant="small" color="red" className="mt-2">
+              <Typography variant="small" color="red" className="mt-1">
                 {errors.address}
               </Typography>
             )}
@@ -204,22 +186,15 @@ const RegisterForm = () => {
 
           {/* Company Type */}
           <div>
-            <label htmlFor="companyType">
-              <Typography
-                variant="small"
-                className="mb-2 block font-medium text-gray-900"
-              >
-                Loại hình công ty <span className="text-red-500">*</span>
-              </Typography>
-            </label>
             <Select
               id="companyType"
               size="lg"
+              color="blue"
+              label="Loại hình công ty"
               value={formData.companyType}
               onChange={handleSelectChange}
               error={!!errors.companyType}
-              className="!border-t-blue-gray-200 focus:!border-t-gray-900"
-              labelProps={{ className: "hidden" }}
+              className="w-full"
             >
               <Option value="Doanh nghiệp sản xuất">
                 Doanh nghiệp sản xuất
@@ -229,7 +204,7 @@ const RegisterForm = () => {
               </Option>
             </Select>
             {errors.companyType && (
-              <Typography variant="small" color="red" className="mt-2">
+              <Typography variant="small" color="red" className="mt-1">
                 {errors.companyType}
               </Typography>
             )}
@@ -237,27 +212,19 @@ const RegisterForm = () => {
 
           {/* Main Industry */}
           <div>
-            <label htmlFor="mainIndustry">
-              <Typography
-                variant="small"
-                className="mb-2 block font-medium text-gray-900"
-              >
-                Ngành nghề chính <span className="text-red-500">*</span>
-              </Typography>
-            </label>
             <Input
               id="mainIndustry"
               size="lg"
+              color="blue"
               name="mainIndustry"
-              placeholder="Nhập ngành nghề chính"
+              label="Ngành nghề chính"
               value={formData.mainIndustry}
               onChange={handleChange}
               error={!!errors.mainIndustry}
-              className="!border-t-blue-gray-200 focus:!border-t-gray-900"
-              labelProps={{ className: "hidden" }}
+              className="w-full placeholder:opacity-100"
             />
             {errors.mainIndustry && (
-              <Typography variant="small" color="red" className="mt-2">
+              <Typography variant="small" color="red" className="mt-1">
                 {errors.mainIndustry}
               </Typography>
             )}
@@ -265,27 +232,19 @@ const RegisterForm = () => {
 
           {/* Representative Name */}
           <div>
-            <label htmlFor="representativeName">
-              <Typography
-                variant="small"
-                className="mb-2 block font-medium text-gray-900"
-              >
-                Người đại diện <span className="text-red-500">*</span>
-              </Typography>
-            </label>
             <Input
               id="representativeName"
               size="lg"
+              color="blue"
               name="representativeName"
-              placeholder="Nhập tên người đại diện"
+              label="Người đại diện"
               value={formData.representativeName}
               onChange={handleChange}
               error={!!errors.representativeName}
-              className="!border-t-blue-gray-200 focus:!border-t-gray-900"
-              labelProps={{ className: "hidden" }}
+              className="w-full placeholder:opacity-100"
             />
             {errors.representativeName && (
-              <Typography variant="small" color="red" className="mt-2">
+              <Typography variant="small" color="red" className="mt-1">
                 {errors.representativeName}
               </Typography>
             )}
@@ -293,27 +252,19 @@ const RegisterForm = () => {
 
           {/* Phone Number */}
           <div>
-            <label htmlFor="phoneNumber">
-              <Typography
-                variant="small"
-                className="mb-2 block font-medium text-gray-900"
-              >
-                Số điện thoại <span className="text-red-500">*</span>
-              </Typography>
-            </label>
             <Input
               id="phoneNumber"
               size="lg"
+              color="blue"
               name="phoneNumber"
-              placeholder="Nhập số điện thoại"
+              label="Số điện thoại"
               value={formData.phoneNumber}
               onChange={handleChange}
               error={!!errors.phoneNumber}
-              className="!border-t-blue-gray-200 focus:!border-t-gray-900"
-              labelProps={{ className: "hidden" }}
+              className="w-full placeholder:opacity-100"
             />
             {errors.phoneNumber && (
-              <Typography variant="small" color="red" className="mt-2">
+              <Typography variant="small" color="red" className="mt-1">
                 {errors.phoneNumber}
               </Typography>
             )}
@@ -321,28 +272,20 @@ const RegisterForm = () => {
 
           {/* Email */}
           <div>
-            <label htmlFor="email">
-              <Typography
-                variant="small"
-                className="mb-2 block font-medium text-gray-900"
-              >
-                Email <span className="text-red-500">*</span>
-              </Typography>
-            </label>
             <Input
               id="email"
               size="lg"
+              color="blue"
               type="email"
               name="email"
-              placeholder="name@mail.com"
+              label="Email"
               value={formData.email}
               onChange={handleChange}
               error={!!errors.email}
-              className="!border-t-blue-gray-200 focus:!border-t-gray-900"
-              labelProps={{ className: "hidden" }}
+              className="w-full placeholder:opacity-100"
             />
             {errors.email && (
-              <Typography variant="small" color="red" className="mt-2">
+              <Typography variant="small" color="red" className="mt-1">
                 {errors.email}
               </Typography>
             )}
@@ -350,27 +293,19 @@ const RegisterForm = () => {
 
           {/* Employee Code */}
           <div>
-            <label htmlFor="employeeCode">
-              <Typography
-                variant="small"
-                className="mb-2 block font-medium text-gray-900"
-              >
-                Mã nhân viên <span className="text-red-500">*</span>
-              </Typography>
-            </label>
             <Input
               id="employeeCode"
               size="lg"
+              color="blue"
               name="employeeCode"
-              placeholder="Nhập mã nhân viên"
+              label="Mã nhân viên"
               value={formData.employeeCode}
               onChange={handleChange}
               error={!!errors.employeeCode}
-              className="!border-t-blue-gray-200 focus:!border-t-gray-900"
-              labelProps={{ className: "hidden" }}
+              className="w-full placeholder:opacity-100"
             />
             {errors.employeeCode && (
-              <Typography variant="small" color="red" className="mt-2">
+              <Typography variant="small" color="red" className="mt-1">
                 {errors.employeeCode}
               </Typography>
             )}
@@ -378,32 +313,24 @@ const RegisterForm = () => {
 
           {/* Password */}
           <div>
-            <label htmlFor="password">
-              <Typography
-                variant="small"
-                className="mb-2 block font-medium text-gray-900"
-              >
-                Mật khẩu <span className="text-red-500">*</span>
-              </Typography>
-            </label>
             <div className="relative">
               <Input
                 id="password"
                 size="lg"
+                color="blue"
                 name="password"
-                placeholder="********"
+                label="Mật khẩu"
                 value={formData.password}
                 onChange={handleChange}
                 error={!!errors.password}
-                className="!border-t-blue-gray-200 focus:!border-t-gray-900 pr-10"
+                className="w-full placeholder:opacity-100 pr-10"
                 type={passwordShown ? "text" : "password"}
-                labelProps={{ className: "hidden" }}
                 containerProps={{ className: "min-w-0" }}
               />
               <button
                 type="button"
                 onClick={togglePasswordVisibility}
-                className="!absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
+                className="!absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer z-10"
               >
                 {passwordShown ? (
                   <EyeIcon className="h-5 w-5 text-blue-gray-500" />
@@ -413,7 +340,7 @@ const RegisterForm = () => {
               </button>
             </div>
             {errors.password && (
-              <Typography variant="small" color="red" className="mt-2">
+              <Typography variant="small" color="red" className="mt-1">
                 {errors.password}
               </Typography>
             )}
@@ -450,11 +377,11 @@ const RegisterForm = () => {
         {/* Submit Button */}
         <Button
           type="submit"
-          color="gray"
           size="lg"
           className="mt-6"
           fullWidth
           disabled={!formData.termsAccepted}
+          {...getButtonProps("primary")}
         >
           Đăng ký
         </Button>
@@ -463,19 +390,20 @@ const RegisterForm = () => {
         <Typography
           variant="small"
           color="gray"
-          className="!mt-4 text-center font-normal"
+          className="mt-3 text-center font-normal"
         >
           Đã có tài khoản?{" "}
           <button
             type="button"
             onClick={() => navigate("/login")}
-            className="font-medium text-gray-900 hover:text-blue-500"
+            className="font-medium text-blue-600 hover:text-blue-700 transition-colors"
           >
             Đăng nhập
           </button>
         </Typography>
-      </form>
-    </div>
+        </form>
+      </CardBody>
+    </Card>
   );
 };
 

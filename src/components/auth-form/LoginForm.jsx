@@ -2,8 +2,9 @@ import { login } from "@/services/general/AuthService";
 import { getCompanyById } from "@/services/general/CompanyService";
 import { getDepartmentById } from "@/services/general/DepartmentService";
 import { getEmployeeById } from "@/services/general/EmployeeService";
+import { getButtonProps } from "@/utils/buttonStyles";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
-import { Alert, Button, Input, Typography } from "@material-tailwind/react";
+import { Alert, Button, Card, CardBody, Input, Typography } from "@material-tailwind/react";
 import { setupTokenExpirationCheck } from "@utils/tokenUtils";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -77,149 +78,124 @@ const LoginForm = () => {
     }
   };
 
-  const inputClasses = (hasError) =>
-    [
-      "w-full",
-      "placeholder:opacity-100",
-      "!border-t-blue-gray-200",
-      "focus:!border-t-gray-900",
-      hasError ? "!border-t-red-500 focus:!border-t-red-500" : "",
-    ]
-      .filter(Boolean)
-      .join(" ");
-
   return (
-    <div className="mx-auto max-w-[24rem]">
-      <Typography variant="h3" color="blue-gray" className="mb-2">
-        Đăng Nhập
-      </Typography>
-      <Typography className="mb-8 text-gray-600 font-normal text-[18px]">
-        Đăng nhập để sử dụng hệ thống SCMS
-      </Typography>
-
-      <form onSubmit={handleSubmit} className="text-left">
-        {/* Email Field */}
-        <div className="mb-6">
-          <label htmlFor="email">
-            <Typography
-              variant="small"
-              className="mb-2 block font-medium text-gray-900"
-            >
-              Email
-            </Typography>
-          </label>
-          <Input
-            id="email"
-            color="gray"
-            size="lg"
-            type="email"
-            name="email"
-            placeholder="name@mail.com"
-            value={formData.email}
-            onChange={handleChange}
-            error={!!errors.email}
-            className={inputClasses(Boolean(errors.email))}
-            labelProps={{
-              className: "hidden",
-            }}
-          />
-          {errors.email && (
-            <Typography variant="small" color="red" className="mt-2">
-              {errors.email}
-            </Typography>
-          )}
-        </div>
-
-        {/* Password Field */}
-        <div className="mb-6">
-          <label htmlFor="password">
-            <Typography
-              variant="small"
-              className="mb-2 block font-medium text-gray-900"
-            >
-              Mật khẩu
-            </Typography>
-          </label>
-          <div className="relative">
-            <Input
-              id="password"
-              size="lg"
-              name="password"
-              placeholder="********"
-              value={formData.password}
-              onChange={handleChange}
-              error={!!errors.password}
-              labelProps={{
-                className: "hidden",
-              }}
-              className={`${inputClasses(Boolean(errors.password))} pr-10`}
-              type={passwordShown ? "text" : "password"}
-              containerProps={{
-                className: "min-w-0",
-              }}
-            />
-            <button
-              type="button"
-              onClick={togglePasswordVisibility}
-              className="!absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
-            >
-              {passwordShown ? (
-                <EyeIcon className="h-5 w-5 text-blue-gray-500" />
-              ) : (
-                <EyeSlashIcon className="h-5 w-5 text-blue-gray-500" />
-              )}
-            </button>
-          </div>
-          {errors.password && (
-            <Typography variant="small" color="red" className="mt-2">
-              {errors.password}
-            </Typography>
-          )}
-        </div>
-
-        {/* API Error Alert */}
-        {errors.apiError && (
-          <Alert color="red" className="mb-6">
-            {errors.apiError}
-          </Alert>
-        )}
-
-        {/* Login Button */}
-        <Button type="submit" color="gray" size="lg" className="mt-6" fullWidth>
-          Đăng nhập
-        </Button>
-
-        {/* Forgot Password Link */}
-        <div className="!mt-4 flex justify-end">
-          <Typography
-            as="button"
-            type="button"
-            onClick={() => navigate("/forgot-password")}
-            color="blue-gray"
-            variant="small"
-            className="font-medium cursor-pointer hover:text-blue-500"
-          >
-            Quên mật khẩu?
+    <Card className="w-full max-w-[28rem] shadow-2xl">
+      <CardBody className="p-8">
+        <div className="text-center mb-6">
+          <Typography variant="h3" color="blue-gray" className="mb-2">
+            Đăng Nhập
+          </Typography>
+          <Typography className="text-gray-600 font-normal">
+            Đăng nhập để sử dụng hệ thống SCMS
           </Typography>
         </div>
 
-        {/* Register Link */}
-        <Typography
-          variant="small"
-          color="gray"
-          className="!mt-4 text-center font-normal"
-        >
-          Chưa có tài khoản?{" "}
-          <button
-            type="button"
-            onClick={() => navigate("/register")}
-            className="font-medium text-gray-900 hover:text-blue-500"
+        <form onSubmit={handleSubmit} className="text-left">
+          {/* Email Field */}
+          <div className="mb-3">
+            <Input
+              id="email"
+              color="blue"
+              size="lg"
+              type="email"
+              name="email"
+              label="Email"
+              value={formData.email}
+              onChange={handleChange}
+              error={!!errors.email}
+              className="w-full placeholder:opacity-100"
+            />
+            {errors.email && (
+              <Typography variant="small" color="red" className="mt-1">
+                {errors.email}
+              </Typography>
+            )}
+          </div>
+
+          {/* Password Field */}
+          <div className="mb-3">
+            <div className="relative">
+              <Input
+                id="password"
+                color="blue"
+                size="lg"
+                name="password"
+                label="Mật khẩu"
+                value={formData.password}
+                onChange={handleChange}
+                error={!!errors.password}
+                className="w-full placeholder:opacity-100 pr-10"
+                type={passwordShown ? "text" : "password"}
+                containerProps={{
+                  className: "min-w-0",
+                }}
+              />
+              <button
+                type="button"
+                onClick={togglePasswordVisibility}
+                className="!absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer z-10"
+              >
+                {passwordShown ? (
+                  <EyeIcon className="h-5 w-5 text-blue-gray-500" />
+                ) : (
+                  <EyeSlashIcon className="h-5 w-5 text-blue-gray-500" />
+                )}
+              </button>
+            </div>
+            {errors.password && (
+              <Typography variant="small" color="red" className="mt-1">
+                {errors.password}
+              </Typography>
+            )}
+          </div>
+
+          {/* API Error Alert */}
+          {errors.apiError && (
+            <Alert color="red" className="mb-4">
+              {errors.apiError}
+            </Alert>
+          )}
+
+          {/* Login Button */}
+          <Button
+            type="submit"
+            size="lg"
+            className="mt-4"
+            fullWidth
+            {...getButtonProps("primary")}
           >
-            Đăng ký ngay
-          </button>
-        </Typography>
-      </form>
-    </div>
+            Đăng nhập
+          </Button>
+
+          {/* Forgot Password Link */}
+          <div className="mt-3 flex justify-end">
+            <button
+              type="button"
+              onClick={() => navigate("/forgot-password")}
+              className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
+            >
+              Quên mật khẩu?
+            </button>
+          </div>
+
+          {/* Register Link */}
+          <Typography
+            variant="small"
+            color="gray"
+            className="mt-3 text-center font-normal"
+          >
+            Chưa có tài khoản?{" "}
+            <button
+              type="button"
+              onClick={() => navigate("/register")}
+              className="font-medium text-blue-600 hover:text-blue-700 transition-colors"
+            >
+              Đăng ký ngay
+            </button>
+          </Typography>
+        </form>
+      </CardBody>
+    </Card>
   );
 };
 

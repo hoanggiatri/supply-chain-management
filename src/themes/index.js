@@ -2,14 +2,13 @@ import PropTypes from 'prop-types';
 import { useMemo } from 'react';
 
 // material-ui
-import { CssBaseline, StyledEngineProvider } from '@mui/material';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { StyledEngineProvider } from '@mui/material';
+// import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 // project import
 import Palette from './palette';
-import Typography from './typography';
 import CustomShadows from './shadows';
-import componentsOverride from './overrides';
+import Typography from './typography';
 
 export default function ThemeCustomization({ children }) {
   const theme = Palette('light', 'default');
@@ -44,15 +43,16 @@ export default function ThemeCustomization({ children }) {
     [theme, themeTypography, themeCustomShadows]
   );
 
-  const themes = createTheme(themeOptions);
-  themes.components = componentsOverride(themes);
+  // const themes = createTheme(themeOptions);
+  // themes.components = componentsOverride(themes);
 
   return (
-    <StyledEngineProvider injectFirst>
-      <ThemeProvider theme={themes}>
-        <CssBaseline />
-        {children}
-      </ThemeProvider>
+    <StyledEngineProvider injectFirst={false}>
+      {/* <ThemeProvider theme={themes}> */}
+      {/* CssBaseline commented out to prevent MUI from overriding Tailwind */}
+      {/* <CssBaseline /> */}
+      {children}
+      {/* </ThemeProvider> */}
     </StyledEngineProvider>
   );
 }

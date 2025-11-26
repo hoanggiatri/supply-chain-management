@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { Typography, Input, Button, Alert } from "@material-tailwind/react";
+import { Typography, Input, Button, Alert, Card, CardBody } from "@material-tailwind/react";
 import { useNavigate } from "react-router-dom";
 import { sendVerifyOtp } from "@/services/general/AuthService";
+import { getButtonProps } from "@/utils/buttonStyles";
 import toastrService from "@/services/toastrService";
 
 const ForgotPasswordForm = () => {
@@ -50,74 +51,69 @@ const ForgotPasswordForm = () => {
   };
 
   return (
-    <div className="mx-auto max-w-[24rem]">
-      <Typography variant="h3" color="blue-gray" className="mb-2">
-        Quên Mật Khẩu
-      </Typography>
-      <Typography className="mb-8 text-gray-600 font-normal text-[18px]">
-        Nhập email của bạn để nhận mã xác thực
-      </Typography>
-
-      <form onSubmit={handleSubmit} className="text-left">
-        {/* Email Field */}
-        <div className="mb-6">
-          <label htmlFor="email">
-            <Typography
-              variant="small"
-              className="mb-2 block font-medium text-gray-900"
-            >
-              Email
-            </Typography>
-          </label>
-          <Input
-            id="email"
-            color="gray"
-            size="lg"
-            type="email"
-            placeholder="name@mail.com"
-            value={email}
-            onChange={handleChange}
-            error={!!errors.email}
-            className="w-full placeholder:opacity-100 !border-t-blue-gray-200 focus:!border-t-gray-900"
-            labelProps={{
-              className: "hidden",
-            }}
-          />
-          {errors.email && (
-            <Typography variant="small" color="red" className="mt-2">
-              {errors.email}
-            </Typography>
-          )}
+    <Card className="w-full max-w-[28rem] shadow-2xl">
+      <CardBody className="p-8">
+        <div className="text-center mb-6">
+          <Typography variant="h3" color="blue-gray" className="mb-2">
+            Quên Mật Khẩu
+          </Typography>
+          <Typography className="text-gray-600 font-normal">
+            Nhập email của bạn để nhận mã xác thực
+          </Typography>
         </div>
 
-        {/* API Error Alert */}
-        {errors.apiError && (
-          <Alert color="red" className="mb-6">
-            {errors.apiError}
-          </Alert>
-        )}
+        <form onSubmit={handleSubmit} className="text-left">
+          {/* Email Field */}
+          <div className="mb-3">
+            <Input
+              id="email"
+              color="blue"
+              size="lg"
+              type="email"
+              label="Email"
+              value={email}
+              onChange={handleChange}
+              error={!!errors.email}
+              className="w-full placeholder:opacity-100"
+            />
+            {errors.email && (
+              <Typography variant="small" color="red" className="mt-1">
+                {errors.email}
+              </Typography>
+            )}
+          </div>
 
-        {/* Submit Button */}
-        <Button type="submit" color="gray" size="lg" className="mt-6" fullWidth>
-          Gửi mã OTP
-        </Button>
+          {/* API Error Alert */}
+          {errors.apiError && (
+            <Alert color="red" className="mb-4">
+              {errors.apiError}
+            </Alert>
+          )}
 
-        {/* Back to Login Link */}
-        <Typography
-          variant="small"
-          color="gray"
-          className="!mt-4 text-center font-normal"
-        >
-          <button
-            type="button"
-            onClick={() => navigate("/login")}
-            className="font-medium text-gray-900 hover:text-blue-500"
+          {/* Submit Button */}
+          <Button
+            type="submit"
+            size="lg"
+            className="mt-4"
+            fullWidth
+            {...getButtonProps("primary")}
           >
-            Quay lại đăng nhập
-          </button>
-        </Typography>
-      </form>
-    </div>
+            Gửi mã OTP
+          </Button>
+
+          {/* Back to Login Link */}
+          <div className="mt-3 text-center">
+            <button
+              type="button"
+              onClick={() => navigate("/login")}
+              className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
+            >
+              ← Quay lại đăng nhập
+            </button>
+          </div>
+        </form>
+      </CardBody>
+    </Card>
   );
 };
 
