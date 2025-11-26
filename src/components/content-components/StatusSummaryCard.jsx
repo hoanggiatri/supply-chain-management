@@ -1,5 +1,5 @@
 import React from "react";
-import { Grid, Button, Typography, Box } from "@mui/material";
+import { Button, Typography } from "@material-tailwind/react";
 
 const StatusSummaryCard = ({
   data = [],
@@ -18,62 +18,78 @@ const StatusSummaryCard = ({
     return count;
   }, {});
 
+  // Map hex colors to Tailwind CSS classes
+  const getColorClasses = (color, isSelected) => {
+    const colorMap = {
+      "#000": {
+        bg: "bg-gray-900",
+        border: "border-gray-900",
+        text: "text-gray-900",
+        hover: "hover:bg-gray-900",
+      },
+      "#ff9800": {
+        bg: "bg-orange-500",
+        border: "border-orange-500",
+        text: "text-orange-500",
+        hover: "hover:bg-orange-500",
+      },
+      "#f44336": {
+        bg: "bg-red-500",
+        border: "border-red-500",
+        text: "text-red-500",
+        hover: "hover:bg-red-500",
+      },
+      "#2196f3": {
+        bg: "bg-blue-500",
+        border: "border-blue-500",
+        text: "text-blue-500",
+        hover: "hover:bg-blue-500",
+      },
+      "#4caf50": {
+        bg: "bg-green-500",
+        border: "border-green-500",
+        text: "text-green-500",
+        hover: "hover:bg-green-500",
+      },
+    };
+
+    const classes = colorMap[color] || {
+      bg: "bg-gray-500",
+      border: "border-gray-500",
+      text: "text-gray-500",
+      hover: "hover:bg-gray-500",
+    };
+
+    if (isSelected) {
+      return `bg-white ${classes.border} ${classes.text} border-2 hover:bg-white`;
+    }
+    return `${classes.bg} ${classes.border} text-white border-2 ${classes.hover} hover:shadow-lg`;
+  };
+
   return (
-    <Grid container spacing={2} mb={3}>
+    <div className="flex flex-wrap gap-2 mb-6">
       {statusLabels.map((label) => {
         const isSelected = label === selectedStatus;
+        const colorClasses = getColorClasses(statusColors[label], isSelected);
 
         return (
-          <Grid item key={label}>
-            <Button
-              variant={isSelected ? "outlined" : "contained"}
-              onClick={() => onSelectStatus?.(label)}
-              sx={{
-                height: 50,
-                justifyContent: "space-between",
-                borderColor: statusColors[label],
-                color: isSelected ? statusColors[label] : "#fff",
-                backgroundColor: isSelected ? "#fff" : statusColors[label],
-                borderWidth: "2px",
-                borderStyle: "solid",
-                display: "flex",
-                alignItems: "center",
-                transition: "all 0.2s ease",
-                ...(isSelected
-                  ? {
-                      "&:hover": {
-                        backgroundColor: "#fff",
-                        borderWidth: "2px",
-                        borderColor: statusColors[label],
-                        color: statusColors[label],
-                      },
-                    }
-                  : {
-                      "&:hover": {
-                        backgroundColor: statusColors[label],
-                        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
-                      },
-                    }),
-              }}
-            >
-              <Box
-                display="flex"
-                justifyContent="space-between"
-                width="100%"
-                gap={1}
-              >
-                <Typography variant="h6" fontWeight="bold">
-                  {label}
-                </Typography>
-                <Typography variant="h6" fontWeight="bold">
-                  {countByStatus[label] || 0}
-                </Typography>
-              </Box>
-            </Button>
-          </Grid>
+          <Button
+            key={label}
+            onClick={() => onSelectStatus?.(label)}
+            className={`h-12 px-4 transition-all duration-200 ${colorClasses}`}
+          >
+            <div className="flex justify-between items-center w-full gap-3">
+              <Typography variant="h6" className="font-bold">
+                {label}
+              </Typography>
+              <Typography variant="h6" className="font-bold">
+                {countByStatus[label] || 0}
+              </Typography>
+            </div>
+          </Button>
         );
       })}
-    </Grid>
+    </div>
   );
 };
 

@@ -1,25 +1,16 @@
-import { Inbox, Search } from "@mui/icons-material";
-import {
-  Box,
-  FormControl,
-  InputAdornment,
-  InputLabel,
-  MenuItem,
-  Pagination,
-  Paper,
-  Select,
-  Skeleton,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TableSortLabel,
-  TextField,
-  Typography,
-} from "@mui/material";
 import React from "react";
+import {
+  Typography,
+  Input,
+  Button,
+  Select,
+  Option,
+  Chip,
+  Card,
+  CardBody,
+} from "@material-tailwind/react";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { InboxIcon } from "@heroicons/react/24/solid";
 
 const DataTable = ({
   rows,
@@ -37,6 +28,8 @@ const DataTable = ({
   height, // Optional: custom height (e.g., "500px", "calc(100vh - 200px)")
   emptyMessage = "Không có dữ liệu",
   loading = false, // Loading state
+  statusColumn = "status", // Column ID for status (will render as Chip)
+  statusColors = {}, // Optional: custom colors for status values
 }) => {
   // Default height if not provided
   const tableHeight = height || "calc(100vh - 350px)";
@@ -91,244 +84,287 @@ const DataTable = ({
     return `${page}-${index}`;
   };
 
+  // Get status chip color
+  const getStatusColor = (statusValue) => {
+    if (statusColors[statusValue]) {
+      return statusColors[statusValue];
+    }
+    // Default colors based on common status values
+    const statusLower = String(statusValue).toLowerCase();
+    if (
+      statusLower.includes("hoàn thành") ||
+      statusLower.includes("completed") ||
+      statusLower.includes("đã") ||
+      statusLower.includes("success")
+    ) {
+      return "green";
+    }
+    if (
+      statusLower.includes("đang") ||
+      statusLower.includes("processing") ||
+      statusLower.includes("in progress")
+    ) {
+      return "blue";
+    }
+    if (
+      statusLower.includes("chờ") ||
+      statusLower.includes("pending") ||
+      statusLower.includes("waiting")
+    ) {
+      return "amber";
+    }
+    if (
+      statusLower.includes("hủy") ||
+      statusLower.includes("cancel") ||
+      statusLower.includes("failed")
+    ) {
+      return "red";
+    }
+    return "gray";
+  };
+
+  // Render cell content - check if it's status column and render as Chip
+  const renderCellContent = (row, column) => {
+    const value = row[column.id];
+
+    // If this is the status column, render as Chip
+    if (column.id === statusColumn && value) {
+      const chipColor = getStatusColor(value);
+      return (
+        <Chip
+          value={value}
+          color={chipColor}
+          size="sm"
+          className="font-medium"
+        />
+      );
+    }
+
+    return value;
+  };
+
+  // Helper function to render status cell as Chip (for use in renderRow)
+  const renderStatusCell = (statusValue) => {
+    if (!statusValue) return null;
+    const chipColor = getStatusColor(statusValue);
+    return (
+      <Chip
+        value={statusValue}
+        color={chipColor}
+        size="sm"
+        className="font-medium"
+      />
+    );
+  };
+
   // Loading Skeleton Component
   const LoadingSkeleton = () => (
-    <TableBody>
-      {[...Array(rowsPerPage)].map((_, index) => (
-        <TableRow key={`skeleton-${index}`}>
+    <tbody>
+      {[...new Array(rowsPerPage)].map((_, index) => (
+        <tr key={`skeleton-${index}`} className="border-b border-blue-gray-100">
           {normalizedColumns.map((column) => (
-            <TableCell
-              key={column.id}
-              sx={{
-                px: 2,
-                py: 2,
-              }}
-            >
-              <Skeleton animation="wave" />
-            </TableCell>
+            <td key={column.id} className="p-4">
+              <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+            </td>
           ))}
-        </TableRow>
+        </tr>
       ))}
-    </TableBody>
+    </tbody>
   );
 
   // Empty state component
   const EmptyState = () => (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        minHeight: 300,
-        color: "text.secondary",
-      }}
-    >
-      <Inbox sx={{ fontSize: 80, mb: 2, opacity: 0.3 }} />
-      <Typography variant="h6" color="text.secondary">
-        {emptyMessage}
-      </Typography>
-      {search && (
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-          Không tìm thấy kết quả cho "{search}"
-        </Typography>
-      )}
-    </Box>
+    <tbody>
+      <tr>
+        <td colSpan={normalizedColumns.length} className="p-8">
+          <div className="flex flex-col items-center justify-center min-h-[300px] text-gray-500">
+            <InboxIcon className="h-20 w-20 mb-4 opacity-30" />
+            <Typography variant="h6" color="gray" className="mb-2">
+              {emptyMessage}
+            </Typography>
+            {search && (
+              <Typography variant="small" color="gray">
+                Không tìm thấy kết quả cho "{search}"
+              </Typography>
+            )}
+          </div>
+        </td>
+      </tr>
+    </tbody>
   );
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
+    <div className="flex flex-col h-full">
       {/* Search and Filter Controls */}
-      <Box display="flex" justifyContent="space-between" mb={2} gap={2}>
-        <FormControl sx={{ minWidth: 120 }}>
-          <InputLabel>Số hàng</InputLabel>
+      <div className="flex justify-between items-center mb-4 gap-4">
+        <div className="w-32">
           <Select
-            value={rowsPerPage}
-            onChange={onRowsPerPageChange}
+            value={String(rowsPerPage)}
+            onChange={(val) =>
+              onRowsPerPageChange({ target: { value: Number(val) } })
+            }
             label="Số hàng"
-            size="small"
+            className="!min-w-[120px]"
           >
-            <MenuItem value={10}>10</MenuItem>
-            <MenuItem value={20}>20</MenuItem>
-            <MenuItem value={30}>30</MenuItem>
-            <MenuItem value={50}>50</MenuItem>
+            <Option value="10">10</Option>
+            <Option value="20">20</Option>
+            <Option value="30">30</Option>
+            <Option value="50">50</Option>
           </Select>
-        </FormControl>
+        </div>
 
-        <TextField
-          variant="outlined"
-          label="Tìm kiếm"
-          value={search}
-          placeholder="Nhập từ khóa tìm kiếm"
-          onChange={(e) => setSearch(e.target.value)}
-          sx={{ minWidth: 250 }}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <Search />
-              </InputAdornment>
-            ),
-          }}
-        />
-      </Box>
+        <div className="w-64">
+          <Input
+            label="Tìm kiếm"
+            value={search}
+            placeholder="Nhập từ khóa tìm kiếm"
+            onChange={(e) => setSearch(e.target.value)}
+            icon={<MagnifyingGlassIcon className="h-5 w-5" />}
+            className="!min-w-[250px]"
+          />
+        </div>
+      </div>
 
       {/* Table Container with Fixed Height & Sticky Header */}
-      <TableContainer
-        component={Paper}
-        elevation={2}
-        sx={{
-          height: tableHeight,
-          maxHeight: tableHeight,
-          overflow: "auto",
-          borderRadius: 2,
-          border: 1,
-          borderColor: "divider",
-          // Custom scrollbar styling
-          '&::-webkit-scrollbar': {
-            width: '8px',
-            height: '8px',
-          },
-          '&::-webkit-scrollbar-track': {
-            backgroundColor: 'background.default',
-          },
-          '&::-webkit-scrollbar-thumb': {
-            backgroundColor: 'divider',
-            borderRadius: '4px',
-            '&:hover': {
-              backgroundColor: 'action.hover',
-            },
-          },
-        }}
-      >
-        {loading ? (
-          <Table stickyHeader>
-            <TableHead>
-              <TableRow>
-                {normalizedColumns.map((column) => (
-                  <TableCell
-                    key={column.id}
-                    sx={{
-                      bgcolor: "background.paper",
-                      fontWeight: 600,
-                      position: "sticky",
-                      top: 0,
-                      zIndex: 10,
-                      borderBottom: 2,
-                      borderColor: "divider",
-                      px: 2,
-                      py: 2,
-                    }}
-                  >
-                    {column.label}
-                  </TableCell>
-                ))}
-              </TableRow>
-            </TableHead>
-            <LoadingSkeleton />
-          </Table>
-        ) : paginatedRows.length === 0 ? (
-          <EmptyState />
-        ) : (
-          <Table stickyHeader>
-            <TableHead>
-              <TableRow>
-                {normalizedColumns.map((column) => (
-                  <TableCell
-                    key={column.id}
-                    sortDirection={orderBy === column.id ? order : false}
-                    sx={{
-                      bgcolor: "background.paper",
-                      fontWeight: 600,
-                      position: "sticky",
-                      top: 0,
-                      zIndex: 10,
-                      borderBottom: 2,
-                      borderColor: "divider",
-                      whiteSpace: "nowrap",
-                      px: 2,
-                      py: 2,
-                    }}
-                  >
-                    <TableSortLabel
-                      active={orderBy === column.id}
-                      direction={orderBy === column.id ? order : "asc"}
+      <Card className="shadow-md border border-blue-gray-100">
+        <CardBody className="p-0">
+          <div
+            className="overflow-auto rounded-lg"
+            style={{
+              height: tableHeight,
+              maxHeight: tableHeight,
+            }}
+          >
+            <table className="w-full min-w-max table-auto text-left">
+              <thead>
+                <tr className="sticky top-0 z-10 bg-white border-b-2 border-blue-gray-100">
+                  {normalizedColumns.map((column) => (
+                    <th
+                      key={column.id}
+                      className="bg-white p-4 border-b border-blue-gray-100 cursor-pointer hover:bg-blue-gray-50 transition-colors"
                       onClick={handleSort(column.id)}
                     >
-                      {column.label}
-                    </TableSortLabel>
-                  </TableCell>
-                ))}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {paginatedRows.map((row, index) => {
-                if (renderRow) {
-                  const element = renderRow(row, index, page, rowsPerPage);
-                  return React.isValidElement(element)
-                    ? React.cloneElement(element, { key: getRowKey(row, index) })
-                    : element;
-                }
-                return (
-                  <TableRow
-                    key={getRowKey(row, index)}
-                    hover
-                    sx={{
-                      '&:nth-of-type(odd)': {
-                        backgroundColor: 'action.hover',
-                      },
-                      '&:hover': {
-                        backgroundColor: 'action.selected',
-                        cursor: 'pointer',
-                      },
-                      transition: 'background-color 0.2s ease',
-                    }}
-                  >
-                    {normalizedColumns.map((column) => (
-                      <TableCell
-                        key={column.id}
-                        sx={{
-                          fontSize: "0.875rem",
-                          px: 2,
-                          py: 2,
-                        }}
+                      <div className="flex items-center gap-2">
+                        <Typography
+                          variant="small"
+                          color="blue-gray"
+                          className="font-bold leading-none"
+                        >
+                          {column.label}
+                        </Typography>
+                        {orderBy === column.id && (
+                          <span className="text-blue-gray-400">
+                            {order === "asc" ? "↑" : "↓"}
+                          </span>
+                        )}
+                      </div>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              {loading ? (
+                <LoadingSkeleton />
+              ) : paginatedRows.length === 0 ? (
+                <EmptyState />
+              ) : (
+                <tbody>
+                  {paginatedRows.map((row, index) => {
+                    if (renderRow) {
+                      // Pass renderStatusCell helper to renderRow function
+                      const element = renderRow(
+                        row,
+                        index,
+                        page,
+                        rowsPerPage,
+                        renderStatusCell
+                      );
+                      // If renderRow returns a React element, clone it with key
+                      if (React.isValidElement(element)) {
+                        return React.cloneElement(element, {
+                          key: getRowKey(row, index),
+                        });
+                      }
+                      // If it's already a valid JSX element, return as is
+                      return element;
+                    }
+                    return (
+                      <tr
+                        key={getRowKey(row, index)}
+                        className="border-b border-blue-gray-100 hover:bg-blue-gray-50 transition-colors cursor-pointer"
                       >
-                        {row[column.id]}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        )}
-      </TableContainer>
+                        {normalizedColumns.map((column) => (
+                          <td key={column.id} className="p-4">
+                            <Typography
+                              variant="small"
+                              color="blue-gray"
+                              className="font-normal"
+                            >
+                              {renderCellContent(row, column)}
+                            </Typography>
+                          </td>
+                        ))}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              )}
+            </table>
+          </div>
+        </CardBody>
+      </Card>
 
       {/* Pagination */}
       {!loading && paginatedRows.length > 0 && (
-        <Box
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-          mt={2}
-        >
-          <Typography variant="body2" color="text.secondary">
+        <div className="flex justify-between items-center mt-4">
+          <Typography variant="small" color="gray" className="font-normal">
             Hiển thị {(page - 1) * rowsPerPage + 1} -{" "}
             {Math.min(page * rowsPerPage, filteredRows.length)} trong tổng số{" "}
             {filteredRows.length} kết quả
           </Typography>
-          <Pagination
-            count={filteredTotalPages}
-            page={page}
-            onChange={onPageChange}
-            variant="outlined"
-            shape="rounded"
-            color="primary"
-            showFirstButton
-            showLastButton
-          />
-        </Box>
+          <div className="flex gap-2">
+            <Button
+              variant="outlined"
+              size="sm"
+              onClick={() => onPageChange(null, 1)}
+              disabled={page === 1}
+            >
+              Đầu
+            </Button>
+            <Button
+              variant="outlined"
+              size="sm"
+              onClick={() => onPageChange(null, page - 1)}
+              disabled={page === 1}
+            >
+              Trước
+            </Button>
+            <Typography
+              variant="small"
+              color="gray"
+              className="flex items-center px-2"
+            >
+              Trang {page} / {filteredTotalPages}
+            </Typography>
+            <Button
+              variant="outlined"
+              size="sm"
+              onClick={() => onPageChange(null, page + 1)}
+              disabled={page >= filteredTotalPages}
+            >
+              Sau
+            </Button>
+            <Button
+              variant="outlined"
+              size="sm"
+              onClick={() => onPageChange(null, filteredTotalPages)}
+              disabled={page >= filteredTotalPages}
+            >
+              Cuối
+            </Button>
+          </div>
+        </div>
       )}
-    </Box>
+    </div>
   );
 };
 

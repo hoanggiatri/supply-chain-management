@@ -1,13 +1,6 @@
 import React, { useEffect, useState } from "react";
-import {
-  Container,
-  Typography,
-  Paper,
-  TableRow,
-  TableCell,
-} from "@mui/material";
+import { Typography, Card, CardBody } from "@material-tailwind/react";
 import { useNavigate } from "react-router-dom";
-import { useTheme } from "@mui/material/styles";
 import DataTable from "@/components/content-components/DataTable";
 import StatusSummaryCard from "@/components/content-components/StatusSummaryCard";
 import { getAllDeliveryOrdersInCompany } from "@/services/delivery/DoService";
@@ -25,7 +18,6 @@ const DoInCompany = () => {
   const token = localStorage.getItem("token");
   const companyId = localStorage.getItem("companyId");
   const navigate = useNavigate();
-  const theme = useTheme();
 
   useEffect(() => {
     const fetchDos = async () => {
@@ -53,7 +45,7 @@ const DoInCompany = () => {
     setOrderBy(property);
   };
 
-  const handleChangePage = (event, newPage) => {
+  const handleChangePage = (_event, newPage) => {
     setPage(newPage);
   };
 
@@ -72,70 +64,98 @@ const DoInCompany = () => {
   ];
 
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
-          DANH SÁCH ĐƠN VẬN CHUYỂN
-        </Typography>
+    <div className="h-full p-6">
+      <Card className="h-full shadow-lg flex flex-col">
+        <CardBody className="flex flex-col flex-1 overflow-hidden">
+          <Typography variant="h4" color="blue-gray" className="mb-6 font-bold">
+            DANH SÁCH ĐƠN VẬN CHUYỂN
+          </Typography>
 
-        <StatusSummaryCard
-          data={dos}
-          statusLabels={[
-            "Tất cả",
-            "Chờ xác nhận",
-            "Chờ lấy hàng",
-            "Đang vận chuyển",
-            "Đã hoàn thành",
-          ]}
-          getStatus={(ord) => ord.status}
-          statusColors={{
-            "Tất cả": "#000",
-            "Chờ xác nhận": theme.palette.secondary.main,
-            "Chờ lấy hàng": theme.palette.warning.main,
-            "Đang vận chuyển": theme.palette.primary.main,
-            "Đã hoàn thành": theme.palette.success.main,
-          }}
-          onSelectStatus={setFilterStatus}
-          selectedStatus={filterStatus}
-        />
+          <StatusSummaryCard
+            data={dos}
+            statusLabels={[
+              "Tất cả",
+              "Chờ xác nhận",
+              "Chờ lấy hàng",
+              "Đang vận chuyển",
+              "Đã hoàn thành",
+            ]}
+            getStatus={(ord) => ord.status}
+            statusColors={{
+              "Tất cả": "#000",
+              "Chờ xác nhận": "#f44336",
+              "Chờ lấy hàng": "#ff9800",
+              "Đang vận chuyển": "#2196f3",
+              "Đã hoàn thành": "#4caf50",
+            }}
+            onSelectStatus={setFilterStatus}
+            selectedStatus={filterStatus}
+          />
 
-        <DataTable
-          rows={filteredDos}
-          columns={columns}
-          order={order}
-          orderBy={orderBy}
-          onRequestSort={handleRequestSort}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          search={search}
-          setSearch={setSearch}
-          height="calc(100vh - 380px)"
-          renderRow={(ord) => (
-            <TableRow
-              key={ord.doId}
-              hover
-              sx={{ cursor: "pointer" }}
-              onClick={() => navigate(`/do/${ord.doId}`)}
-            >
-              <TableCell>{ord.doCode}</TableCell>
-              <TableCell>{ord.soCode}</TableCell>
-              <TableCell>{ord.createdBy}</TableCell>
-              <TableCell>
-                {ord.createdOn ? new Date(ord.createdOn).toLocaleString() : ""}
-              </TableCell>
-              <TableCell>
-                {ord.lastUpdatedOn
-                  ? new Date(ord.lastUpdatedOn).toLocaleString()
-                  : ""}
-              </TableCell>
-              <TableCell>{ord.status}</TableCell>
-            </TableRow>
-          )}
-        />
-      </Paper>
-    </Container>
+          <div className="flex-1 min-h-0">
+            <DataTable
+              rows={filteredDos}
+              columns={columns}
+              order={order}
+              orderBy={orderBy}
+              onRequestSort={handleRequestSort}
+              page={page}
+              rowsPerPage={rowsPerPage}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+              search={search}
+              setSearch={setSearch}
+              height="100%"
+              statusColumn="status"
+              statusColors={{
+                "Chờ xác nhận": "red",
+                "Chờ lấy hàng": "orange",
+                "Đang vận chuyển": "blue",
+                "Đã hoàn thành": "green",
+              }}
+              renderRow={(ord, _index, _page, _rowsPerPage, renderStatusCell) => (
+                <tr
+                  key={ord.doId}
+                  className="border-b border-blue-gray-100 hover:bg-blue-gray-50 transition-colors cursor-pointer"
+                  onClick={() => navigate(`/do/${ord.doId}`)}
+                >
+                  <td className="p-4">
+                    <Typography variant="small" color="blue-gray" className="font-normal">
+                      {ord.doCode}
+                    </Typography>
+                  </td>
+                  <td className="p-4">
+                    <Typography variant="small" color="blue-gray" className="font-normal">
+                      {ord.soCode}
+                    </Typography>
+                  </td>
+                  <td className="p-4">
+                    <Typography variant="small" color="blue-gray" className="font-normal">
+                      {ord.createdBy}
+                    </Typography>
+                  </td>
+                  <td className="p-4">
+                    <Typography variant="small" color="blue-gray" className="font-normal">
+                      {ord.createdOn ? new Date(ord.createdOn).toLocaleString() : ""}
+                    </Typography>
+                  </td>
+                  <td className="p-4">
+                    <Typography variant="small" color="blue-gray" className="font-normal">
+                      {ord.lastUpdatedOn
+                        ? new Date(ord.lastUpdatedOn).toLocaleString()
+                        : ""}
+                    </Typography>
+                  </td>
+                  <td className="p-4">
+                    {renderStatusCell ? renderStatusCell(ord.status) : ord.status}
+                  </td>
+                </tr>
+              )}
+            />
+          </div>
+        </CardBody>
+      </Card>
+    </div>
   );
 };
 

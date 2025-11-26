@@ -1,163 +1,250 @@
 import React from "react";
-import {
-  Grid,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-} from "@mui/material";
+import { Input, Select, Option, Typography } from "@material-tailwind/react";
 
-const CompanyForm = ({ companyData, onChange, errors }) => {
+const CompanyForm = ({ companyData, onChange, errors, readOnly = false }) => {
+  const inputClasses = (error) =>
+    `w-full placeholder:opacity-100 ${
+      error
+        ? "!border-red-500 focus:!border-red-500"
+        : "!border-t-blue-gray-200 focus:!border-t-gray-900"
+    }`;
+
+  const handleSelectChange = (name, value) => {
+    onChange({
+      target: {
+        name,
+        value,
+      },
+    });
+  };
+
   return (
-    <Grid container spacing={2}>
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Mã công ty */}
+      <div>
+        <Input
           label="Mã công ty"
           name="companyCode"
-          value={companyData.companyCode}
-          InputProps={{ readOnly: true }}
+          value={companyData.companyCode || ""}
+          className={inputClasses(errors.companyCode)}
+          readOnly
+          disabled
         />
-      </Grid>
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
+        {errors.companyCode && (
+          <Typography variant="small" color="red" className="mt-1">
+            {errors.companyCode}
+          </Typography>
+        )}
+      </div>
+
+      {/* Tên công ty */}
+      <div>
+        <Input
           label="Tên công ty"
           name="companyName"
-          value={companyData.companyName}
-          error={!!errors.companyName}
-          helperText={errors.companyName}
+          value={companyData.companyName || ""}
           onChange={onChange}
+          className={inputClasses(errors.companyName)}
+          readOnly={readOnly}
+          disabled={readOnly}
           required
         />
-      </Grid>
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
+        {errors.companyName && (
+          <Typography variant="small" color="red" className="mt-1">
+            {errors.companyName}
+          </Typography>
+        )}
+      </div>
+
+      {/* Mã số thuế */}
+      <div>
+        <Input
           label="Mã số thuế"
           name="taxCode"
-          value={companyData.taxCode}
-          error={!!errors.taxCode}
-          helperText={errors.taxCode}
-          InputProps={{ readOnly: true }}
+          value={companyData.taxCode || ""}
+          className={inputClasses(errors.taxCode)}
+          readOnly
+          disabled
           required
         />
-      </Grid>
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
+        {errors.taxCode && (
+          <Typography variant="small" color="red" className="mt-1">
+            {errors.taxCode}
+          </Typography>
+        )}
+      </div>
+
+      {/* Tên người đại diện */}
+      <div>
+        <Input
           label="Tên người đại diện"
           name="representativeName"
-          value={companyData.representativeName}
-          error={!!errors.representativeName}
-          helperText={errors.representativeName}
+          value={companyData.representativeName || ""}
           onChange={onChange}
+          className={inputClasses(errors.representativeName)}
+          readOnly={readOnly}
+          disabled={readOnly}
           required
         />
-      </Grid>
-      <Grid item xs={12} sm={6}>
-        <FormControl fullWidth>
-          <InputLabel>Loại hình doanh nghiệp</InputLabel>
-          <Select
-            name="companyType"
-            label="Loại hình doanh nghiệp"
-            value={companyData.companyType}
-            disabled
-            required
-          >
-            <MenuItem value="Doanh nghiệp sản xuất">
-              Doanh nghiệp sản xuất
-            </MenuItem>
-            <MenuItem value="Doanh nghiệp thương mại">
-              Doanh nghiệp thương mại
-            </MenuItem>
-          </Select>
-        </FormControl>
-      </Grid>
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
+        {errors.representativeName && (
+          <Typography variant="small" color="red" className="mt-1">
+            {errors.representativeName}
+          </Typography>
+        )}
+      </div>
+
+      {/* Loại hình doanh nghiệp */}
+      <div>
+        <Select
+          label="Loại hình doanh nghiệp"
+          value={companyData.companyType || ""}
+          onChange={(val) => handleSelectChange("companyType", val)}
+          disabled
+          className={inputClasses(errors.companyType)}
+        >
+          <Option value="Doanh nghiệp sản xuất">Doanh nghiệp sản xuất</Option>
+          <Option value="Doanh nghiệp thương mại">Doanh nghiệp thương mại</Option>
+        </Select>
+        {errors.companyType && (
+          <Typography variant="small" color="red" className="mt-1">
+            {errors.companyType}
+          </Typography>
+        )}
+      </div>
+
+      {/* Ngành nghề chính */}
+      <div>
+        <Input
           label="Ngành nghề chính"
           name="mainIndustry"
-          value={companyData.mainIndustry}
+          value={companyData.mainIndustry || ""}
           onChange={onChange}
+          className={inputClasses(errors.mainIndustry)}
+          readOnly={readOnly}
+          disabled={readOnly}
         />
-      </Grid>
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
+        {errors.mainIndustry && (
+          <Typography variant="small" color="red" className="mt-1">
+            {errors.mainIndustry}
+          </Typography>
+        )}
+      </div>
+
+      {/* Địa chỉ */}
+      <div>
+        <Input
           label="Địa chỉ"
           name="address"
-          value={companyData.address}
-          error={!!errors.address}
-          helperText={errors.address}
+          value={companyData.address || ""}
           onChange={onChange}
+          className={inputClasses(errors.address)}
+          readOnly={readOnly}
+          disabled={readOnly}
           required
         />
-      </Grid>
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
+        {errors.address && (
+          <Typography variant="small" color="red" className="mt-1">
+            {errors.address}
+          </Typography>
+        )}
+      </div>
+
+      {/* Số điện thoại */}
+      <div>
+        <Input
           label="Số điện thoại"
           name="phoneNumber"
-          value={companyData.phoneNumber}
-          error={!!errors.phoneNumber}
-          helperText={errors.phoneNumber}
+          value={companyData.phoneNumber || ""}
           onChange={onChange}
+          className={inputClasses(errors.phoneNumber)}
+          readOnly={readOnly}
+          disabled={readOnly}
           required
         />
-      </Grid>
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
+        {errors.phoneNumber && (
+          <Typography variant="small" color="red" className="mt-1">
+            {errors.phoneNumber}
+          </Typography>
+        )}
+      </div>
+
+      {/* Email */}
+      <div>
+        <Input
           label="Email"
           name="email"
-          value={companyData.email}
-          error={!!errors.email}
-          helperText={errors.email}
+          type="email"
+          value={companyData.email || ""}
           onChange={onChange}
+          className={inputClasses(errors.email)}
+          readOnly={readOnly}
+          disabled={readOnly}
           required
         />
-      </Grid>
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
-          type="date"
+        {errors.email && (
+          <Typography variant="small" color="red" className="mt-1">
+            {errors.email}
+          </Typography>
+        )}
+      </div>
+
+      {/* Ngày bắt đầu */}
+      <div>
+        <Input
           label="Ngày bắt đầu"
           name="startDate"
-          InputLabelProps={{ shrink: true }}
-          value={companyData.startDate?.substring(0, 10)}
-          error={!!errors.startDate}
-          helperText={errors.startDate}
+          type="date"
+          value={companyData.startDate?.substring(0, 10) || ""}
           onChange={onChange}
+          className={inputClasses(errors.startDate)}
+          readOnly={readOnly}
+          disabled={readOnly}
         />
-      </Grid>
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
+        {errors.startDate && (
+          <Typography variant="small" color="red" className="mt-1">
+            {errors.startDate}
+          </Typography>
+        )}
+      </div>
+
+      {/* Website */}
+      <div>
+        <Input
           label="Website"
           name="websiteAddress"
-          value={companyData.websiteAddress}
+          value={companyData.websiteAddress || ""}
           onChange={onChange}
+          className={inputClasses(errors.websiteAddress)}
+          readOnly={readOnly}
+          disabled={readOnly}
         />
-      </Grid>
-      <Grid item xs={12} sm={6}>
-        <FormControl fullWidth required>
-          <InputLabel>Trạng thái</InputLabel>
-          <Select
-            name="status"
-            label="Trạng thái"
-            value={companyData.status || ""}
-            onChange={onChange}
-          >
-            <MenuItem value="active">Đang hoạt động</MenuItem>
-            <MenuItem value="inactive">Ngừng hoạt động</MenuItem>
-            <MenuItem value="closed">Đã đóng</MenuItem>
-          </Select>
-        </FormControl>
-      </Grid>
-    </Grid>
+        {errors.websiteAddress && (
+          <Typography variant="small" color="red" className="mt-1">
+            {errors.websiteAddress}
+          </Typography>
+        )}
+      </div>
+
+      {/* Trạng thái */}
+      <div>
+        <Select
+          label="Trạng thái"
+          value={companyData.status || ""}
+          onChange={(val) => handleSelectChange("status", val)}
+          className={inputClasses(errors.status)}
+          disabled={readOnly}
+        >
+          <Option value="active">Đang hoạt động</Option>
+          <Option value="inactive">Ngừng hoạt động</Option>
+          <Option value="closed">Đã đóng</Option>
+        </Select>
+        {errors.status && (
+          <Typography variant="small" color="red" className="mt-1">
+            {errors.status}
+          </Typography>
+        )}
+      </div>
+    </div>
   );
 };
 

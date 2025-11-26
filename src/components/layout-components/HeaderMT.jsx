@@ -23,7 +23,7 @@ const HeaderMT = () => {
   };
 
   return (
-    <Navbar className="sticky top-0 z-10 h-max max-w-full rounded-none px-4 py-2 lg:px-8 lg:py-3">
+    <Navbar className="z-10 h-max max-w-full rounded-none px-4 py-2 lg:px-8 lg:py-3 border-b border-blue-gray-100 bg-white shadow-sm">
       <div className="flex items-center justify-between">
         {/* Empty Left Side (removed toggle button) */}
         <div></div>
