@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, Box, Button, Grid } from "@mui/material";
+import { Container, Paper, Typography, Box, Grid } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 import EmployeeForm from "@components/general/EmployeeForm";
@@ -9,6 +9,8 @@ import { getEmployeeById } from "@/services/general/EmployeeService";
 import { getUserByEmployeeId } from "@/services/general/UserService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import toastrService from "@/services/toastrService";
+import { Button } from "@material-tailwind/react";
+import { getButtonProps } from "@/utils/buttonStyles";
 
 const MyProfile = () => {
   const [employee, setEmployee] = useState(null);
@@ -86,8 +88,8 @@ const MyProfile = () => {
 
             <Box mt={2} display="flex" justifyContent="flex-end">
               <Button
-                variant="contained"
-                color="default"
+                type="button"
+                {...getButtonProps("primary")}
                 onClick={() => navigate(`/employee/${employee.id}/edit`)}
               >
                 Sửa thông tin
@@ -110,8 +112,8 @@ const MyProfile = () => {
 
             <Box mt={2} display="flex" justifyContent="flex-end">
               <Button
-                variant="contained"
-                color="default"
+                type="button"
+                {...getButtonProps("primary")}
                 onClick={() => navigate(`/user/${employeeId}/edit`)}
               >
                 Sửa tài khoản

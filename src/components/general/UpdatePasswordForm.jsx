@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import {
-  Box,
-  TextField,
-  Button,
+  Button as MTButton,
+  Card,
+  CardBody,
+  Input,
   Typography,
-  IconButton,
-  InputAdornment,
-} from "@mui/material";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
+} from "@material-tailwind/react";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
 import { updatePassword } from "@/services/general/UserService";
 import toastrService from "@/services/toastrService";
 
@@ -66,81 +65,126 @@ const UpdatePasswordForm = ({ userId, onSuccess }) => {
     }
   };
 
-  const renderPasswordField = (
-    label,
-    name,
-    value,
-    onToggleShow,
-    showPassword,
-    error,
-    helperText
-  ) => (
-    <TextField
-      label={label}
-      name={name}
-      type={showPassword ? "text" : "password"}
-      value={value}
-      onChange={handleChange}
-      error={!!error}
-      helperText={helperText}
-      required
-      InputProps={{
-        endAdornment: (
-          <InputAdornment position="end">
-            <IconButton onClick={onToggleShow}>
-              {showPassword ? <VisibilityOff /> : <Visibility />}
-            </IconButton>
-          </InputAdornment>
-        ),
-      }}
-    />
-  );
-
   return (
-    <Box mt={3}>
-      <Typography variant="h5" gutterBottom>
-        THAY ĐỔI MẬT KHẨU
-      </Typography>
+    <Card className="mt-4 shadow-lg">
+      <CardBody className="space-y-4">
+        <Typography variant="h5" color="blue-gray">
+          THAY ĐỔI MẬT KHẨU
+        </Typography>
 
-      <Box display="flex" flexDirection="column" gap={2}>
-        {renderPasswordField(
-          "Mật khẩu hiện tại",
-          "currentPassword",
-          formData.currentPassword,
-          () => setShowCurrent(!showCurrent),
-          showCurrent,
-          errors.currentPassword,
-          errors.currentPassword
-        )}
-        {renderPasswordField(
-          "Mật khẩu mới",
-          "newPassword",
-          formData.newPassword,
-          () => setShowNew(!showNew),
-          showNew,
-          errors.newPassword,
-          errors.newPassword
-        )}
-        {renderPasswordField(
-          "Xác nhận mật khẩu mới",
-          "confirmPassword",
-          formData.confirmPassword,
-          () => setShowConfirm(!showConfirm),
-          showConfirm,
-          errors.confirmPassword,
-          errors.confirmPassword
-        )}
+        {/* Mật khẩu hiện tại */}
+        <div>
+          <div className="relative">
+            <Input
+              label="Mật khẩu hiện tại"
+              name="currentPassword"
+              type={showCurrent ? "text" : "password"}
+              color="blue"
+              value={formData.currentPassword}
+              onChange={handleChange}
+              className="w-full placeholder:opacity-100 pr-10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowCurrent((prev) => !prev)}
+              className="!absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer z-10"
+            >
+              {showCurrent ? (
+                <EyeSlashIcon className="h-5 w-5 text-blue-gray-500" />
+              ) : (
+                <EyeIcon className="h-5 w-5 text-blue-gray-500" />
+              )}
+            </button>
+          </div>
+          {errors.currentPassword && (
+            <Typography variant="small" color="red" className="mt-1">
+              {errors.currentPassword}
+            </Typography>
+          )}
+        </div>
 
-        <Box display="flex" justifyContent="flex-end" gap={2}>
-          <Button variant="outlined" color="default" onClick={onSuccess}>
+        {/* Mật khẩu mới */}
+        <div>
+          <div className="relative">
+            <Input
+              label="Mật khẩu mới"
+              name="newPassword"
+              type={showNew ? "text" : "password"}
+              color="blue"
+              value={formData.newPassword}
+              onChange={handleChange}
+              className="w-full placeholder:opacity-100 pr-10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowNew((prev) => !prev)}
+              className="!absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer z-10"
+            >
+              {showNew ? (
+                <EyeSlashIcon className="h-5 w-5 text-blue-gray-500" />
+              ) : (
+                <EyeIcon className="h-5 w-5 text-blue-gray-500" />
+              )}
+            </button>
+          </div>
+          {errors.newPassword && (
+            <Typography variant="small" color="red" className="mt-1">
+              {errors.newPassword}
+            </Typography>
+          )}
+        </div>
+
+        {/* Xác nhận mật khẩu mới */}
+        <div>
+          <div className="relative">
+            <Input
+              label="Xác nhận mật khẩu mới"
+              name="confirmPassword"
+              type={showConfirm ? "text" : "password"}
+              color="blue"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              className="w-full placeholder:opacity-100 pr-10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirm((prev) => !prev)}
+              className="!absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer z-10"
+            >
+              {showConfirm ? (
+                <EyeSlashIcon className="h-5 w-5 text-blue-gray-500" />
+              ) : (
+                <EyeIcon className="h-5 w-5 text-blue-gray-500" />
+              )}
+            </button>
+          </div>
+          {errors.confirmPassword && (
+            <Typography variant="small" color="red" className="mt-1">
+              {errors.confirmPassword}
+            </Typography>
+          )}
+        </div>
+
+        <div className="mt-4 flex justify-end gap-3">
+          <MTButton
+            type="button"
+            variant="outlined"
+            color="blue-gray"
+            onClick={onSuccess}
+          >
             Hủy
-          </Button>
-          <Button variant="contained" color="default" onClick={handleSubmit}>
+          </MTButton>
+          <MTButton
+            type="button"
+            variant="filled"
+            color="blue"
+            onClick={handleSubmit}
+          >
             Cập nhật mật khẩu
-          </Button>
-        </Box>
-      </Box>
-    </Box>
+          </MTButton>
+        </div>
+      </CardBody>
+    </Card>
   );
 };
 

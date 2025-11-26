@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, Box, Button } from "@mui/material";
+import { Container, Paper, Typography, Box } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import EmployeeForm from "@components/general/EmployeeForm";
 import {
@@ -8,6 +8,8 @@ import {
 } from "@/services/general/EmployeeService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import toastrService from "@/services/toastrService";
+import { Button } from "@material-tailwind/react";
+import { getButtonProps } from "@/utils/buttonStyles";
 
 const EmployeeDetail = () => {
   const { employeeId } = useParams();
@@ -85,13 +87,17 @@ const EmployeeDetail = () => {
 
         <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
           <Button
-            variant="contained"
-            color="default"
+            type="button"
+            {...getButtonProps("primary")}
             onClick={() => navigate(`/employee/${employeeId}/edit`)}
           >
             Sửa
           </Button>
-          <Button variant="contained" color="error" onClick={handleDelete}>
+          <Button
+            type="button"
+            {...getButtonProps("danger")}
+            onClick={handleDelete}
+          >
             Xóa
           </Button>
         </Box>

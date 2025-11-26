@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, Button, Box } from "@mui/material";
+import { Container, Paper, Typography, Box } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import EmployeeForm from "@components/general/EmployeeForm";
 import {
@@ -9,6 +9,8 @@ import {
 } from "@/services/general/EmployeeService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import toastrService from "@/services/toastrService";
+import { Button } from "@material-tailwind/react";
+import { getButtonProps } from "@/utils/buttonStyles";
 
 const EditEmployee = () => {
   const { employeeId } = useParams();
@@ -176,18 +178,25 @@ const EditEmployee = () => {
             }}
           />
           <Box display="flex" flexDirection="column" gap={2}>
-            <Button variant="outlined" color="default" component="label">
-              Chọn ảnh
-              <input
-                type="file"
-                hidden
-                accept="image/*"
-                onChange={handleAvatarChange}
-              />
-            </Button>
             <Button
-              variant="contained"
-              color="default"
+              type="button"
+              {...getButtonProps("outlinedSecondary")}
+              onClick={() =>
+                document.getElementById("employee-avatar-input")?.click()
+              }
+            >
+              Chọn ảnh
+            </Button>
+            <input
+              id="employee-avatar-input"
+              type="file"
+              hidden
+              accept="image/*"
+              onChange={handleAvatarChange}
+            />
+            <Button
+              type="button"
+              {...getButtonProps("primary")}
               disabled={!avatarFile}
               onClick={handleUploadImage}
             >
@@ -204,10 +213,18 @@ const EditEmployee = () => {
         />
 
         <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
-          <Button variant="contained" color="default" onClick={handleSave}>
+          <Button
+            type="button"
+            {...getButtonProps("primary")}
+            onClick={handleSave}
+          >
             Lưu
           </Button>
-          <Button variant="outlined" color="default" onClick={handleCancel}>
+          <Button
+            type="button"
+            {...getButtonProps("outlinedSecondary")}
+            onClick={handleCancel}
+          >
             Hủy
           </Button>
         </Box>

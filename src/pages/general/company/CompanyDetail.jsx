@@ -1,9 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { Typography, Button, Card, CardBody, Spinner } from "@material-tailwind/react";
+import {
+  Typography,
+  Button,
+  Card,
+  CardBody,
+  Spinner,
+} from "@material-tailwind/react";
 import { getCompanyById } from "@/services/general/CompanyService";
 import CompanyForm from "@/components/general/CompanyForm";
 import { useNavigate } from "react-router-dom";
 import toastrService from "@/services/toastrService";
+import { getButtonProps } from "@/utils/buttonStyles";
 
 const CompanyDetail = () => {
   const [company, setCompany] = useState(null);
@@ -24,7 +31,9 @@ const CompanyDetail = () => {
 
         setCompany(data);
       } catch (error) {
-        toastrService.error(error.response?.data?.message || "Lỗi khi lấy thông tin công ty!");
+        toastrService.error(
+          error.response?.data?.message || "Lỗi khi lấy thông tin công ty!"
+        );
       }
     };
 
@@ -36,7 +45,11 @@ const CompanyDetail = () => {
       <div className="p-6">
         <Card className="shadow-lg">
           <CardBody>
-            <Typography variant="h4" color="blue-gray" className="mb-6 font-bold">
+            <Typography
+              variant="h4"
+              color="blue-gray"
+              className="mb-6 font-bold"
+            >
               THÔNG TIN CÔNG TY
             </Typography>
             <div className="flex justify-center items-center py-12">
@@ -58,18 +71,25 @@ const CompanyDetail = () => {
 
           <div className="flex items-center gap-6 mb-8">
             <img
-              src={company.logoUrl || "https://cdn-icons-png.freepik.com/512/2774/2774806.png"}
+              src={
+                company.logoUrl ||
+                "https://cdn-icons-png.freepik.com/512/2774/2774806.png"
+              }
               alt="Company Logo"
               className="w-32 h-32 object-cover rounded-lg shadow-md"
             />
           </div>
 
-          <CompanyForm companyData={company} onChange={() => {}} errors={{}} readOnly />
+          <CompanyForm
+            companyData={company}
+            onChange={() => {}}
+            errors={{}}
+            readOnly
+          />
 
           <div className="mt-6 flex justify-end">
             <Button
-              variant="filled"
-              color="blue"
+              {...getButtonProps("primary")}
               onClick={() => navigate("/company/edit")}
             >
               Sửa

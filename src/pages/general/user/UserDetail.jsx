@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, Box, Button } from "@mui/material";
+import { Container, Paper, Typography, Box } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import UserForm from "@components/general/UserForm";
 import { getUserById } from "@/services/general/UserService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import toastrService from "@/services/toastrService";
+import { Button } from "@material-tailwind/react";
+import { getButtonProps } from "@/utils/buttonStyles";
 
 const UserDetail = () => {
   const { userId } = useParams();
@@ -52,8 +54,8 @@ const UserDetail = () => {
 
         <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
           <Button
-            variant="contained"
-            color="default"
+            type="button"
+            {...getButtonProps("primary")}
             onClick={() => navigate(`/user/${userId}/edit`)}
           >
             Sửa

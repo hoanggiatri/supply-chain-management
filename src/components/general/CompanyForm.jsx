@@ -2,13 +2,6 @@ import React from "react";
 import { Input, Select, Option, Typography } from "@material-tailwind/react";
 
 const CompanyForm = ({ companyData, onChange, errors, readOnly = false }) => {
-  const inputClasses = (error) =>
-    `w-full placeholder:opacity-100 ${
-      error
-        ? "!border-red-500 focus:!border-red-500"
-        : "!border-t-blue-gray-200 focus:!border-t-gray-900"
-    }`;
-
   const handleSelectChange = (name, value) => {
     onChange({
       target: {
@@ -25,10 +18,10 @@ const CompanyForm = ({ companyData, onChange, errors, readOnly = false }) => {
         <Input
           label="Mã công ty"
           name="companyCode"
+          color="blue"
           value={companyData.companyCode || ""}
-          className={inputClasses(errors.companyCode)}
+          className="w-full placeholder:opacity-100"
           readOnly
-          disabled
         />
         {errors.companyCode && (
           <Typography variant="small" color="red" className="mt-1">
@@ -42,11 +35,11 @@ const CompanyForm = ({ companyData, onChange, errors, readOnly = false }) => {
         <Input
           label="Tên công ty"
           name="companyName"
+          color="blue"
           value={companyData.companyName || ""}
           onChange={onChange}
-          className={inputClasses(errors.companyName)}
+          className="w-full placeholder:opacity-100"
           readOnly={readOnly}
-          disabled={readOnly}
           required
         />
         {errors.companyName && (
@@ -62,9 +55,9 @@ const CompanyForm = ({ companyData, onChange, errors, readOnly = false }) => {
           label="Mã số thuế"
           name="taxCode"
           value={companyData.taxCode || ""}
-          className={inputClasses(errors.taxCode)}
+          color="blue"
+          className="w-full placeholder:opacity-100"
           readOnly
-          disabled
           required
         />
         {errors.taxCode && (
@@ -79,11 +72,11 @@ const CompanyForm = ({ companyData, onChange, errors, readOnly = false }) => {
         <Input
           label="Tên người đại diện"
           name="representativeName"
+          color="blue"
           value={companyData.representativeName || ""}
           onChange={onChange}
-          className={inputClasses(errors.representativeName)}
+          className="w-full placeholder:opacity-100"
           readOnly={readOnly}
-          disabled={readOnly}
           required
         />
         {errors.representativeName && (
@@ -99,11 +92,14 @@ const CompanyForm = ({ companyData, onChange, errors, readOnly = false }) => {
           label="Loại hình doanh nghiệp"
           value={companyData.companyType || ""}
           onChange={(val) => handleSelectChange("companyType", val)}
-          disabled
-          className={inputClasses(errors.companyType)}
+          color="blue"
+          className="w-full placeholder:opacity-100"
+          readOnly={readOnly}
         >
           <Option value="Doanh nghiệp sản xuất">Doanh nghiệp sản xuất</Option>
-          <Option value="Doanh nghiệp thương mại">Doanh nghiệp thương mại</Option>
+          <Option value="Doanh nghiệp thương mại">
+            Doanh nghiệp thương mại
+          </Option>
         </Select>
         {errors.companyType && (
           <Typography variant="small" color="red" className="mt-1">
@@ -119,9 +115,9 @@ const CompanyForm = ({ companyData, onChange, errors, readOnly = false }) => {
           name="mainIndustry"
           value={companyData.mainIndustry || ""}
           onChange={onChange}
-          className={inputClasses(errors.mainIndustry)}
+          color="blue"
+          className="w-full placeholder:opacity-100"
           readOnly={readOnly}
-          disabled={readOnly}
         />
         {errors.mainIndustry && (
           <Typography variant="small" color="red" className="mt-1">
@@ -137,9 +133,9 @@ const CompanyForm = ({ companyData, onChange, errors, readOnly = false }) => {
           name="address"
           value={companyData.address || ""}
           onChange={onChange}
-          className={inputClasses(errors.address)}
+          color="blue"
+          className="w-full placeholder:opacity-100"
           readOnly={readOnly}
-          disabled={readOnly}
           required
         />
         {errors.address && (
@@ -156,9 +152,9 @@ const CompanyForm = ({ companyData, onChange, errors, readOnly = false }) => {
           name="phoneNumber"
           value={companyData.phoneNumber || ""}
           onChange={onChange}
-          className={inputClasses(errors.phoneNumber)}
+          color="blue"
+          className="w-full placeholder:opacity-100"
           readOnly={readOnly}
-          disabled={readOnly}
           required
         />
         {errors.phoneNumber && (
@@ -176,9 +172,9 @@ const CompanyForm = ({ companyData, onChange, errors, readOnly = false }) => {
           type="email"
           value={companyData.email || ""}
           onChange={onChange}
-          className={inputClasses(errors.email)}
+          color="blue"
+          className="w-full placeholder:opacity-100"
           readOnly={readOnly}
-          disabled={readOnly}
           required
         />
         {errors.email && (
@@ -196,9 +192,9 @@ const CompanyForm = ({ companyData, onChange, errors, readOnly = false }) => {
           type="date"
           value={companyData.startDate?.substring(0, 10) || ""}
           onChange={onChange}
-          className={inputClasses(errors.startDate)}
+          color="blue"
+          className="w-full placeholder:opacity-100"
           readOnly={readOnly}
-          disabled={readOnly}
         />
         {errors.startDate && (
           <Typography variant="small" color="red" className="mt-1">
@@ -214,9 +210,9 @@ const CompanyForm = ({ companyData, onChange, errors, readOnly = false }) => {
           name="websiteAddress"
           value={companyData.websiteAddress || ""}
           onChange={onChange}
-          className={inputClasses(errors.websiteAddress)}
+          color="blue"
+          className="w-full placeholder:opacity-100"
           readOnly={readOnly}
-          disabled={readOnly}
         />
         {errors.websiteAddress && (
           <Typography variant="small" color="red" className="mt-1">
@@ -231,8 +227,8 @@ const CompanyForm = ({ companyData, onChange, errors, readOnly = false }) => {
           label="Trạng thái"
           value={companyData.status || ""}
           onChange={(val) => handleSelectChange("status", val)}
-          className={inputClasses(errors.status)}
-          disabled={readOnly}
+          color="blue"
+          className="w-full placeholder:opacity-100"
         >
           <Option value="active">Đang hoạt động</Option>
           <Option value="inactive">Ngừng hoạt động</Option>

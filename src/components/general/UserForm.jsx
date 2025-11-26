@@ -1,12 +1,5 @@
 import React from "react";
-import {
-  Grid,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-} from "@mui/material";
+import { Input, Select, Option, Typography } from "@material-tailwind/react";
 
 const getRoleLabel = (roleValue) => {
   const roleMap = {
@@ -29,102 +22,135 @@ const getStatusLabel = (statusValue) => {
 const UserForm = ({ user, onChange, errors, role, readOnly }) => {
   const isReadOnly = readOnly || role === "user";
 
+  const handleSelectChange = (name, value) => {
+    onChange({
+      target: {
+        name,
+        value,
+      },
+    });
+  };
+
   return (
-    <Grid container spacing={2}>
-      <Grid item xs={12} sm={6}>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Mã nhân viên hoặc Username */}
+      <div>
         {(role === "c-admin" || role === "user") && (
-          <TextField
-            fullWidth
+          <Input
             label="Mã nhân viên"
             name="employeeCode"
-            value={user.employeeCode}
-            required
-            InputProps={{ readOnly: true }}
-            error={!!errors.employeeCode}
-            helperText={errors.employeeCode}
+            color="blue"
+            value={user.employeeCode || ""}
+            className="w-full placeholder:opacity-100"
+            readOnly
           />
         )}
         {role === "s-admin" && (
-          <TextField
-            fullWidth
+          <Input
             label="Username"
             name="username"
-            value={user.username}
-            required
-            InputProps={{ readOnly: isReadOnly }}
+            color="blue"
+            value={user.username || ""}
             onChange={isReadOnly ? undefined : onChange}
-            error={!!errors.username}
-            helperText={errors.username}
+            className="w-full placeholder:opacity-100"
+            readOnly={isReadOnly}
+            required
           />
         )}
-      </Grid>
+        {errors.employeeCode && (role === "c-admin" || role === "user") && (
+          <Typography variant="small" color="red" className="mt-1">
+            {errors.employeeCode}
+          </Typography>
+        )}
+        {errors.username && role === "s-admin" && (
+          <Typography variant="small" color="red" className="mt-1">
+            {errors.username}
+          </Typography>
+        )}
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
+      {/* Email */}
+      <div>
+        <Input
           label="Email"
           name="email"
-          value={user.email}
-          required
-          InputProps={{ readOnly: isReadOnly }}
+          type="email"
+          color="blue"
+          value={user.email || ""}
           onChange={isReadOnly ? undefined : onChange}
-          error={!!errors.email}
-          helperText={errors.email}
+          className="w-full placeholder:opacity-100"
+          readOnly={isReadOnly}
+          required
         />
-      </Grid>
+        {errors.email && (
+          <Typography variant="small" color="red" className="mt-1">
+            {errors.email}
+          </Typography>
+        )}
+      </div>
 
-      <Grid item xs={12} sm={6}>
+      {/* Vai trò */}
+      <div>
         {isReadOnly ? (
-          <TextField
-            fullWidth
+          <Input
             label="Vai trò"
+            color="blue"
             value={getRoleLabel(user.role) || ""}
-            InputProps={{ readOnly: true }}
+            readOnly
+            className="w-full placeholder:opacity-100"
           />
         ) : (
-          <FormControl fullWidth required disabled={isReadOnly}>
-            <InputLabel>Vai trò</InputLabel>
-            <Select
-              name="role"
-              value={user.role || ""}
-              label="Vai trò"
-              onChange={onChange}
-            >
-              {role === "s-admin" && (
-                <MenuItem value="s_admin">Quản trị hệ thống</MenuItem>
-              )}
-              <MenuItem value="c_admin">Quản trị công ty</MenuItem>
-              <MenuItem value="user">Nhân viên</MenuItem>
-            </Select>
-          </FormControl>
+          <Select
+            label="Vai trò"
+            value={user.role || ""}
+            color="blue"
+            onChange={(val) => handleSelectChange("role", val)}
+            className="w-full placeholder:opacity-100"
+          >
+            {role === "s-admin" && (
+              <Option value="s_admin">Quản trị hệ thống</Option>
+            )}
+            <Option value="c_admin">Quản trị công ty</Option>
+            <Option value="user">Nhân viên</Option>
+          </Select>
         )}
-      </Grid>
+        {errors.role && !isReadOnly && (
+          <Typography variant="small" color="red" className="mt-1">
+            {errors.role}
+          </Typography>
+        )}
+      </div>
 
-      <Grid item xs={12} sm={6}>
+      {/* Trạng thái */}
+      <div>
         {isReadOnly ? (
-          <TextField
-            fullWidth
+          <Input
             label="Trạng thái"
+            color="blue"
             value={getStatusLabel(user.status) || ""}
-            InputProps={{ readOnly: true }}
+            readOnly
+            className="w-full placeholder:opacity-100"
           />
         ) : (
-          <FormControl fullWidth required disabled={isReadOnly}>
-            <InputLabel>Trạng thái</InputLabel>
-            <Select
-              name="status"
-              value={user.status || ""}
-              label="Trạng thái"
-              onChange={onChange}
-            >
-              <MenuItem value="active">Đang hoạt động</MenuItem>
-              <MenuItem value="inactive">Ngừng hoạt động</MenuItem>
-              <MenuItem value="resigned">Đã nghỉ</MenuItem>
-            </Select>
-          </FormControl>
+          <Select
+            label="Trạng thái"
+            value={user.status || ""}
+            color="blue"
+            onChange={(val) => handleSelectChange("status", val)}
+            className="w-full placeholder:opacity-100"
+          >
+            <Option value="active">Đang hoạt động</Option>
+            <Option value="inactive">Ngừng hoạt động</Option>
+            <Option value="resigned">Đã nghỉ</Option>
+          </Select>
         )}
-      </Grid>
-    </Grid>
+        {errors.status && !isReadOnly && (
+          <Typography variant="small" color="red" className="mt-1">
+            {errors.status}
+          </Typography>
+        )}
+      </div>
+    </div>
   );
 };
 

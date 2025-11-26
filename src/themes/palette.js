@@ -47,6 +47,14 @@ export default function Palette(mode, presetColor) {
         disabled: paletteColor.grey[300]
       },
       divider: paletteColor.grey[200],
+      // Default color used by many legacy MUI <Button color="default" />
+      // Ensure it has .dark to avoid runtime errors in Button styles
+      default: {
+        light: paletteColor.grey[100],
+        main: paletteColor.grey[300],
+        dark: paletteColor.grey[500],
+        contrastText: paletteColor.grey[0]
+      },
       background: {
         paper: paletteColor.grey[0],
         default: paletteColor.grey.A50

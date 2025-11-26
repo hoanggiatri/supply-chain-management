@@ -6,12 +6,13 @@ import {
   Typography,
   Paper,
   Box,
-  Button,
 } from "@mui/material";
 import DataTable from "@components/content-components/DataTable";
 import { getAllEmployeesInCompany } from "@/services/general/EmployeeService";
 import { useNavigate } from "react-router-dom";
 import toastrService from "@/services/toastrService";
+import { Button } from "@material-tailwind/react";
+import { getButtonProps } from "@/utils/buttonStyles";
 
 const EmployeeInCompany = () => {
   const [employees, setEmployees] = useState([]);
@@ -123,8 +124,8 @@ const EmployeeInCompany = () => {
         </Typography>
         <Box mt={3} mb={3}>
           <Button
-            variant="contained"
-            color="default"
+            type="button"
+            {...getButtonProps("primary")}
             onClick={() => navigate("/create-employee")}
           >
             Thêm mới

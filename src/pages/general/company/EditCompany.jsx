@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, Button, Box } from "@mui/material";
+import { Button, Card, CardBody, Typography } from "@material-tailwind/react";
 import {
   getCompanyById,
   updateCompany,
@@ -9,6 +9,7 @@ import CompanyForm from "@components/general/CompanyForm";
 import { useNavigate } from "react-router-dom";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import toastrService from "@/services/toastrService";
+import { getButtonProps } from "@/utils/buttonStyles";
 
 const EditCompany = () => {
   const [company, setCompany] = useState(null);
@@ -116,7 +117,9 @@ const EditCompany = () => {
       toastrService.success("Cập nhật thông tin thành công!");
       navigate("/company");
     } catch (error) {
-      toastrService.error(error.response?.data?.message || "Cập nhật thất bại!");
+      toastrService.error(
+        error.response?.data?.message || "Cập nhật thất bại!"
+      );
     }
   };
 
@@ -149,7 +152,9 @@ const EditCompany = () => {
       setLogoPreview(null);
       toastrService.success("Cập nhật logo thành công!");
     } catch (error) {
-      toastrService.error(error.response?.data?.message || "Cập nhật logo thất bại!");
+      toastrService.error(
+        error.response?.data?.message || "Cập nhật logo thất bại!"
+      );
     }
   };
 
@@ -158,65 +163,78 @@ const EditCompany = () => {
   }
 
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
-          CHỈNH SỬA THÔNG TIN CÔNG TY
-        </Typography>
-        <Box display="flex" alignItems="center" gap={3} mb={3}>
-          <img
-            src={
-              logoPreview ||
-              company.logoUrl ||
-              "https://cdn-icons-png.freepik.com/512/2774/2774806.png"
-            }
-            alt=""
-            style={{
-              width: 120,
-              height: 120,
-              objectFit: "cover",
-              borderRadius: 8,
-            }}
-          />
-          <Box display="flex" flexDirection="column" gap={1}>
-            <Button variant="outlined" color="default" component="label">
-              {" "}
-              Chọn logo
+    <div className="p-6">
+      <Card className="shadow-lg max-w-5xl mx-auto">
+        <CardBody>
+          <Typography variant="h4" color="blue-gray" className="mb-6 font-bold">
+            CHỈNH SỬA THÔNG TIN CÔNG TY
+          </Typography>
+
+          <div className="flex flex-col md:flex-row items-center gap-6 mb-8">
+            <img
+              src={
+                logoPreview ||
+                company.logoUrl ||
+                "https://cdn-icons-png.freepik.com/512/2774/2774806.png"
+              }
+              alt="Company Logo"
+              className="w-32 h-32 object-cover rounded-lg shadow-md"
+            />
+            <div className="flex flex-col gap-2 w-full md:w-auto">
+              <Button
+                {...getButtonProps("outlinedSecondary")}
+                className="w-full md:w-auto"
+                type="button"
+                onClick={() =>
+                  document.getElementById("company-logo-input")?.click()
+                }
+              >
+                Chọn logo
+              </Button>
               <input
+                id="company-logo-input"
                 type="file"
-                hidden
                 accept="image/*"
                 onChange={handleLogoChange}
+                className="hidden"
               />
+              <Button
+                {...getButtonProps("primary")}
+                type="button"
+                disabled={!logoFile}
+                onClick={handleUploadLogo}
+                className="w-full md:w-auto disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                Cập nhật logo
+              </Button>
+            </div>
+          </div>
+
+          <CompanyForm
+            companyData={editedCompany}
+            onChange={handleChange}
+            errors={errors}
+          />
+
+          <div className="mt-6 flex justify-end gap-3">
+            <Button
+              type="button"
+              {...getButtonProps("primary")}
+              onClick={handleSave}
+            >
+              Lưu
             </Button>
             <Button
-              variant="contained"
-              color="default"
-              disabled={!logoFile}
-              onClick={handleUploadLogo}
+              type="button"
+              {...getButtonProps("outlinedSecondary")}
+              onClick={handleCancel}
             >
-              {" "}
-              Cập nhật logo{" "}
+              Hủy
             </Button>
-          </Box>
-        </Box>
-
-        <CompanyForm
-          companyData={editedCompany}
-          onChange={handleChange}
-          errors={errors}
-        />
-
-        <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
-          <Button variant="contained" color="default" onClick={handleSave}>
-            Lưu
-          </Button>
-          <Button variant="outlined" color="default" onClick={handleCancel}>
-            Hủy
-          </Button>
-        </Box>
-      </Paper>
-    </Container>
+          </div>
+        </CardBody>
+      </Card>
+    </div>
   );
 };
 

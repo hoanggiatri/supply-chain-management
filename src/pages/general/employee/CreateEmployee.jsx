@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { Container, Typography, Button, Grid, Paper } from "@mui/material";
+import { Button, Card, CardBody, Typography } from "@material-tailwind/react";
 import { useNavigate } from "react-router-dom";
 import { createEmployee } from "@/services/general/EmployeeService";
-import EmployeeForm from "@components/general/EmployeeForm"; // Đường dẫn tới file component con
+import EmployeeForm from "@components/general/EmployeeForm";
 import toastrService from "@/services/toastrService";
+import { getButtonProps } from "@/utils/buttonStyles";
 
 const CreateEmployee = () => {
   const navigate = useNavigate();
@@ -81,7 +82,9 @@ const CreateEmployee = () => {
       toastrService.success("Tạo nhân viên thành công!");
       navigate("/employees");
     } catch (error) {
-      toastrService.error(error.response?.data?.message || "Lỗi khi tạo nhân viên!");
+      toastrService.error(
+        error.response?.data?.message || "Lỗi khi tạo nhân viên!"
+      );
     }
   };
 
@@ -90,34 +93,40 @@ const CreateEmployee = () => {
   };
 
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
-          THÊM MỚI NHÂN VIÊN
-        </Typography>
+    <div className="p-6">
+      <Card className="shadow-lg max-w-5xl mx-auto">
+        <CardBody>
+          <Typography variant="h4" color="blue-gray" className="mb-6 font-bold">
+            THÊM MỚI NHÂN VIÊN
+          </Typography>
 
-        <EmployeeForm
-          employee={formData}
-          onChange={handleChange}
-          errors={errors}
-          readOnlyFields={{}}
-          mode="create"
-        />
+          <EmployeeForm
+            employee={formData}
+            onChange={handleChange}
+            errors={errors}
+            readOnlyFields={{}}
+            mode="create"
+          />
 
-        <Grid container spacing={2} mt={3} justifyContent="flex-end">
-          <Grid item>
-            <Button variant="contained" color="default" onClick={handleSubmit}>
+          <div className="mt-6 flex justify-end gap-3">
+            <Button
+              type="button"
+              {...getButtonProps("primary")}
+              onClick={handleSubmit}
+            >
               Thêm
             </Button>
-          </Grid>
-          <Grid item>
-            <Button variant="outlined" color="default" onClick={handleCancel}>
+            <Button
+              type="button"
+              {...getButtonProps("outlinedSecondary")}
+              onClick={handleCancel}
+            >
               Hủy
             </Button>
-          </Grid>
-        </Grid>
-      </Paper>
-    </Container>
+          </div>
+        </CardBody>
+      </Card>
+    </div>
   );
 };
 

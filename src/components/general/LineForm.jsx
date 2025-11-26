@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Grid, TextField, MenuItem } from "@mui/material";
+import { Input, Select, Option, Typography } from "@material-tailwind/react";
 import { getAllPlantsInCompany } from "@/services/general/ManufacturePlantService";
 import toastrService from "@/services/toastrService";
 
@@ -14,6 +14,15 @@ const LineForm = ({
   const token = localStorage.getItem("token");
   const companyId = localStorage.getItem("companyId");
   const isFieldReadOnly = (field) => readOnlyFields[field] ?? false;
+
+  const handleSelectChange = (name, value) => {
+    onChange({
+      target: {
+        name,
+        value,
+      },
+    });
+  };
 
   useEffect(() => {
     const fetchPlants = async () => {
@@ -31,85 +40,105 @@ const LineForm = ({
   }, [companyId, token]);
 
   return (
-    <Grid container spacing={2}>
-      <Grid item xs={12} sm={6}>
-        <TextField
-          select
-          fullWidth
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Xưởng sản xuất */}
+      <div>
+        <Select
           label="Xưởng sản xuất"
-          name="plantId"
-          value={line.plantId}
-          onChange={onChange}
-          error={!!errors.plantId}
-          helperText={errors.plantId}
-          required
-          InputProps={{ readOnly: isFieldReadOnly("plantId") }}
+          value={line.plantId || ""}
+          color="blue"
+          onChange={(val) => handleSelectChange("plantId", val)}
+          className="w-full placeholder:opacity-100"
+          disabled={isFieldReadOnly("plantId")}
         >
           {plants.map((plant) => (
-            <MenuItem key={plant.plantId} value={plant.plantId}>
+            <Option key={plant.plantId} value={plant.plantId}>
               {plant.plantCode} - {plant.plantName}
-            </MenuItem>
+            </Option>
           ))}
-        </TextField>
-      </Grid>
+        </Select>
+        {errors.plantId && (
+          <Typography variant="small" color="red" className="mt-1">
+            {errors.plantId}
+          </Typography>
+        )}
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
+      {/* Mã dây chuyền */}
+      <div>
+        <Input
           label="Mã dây chuyền"
           name="lineCode"
-          value={line.lineCode}
+          color="blue"
+          value={line.lineCode || ""}
           onChange={onChange}
-          error={!!errors.lineCode}
-          helperText={errors.lineCode}
+          className="w-full placeholder:opacity-100"
+          readOnly={isFieldReadOnly("lineCode")}
           required={requireLineCode}
-          InputProps={{ readOnly: isFieldReadOnly("lineCode") }}
         />
-      </Grid>
+        {errors.lineCode && (
+          <Typography variant="small" color="red" className="mt-1">
+            {errors.lineCode}
+          </Typography>
+        )}
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
+      {/* Tên dây chuyền */}
+      <div>
+        <Input
           label="Tên dây chuyền"
           name="lineName"
-          value={line.lineName}
+          color="blue"
+          value={line.lineName || ""}
           onChange={onChange}
-          error={!!errors.lineName}
-          helperText={errors.lineName}
+          className="w-full placeholder:opacity-100"
+          readOnly={isFieldReadOnly("lineName")}
           required
-          InputProps={{ readOnly: isFieldReadOnly("lineName") }}
         />
-      </Grid>
+        {errors.lineName && (
+          <Typography variant="small" color="red" className="mt-1">
+            {errors.lineName}
+          </Typography>
+        )}
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
+      {/* Công suất */}
+      <div>
+        <Input
           label="Công suất"
           name="capacity"
           type="number"
-          value={line.capacity}
+          color="blue"
+          value={line.capacity ?? ""}
           onChange={onChange}
-          error={!!errors.capacity}
-          helperText={errors.capacity}
-          required
-          InputProps={{ readOnly: isFieldReadOnly("capacity") }}
-          inputProps={{ min: 0 }}
+          className="w-full placeholder:opacity-100"
+          readOnly={isFieldReadOnly("capacity")}
         />
-      </Grid>
+        {errors.capacity && (
+          <Typography variant="small" color="red" className="mt-1">
+            {errors.capacity}
+          </Typography>
+        )}
+      </div>
 
-      <Grid item xs={12}>
-        <TextField
-          fullWidth
+      {/* Mô tả */}
+      <div className="md:col-span-2">
+        <Input
           label="Mô tả"
           name="description"
-          value={line.description}
+          color="blue"
+          value={line.description || ""}
           onChange={onChange}
-          multiline
-          rows={3}
-          InputProps={{ readOnly: isFieldReadOnly("description") }}
+          className="w-full placeholder:opacity-100"
+          readOnly={isFieldReadOnly("description")}
         />
-      </Grid>
-    </Grid>
+        {errors.description && (
+          <Typography variant="small" color="red" className="mt-1">
+            {errors.description}
+          </Typography>
+        )}
+      </div>
+    </div>
   );
 };
 

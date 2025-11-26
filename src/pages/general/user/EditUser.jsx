@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, Box, Button } from "@mui/material";
+import { Container, Paper, Typography, Box } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import UserForm from "@components/general/UserForm";
 import UpdatePasswordForm from "@components/general/UpdatePasswordForm";
 import { getUserById, updateUser } from "@/services/general/UserService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import toastrService from "@/services/toastrService";
+import { Button } from "@material-tailwind/react";
+import { getButtonProps } from "@/utils/buttonStyles";
 
 const EditUser = () => {
   const { userId } = useParams();
@@ -99,8 +101,8 @@ const EditUser = () => {
         >
           {!showPasswordForm ? (
             <Button
-              variant="contained"
-              color="success"
+              type="button"
+              {...getButtonProps("success")}
               onClick={() => setShowPasswordForm(true)}
             >
               Thay đổi mật khẩu
@@ -111,13 +113,17 @@ const EditUser = () => {
 
           <Box display="flex" gap={2}>
             <Button
-              variant="outlined"
-              color="default"
+              type="button"
+              {...getButtonProps("outlinedSecondary")}
               onClick={() => navigate(`/user/${userId}`)}
             >
               Hủy
             </Button>
-            <Button variant="contained" color="default" onClick={handleSave}>
+            <Button
+              type="button"
+              {...getButtonProps("primary")}
+              onClick={handleSave}
+            >
               Lưu
             </Button>
           </Box>

@@ -1,96 +1,201 @@
 import React from "react";
-import { Grid, TextField, FormControl, InputLabel, Select, MenuItem, FormControlLabel, Checkbox } from "@mui/material";
+import {
+  Input,
+  Select,
+  Option,
+  Typography,
+  Checkbox,
+} from "@material-tailwind/react";
 
 const ItemForm = ({ item, onChange, errors = {}, readOnlyFields }) => {
   const isFieldReadOnly = (field) => readOnlyFields?.[field] ?? false;
 
+  const handleSelectChange = (name, value) => {
+    onChange({
+      target: {
+        name,
+        value,
+      },
+    });
+  };
+
   return (
-    <Grid container spacing={2}>
-
-      <Grid item xs={12} sm={6}>
-        <TextField fullWidth label="Mã hàng hóa" name="itemCode" value={item.itemCode} onChange={onChange}
-          placeholder="Mã hàng hóa được tạo tự động" required
-          inputProps={{ readOnly: isFieldReadOnly("itemCode") }}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Mã hàng hóa */}
+      <div>
+        <Input
+          label="Mã hàng hóa"
+          name="itemCode"
+          color="blue"
+          value={item.itemCode || ""}
+          onChange={onChange}
+          className="w-full placeholder:opacity-100"
+          readOnly={isFieldReadOnly("itemCode")}
+          required
         />
-      </Grid>
+        {errors.itemCode && (
+          <Typography variant="small" color="red" className="mt-1">
+            {errors.itemCode}
+          </Typography>
+        )}
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <TextField fullWidth label="Tên hàng hóa" name="itemName" value={item.itemName} onChange={onChange}
-          error={!!errors.itemName} helperText={errors.itemName} required
-          InputProps={{ readOnly: isFieldReadOnly("itemName") }}
+      {/* Tên hàng hóa */}
+      <div>
+        <Input
+          label="Tên hàng hóa"
+          name="itemName"
+          color="blue"
+          value={item.itemName || ""}
+          onChange={onChange}
+          className="w-full placeholder:opacity-100"
+          readOnly={isFieldReadOnly("itemName")}
+          required
         />
-      </Grid>
+        {errors.itemName && (
+          <Typography variant="small" color="red" className="mt-1">
+            {errors.itemName}
+          </Typography>
+        )}
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <FormControl fullWidth error={!!errors.itemType} helperText={errors.itemType} required >
-          <InputLabel>Loại hàng hóa</InputLabel>
-          <Select name="itemType" value={item.itemType || ''} label="Loại hàng hóa" onChange={onChange}
-            inputProps={{ readOnly: isFieldReadOnly("itemType") }}
-          >
-            <MenuItem value="Nguyên vật liệu">Nguyên vật liệu</MenuItem>
-            <MenuItem value="Thành phẩm">Thành phẩm</MenuItem>
-            <MenuItem value="Bán thành phẩm">Bán thành phẩm</MenuItem>
-          </Select>
-        </FormControl>
-      </Grid>
+      {/* Loại hàng hóa */}
+      <div>
+        <Select
+          label="Loại hàng hóa"
+          value={item.itemType || ""}
+          color="blue"
+          onChange={(val) => handleSelectChange("itemType", val)}
+          className="w-full placeholder:opacity-100"
+          disabled={isFieldReadOnly("itemType")}
+        >
+          <Option value="Nguyên vật liệu">Nguyên vật liệu</Option>
+          <Option value="Thành phẩm">Thành phẩm</Option>
+          <Option value="Bán thành phẩm">Bán thành phẩm</Option>
+        </Select>
+        {errors.itemType && (
+          <Typography variant="small" color="red" className="mt-1">
+            {errors.itemType}
+          </Typography>
+        )}
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <TextField fullWidth label="Đơn vị tính" name="uom" value={item.uom} onChange={onChange}
-          error={!!errors.uom} helperText={errors.uom} required
-          InputProps={{ readOnly: isFieldReadOnly("uom") }}
+      {/* Đơn vị tính */}
+      <div>
+        <Input
+          label="Đơn vị tính"
+          name="uom"
+          color="blue"
+          value={item.uom || ""}
+          onChange={onChange}
+          className="w-full placeholder:opacity-100"
+          readOnly={isFieldReadOnly("uom")}
+          required
         />
-      </Grid>
+        {errors.uom && (
+          <Typography variant="small" color="red" className="mt-1">
+            {errors.uom}
+          </Typography>
+        )}
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <TextField fullWidth label="Giá nhập" name="importPrice" type="number" value={item.importPrice} onChange={onChange}
-          error={!!errors.importPrice} helperText={errors.importPrice}
-          InputProps={{ readOnly: isFieldReadOnly("importPrice") }}
-          inputProps={{ min: 0, step: "any" }}
+      {/* Giá nhập */}
+      <div>
+        <Input
+          label="Giá nhập"
+          name="importPrice"
+          type="number"
+          color="blue"
+          value={item.importPrice ?? ""}
+          onChange={onChange}
+          className="w-full placeholder:opacity-100"
+          readOnly={isFieldReadOnly("importPrice")}
         />
-      </Grid>
+        {errors.importPrice && (
+          <Typography variant="small" color="red" className="mt-1">
+            {errors.importPrice}
+          </Typography>
+        )}
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <TextField fullWidth label="Giá xuất" name="exportPrice" type="number" value={item.exportPrice} onChange={onChange}
-          error={!!errors.exportPrice} helperText={errors.exportPrice}
-          InputProps={{ readOnly: isFieldReadOnly("exportPrice") }}
-          inputProps={{ min: 0, step: "any" }}
+      {/* Giá xuất */}
+      <div>
+        <Input
+          label="Giá xuất"
+          name="exportPrice"
+          type="number"
+          color="blue"
+          value={item.exportPrice ?? ""}
+          onChange={onChange}
+          className="w-full placeholder:opacity-100"
+          readOnly={isFieldReadOnly("exportPrice")}
         />
-      </Grid>
+        {errors.exportPrice && (
+          <Typography variant="small" color="red" className="mt-1">
+            {errors.exportPrice}
+          </Typography>
+        )}
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <TextField fullWidth label="Thông số kỹ thuật" name="technicalSpecifications" value={item.technicalSpecifications}
-          onChange={onChange} multiline minRows={3}
-          InputProps={{ readOnly: isFieldReadOnly("technicalSpecifications") }}
+      {/* Thông số kỹ thuật */}
+      <div>
+        <Input
+          label="Thông số kỹ thuật"
+          name="technicalSpecifications"
+          color="blue"
+          value={item.technicalSpecifications || ""}
+          onChange={onChange}
+          className="w-full placeholder:opacity-100"
+          readOnly={isFieldReadOnly("technicalSpecifications")}
         />
-      </Grid>
+        {errors.technicalSpecifications && (
+          <Typography variant="small" color="red" className="mt-1">
+            {errors.technicalSpecifications}
+          </Typography>
+        )}
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <TextField fullWidth label="Mô tả" name="description" value={item.description} onChange={onChange}
-          multiline minRows={3} InputProps={{ readOnly: isFieldReadOnly("description") }}
+      {/* Mô tả */}
+      <div>
+        <Input
+          label="Mô tả"
+          name="description"
+          color="blue"
+          value={item.description || ""}
+          onChange={onChange}
+          className="w-full placeholder:opacity-100"
+          readOnly={isFieldReadOnly("description")}
         />
-      </Grid>
+        {errors.description && (
+          <Typography variant="small" color="red" className="mt-1">
+            {errors.description}
+          </Typography>
+        )}
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <FormControlLabel
-          control={
-            <Checkbox
-              name="isSellable"
-              checked={!!item.isSellable}
-              onChange={(e) => onChange({ target: { name: "isSellable", value: e.target.checked } })}
-              disabled={readOnlyFields?.isSellable}
-              sx={{
-                ml: 0.5,
-                '&.Mui-checked': {
-                  color: '#05518b',
+      {/* Hàng bán */}
+      <div>
+        <div className="flex items-center gap-2">
+          <Checkbox
+            crossOrigin={undefined}
+            color="blue"
+            checked={!!item.isSellable}
+            onChange={(e) =>
+              onChange({
+                target: {
+                  name: "isSellable",
+                  value: e.target.checked,
                 },
-                '&:hover': { backgroundColor: 'transparent' },
-              }}
-            />
-          }
-          label="Hàng bán"
-        />
-      </Grid>
-    </Grid>
+              })
+            }
+            disabled={readOnlyFields?.isSellable}
+          />
+          <Typography className="text-sm font-medium text-blue-gray-700">
+            Hàng bán
+          </Typography>
+        </div>
+      </div>
+    </div>
   );
 };
 

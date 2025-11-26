@@ -3,7 +3,8 @@ import { useMemo } from 'react';
 
 // material-ui
 import { StyledEngineProvider } from '@mui/material';
-// import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+// import CssBaseline from '@mui/material/CssBaseline';
 
 // project import
 import Palette from './palette';
@@ -11,11 +12,12 @@ import CustomShadows from './shadows';
 import Typography from './typography';
 
 export default function ThemeCustomization({ children }) {
-  const theme = Palette('light', 'default');
+  // Base palette (with our custom 'default' color)
+  const baseTheme = Palette('light', 'default');
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const themeTypography = Typography(`'Public Sans', sans-serif`);
-  const themeCustomShadows = useMemo(() => CustomShadows(theme), [theme]);
+  const themeCustomShadows = useMemo(() => CustomShadows(baseTheme), [baseTheme]);
 
   const themeOptions = useMemo(
     () => ({
@@ -36,23 +38,24 @@ export default function ThemeCustomization({ children }) {
           paddingBottom: 8
         }
       },
-      palette: theme.palette,
+      palette: baseTheme.palette,
       customShadows: themeCustomShadows,
       typography: themeTypography
     }),
-    [theme, themeTypography, themeCustomShadows]
+    [baseTheme, themeTypography, themeCustomShadows]
   );
 
-  // const themes = createTheme(themeOptions);
-  // themes.components = componentsOverride(themes);
+  const themes = createTheme(themeOptions);
 
   return (
-    <StyledEngineProvider injectFirst={false}>
-      {/* <ThemeProvider theme={themes}> */}
-      {/* CssBaseline commented out to prevent MUI from overriding Tailwind */}
-      {/* <CssBaseline /> */}
-      {children}
-      {/* </ThemeProvider> */}
+    // injectFirst={true} để CSS của MUI được inject trước,
+    // giúp Tailwind + Material Tailwind dễ dàng override khi có xung đột.
+    <StyledEngineProvider injectFirst>
+      <ThemeProvider theme={themes}>
+        {/* Không dùng CssBaseline để tránh reset CSS của MUI đè lên Tailwind */}
+        {/* <CssBaseline /> */}
+        {children}
+      </ThemeProvider>
     </StyledEngineProvider>
   );
 }
