@@ -42,6 +42,11 @@ import EditItem from "@/pages/general/item/EditItem";
 import CreateItem from "@/pages/general/item/CreateItem";
 import CreateItemFromExcel from "@/pages/general/item/CreateItemFromExcel";
 
+import ProductInCompany from "@/pages/general/product/ProductInCompany";
+import CreateProduct from "@/pages/general/product/CreateProduct";
+import ProductDetail from "@/pages/general/product/ProductDetail";
+import QRScanPage from "@/pages/general/product/QRScanPage";
+
 import WarehouseInCompany from "@pages/general/warehouse/WarehouseInCompany";
 import WarehouseDetail from "@pages/general/warehouse/WarehouseDetail";
 import EditWarehouse from "@/pages/general/warehouse/EditWarehouse";
@@ -393,6 +398,43 @@ function AppRoutes() {
               <PrivateRoute
                 element={<CreateItemFromExcel />}
                 allowedRoles={["c_admin"]}
+              />
+            }
+          />
+
+          <Route
+            path="/products"
+            element={
+              <PrivateRoute
+                element={<ProductInCompany />}
+                allowedRoles={["c_admin", "user"]}
+              />
+            }
+          />
+          <Route
+            path="/create-product"
+            element={
+              <PrivateRoute
+                element={<CreateProduct />}
+                allowedRoles={["c_admin", "user"]}
+              />
+            }
+          />
+          <Route
+            path="/product/:productId"
+            element={
+              <PrivateRoute
+                element={<ProductDetail />}
+                allowedRoles={["c_admin", "user"]}
+              />
+            }
+          />
+          <Route
+            path="/scan-qr"
+            element={
+              <PrivateRoute
+                element={<QRScanPage />}
+                allowedRoles={["c_admin", "user"]}
               />
             }
           />

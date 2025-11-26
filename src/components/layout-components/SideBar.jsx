@@ -44,6 +44,7 @@ import {
   Logout,
   ChevronLeft,
   ChevronRight,
+  QrCodeScanner,
 } from "@mui/icons-material";
 
 import { useNavigate, useLocation } from "react-router-dom";
@@ -59,9 +60,9 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
     return saved
       ? JSON.parse(saved)
       : {
-          info: false,
-          manufacturing: false,
-        };
+        info: false,
+        manufacturing: false,
+      };
   });
 
   const [selectedPath, setSelectedPath] = useState(() => {
@@ -217,6 +218,14 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
                 icon={<Category />}
                 title="Quản lý hàng hóa"
                 path="/items"
+                selectedPath={selectedPath}
+                onSelect={handleSelect}
+                collapsed={!openSidebar}
+              />
+              <MenuItem
+                icon={<QrCodeScanner />}
+                title="Quản lý sản phẩm (QR)"
+                path="/products"
                 selectedPath={selectedPath}
                 onSelect={handleSelect}
                 collapsed={!openSidebar}
