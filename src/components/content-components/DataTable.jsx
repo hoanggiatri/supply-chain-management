@@ -1,16 +1,20 @@
-import React from "react";
 import {
-  Typography,
-  Input,
+  ChevronUpDownIcon,
+  MagnifyingGlassIcon,
+} from "@heroicons/react/24/outline";
+import { InboxIcon } from "@heroicons/react/24/solid";
+import {
   Button,
-  Select,
-  Option,
-  Chip,
   Card,
   CardBody,
+  CardFooter,
+  Chip,
+  Input,
+  Option,
+  Select,
+  Typography
 } from "@material-tailwind/react";
-import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import { InboxIcon } from "@heroicons/react/24/solid";
+import React from "react";
 
 const DataTable = ({
   rows,
@@ -30,10 +34,10 @@ const DataTable = ({
   loading = false, // Loading state
   statusColumn = "status", // Column ID for status (will render as Chip)
   statusColors = {}, // Optional: custom colors for status values
+  // Optional: custom status renderer function (statusValue, row) => ReactNode
+  // If provided, this will override the default Chip rendering
+  renderStatus = null,
 }) => {
-  // Default height if not provided
-  const tableHeight = height || "calc(100vh - 350px)";
-
   const handleSort = (property) => () => {
     onRequestSort(property);
   };
@@ -95,7 +99,10 @@ const DataTable = ({
       statusLower.includes("hoàn thành") ||
       statusLower.includes("completed") ||
       statusLower.includes("đã") ||
-      statusLower.includes("success")
+      statusLower.includes("success") ||
+      statusLower.includes("active") ||
+      statusLower.includes("đang hoạt động") ||
+      statusLower.includes("đang sử dụng")
     ) {
       return "green";
     }
@@ -116,27 +123,39 @@ const DataTable = ({
     if (
       statusLower.includes("hủy") ||
       statusLower.includes("cancel") ||
-      statusLower.includes("failed")
+      statusLower.includes("failed") ||
+      statusLower.includes("inactive") ||
+      statusLower.includes("ngừng") ||
+      statusLower.includes("closed") ||
+      statusLower.includes("đã đóng")
     ) {
       return "red";
     }
-    return "gray";
+    return "blue-gray";
   };
 
   // Render cell content - check if it's status column and render as Chip
   const renderCellContent = (row, column) => {
     const value = row[column.id];
 
-    // If this is the status column, render as Chip
+    // If this is the status column, render as Chip or custom renderer
     if (column.id === statusColumn && value) {
+      // Use custom renderer if provided
+      if (renderStatus && typeof renderStatus === "function") {
+        return renderStatus(value, row);
+      }
+      // Default Chip rendering
       const chipColor = getStatusColor(value);
       return (
-        <Chip
-          value={value}
-          color={chipColor}
-          size="sm"
-          className="font-medium"
-        />
+        <div className="w-max">
+          <Chip
+            variant="ghost"
+            size="sm"
+            value={value}
+            color={chipColor}
+            className="font-medium"
+          />
+        </div>
       );
     }
 
@@ -144,31 +163,39 @@ const DataTable = ({
   };
 
   // Helper function to render status cell as Chip (for use in renderRow)
-  const renderStatusCell = (statusValue) => {
+  // Can be called from parent component: renderStatusCell(statusValue, customColor)
+  const renderStatusCell = (statusValue, customColor = null) => {
     if (!statusValue) return null;
-    const chipColor = getStatusColor(statusValue);
+    const chipColor = customColor || getStatusColor(statusValue);
     return (
-      <Chip
-        value={statusValue}
-        color={chipColor}
-        size="sm"
-        className="font-medium"
-      />
+      <div className="w-max">
+        <Chip
+          variant="ghost"
+          size="sm"
+          value={statusValue}
+          color={chipColor}
+          className="font-medium"
+        />
+      </div>
     );
   };
 
   // Loading Skeleton Component
   const LoadingSkeleton = () => (
     <tbody>
-      {[...new Array(rowsPerPage)].map((_, index) => (
-        <tr key={`skeleton-${index}`} className="border-b border-blue-gray-100">
-          {normalizedColumns.map((column) => (
-            <td key={column.id} className="p-4">
-              <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
-            </td>
-          ))}
-        </tr>
-      ))}
+      {[...new Array(rowsPerPage)].map((_, index) => {
+        const isLast = index === rowsPerPage - 1;
+        const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
+        return (
+          <tr key={`skeleton-${index}`}>
+            {normalizedColumns.map((column) => (
+              <td key={column.id} className={classes}>
+                <div className="h-4 bg-blue-gray-200 rounded animate-pulse"></div>
+              </td>
+            ))}
+          </tr>
+        );
+      })}
     </tbody>
   );
 
@@ -179,11 +206,19 @@ const DataTable = ({
         <td colSpan={normalizedColumns.length} className="p-8">
           <div className="flex flex-col items-center justify-center min-h-[300px] text-gray-500">
             <InboxIcon className="h-20 w-20 mb-4 opacity-30" />
-            <Typography variant="h6" color="gray" className="mb-2">
+            <Typography
+              variant="h6"
+              color="blue-gray"
+              className="mb-2 font-normal"
+            >
               {emptyMessage}
             </Typography>
             {search && (
-              <Typography variant="small" color="gray">
+              <Typography
+                variant="small"
+                color="blue-gray"
+                className="font-normal opacity-70"
+              >
                 Không tìm thấy kết quả cho "{search}"
               </Typography>
             )}
@@ -194,142 +229,128 @@ const DataTable = ({
   );
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Search and Filter Controls */}
-      <div className="flex justify-between items-center mb-4 gap-4">
-        <div className="w-32">
-          <Select
-            value={String(rowsPerPage)}
-            onChange={(val) =>
-              onRowsPerPageChange({ target: { value: Number(val) } })
-            }
-            label="Số hàng"
-            className="!min-w-[120px]"
-          >
-            <Option value="10">10</Option>
-            <Option value="20">20</Option>
-            <Option value="30">30</Option>
-            <Option value="50">50</Option>
-          </Select>
-        </div>
+    <Card className="h-full w-full shadow-lg">
+      {/* Header with Search and Filter Controls */}
+      <div className="p-6 border-b border-blue-gray-50">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="w-full sm:w-40">
+            <Select
+              value={String(rowsPerPage)}
+              onChange={(val) =>
+                onRowsPerPageChange({ target: { value: Number(val) } })
+              }
+              label="Số hàng"
+              color="blue"
+              containerProps={{
+                className: "min-w-[120px]"
+              }}
+            >
+              <Option value="10">10</Option>
+              <Option value="20">20</Option>
+              <Option value="30">30</Option>
+              <Option value="50">50</Option>
+            </Select>
+          </div>
 
-        <div className="w-64">
-          <Input
-            label="Tìm kiếm"
-            value={search}
-            placeholder="Nhập từ khóa tìm kiếm"
-            onChange={(e) => setSearch(e.target.value)}
-            icon={<MagnifyingGlassIcon className="h-5 w-5" />}
-            className="!min-w-[250px]"
-          />
+          <div className="w-full sm:w-72">
+            <Input
+              label="Tìm kiếm"
+              value={search}
+              placeholder="Nhập từ khóa tìm kiếm"
+              onChange={(e) => setSearch(e.target.value)}
+              icon={<MagnifyingGlassIcon className="h-5 w-5" />}
+              color="blue"
+              containerProps={{
+                className: "min-w-[200px]"
+              }}
+            />
+          </div>
         </div>
       </div>
 
-      {/* Table Container with Fixed Height & Sticky Header */}
-      <Card className="shadow-md border border-blue-gray-100">
-        <CardBody className="p-0">
-          <div
-            className="overflow-auto rounded-lg"
-            style={{
-              height: tableHeight,
-              maxHeight: tableHeight,
-            }}
-          >
-            <table className="w-full min-w-max table-auto text-left">
-              <thead>
-                <tr className="sticky top-0 z-10 bg-white border-b-2 border-blue-gray-100">
-                  {normalizedColumns.map((column) => (
-                    <th
-                      key={column.id}
-                      className="bg-white p-4 border-b border-blue-gray-100 cursor-pointer hover:bg-blue-gray-50 transition-colors"
-                      onClick={handleSort(column.id)}
-                    >
-                      <div className="flex items-center gap-2">
+      <CardBody className="overflow-auto px-0 py-0">
+        <table className="w-full min-w-max table-auto text-left">
+          <thead>
+            <tr>
+              {normalizedColumns.map((column, index) => (
+                <th
+                  key={column.id}
+                  className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50"
+                  onClick={handleSort(column.id)}
+                >
+                  <Typography
+                    variant="small"
+                    color="blue-gray"
+                    className="flex items-center justify-between gap-2 font-normal leading-none opacity-70"
+                  >
+                    {column.label}{" "}
+                    {index !== normalizedColumns.length - 1 && (
+                      <ChevronUpDownIcon strokeWidth={2} className="h-4 w-4" />
+                    )}
+                  </Typography>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          {loading ? (
+            <LoadingSkeleton />
+          ) : paginatedRows.length === 0 ? (
+            <EmptyState />
+          ) : (
+            <tbody>
+              {paginatedRows.map((row, index) => {
+                const isLast = index === paginatedRows.length - 1;
+                const classes = isLast
+                  ? "p-4"
+                  : "p-4 border-b border-blue-gray-50";
+
+                if (renderRow) {
+                  // Pass renderStatusCell helper to renderRow function
+                  const element = renderRow(
+                    row,
+                    index,
+                    page,
+                    rowsPerPage,
+                    renderStatusCell
+                  );
+                  // If renderRow returns a React element, clone it with key
+                  if (React.isValidElement(element)) {
+                    return React.cloneElement(element, {
+                      key: getRowKey(row, index),
+                    });
+                  }
+                  // If it's already a valid JSX element, return as is
+                  return element;
+                }
+                return (
+                  <tr key={getRowKey(row, index)}>
+                    {normalizedColumns.map((column) => (
+                      <td key={column.id} className={classes}>
                         <Typography
                           variant="small"
                           color="blue-gray"
-                          className="font-bold leading-none"
+                          className="font-normal"
                         >
-                          {column.label}
+                          {renderCellContent(row, column)}
                         </Typography>
-                        {orderBy === column.id && (
-                          <span className="text-blue-gray-400">
-                            {order === "asc" ? "↑" : "↓"}
-                          </span>
-                        )}
-                      </div>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              {loading ? (
-                <LoadingSkeleton />
-              ) : paginatedRows.length === 0 ? (
-                <EmptyState />
-              ) : (
-                <tbody>
-                  {paginatedRows.map((row, index) => {
-                    if (renderRow) {
-                      // Pass renderStatusCell helper to renderRow function
-                      const element = renderRow(
-                        row,
-                        index,
-                        page,
-                        rowsPerPage,
-                        renderStatusCell
-                      );
-                      // If renderRow returns a React element, clone it with key
-                      if (React.isValidElement(element)) {
-                        return React.cloneElement(element, {
-                          key: getRowKey(row, index),
-                        });
-                      }
-                      // If it's already a valid JSX element, return as is
-                      return element;
-                    }
-                    return (
-                      <tr
-                        key={getRowKey(row, index)}
-                        className="border-b border-blue-gray-100 hover:bg-blue-gray-50 transition-colors cursor-pointer"
-                      >
-                        {normalizedColumns.map((column) => (
-                          <td key={column.id} className="p-4">
-                            <Typography
-                              variant="small"
-                              color="blue-gray"
-                              className="font-normal"
-                            >
-                              {renderCellContent(row, column)}
-                            </Typography>
-                          </td>
-                        ))}
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              )}
-            </table>
-          </div>
-        </CardBody>
-      </Card>
+                      </td>
+                    ))}
+                  </tr>
+                );
+              })}
+            </tbody>
+          )}
+        </table>
+      </CardBody>
 
       {/* Pagination */}
       {!loading && paginatedRows.length > 0 && (
-        <div className="flex justify-between items-center mt-4">
-          <Typography variant="small" color="gray" className="font-normal">
-            Hiển thị {(page - 1) * rowsPerPage + 1} -{" "}
-            {Math.min(page * rowsPerPage, filteredRows.length)} trong tổng số{" "}
-            {filteredRows.length} kết quả
+        <CardFooter className="flex items-center justify-between border-t border-blue-gray-50 p-4">
+          <Typography variant="small" color="blue-gray" className="font-normal">
+            Trang {page} / {filteredTotalPages} (Tổng: {filteredRows.length} kết
+            quả)
           </Typography>
           <div className="flex gap-2">
-            <Button
-              variant="outlined"
-              size="sm"
-              onClick={() => onPageChange(null, 1)}
-              disabled={page === 1}
-            >
-              Đầu
-            </Button>
             <Button
               variant="outlined"
               size="sm"
@@ -338,13 +359,6 @@ const DataTable = ({
             >
               Trước
             </Button>
-            <Typography
-              variant="small"
-              color="gray"
-              className="flex items-center px-2"
-            >
-              Trang {page} / {filteredTotalPages}
-            </Typography>
             <Button
               variant="outlined"
               size="sm"
@@ -353,18 +367,10 @@ const DataTable = ({
             >
               Sau
             </Button>
-            <Button
-              variant="outlined"
-              size="sm"
-              onClick={() => onPageChange(null, filteredTotalPages)}
-              disabled={page >= filteredTotalPages}
-            >
-              Cuối
-            </Button>
           </div>
-        </div>
+        </CardFooter>
       )}
-    </div>
+    </Card>
   );
 };
 

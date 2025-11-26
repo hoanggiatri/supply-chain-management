@@ -1,17 +1,9 @@
 import React, { useEffect, useState } from "react";
-import {
-  Container,
-  Paper,
-  Typography,
-  TableRow,
-  TableCell,
-  Box,
-} from "@mui/material";
 import DataTable from "@components/content-components/DataTable";
 import { useNavigate } from "react-router-dom";
 import { getAllLinesInCompany } from "@/services/general/ManufactureLineService";
 import toastrService from "@/services/toastrService";
-import { Button } from "@material-tailwind/react";
+import { Button, Typography } from "@material-tailwind/react";
 import { getButtonProps } from "@/utils/buttonStyles";
 
 const LineInCompany = () => {
@@ -69,13 +61,12 @@ const LineInCompany = () => {
   ];
 
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
+    <div className="p-4">
+      <div className="mb-6">
+        <Typography variant="h4" color="blue-gray" className="mb-4">
           DANH SÁCH DÂY CHUYỀN SẢN XUẤT
         </Typography>
-
-        <Box mt={3} mb={3}>
+        <div className="mb-4">
           <Button
             type="button"
             {...getButtonProps("primary")}
@@ -83,38 +74,80 @@ const LineInCompany = () => {
           >
             Thêm mới
           </Button>
-        </Box>
-
-        <DataTable
-          rows={lines}
-          columns={columns}
-          order={order}
-          orderBy={orderBy}
-          onRequestSort={handleRequestSort}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          search={search}
-          setSearch={setSearch}
-          isLoading={loading}
-          renderRow={(line) => (
-            <TableRow
+        </div>
+      </div>
+      <DataTable
+        rows={lines}
+        columns={columns}
+        order={order}
+        orderBy={orderBy}
+        onRequestSort={handleRequestSort}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+        search={search}
+        setSearch={setSearch}
+        loading={loading}
+        renderRow={(line, index, page, rowsPerPage) => {
+          const isLast = index === lines.length - 1;
+          const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
+          return (
+            <tr
               key={line.id}
-              hover
-              sx={{ cursor: "pointer" }}
+              className="hover:bg-blue-gray-50 transition-colors cursor-pointer"
               onClick={() => navigate(`/line/${line.lineId}`)}
             >
-              <TableCell>{line.lineCode}</TableCell>
-              <TableCell>{line.lineName}</TableCell>
-              <TableCell>{line.plantName}</TableCell>
-              <TableCell>{line.capacity}</TableCell>
-              <TableCell>{line.description}</TableCell>
-            </TableRow>
-          )}
-        />
-      </Paper>
-    </Container>
+              <td className={classes}>
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {line.lineCode || ""}
+                </Typography>
+              </td>
+              <td className={classes}>
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {line.lineName || ""}
+                </Typography>
+              </td>
+              <td className={classes}>
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {line.plantName || ""}
+                </Typography>
+              </td>
+              <td className={classes}>
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {line.capacity || ""}
+                </Typography>
+              </td>
+              <td className={classes}>
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {line.description || ""}
+                </Typography>
+              </td>
+            </tr>
+          );
+        }}
+      />
+    </div>
   );
 };
 

@@ -1,17 +1,9 @@
 import React, { useEffect, useState } from "react";
-import {
-  Container,
-  Paper,
-  Typography,
-  TableRow,
-  TableCell,
-  Box,
-} from "@mui/material";
 import DataTable from "@components/content-components/DataTable";
 import { useNavigate } from "react-router-dom";
 import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
 import toastrService from "@/services/toastrService";
-import { Button } from "@material-tailwind/react";
+import { Button, Typography } from "@material-tailwind/react";
 import { getButtonProps } from "@/utils/buttonStyles";
 
 const WarehouseInCompany = () => {
@@ -60,6 +52,18 @@ const WarehouseInCompany = () => {
     setPage(1);
   };
 
+  const statusLabels = {
+    active: "Đang hoạt động",
+    inactive: "Ngừng hoạt động",
+    closed: "Đã đóng",
+  };
+
+  const statusColorMap = {
+    active: "green",
+    inactive: "amber",
+    closed: "red",
+  };
+
   const columns = [
     { id: "warehouseCode", label: "Mã kho" },
     { id: "warehouseName", label: "Tên kho" },
@@ -70,13 +74,12 @@ const WarehouseInCompany = () => {
   ];
 
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
+    <div className="p-4">
+      <div className="mb-6">
+        <Typography variant="h4" color="blue-gray" className="mb-4">
           DANH SÁCH KHO HÀNG
         </Typography>
-
-        <Box mt={3} mb={3}>
+        <div className="mb-4">
           <Button
             type="button"
             {...getButtonProps("primary")}
@@ -84,39 +87,86 @@ const WarehouseInCompany = () => {
           >
             Thêm mới
           </Button>
-        </Box>
-
-        <DataTable
-          rows={warehouses}
-          columns={columns}
-          order={order}
-          orderBy={orderBy}
-          onRequestSort={handleRequestSort}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          search={search}
-          setSearch={setSearch}
-          isLoading={loading}
-          renderRow={(warehouse) => (
-            <TableRow
+        </div>
+      </div>
+      <DataTable
+        rows={warehouses}
+        columns={columns}
+        order={order}
+        orderBy={orderBy}
+        onRequestSort={handleRequestSort}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+        search={search}
+        setSearch={setSearch}
+        loading={loading}
+        renderRow={(warehouse, index, page, rowsPerPage, renderStatusCell) => {
+          const isLast = index === warehouses.length - 1;
+          const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
+          return (
+            <tr
               key={warehouse.id}
-              hover
-              sx={{ cursor: "pointer" }}
+              className="hover:bg-blue-gray-50 transition-colors cursor-pointer"
               onClick={() => navigate(`/warehouse/${warehouse.warehouseId}`)}
             >
-              <TableCell>{warehouse.warehouseCode}</TableCell>
-              <TableCell>{warehouse.warehouseName}</TableCell>
-              <TableCell>{warehouse.description}</TableCell>
-              <TableCell>{warehouse.maxCapacity}</TableCell>
-              <TableCell>{warehouse.warehouseType}</TableCell>
-              <TableCell>{warehouse.status}</TableCell>
-            </TableRow>
-          )}
-        />
-      </Paper>
-    </Container>
+              <td className={classes}>
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {warehouse.warehouseCode || ""}
+                </Typography>
+              </td>
+              <td className={classes}>
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {warehouse.warehouseName || ""}
+                </Typography>
+              </td>
+              <td className={classes}>
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {warehouse.description || ""}
+                </Typography>
+              </td>
+              <td className={classes}>
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {warehouse.maxCapacity || ""}
+                </Typography>
+              </td>
+              <td className={classes}>
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {warehouse.warehouseType || ""}
+                </Typography>
+              </td>
+              <td className={classes}>
+                {renderStatusCell(
+                  statusLabels[warehouse.status] || warehouse.status || "",
+                  statusColorMap[warehouse.status]
+                )}
+              </td>
+            </tr>
+          );
+        }}
+      />
+    </div>
   );
 };
 

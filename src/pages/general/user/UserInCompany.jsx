@@ -1,15 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-  Container,
-  TableRow,
-  TableCell,
-  Typography,
-  Paper,
-} from "@mui/material";
 import DataTable from "@components/content-components/DataTable";
 import { getAllUsersInCompany } from "@/services/general/UserService";
 import { useNavigate } from "react-router-dom";
 import toastrService from "@/services/toastrService";
+import { Typography } from "@material-tailwind/react";
 
 const UserInCompany = () => {
   const [users, setUsers] = useState([]);
@@ -100,6 +94,12 @@ const UserInCompany = () => {
     resigned: "Đã nghỉ",
   };
 
+  const statusColorMap = {
+    active: "green",
+    inactive: "amber",
+    resigned: "red",
+  };
+
   const columns = [
     { id: "employeeCode", label: "Mã nhân viên" },
     { id: "email", label: "Email" },
@@ -108,42 +108,71 @@ const UserInCompany = () => {
   ];
 
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
+    <div className="p-4">
+      <div className="mb-6">
+        <Typography variant="h4" color="blue-gray" className="mb-4">
           DANH SÁCH TÀI KHOẢN
         </Typography>
-
-        <DataTable
-          rows={users}
-          columns={columns}
-          order={order}
-          orderBy={orderBy}
-          onRequestSort={handleRequestSort}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          search={search}
-          setSearch={setSearch}
-          renderRow={(user) => (
-            <TableRow
+      </div>
+      <DataTable
+        rows={users}
+        columns={columns}
+        order={order}
+        orderBy={orderBy}
+        onRequestSort={handleRequestSort}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+        search={search}
+        setSearch={setSearch}
+        renderRow={(user, index, page, rowsPerPage, renderStatusCell) => {
+          const isLast = index === users.length - 1;
+          const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
+          return (
+            <tr
               key={user.employeeId}
-              hover
-              sx={{ cursor: "pointer" }}
+              className="hover:bg-blue-gray-50 transition-colors cursor-pointer"
               onClick={() => navigate(`/user/${user.userId}`)}
             >
-              <TableCell>{user.employeeCode || ""}</TableCell>
-              <TableCell>{user.email || ""}</TableCell>
-              <TableCell>{roleLabels[user.role] || user.role || ""}</TableCell>
-              <TableCell>
-                {statusLabels[user.status] || user.status || ""}
-              </TableCell>
-            </TableRow>
-          )}
-        />
-      </Paper>
-    </Container>
+              <td className={classes}>
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {user.employeeCode || ""}
+                </Typography>
+              </td>
+              <td className={classes}>
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {user.email || ""}
+                </Typography>
+              </td>
+              <td className={classes}>
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {roleLabels[user.role] || user.role || ""}
+                </Typography>
+              </td>
+              <td className={classes}>
+                {renderStatusCell(
+                  statusLabels[user.status] || user.status || "",
+                  statusColorMap[user.status]
+                )}
+              </td>
+            </tr>
+          );
+        }}
+      />
+    </div>
   );
 };
 

@@ -1,17 +1,9 @@
 import React, { useEffect, useState } from "react";
-import {
-  Container,
-  TableRow,
-  TableCell,
-  Typography,
-  Paper,
-  Box,
-} from "@mui/material";
 import DataTable from "@components/content-components/DataTable";
 import { getAllProductsByCompany } from "@/services/general/ProductService";
 import { useNavigate } from "react-router-dom";
 import toastrService from "@/services/toastrService";
-import { Button } from "@material-tailwind/react";
+import { Button, Typography } from "@material-tailwind/react";
 import { getButtonProps } from "@/utils/buttonStyles";
 
 const ProductInCompany = () => {
@@ -57,6 +49,20 @@ const ProductInCompany = () => {
     setPage(1);
   };
 
+  const statusLabels = {
+    active: "Đang hoạt động",
+    inactive: "Ngừng hoạt động",
+    sold: "Đã bán",
+    damaged: "Hư hỏng",
+  };
+
+  const statusColorMap = {
+    active: "green",
+    inactive: "amber",
+    sold: "blue",
+    damaged: "red",
+  };
+
   const columns = [
     { id: "serialNumber", label: "Số Serial" },
     { id: "itemName", label: "Tên hàng hóa" },
@@ -66,12 +72,12 @@ const ProductInCompany = () => {
   ];
 
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
+    <div className="p-4">
+      <div className="mb-6">
+        <Typography variant="h4" color="blue-gray" className="mb-4">
           DANH SÁCH SẢN PHẨM (QR)
         </Typography>
-        <Box mt={3} mb={3} display="flex" gap={2}>
+        <div className="mb-4 flex gap-2">
           <Button
             type="button"
             {...getButtonProps("primary")}
@@ -86,40 +92,80 @@ const ProductInCompany = () => {
           >
             Quét QR
           </Button>
-        </Box>
-        <DataTable
-          rows={products}
-          columns={columns}
-          order={order}
-          orderBy={orderBy}
-          onRequestSort={handleRequestSort}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          search={search}
-          setSearch={setSearch}
-          renderRow={(product) => (
-            <TableRow
+        </div>
+      </div>
+      <DataTable
+        rows={products}
+        columns={columns}
+        order={order}
+        orderBy={orderBy}
+        onRequestSort={handleRequestSort}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+        search={search}
+        setSearch={setSearch}
+        statusColumn="status"
+        statusColors={statusColorMap}
+        renderRow={(product, index, page, rowsPerPage, renderStatusCell) => {
+          const isLast = index === products.length - 1;
+          const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
+          return (
+            <tr
               key={product.productId}
-              hover
-              sx={{ cursor: "pointer" }}
+              className="hover:bg-blue-gray-50 transition-colors cursor-pointer"
               onClick={() => navigate(`/product/${product.productId}`)}
             >
-              <TableCell>{product.serialNumber || ""}</TableCell>
-              <TableCell>{product.item?.itemName || ""}</TableCell>
-              <TableCell>{product.batchNumber || ""}</TableCell>
-              <TableCell>{product.status || "Active"}</TableCell>
-              <TableCell>
-                {product.createdDate
-                  ? new Date(product.createdDate).toLocaleDateString()
-                  : ""}
-              </TableCell>
-            </TableRow>
-          )}
-        />
-      </Paper>
-    </Container>
+              <td className={classes}>
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {product.serialNumber || ""}
+                </Typography>
+              </td>
+              <td className={classes}>
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {product.item?.itemName || ""}
+                </Typography>
+              </td>
+              <td className={classes}>
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {product.batchNumber || ""}
+                </Typography>
+              </td>
+              <td className={classes}>
+                {renderStatusCell(
+                  statusLabels[product.status] || product.status || "Active",
+                  statusColorMap[product.status]
+                )}
+              </td>
+              <td className={classes}>
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {product.createdDate
+                    ? new Date(product.createdDate).toLocaleDateString()
+                    : ""}
+                </Typography>
+              </td>
+            </tr>
+          );
+        }}
+      />
+    </div>
   );
 };
 

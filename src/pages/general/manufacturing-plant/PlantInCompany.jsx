@@ -1,17 +1,9 @@
 import React, { useEffect, useState } from "react";
-import {
-  Container,
-  Paper,
-  Typography,
-  TableRow,
-  TableCell,
-  Box,
-} from "@mui/material";
 import DataTable from "@components/content-components/DataTable";
 import { useNavigate } from "react-router-dom";
 import { getAllPlantsInCompany } from "@/services/general/ManufacturePlantService";
 import toastrService from "@/services/toastrService";
-import { Button } from "@material-tailwind/react";
+import { Button, Typography } from "@material-tailwind/react";
 import { getButtonProps } from "@/utils/buttonStyles";
 
 const PlantInCompany = () => {
@@ -67,13 +59,12 @@ const PlantInCompany = () => {
   ];
 
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
+    <div className="p-4">
+      <div className="mb-6">
+        <Typography variant="h4" color="blue-gray" className="mb-4">
           DANH SÁCH XƯỞNG SẢN XUẤT
         </Typography>
-
-        <Box mt={3} mb={3}>
+        <div className="mb-4">
           <Button
             type="button"
             {...getButtonProps("primary")}
@@ -81,36 +72,62 @@ const PlantInCompany = () => {
           >
             Thêm mới
           </Button>
-        </Box>
-
-        <DataTable
-          rows={plants}
-          columns={columns}
-          order={order}
-          orderBy={orderBy}
-          onRequestSort={handleRequestSort}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          search={search}
-          setSearch={setSearch}
-          isLoading={loading}
-          renderRow={(plant) => (
-            <TableRow
+        </div>
+      </div>
+      <DataTable
+        rows={plants}
+        columns={columns}
+        order={order}
+        orderBy={orderBy}
+        onRequestSort={handleRequestSort}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+        search={search}
+        setSearch={setSearch}
+        loading={loading}
+        renderRow={(plant, index, page, rowsPerPage) => {
+          const isLast = index === plants.length - 1;
+          const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
+          return (
+            <tr
               key={plant.plantId}
-              hover
-              sx={{ cursor: "pointer" }}
+              className="hover:bg-blue-gray-50 transition-colors cursor-pointer"
               onClick={() => navigate(`/plant/${plant.plantId}`)}
             >
-              <TableCell>{plant.plantCode}</TableCell>
-              <TableCell>{plant.plantName}</TableCell>
-              <TableCell>{plant.description}</TableCell>
-            </TableRow>
-          )}
-        />
-      </Paper>
-    </Container>
+              <td className={classes}>
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {plant.plantCode || ""}
+                </Typography>
+              </td>
+              <td className={classes}>
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {plant.plantName || ""}
+                </Typography>
+              </td>
+              <td className={classes}>
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {plant.description || ""}
+                </Typography>
+              </td>
+            </tr>
+          );
+        }}
+      />
+    </div>
   );
 };
 

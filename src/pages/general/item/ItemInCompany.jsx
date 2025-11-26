@@ -1,17 +1,9 @@
 import React, { useEffect, useState } from "react";
-import {
-  Container,
-  TableRow,
-  TableCell,
-  Typography,
-  Paper,
-  Box,
-} from "@mui/material";
 import DataTable from "@components/content-components/DataTable";
 import { getAllItemsInCompany } from "@/services/general/ItemService";
 import { useNavigate } from "react-router-dom";
 import toastrService from "@/services/toastrService";
-import { Button } from "@material-tailwind/react";
+import { Button, Typography } from "@material-tailwind/react";
 import { getButtonProps } from "@/utils/buttonStyles";
 
 const ItemInCompany = () => {
@@ -70,12 +62,12 @@ const ItemInCompany = () => {
   ];
 
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
+    <div className="p-4">
+      <div className="mb-6">
+        <Typography variant="h4" color="blue-gray" className="mb-4">
           DANH SÁCH HÀNG HÓA
         </Typography>
-        <Box mt={3} mb={3}>
+        <div className="mb-4">
           <Button
             type="button"
             {...getButtonProps("primary")}
@@ -83,48 +75,119 @@ const ItemInCompany = () => {
           >
             Thêm mới
           </Button>
-        </Box>
-        <DataTable
-          rows={items}
-          columns={columns}
-          order={order}
-          orderBy={orderBy}
-          onRequestSort={handleRequestSort}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          search={search}
-          setSearch={setSearch}
-          renderRow={(item) => (
-            <TableRow
+        </div>
+      </div>
+      <DataTable
+        rows={items}
+        columns={columns}
+        order={order}
+        orderBy={orderBy}
+        onRequestSort={handleRequestSort}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+        search={search}
+        setSearch={setSearch}
+        renderRow={(item, index, page, rowsPerPage) => {
+          const isLast = index === items.length - 1;
+          const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
+          return (
+            <tr
               key={item.itemId}
-              hover
-              sx={{ cursor: "pointer" }}
+              className="hover:bg-blue-gray-50 transition-colors cursor-pointer"
               onClick={() => navigate(`/item/${item.itemId}`)}
             >
-              <TableCell>{item.itemCode || ""}</TableCell>
-              <TableCell>{item.itemName || ""}</TableCell>
-              <TableCell>{item.itemType || ""}</TableCell>
-              <TableCell>{item.uom || ""}</TableCell>
-              <TableCell>{item.technicalSpecifications || ""}</TableCell>
-              <TableCell>
-                {item.importPrice !== null
-                  ? item.importPrice.toLocaleString()
-                  : ""}
-              </TableCell>
-              <TableCell>
-                {item.exportPrice !== null
-                  ? item.exportPrice.toLocaleString()
-                  : ""}
-              </TableCell>
-              <TableCell>{item.description || ""}</TableCell>
-              <TableCell>{item.isSellable ? "Có" : "Không"}</TableCell>
-            </TableRow>
-          )}
-        />
-      </Paper>
-    </Container>
+              <td className={classes}>
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {item.itemCode || ""}
+                </Typography>
+              </td>
+              <td className={classes}>
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {item.itemName || ""}
+                </Typography>
+              </td>
+              <td className={classes}>
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {item.itemType || ""}
+                </Typography>
+              </td>
+              <td className={classes}>
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {item.uom || ""}
+                </Typography>
+              </td>
+              <td className={classes}>
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {item.technicalSpecifications || ""}
+                </Typography>
+              </td>
+              <td className={classes}>
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {item.importPrice !== null
+                    ? item.importPrice.toLocaleString()
+                    : ""}
+                </Typography>
+              </td>
+              <td className={classes}>
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {item.exportPrice !== null
+                    ? item.exportPrice.toLocaleString()
+                    : ""}
+                </Typography>
+              </td>
+              <td className={classes}>
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {item.description || ""}
+                </Typography>
+              </td>
+              <td className={classes}>
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {item.isSellable ? "Có" : "Không"}
+                </Typography>
+              </td>
+            </tr>
+          );
+        }}
+      />
+    </div>
   );
 };
 
