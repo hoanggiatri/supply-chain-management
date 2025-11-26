@@ -1,17 +1,10 @@
 import React, { useEffect, useState } from "react";
-import {
-  Container,
-  TableRow,
-  TableCell,
-  Typography,
-  Paper,
-  Box,
-  Button,
-} from "@mui/material";
 import DataTable from "@components/content-components/DataTable";
 import { getAllStagesInCompany } from "@/services/manufacturing/StageService";
 import { useNavigate } from "react-router-dom";
 import toastrService from "@/services/toastrService";
+import { Button, Typography } from "@material-tailwind/react";
+import { getButtonProps } from "@/utils/buttonStyles";
 
 const StageInCompany = () => {
   const [stages, setStages] = useState([]);
@@ -56,6 +49,16 @@ const StageInCompany = () => {
     setPage(1);
   };
 
+  const statusLabels = {
+    active: "Đang sử dụng",
+    inactive: "Ngừng sử dụng",
+  };
+
+  const statusColorMap = {
+    active: "green",
+    inactive: "red",
+  };
+
   const columns = [
     { id: "stageCode", label: "Mã Stage" },
     { id: "itemCode", label: "Mã hàng hóa" },
@@ -65,49 +68,91 @@ const StageInCompany = () => {
   ];
 
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
+    <div className="p-4">
+      <div className="mb-6">
+        <Typography variant="h4" color="blue-gray" className="mb-4">
           DANH SÁCH QUY TRÌNH SẢN XUẤT
         </Typography>
-        <Box mt={3} mb={3}>
+        <div className="mb-4">
           <Button
-            variant="contained"
-            color="default"
+            type="button"
+            {...getButtonProps("primary")}
             onClick={() => navigate("/create-stage")}
           >
             Thêm mới
           </Button>
-        </Box>
-        <DataTable
-          rows={stages}
-          columns={columns}
-          order={order}
-          orderBy={orderBy}
-          onRequestSort={handleRequestSort}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          search={search}
-          setSearch={setSearch}
-          renderRow={(stage) => (
-            <TableRow
+        </div>
+      </div>
+      <DataTable
+        rows={stages}
+        columns={columns}
+        order={order}
+        orderBy={orderBy}
+        onRequestSort={handleRequestSort}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+        search={search}
+        setSearch={setSearch}
+        statusColumn="status"
+        statusColors={statusColorMap}
+        renderRow={(stage, index, page, rowsPerPage, renderStatusCell) => {
+          const isLast = index === stages.length - 1;
+          const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
+          return (
+            <tr
               key={stage.stageId}
-              hover
-              sx={{ cursor: "pointer" }}
+              className="hover:bg-blue-gray-50 transition-colors cursor-pointer"
               onClick={() => navigate(`/stage/${stage.stageId}`)}
             >
-              <TableCell>{stage.stageCode || ""}</TableCell>
-              <TableCell>{stage.itemCode || ""}</TableCell>
-              <TableCell>{stage.itemName || ""}</TableCell>
-              <TableCell>{stage.description || ""}</TableCell>
-              <TableCell>{stage.status || ""}</TableCell>
-            </TableRow>
-          )}
-        />
-      </Paper>
-    </Container>
+              <td className={classes}>
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {stage.stageCode || ""}
+                </Typography>
+              </td>
+              <td className={classes}>
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {stage.itemCode || ""}
+                </Typography>
+              </td>
+              <td className={classes}>
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {stage.itemName || ""}
+                </Typography>
+              </td>
+              <td className={classes}>
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {stage.description || ""}
+                </Typography>
+              </td>
+              <td className={classes}>
+                {renderStatusCell(
+                  statusLabels[stage.status] || stage.status || "",
+                  statusColorMap[stage.status]
+                )}
+              </td>
+            </tr>
+          );
+        }}
+      />
+    </div>
   );
 };
 

@@ -1,17 +1,10 @@
 import React, { useEffect, useState } from "react";
-import {
-  Container,
-  TableRow,
-  TableCell,
-  Typography,
-  Paper,
-  Box,
-  Button,
-} from "@mui/material";
 import DataTable from "@components/content-components/DataTable";
 import { getAllBomsInCompany } from "@/services/manufacturing/BomService";
 import { useNavigate } from "react-router-dom";
 import toastrService from "@/services/toastrService";
+import { Button, Typography } from "@material-tailwind/react";
+import { getButtonProps } from "@/utils/buttonStyles";
 
 const BomInCompany = () => {
   const [boms, setBoms] = useState([]);
@@ -56,6 +49,16 @@ const BomInCompany = () => {
     setPage(1);
   };
 
+  const statusLabels = {
+    active: "Đang sử dụng",
+    inactive: "Ngừng sử dụng",
+  };
+
+  const statusColorMap = {
+    active: "green",
+    inactive: "red",
+  };
+
   const columns = [
     { id: "bomCode", label: "Mã BOM" },
     { id: "itemCode", label: "Mã hàng hóa" },
@@ -65,49 +68,91 @@ const BomInCompany = () => {
   ];
 
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
+    <div className="p-4">
+      <div className="mb-6">
+        <Typography variant="h4" color="blue-gray" className="mb-4">
           DANH SÁCH BOM
         </Typography>
-        <Box mt={3} mb={3}>
+        <div className="mb-4">
           <Button
-            variant="contained"
-            color="default"
+            type="button"
+            {...getButtonProps("primary")}
             onClick={() => navigate("/create-bom")}
           >
             Thêm mới
           </Button>
-        </Box>
-        <DataTable
-          rows={boms}
-          columns={columns}
-          order={order}
-          orderBy={orderBy}
-          onRequestSort={handleRequestSort}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          search={search}
-          setSearch={setSearch}
-          renderRow={(bom) => (
-            <TableRow
+        </div>
+      </div>
+      <DataTable
+        rows={boms}
+        columns={columns}
+        order={order}
+        orderBy={orderBy}
+        onRequestSort={handleRequestSort}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+        search={search}
+        setSearch={setSearch}
+        statusColumn="status"
+        statusColors={statusColorMap}
+        renderRow={(bom, index, page, rowsPerPage, renderStatusCell) => {
+          const isLast = index === boms.length - 1;
+          const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
+          return (
+            <tr
               key={bom.bomId}
-              hover
-              sx={{ cursor: "pointer" }}
+              className="hover:bg-blue-gray-50 transition-colors cursor-pointer"
               onClick={() => navigate(`/bom/${bom.itemId}`)}
             >
-              <TableCell>{bom.bomCode || ""}</TableCell>
-              <TableCell>{bom.itemCode || ""}</TableCell>
-              <TableCell>{bom.itemName || ""}</TableCell>
-              <TableCell>{bom.description || ""}</TableCell>
-              <TableCell>{bom.status || ""}</TableCell>
-            </TableRow>
-          )}
-        />
-      </Paper>
-    </Container>
+              <td className={classes}>
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {bom.bomCode || ""}
+                </Typography>
+              </td>
+              <td className={classes}>
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {bom.itemCode || ""}
+                </Typography>
+              </td>
+              <td className={classes}>
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {bom.itemName || ""}
+                </Typography>
+              </td>
+              <td className={classes}>
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {bom.description || ""}
+                </Typography>
+              </td>
+              <td className={classes}>
+                {renderStatusCell(
+                  statusLabels[bom.status] || bom.status || "",
+                  statusColorMap[bom.status]
+                )}
+              </td>
+            </tr>
+          );
+        }}
+      />
+    </div>
   );
 };
 
