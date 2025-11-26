@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, Box, Button } from "@mui/material";
+import { Container, Paper, Typography, Box } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import WarehouseForm from "@components/general/WarehouseForm";
 import {
@@ -8,6 +8,8 @@ import {
 } from "@/services/general/WarehouseService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import toastrService from "@/services/toastrService";
+import { Button } from "@material-tailwind/react";
+import { getButtonProps } from "@/utils/buttonStyles";
 
 const EditWarehouse = () => {
   const { warehouseId } = useParams();
@@ -96,7 +98,9 @@ const EditWarehouse = () => {
       toastrService.success("Cập nhật kho thành công!");
       navigate(`/warehouse/${warehouseId}`);
     } catch (error) {
-      toastrService.error(error.response?.data?.message || "Có lỗi xảy ra khi cập nhật kho!");
+      toastrService.error(
+        error.response?.data?.message || "Có lỗi xảy ra khi cập nhật kho!"
+      );
     }
   };
 
@@ -121,10 +125,18 @@ const EditWarehouse = () => {
         />
 
         <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
-          <Button variant="contained" color="default" onClick={handleSave}>
+          <Button
+            type="button"
+            {...getButtonProps("primary")}
+            onClick={handleSave}
+          >
             Lưu
           </Button>
-          <Button variant="outlined" color="default" onClick={handleCancel}>
+          <Button
+            type="button"
+            {...getButtonProps("outlinedSecondary")}
+            onClick={handleCancel}
+          >
             Hủy
           </Button>
         </Box>

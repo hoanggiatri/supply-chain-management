@@ -1,9 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { Container, TableRow, TableCell, Typography, Paper, Box, Button } from "@mui/material";
+import {
+  Container,
+  TableRow,
+  TableCell,
+  Typography,
+  Paper,
+  Box,
+} from "@mui/material";
 import DataTable from "@components/content-components/DataTable";
 import { getAllItemsInCompany } from "@/services/general/ItemService";
 import { useNavigate } from "react-router-dom";
 import toastrService from "@/services/toastrService";
+import { Button } from "@material-tailwind/react";
+import { getButtonProps } from "@/utils/buttonStyles";
 
 const ItemInCompany = () => {
   const [items, setItems] = useState([]);
@@ -23,7 +32,10 @@ const ItemInCompany = () => {
         const data = await getAllItemsInCompany(companyId, token);
         setItems(data);
       } catch (error) {
-        toastrService.error(error.response?.data?.message || "Có lỗi xảy ra khi lấy danh sách hàng hóa!");
+        toastrService.error(
+          error.response?.data?.message ||
+            "Có lỗi xảy ra khi lấy danh sách hàng hóa!"
+        );
       }
     };
 
@@ -64,7 +76,11 @@ const ItemInCompany = () => {
           DANH SÁCH HÀNG HÓA
         </Typography>
         <Box mt={3} mb={3}>
-          <Button variant="contained" color="default" onClick={() => navigate("/create-item")}>
+          <Button
+            type="button"
+            {...getButtonProps("primary")}
+            onClick={() => navigate("/create-item")}
+          >
             Thêm mới
           </Button>
         </Box>
@@ -92,8 +108,16 @@ const ItemInCompany = () => {
               <TableCell>{item.itemType || ""}</TableCell>
               <TableCell>{item.uom || ""}</TableCell>
               <TableCell>{item.technicalSpecifications || ""}</TableCell>
-              <TableCell>{item.importPrice !== null ? item.importPrice.toLocaleString() : ""}</TableCell>
-              <TableCell>{item.exportPrice !== null ? item.exportPrice.toLocaleString() : ""}</TableCell>
+              <TableCell>
+                {item.importPrice !== null
+                  ? item.importPrice.toLocaleString()
+                  : ""}
+              </TableCell>
+              <TableCell>
+                {item.exportPrice !== null
+                  ? item.exportPrice.toLocaleString()
+                  : ""}
+              </TableCell>
               <TableCell>{item.description || ""}</TableCell>
               <TableCell>{item.isSellable ? "Có" : "Không"}</TableCell>
             </TableRow>

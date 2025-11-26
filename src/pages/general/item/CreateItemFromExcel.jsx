@@ -1,10 +1,20 @@
 import React, { useState } from "react";
-import { Container, Typography, Button, Grid, Paper, TableRow, TableCell, Box } from "@mui/material";
+import {
+  Container,
+  Typography,
+  Grid,
+  Paper,
+  TableRow,
+  TableCell,
+  Box,
+} from "@mui/material";
 import DataTable from "@/components/content-components/DataTable";
 import useExcelUpload from "@/hooks/useExcelUpload";
 import { useNavigate } from "react-router-dom";
 import { createItem } from "@/services/general/ItemService";
 import toastrService from "@/services/toastrService";
+import { Button } from "@material-tailwind/react";
+import { getButtonProps } from "@/utils/buttonStyles";
 
 const CreateItemFromExcel = () => {
   const navigate = useNavigate();
@@ -27,7 +37,7 @@ const CreateItemFromExcel = () => {
     { id: "importPrice", label: "Giá nhập" },
     { id: "exportPrice", label: "Giá xuất" },
     { id: "description", label: "Mô tả" },
-    { id: "isSellable", label: "Hàng bán" }
+    { id: "isSellable", label: "Hàng bán" },
   ];
 
   const handleDataLoaded = (data) => {
@@ -41,7 +51,7 @@ const CreateItemFromExcel = () => {
       exportPrice: item["Giá xuất"],
       technicalSpecifications: item["Thông số kỹ thuật"],
       description: item["Mô tả"],
-      isSellable: item["Hàng bán"]
+      isSellable: item["Hàng bán"],
     }));
 
     setExcelData(mappedData);
@@ -69,7 +79,9 @@ const CreateItemFromExcel = () => {
       toastrService.success("Thêm tất cả hàng hóa thành công!");
       navigate("/items");
     } catch (error) {
-      toastrService.error(error.response?.data?.message || "Lỗi khi thêm hàng hóa!");
+      toastrService.error(
+        error.response?.data?.message || "Lỗi khi thêm hàng hóa!"
+      );
     }
   };
 
@@ -83,9 +95,16 @@ const CreateItemFromExcel = () => {
         <Grid container spacing={2} mt={3} mb={3}>
           <Grid item xs={12}>
             <Box display="flex" alignItems="center">
-              <Button variant="contained" color="default" component="label">
+              <Button
+                type="button"
+                {...getButtonProps("primary")}
+                component="label"
+              >
                 Tải file Excel
-                <input type="file" accept=".xlsx, .xls" hidden
+                <input
+                  type="file"
+                  accept=".xlsx, .xls"
+                  hidden
                   onChange={(e) => {
                     if (e.target.files.length > 0) {
                       setFileName(e.target.files[0].name);
@@ -125,21 +144,37 @@ const CreateItemFromExcel = () => {
                 <TableRow key={index}>
                   {columns.map((column) => {
                     if (column.id === "isSellable") {
-                      return <TableCell key={column.id}>{row[column.id] === 1 || row[column.id] === "1" ? "Có" : "Không"}</TableCell>;
+                      return (
+                        <TableCell key={column.id}>
+                          {row[column.id] === 1 || row[column.id] === "1"
+                            ? "Có"
+                            : "Không"}
+                        </TableCell>
+                      );
                     }
-                    return <TableCell key={column.id}>{row[column.id]}</TableCell>;
+                    return (
+                      <TableCell key={column.id}>{row[column.id]}</TableCell>
+                    );
                   })}
                 </TableRow>
               )}
             />
             <Grid container spacing={2} mt={3} justifyContent="flex-end">
               <Grid item>
-                <Button variant="contained" color="default" onClick={handleSubmit}>
+                <Button
+                  type="button"
+                  {...getButtonProps("primary")}
+                  onClick={handleSubmit}
+                >
                   Thêm tất cả
                 </Button>
               </Grid>
               <Grid item>
-                <Button variant="outlined" color="default" onClick={() => navigate("/items")}>
+                <Button
+                  type="button"
+                  {...getButtonProps("outlinedSecondary")}
+                  onClick={() => navigate("/items")}
+                >
                   Hủy
                 </Button>
               </Grid>

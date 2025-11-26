@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import { Container, Typography, Button, Grid, Paper } from "@mui/material";
+import { Container, Typography, Grid, Paper } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { createLine } from "@/services/general/ManufactureLineService";
 import LineForm from "@components/general/LineForm";
 import toastrService from "@/services/toastrService";
+import { Button } from "@material-tailwind/react";
+import { getButtonProps } from "@/utils/buttonStyles";
 
 const CreateLine = () => {
   const navigate = useNavigate();
@@ -58,7 +60,9 @@ const CreateLine = () => {
       toastrService.success("Tạo dây chuyền thành công!");
       navigate("/lines");
     } catch (err) {
-      toastrService.error(err.response?.data?.message || "Lỗi khi tạo dây chuyền!");
+      toastrService.error(
+        err.response?.data?.message || "Lỗi khi tạo dây chuyền!"
+      );
     }
   };
 
@@ -79,14 +83,18 @@ const CreateLine = () => {
 
         <Grid container spacing={2} justifyContent="flex-end" mt={2}>
           <Grid item>
-            <Button variant="contained" color="default" onClick={handleSubmit}>
+            <Button
+              type="button"
+              {...getButtonProps("primary")}
+              onClick={handleSubmit}
+            >
               Lưu
             </Button>
           </Grid>
           <Grid item>
             <Button
-              variant="outlined"
-              color="default"
+              type="button"
+              {...getButtonProps("outlinedSecondary")}
               onClick={() => navigate("/lines")}
             >
               Hủy

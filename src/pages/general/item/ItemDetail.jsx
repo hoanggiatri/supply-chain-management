@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, Box, Button } from "@mui/material";
+import { Container, Paper, Typography, Box } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import ItemForm from "@components/general/ItemForm";
 import { getItemById, deleteItem } from "@/services/general/ItemService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import toastrService from "@/services/toastrService";
+import { Button } from "@material-tailwind/react";
+import { getButtonProps } from "@/utils/buttonStyles";
 
 const ItemDetail = () => {
   const { itemId } = useParams();
@@ -18,7 +20,10 @@ const ItemDetail = () => {
         const data = await getItemById(itemId, token);
         setItem(data);
       } catch (error) {
-        toastrService.error(error.response?.data?.message || "Có lỗi xảy ra khi lấy thông tin hàng hóa!");
+        toastrService.error(
+          error.response?.data?.message ||
+            "Có lỗi xảy ra khi lấy thông tin hàng hóa!"
+        );
       }
     };
 
@@ -34,7 +39,9 @@ const ItemDetail = () => {
       toastrService.success("Xóa hàng hóa thành công!");
       navigate("/items");
     } catch (error) {
-      toastrService.error(error.response?.data?.message || "Có lỗi xảy ra khi xóa hàng hóa!");
+      toastrService.error(
+        error.response?.data?.message || "Có lỗi xảy ra khi xóa hàng hóa!"
+      );
     }
   };
 
@@ -49,13 +56,26 @@ const ItemDetail = () => {
           THÔNG TIN HÀNG HÓA
         </Typography>
 
-        <ItemForm item={item} onChange={() => {}} errors={{}} readOnlyFields={Object.keys(item)} />
+        <ItemForm
+          item={item}
+          onChange={() => {}}
+          errors={{}}
+          readOnlyFields={Object.keys(item)}
+        />
 
         <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
-          <Button variant="contained" color="default" onClick={() => navigate(`/item/${itemId}/edit`)}>
+          <Button
+            type="button"
+            {...getButtonProps("primary")}
+            onClick={() => navigate(`/item/${itemId}/edit`)}
+          >
             Sửa
           </Button>
-          <Button variant="contained" color="error" onClick={handleDelete}>
+          <Button
+            type="button"
+            {...getButtonProps("danger")}
+            onClick={handleDelete}
+          >
             Xóa
           </Button>
         </Box>

@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import { Container, Typography, Button, Grid, Paper } from "@mui/material";
+import { Container, Typography, Grid, Paper } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { createPlant } from "@/services/general/ManufacturePlantService";
 import PlantForm from "@components/general/PlantForm";
 import toastrService from "@/services/toastrService";
+import { Button } from "@material-tailwind/react";
+import { getButtonProps } from "@/utils/buttonStyles";
 
 const CreatePlant = () => {
   const navigate = useNavigate();
@@ -63,14 +65,18 @@ const CreatePlant = () => {
 
         <Grid container spacing={2} justifyContent="flex-end" mt={2}>
           <Grid item>
-            <Button variant="contained" color="default" onClick={handleSubmit}>
+            <Button
+              type="button"
+              {...getButtonProps("primary")}
+              onClick={handleSubmit}
+            >
               Lưu
             </Button>
           </Grid>
           <Grid item>
             <Button
-              variant="outlined"
-              color="default"
+              type="button"
+              {...getButtonProps("outlinedSecondary")}
               onClick={() => navigate("/plants")}
             >
               Hủy

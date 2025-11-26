@@ -1,9 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, TableRow, TableCell, Box, Button } from "@mui/material";
+import {
+  Container,
+  Paper,
+  Typography,
+  TableRow,
+  TableCell,
+  Box,
+} from "@mui/material";
 import DataTable from "@components/content-components/DataTable";
 import { useNavigate } from "react-router-dom";
 import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
 import toastrService from "@/services/toastrService";
+import { Button } from "@material-tailwind/react";
+import { getButtonProps } from "@/utils/buttonStyles";
 
 const WarehouseInCompany = () => {
   const [warehouses, setWarehouses] = useState([]);
@@ -25,7 +34,9 @@ const WarehouseInCompany = () => {
         const result = await getAllWarehousesInCompany(companyId, token);
         setWarehouses(result);
       } catch (error) {
-        toastrService.error(error.response?.data?.message || "Lỗi khi tải danh sách kho!");
+        toastrService.error(
+          error.response?.data?.message || "Lỗi khi tải danh sách kho!"
+        );
       } finally {
         setLoading(false);
       }
@@ -60,13 +71,17 @@ const WarehouseInCompany = () => {
 
   return (
     <Container>
-      <Paper className="paper-container" elevation={3} >
-        <Typography className="page-title" variant="h4" >
+      <Paper className="paper-container" elevation={3}>
+        <Typography className="page-title" variant="h4">
           DANH SÁCH KHO HÀNG
         </Typography>
 
         <Box mt={3} mb={3}>
-          <Button variant="contained" color="default" onClick={() => navigate("/create-warehouse")}>
+          <Button
+            type="button"
+            {...getButtonProps("primary")}
+            onClick={() => navigate("/create-warehouse")}
+          >
             Thêm mới
           </Button>
         </Box>

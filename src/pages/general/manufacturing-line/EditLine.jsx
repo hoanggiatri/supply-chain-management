@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, Box, Button } from "@mui/material";
+import { Container, Paper, Typography, Box } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import LineForm from "@components/general/LineForm";
-import { getLineById, updateLine } from "@/services/general/ManufactureLineService";
+import {
+  getLineById,
+  updateLine,
+} from "@/services/general/ManufactureLineService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import toastrService from "@/services/toastrService";
+import { Button } from "@material-tailwind/react";
+import { getButtonProps } from "@/utils/buttonStyles";
 
 const EditLine = () => {
   const { lineId } = useParams();
@@ -20,8 +25,10 @@ const EditLine = () => {
     const { lineName, lineCode, plantId, capacity } = editedLine;
 
     if (!plantId) errors.plantId = "Vui lòng chọn xưởng";
-    if (!lineName?.trim()) errors.lineName = "Tên dây chuyền không được để trống";
-    if (!lineCode?.trim()) errors.lineCode = "Mã dây chuyền không được để trống";
+    if (!lineName?.trim())
+      errors.lineName = "Tên dây chuyền không được để trống";
+    if (!lineCode?.trim())
+      errors.lineCode = "Mã dây chuyền không được để trống";
     if (capacity && (isNaN(capacity) || Number(capacity) <= 0)) {
       errors.capacity = "Công suất phải lớn hơn 0";
     }
@@ -35,7 +42,9 @@ const EditLine = () => {
         setLine(data);
         setEditedLine(data);
       } catch (error) {
-        toastrService.error(error.response?.data?.message || "Lỗi khi lấy thông tin dây chuyền!");
+        toastrService.error(
+          error.response?.data?.message || "Lỗi khi lấy thông tin dây chuyền!"
+        );
       }
     };
 
@@ -44,7 +53,7 @@ const EditLine = () => {
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
-  
+
     let newValue = value;
     if (type === "number") {
       const num = parseFloat(value);
@@ -54,7 +63,7 @@ const EditLine = () => {
         newValue = num < 0 ? 0 : num;
       }
     }
-  
+
     setEditedLine((prev) => ({ ...prev, [name]: newValue }));
   };
 
@@ -77,7 +86,9 @@ const EditLine = () => {
       toastrService.success("Cập nhật dây chuyền thành công!");
       navigate(`/line/${lineId}`);
     } catch (error) {
-      toastrService.error(error.response?.data?.message || "Lỗi khi cập nhật dây chuyền!");
+      toastrService.error(
+        error.response?.data?.message || "Lỗi khi cập nhật dây chuyền!"
+      );
     }
   };
 
@@ -104,10 +115,18 @@ const EditLine = () => {
         />
 
         <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
-          <Button variant="contained" color="default" onClick={handleSave}>
+          <Button
+            type="button"
+            {...getButtonProps("primary")}
+            onClick={handleSave}
+          >
             Lưu
           </Button>
-          <Button variant="outlined" color="default" onClick={handleCancel}>
+          <Button
+            type="button"
+            {...getButtonProps("outlinedSecondary")}
+            onClick={handleCancel}
+          >
             Hủy
           </Button>
         </Box>

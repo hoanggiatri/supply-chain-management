@@ -6,12 +6,13 @@ import {
   TableRow,
   TableCell,
   Box,
-  Button,
 } from "@mui/material";
 import DataTable from "@components/content-components/DataTable";
 import { useNavigate } from "react-router-dom";
 import { getAllPlantsInCompany } from "@/services/general/ManufacturePlantService";
 import toastrService from "@/services/toastrService";
+import { Button } from "@material-tailwind/react";
+import { getButtonProps } from "@/utils/buttonStyles";
 
 const PlantInCompany = () => {
   const [plants, setPlants] = useState([]);
@@ -74,8 +75,8 @@ const PlantInCompany = () => {
 
         <Box mt={3} mb={3}>
           <Button
-            variant="contained"
-            color="default"
+            type="button"
+            {...getButtonProps("primary")}
             onClick={() => navigate("/create-plant")}
           >
             Thêm mới

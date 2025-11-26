@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, Button, Box } from "@mui/material";
+import { Container, Paper, Typography, Box } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import ItemForm from "@components/general/ItemForm";
 import { getItemById, updateItem } from "@/services/general/ItemService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import toastrService from "@/services/toastrService";
+import { Button } from "@material-tailwind/react";
+import { getButtonProps } from "@/utils/buttonStyles";
 
 const EditItem = () => {
   const { itemId } = useParams();
@@ -126,10 +128,18 @@ const EditItem = () => {
         />
 
         <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
-          <Button variant="contained" color="default" onClick={handleSave}>
+          <Button
+            type="button"
+            {...getButtonProps("primary")}
+            onClick={handleSave}
+          >
             Lưu
           </Button>
-          <Button variant="outlined" color="default" onClick={handleCancel}>
+          <Button
+            type="button"
+            {...getButtonProps("outlinedSecondary")}
+            onClick={handleCancel}
+          >
             Hủy
           </Button>
         </Box>

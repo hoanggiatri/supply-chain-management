@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import { Container, Typography, Button, Grid, Paper } from "@mui/material";
+import { Container, Typography, Grid, Paper } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { createItem } from "@/services/general/ItemService";
 import ItemForm from "@components/general/ItemForm";
 import toastrService from "@/services/toastrService";
+import { Button } from "@material-tailwind/react";
+import { getButtonProps } from "@/utils/buttonStyles";
 
 const CreateItem = () => {
   const navigate = useNavigate();
@@ -76,7 +78,9 @@ const CreateItem = () => {
       toastrService.success("Thêm hàng hóa thành công!");
       navigate("/items");
     } catch (error) {
-      toastrService.error(error.response?.data?.message || "Lỗi khi thêm hàng hóa!");
+      toastrService.error(
+        error.response?.data?.message || "Lỗi khi thêm hàng hóa!"
+      );
     }
   };
 
@@ -105,20 +109,28 @@ const CreateItem = () => {
         <Grid container spacing={2} mt={3} justifyContent="flex-end">
           <Grid item>
             <Button
-              variant="contained"
-              color="success"
+              type="button"
+              {...getButtonProps("success")}
               onClick={handleNavigateToExcelPage}
             >
               Nhập từ Excel
             </Button>
           </Grid>
           <Grid item>
-            <Button variant="contained" color="default" onClick={handleSubmit}>
+            <Button
+              type="button"
+              {...getButtonProps("primary")}
+              onClick={handleSubmit}
+            >
               Thêm
             </Button>
           </Grid>
           <Grid item>
-            <Button variant="outlined" color="default" onClick={handleCancel}>
+            <Button
+              type="button"
+              {...getButtonProps("outlinedSecondary")}
+              onClick={handleCancel}
+            >
               Hủy
             </Button>
           </Grid>

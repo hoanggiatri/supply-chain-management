@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, Box, Button } from "@mui/material";
+import { Container, Paper, Typography, Box } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import LineForm from "@components/general/LineForm";
 import { getLineById } from "@/services/general/ManufactureLineService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import toastrService from "@/services/toastrService";
+import { Button } from "@material-tailwind/react";
+import { getButtonProps } from "@/utils/buttonStyles";
 
 const LineDetail = () => {
   const { lineId } = useParams();
@@ -18,7 +20,10 @@ const LineDetail = () => {
         const data = await getLineById(lineId, token);
         setLine(data);
       } catch (error) {
-        toastrService.error(error.response?.data?.message || "Có lỗi xảy ra khi lấy thông tin dây chuyền!");
+        toastrService.error(
+          error.response?.data?.message ||
+            "Có lỗi xảy ra khi lấy thông tin dây chuyền!"
+        );
       }
     };
 
@@ -45,13 +50,17 @@ const LineDetail = () => {
 
         <LineForm
           line={line}
-          onChange={() => { }}
+          onChange={() => {}}
           errors={{}}
           readOnlyFields={readOnlyFields}
         />
 
         <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
-          <Button variant="contained" color="default" onClick={() => navigate(`/line/${lineId}/edit`)}>
+          <Button
+            type="button"
+            {...getButtonProps("primary")}
+            onClick={() => navigate(`/line/${lineId}/edit`)}
+          >
             Sửa
           </Button>
         </Box>

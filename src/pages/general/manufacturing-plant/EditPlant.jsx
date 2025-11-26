@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, Box, Button } from "@mui/material";
+import { Container, Paper, Typography, Box } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import PlantForm from "@components/general/PlantForm";
 import {
@@ -8,6 +8,8 @@ import {
 } from "@/services/general/ManufacturePlantService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import toastrService from "@/services/toastrService";
+import { Button } from "@material-tailwind/react";
+import { getButtonProps } from "@/utils/buttonStyles";
 
 const EditPlant = () => {
   const { plantId } = useParams();
@@ -100,10 +102,18 @@ const EditPlant = () => {
         />
 
         <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
-          <Button variant="contained" color="default" onClick={handleSave}>
+          <Button
+            type="button"
+            {...getButtonProps("primary")}
+            onClick={handleSave}
+          >
             Lưu
           </Button>
-          <Button variant="outlined" color="default" onClick={handleCancel}>
+          <Button
+            type="button"
+            {...getButtonProps("outlinedSecondary")}
+            onClick={handleCancel}
+          >
             Hủy
           </Button>
         </Box>

@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, Box, Button } from "@mui/material";
+import { Container, Paper, Typography, Box } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import WarehouseForm from "@components/general/WarehouseForm";
 import { getWarehouseById } from "@/services/general/WarehouseService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import toastrService from "@/services/toastrService";
+import { Button } from "@material-tailwind/react";
+import { getButtonProps } from "@/utils/buttonStyles";
 
 const WarehouseDetail = () => {
   const { warehouseId } = useParams();
@@ -18,7 +20,10 @@ const WarehouseDetail = () => {
         const data = await getWarehouseById(warehouseId, token);
         setWarehouse(data);
       } catch (error) {
-        toastrService.error(error.response?.data?.message || "Có lỗi xảy ra khi lấy thông tin kho!");
+        toastrService.error(
+          error.response?.data?.message ||
+            "Có lỗi xảy ra khi lấy thông tin kho!"
+        );
       }
     };
 
@@ -40,15 +45,24 @@ const WarehouseDetail = () => {
 
   return (
     <Container>
-      <Paper className="paper-container" elevation={3} >
-        <Typography className="page-title" variant="h4" >
+      <Paper className="paper-container" elevation={3}>
+        <Typography className="page-title" variant="h4">
           THÔNG TIN KHO HÀNG
         </Typography>
 
-        <WarehouseForm warehouse={warehouse} onChange={() => { }} errors={{}} readOnlyFields={readOnlyFields} />
+        <WarehouseForm
+          warehouse={warehouse}
+          onChange={() => {}}
+          errors={{}}
+          readOnlyFields={readOnlyFields}
+        />
 
         <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
-          <Button variant="contained" color="default" onClick={() => navigate(`/warehouse/${warehouseId}/edit`)} >
+          <Button
+            type="button"
+            {...getButtonProps("primary")}
+            onClick={() => navigate(`/warehouse/${warehouseId}/edit`)}
+          >
             Sửa
           </Button>
         </Box>

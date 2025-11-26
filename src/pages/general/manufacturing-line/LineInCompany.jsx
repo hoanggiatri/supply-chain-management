@@ -1,9 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, TableRow, TableCell, Box, Button, } from "@mui/material";
+import {
+  Container,
+  Paper,
+  Typography,
+  TableRow,
+  TableCell,
+  Box,
+} from "@mui/material";
 import DataTable from "@components/content-components/DataTable";
 import { useNavigate } from "react-router-dom";
 import { getAllLinesInCompany } from "@/services/general/ManufactureLineService";
 import toastrService from "@/services/toastrService";
+import { Button } from "@material-tailwind/react";
+import { getButtonProps } from "@/utils/buttonStyles";
 
 const LineInCompany = () => {
   const [lines, setLines] = useState([]);
@@ -25,7 +34,9 @@ const LineInCompany = () => {
         const result = await getAllLinesInCompany(companyId, token);
         setLines(result);
       } catch (error) {
-        toastrService.error(error.response?.data?.message || "Lỗi khi tải danh sách dây chuyền!");
+        toastrService.error(
+          error.response?.data?.message || "Lỗi khi tải danh sách dây chuyền!"
+        );
       } finally {
         setLoading(false);
       }
@@ -65,7 +76,11 @@ const LineInCompany = () => {
         </Typography>
 
         <Box mt={3} mb={3}>
-          <Button variant="contained" color="default" onClick={() => navigate("/create-line")} >
+          <Button
+            type="button"
+            {...getButtonProps("primary")}
+            onClick={() => navigate("/create-line")}
+          >
             Thêm mới
           </Button>
         </Box>
@@ -84,7 +99,12 @@ const LineInCompany = () => {
           setSearch={setSearch}
           isLoading={loading}
           renderRow={(line) => (
-            <TableRow key={line.id} hover sx={{ cursor: "pointer" }} onClick={() => navigate(`/line/${line.lineId}`)}>
+            <TableRow
+              key={line.id}
+              hover
+              sx={{ cursor: "pointer" }}
+              onClick={() => navigate(`/line/${line.lineId}`)}
+            >
               <TableCell>{line.lineCode}</TableCell>
               <TableCell>{line.lineName}</TableCell>
               <TableCell>{line.plantName}</TableCell>
