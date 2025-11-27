@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, Box, Button } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
+import { Button, Card, CardBody, Typography } from "@material-tailwind/react";
 import MoForm from "@/components/manufacturing/MoForm";
 import { getMoById, updateMo } from "@/services/manufacturing/MoService";
 import { getAllItemsInCompany } from "@/services/general/ItemService";
@@ -8,6 +8,8 @@ import { getAllLinesInCompany } from "@/services/general/ManufactureLineService"
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import dayjs from "dayjs";
 import toastrService from "@/services/toastrService";
+import BackButton from "@/components/common/BackButton";
+import { getButtonProps } from "@/utils/buttonStyles";
 
 const EditMo = () => {
   const { moId } = useParams();
@@ -16,10 +18,11 @@ const EditMo = () => {
   const [items, setItems] = useState([]);
   const [lines, setLines] = useState([]);
   const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+  const companyId = localStorage.getItem("companyId");
 
   useEffect(() => {
     const fetchMo = async () => {
-      const token = localStorage.getItem("token");
       try {
         const data = await getMoById(moId, token);
         setMo(data);
@@ -30,12 +33,10 @@ const EditMo = () => {
       }
     };
     fetchMo();
-  }, [moId]);
+  }, [moId, token]);
 
   useEffect(() => {
     const fetchData = async () => {
-      const token = localStorage.getItem("token");
-      const companyId = localStorage.getItem("companyId");
       try {
         const itemsData = await getAllItemsInCompany(companyId, token);
         setItems(itemsData);
@@ -50,17 +51,17 @@ const EditMo = () => {
     };
 
     fetchData();
-  }, []);
+  }, [companyId, token]);
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
     let newValue = value;
     if (type === "number") {
-      const num = parseFloat(value);
-      if (isNaN(num)) {
+      const num = Number.parseFloat(value);
+      if (Number.isNaN(num)) {
         newValue = "";
       } else {
-        newValue = num < 0 ? 0 : num;
+        newValue = Math.max(0, num);
       }
     }
 
@@ -69,7 +70,6 @@ const EditMo = () => {
 
   const toISO8601String = (dateString) => {
     if (!dateString) return null;
-    // Convert to ISO 8601 format with timezone
     return dayjs(dateString).toISOString();
   };
 
@@ -95,10 +95,7 @@ const EditMo = () => {
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) return;
 
-    const token = localStorage.getItem("token");
     try {
-      // Only send allowed fields, exclude read-only and computed fields
-      // itemId and lineId are required but read-only, so we include them as numbers
       const request = {
         itemId: Number(mo.itemId),
         lineId: Number(mo.lineId),
@@ -130,36 +127,45 @@ const EditMo = () => {
   };
 
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
-          CHỈNH SỬA CÔNG LỆNH
-        </Typography>
+    <div className="p-6">
+      <Card className="shadow-lg max-w-5xl mx-auto">
+        <CardBody>
+          <div className="flex items-center justify-between mb-6">
+            <Typography variant="h4" color="blue-gray" className="font-bold">
+              CHỈNH SỬA CÔNG LỆNH
+            </Typography>
+            <BackButton to="/mos" label="Quay lại danh sách" />
+          </div>
 
-        <MoForm
-          mo={mo}
-          onChange={handleChange}
-          errors={errors}
-          setMo={setMo}
-          items={items}
-          lines={lines}
-          readOnlyFields={readOnlyFields}
-        />
+          <MoForm
+            mo={mo}
+            onChange={handleChange}
+            errors={errors}
+            setMo={setMo}
+            items={items}
+            lines={lines}
+            readOnlyFields={readOnlyFields}
+          />
 
-        <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
-          <Button variant="contained" color="default" onClick={handleSave}>
-            Lưu
-          </Button>
-          <Button
-            variant="outlined"
-            color="default"
-            onClick={() => navigate(-1)}
-          >
-            Hủy
-          </Button>
-        </Box>
-      </Paper>
-    </Container>
+          <div className="mt-6 flex justify-end gap-3">
+            <Button
+              type="button"
+              {...getButtonProps("primary")}
+              onClick={handleSave}
+            >
+              Lưu
+            </Button>
+            <Button
+              type="button"
+              {...getButtonProps("outlinedSecondary")}
+              onClick={() => navigate(-1)}
+            >
+              Hủy
+            </Button>
+          </div>
+        </CardBody>
+      </Card>
+    </div>
   );
 };
 

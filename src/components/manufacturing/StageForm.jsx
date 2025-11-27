@@ -1,26 +1,23 @@
 import React, { useEffect, useState } from "react";
+import PropTypes from "prop-types";
 import {
-  Grid,
-  TextField,
-  FormControl,
-  InputLabel,
+  Input,
   Select,
-  MenuItem,
-  FormHelperText,
-} from "@mui/material";
+  Option,
+  Textarea,
+  Typography,
+} from "@material-tailwind/react";
 import { getAllItemsInCompany } from "@/services/general/ItemService";
-import SelectAutocomplete from "@components/content-components/SelectAutocomplete";
 import toastrService from "@/services/toastrService";
 
 const StageForm = ({
-  stage,
+  stage = {},
   onChange,
   errors = {},
-  readOnlyFields,
+  readOnlyFields = {},
   setStage,
 }) => {
   const [items, setItems] = useState([]);
-  const [filteredItems, setFilteredItems] = useState([]);
   const token = localStorage.getItem("token");
   const companyId = localStorage.getItem("companyId");
 
@@ -35,8 +32,6 @@ const StageForm = ({
             item.itemType === "Thành phẩm" || item.itemType === "Bán thành phẩm"
         );
 
-        // Chỉ thêm item hiện tại vào danh sách nếu chưa có (cho trường hợp edit)
-        // Không cần thêm stage vào dependency vì sẽ gây gọi lại API không cần thiết
         if (
           stage?.itemCode &&
           !filtered.some((item) => item.itemCode === stage.itemCode)
@@ -49,7 +44,6 @@ const StageForm = ({
         }
 
         setItems(filtered);
-        setFilteredItems(filtered);
       } catch (error) {
         toastrService.error(
           error.response?.data?.message || "Có lỗi khi lấy hàng hóa!"
@@ -60,80 +54,154 @@ const StageForm = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyId, token]);
 
-  const handleItemCodeChange = (selected) => {
-    const selectedItem = items.find(
-      (item) => item.itemCode === selected?.value
+  const handleSelectChange = (name, value) => {
+    if (typeof onChange === "function") {
+      onChange({
+        target: {
+          name,
+          value,
+        },
+      });
+    }
+  };
+
+  const handleItemSelect = (value) => {
+    const selectedItem = items.find((item) => item.itemCode === value);
+    if (typeof setStage === "function") {
+      setStage((prev) => ({
+        ...prev,
+        itemCode: selectedItem?.itemCode || "",
+        itemName: selectedItem?.itemName || "",
+        itemId: selectedItem?.itemId || "",
+      }));
+    } else {
+      handleSelectChange("itemCode", selectedItem?.itemCode || "");
+    }
+  };
+
+  const renderItemSelect = () => {
+    if (isFieldReadOnly("itemCode")) {
+      return (
+        <Input
+          label="Hàng hóa"
+          value={
+            stage.itemCode ? `${stage.itemCode} - ${stage.itemName || ""}` : ""
+          }
+          color="blue"
+          className="w-full placeholder:opacity-100"
+          readOnly
+        />
+      );
+    }
+
+    return (
+      <Select
+        label="Chọn hàng hóa"
+        color="blue"
+        value={stage.itemCode || ""}
+        onChange={handleItemSelect}
+        className="w-full"
+      >
+        {items.map((item) => (
+          <Option key={item.itemCode} value={item.itemCode}>
+            {item.itemCode} - {item.itemName}
+          </Option>
+        ))}
+      </Select>
     );
-    setStage((prev) => ({
-      ...prev,
-      itemCode: selectedItem ? selectedItem.itemCode : "",
-      itemName: selectedItem ? selectedItem.itemName : "",
-      itemId: selectedItem ? selectedItem.itemId : "",
-    }));
+  };
+
+  const renderStatusField = () => {
+    if (isFieldReadOnly("status")) {
+      return (
+        <Input
+          label="Trạng thái"
+          value={stage.status || ""}
+          readOnly
+          color="blue"
+          className="w-full placeholder:opacity-100"
+        />
+      );
+    }
+
+    return (
+      <Select
+        label="Trạng thái"
+        color="blue"
+        value={stage.status || ""}
+        onChange={(val) => handleSelectChange("status", val)}
+        className="w-full"
+      >
+        <Option value="Đang sử dụng">Đang sử dụng</Option>
+        <Option value="Ngừng sử dụng">Ngừng sử dụng</Option>
+      </Select>
+    );
   };
 
   return (
-    <Grid container spacing={2}>
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <Input
           label="Mã Stage"
           name="stageCode"
-          value={stage.stageCode}
+          color="blue"
+          value={stage.stageCode || ""}
           onChange={onChange}
-          placeholder="Mã Stage được tạo tự động"
-          required
-          inputProps={{ readOnly: isFieldReadOnly("stageCode") }}
+          className="w-full placeholder:opacity-100"
+          readOnly={isFieldReadOnly("stageCode")}
+          placeholder="Mã Stage sẽ được tạo tự động"
         />
-      </Grid>
+        {errors.stageCode && (
+          <Typography variant="small" color="red" className="mt-1">
+            {errors.stageCode}
+          </Typography>
+        )}
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <SelectAutocomplete
-          options={filteredItems.map((item) => ({
-            label: item.itemCode + " - " + item.itemName,
-            value: item.itemCode,
-          }))}
-          value={stage.itemCode}
-          onChange={handleItemCodeChange}
-          placeholder="Chọn hàng hóa"
-          error={errors.itemCode}
-          helperText={errors.itemCode}
-          size="small"
-          disabled={isFieldReadOnly("itemCode")}
-        />
-      </Grid>
+      <div>
+        {renderItemSelect()}
+        {errors.itemCode && (
+          <Typography variant="small" color="red" className="mt-1">
+            {errors.itemCode}
+          </Typography>
+        )}
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
+      <div className="md:col-span-2">
+        <Textarea
           label="Mô tả"
           name="description"
-          value={stage.description}
+          color="blue"
+          value={stage.description || ""}
           onChange={onChange}
-          multiline
-          minRows={3}
-          InputProps={{ readOnly: isFieldReadOnly("description") }}
+          className="w-full placeholder:opacity-100"
+          readOnly={isFieldReadOnly("description")}
         />
-      </Grid>
+        {errors.description && (
+          <Typography variant="small" color="red" className="mt-1">
+            {errors.description}
+          </Typography>
+        )}
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <FormControl fullWidth required error={!!errors.status}>
-          <InputLabel>Trạng thái</InputLabel>
-          <Select
-            name="status"
-            value={stage.status || ""}
-            label="Trạng thái"
-            onChange={onChange}
-            inputProps={{ readOnly: isFieldReadOnly("status") }}
-          >
-            <MenuItem value="Đang sử dụng">Đang sử dụng</MenuItem>
-            <MenuItem value="Ngừng sử dụng">Ngừng sử dụng</MenuItem>
-          </Select>
-          {errors.status && <FormHelperText>{errors.status}</FormHelperText>}
-        </FormControl>
-      </Grid>
-    </Grid>
+      <div>
+        {renderStatusField()}
+        {errors.status && (
+          <Typography variant="small" color="red" className="mt-1">
+            {errors.status}
+          </Typography>
+        )}
+      </div>
+    </div>
   );
 };
 
 export default StageForm;
+
+StageForm.propTypes = {
+  stage: PropTypes.object,
+  onChange: PropTypes.func,
+  errors: PropTypes.object,
+  readOnlyFields: PropTypes.object,
+  setStage: PropTypes.func,
+};

@@ -7,6 +7,7 @@ import LoadingPaper from "@/components/content-components/LoadingPaper";
 import toastrService from "@/services/toastrService";
 import { Button } from "@material-tailwind/react";
 import { getButtonProps } from "@/utils/buttonStyles";
+import BackButton from "@components/common/BackButton";
 
 const WarehouseDetail = () => {
   const { warehouseId } = useParams();
@@ -46,9 +47,17 @@ const WarehouseDetail = () => {
   return (
     <Container>
       <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
-          THÔNG TIN KHO HÀNG
-        </Typography>
+        <Box
+          display="flex"
+          alignItems="center"
+          justifyContent="space-between"
+          mb={3}
+        >
+          <Typography className="page-title" variant="h4">
+            THÔNG TIN KHO HÀNG
+          </Typography>
+          <BackButton to="/warehouses" label="Quay lại danh sách" />
+        </Box>
 
         <WarehouseForm
           warehouse={warehouse}

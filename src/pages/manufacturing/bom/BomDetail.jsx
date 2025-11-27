@@ -1,19 +1,14 @@
+/* global globalThis */
 import React, { useEffect, useState } from "react";
-import {
-  Container,
-  Paper,
-  Typography,
-  TableRow,
-  TableCell,
-  Box,
-  Button,
-} from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
+import { Button, Card, CardBody, Typography } from "@material-tailwind/react";
 import DataTable from "@/components/content-components/DataTable";
 import BomForm from "@/components/manufacturing/BomForm";
 import { getBomByItemId, deleteBom } from "@/services/manufacturing/BomService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import toastrService from "@/services/toastrService";
+import BackButton from "@/components/common/BackButton";
+import { getButtonProps } from "@/utils/buttonStyles";
 
 const BomDetail = () => {
   const { itemId } = useParams();
@@ -62,40 +57,16 @@ const BomDetail = () => {
     { id: "note", label: "Ghi chú" },
   ];
 
-  const handleRequestSort = (property) => {
-    const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(property);
-  };
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(Number(event.target.value));
-    setPage(1);
-  };
-
-  const filteredDetails = Array.isArray(bomDetails)
-    ? bomDetails.sort((a, b) => {
-        if (orderBy) {
-          if (a[orderBy] < b[orderBy]) return order === "asc" ? -1 : 1;
-          if (a[orderBy] > b[orderBy]) return order === "asc" ? 1 : -1;
-        }
-        return 0;
-      })
-    : [];
-
-  const paginatedDetails = filteredDetails.slice(
-    (page - 1) * rowsPerPage,
-    (page - 1) * rowsPerPage + rowsPerPage
-  );
-
   const handleDelete = async () => {
-    if (!window.confirm("Bạn có chắc muốn xóa BOM này không?")) return;
+    const confirmFn =
+      typeof globalThis !== "undefined" &&
+      typeof globalThis.confirm === "function"
+        ? globalThis.confirm.bind(globalThis)
+        : null;
+    if (confirmFn && !confirmFn("Bạn có chắc muốn xóa BOM này không?")) {
+      return;
+    }
 
-    const token = localStorage.getItem("token");
     try {
       await deleteBom(bom.bomId, token);
       toastrService.success("Xóa BOM thành công!");
@@ -112,61 +83,114 @@ const BomDetail = () => {
   }
 
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
-          THÔNG TIN BOM
-        </Typography>
+    <div className="p-6">
+      <Card className="shadow-lg max-w-6xl mx-auto">
+        <CardBody>
+          <div className="flex items-center justify-between mb-6">
+            <Typography variant="h4" color="blue-gray" className="font-bold">
+              THÔNG TIN BOM
+            </Typography>
+            <BackButton to="/boms" label="Quay lại danh sách" />
+          </div>
 
-        <BomForm
-          bom={bom}
-          onChange={() => {}}
-          errors={{}}
-          readOnlyFields={readOnlyFields}
-          setBom={setBom}
-        />
+          <BomForm
+            bom={bom}
+            onChange={() => {}}
+            errors={{}}
+            readOnlyFields={readOnlyFields}
+            setBom={setBom}
+          />
 
-        <Typography variant="h5" mt={3} mb={3}>
-          DANH SÁCH NGUYÊN VẬT LIỆU:
-        </Typography>
+          <Typography variant="h5" color="blue-gray" className="mt-6 mb-4">
+            DANH SÁCH NGUYÊN VẬT LIỆU
+          </Typography>
 
-        <DataTable
-          rows={paginatedDetails}
-          columns={columns}
-          order={order}
-          orderBy={orderBy}
-          onRequestSort={handleRequestSort}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          search={search}
-          setSearch={setSearch}
-          isLoading={loading}
-          renderRow={(detail, index) => (
-            <TableRow key={index}>
-              <TableCell>{detail.itemCode}</TableCell>
-              <TableCell>{detail.itemName}</TableCell>
-              <TableCell>{detail.quantity}</TableCell>
-              <TableCell>{detail.note}</TableCell>
-            </TableRow>
-          )}
-        />
+          <DataTable
+            rows={bomDetails}
+            columns={columns}
+            order={order}
+            orderBy={orderBy}
+            onRequestSort={(property) => {
+              const isAsc = orderBy === property && order === "asc";
+              setOrder(isAsc ? "desc" : "asc");
+              setOrderBy(property);
+            }}
+            page={page}
+            rowsPerPage={rowsPerPage}
+            onPageChange={(_, newPage) => setPage(newPage)}
+            onRowsPerPageChange={(event) =>
+              setRowsPerPage(Number(event.target.value))
+            }
+            search={search}
+            setSearch={setSearch}
+            loading={loading}
+            renderRow={(detail, index) => {
+              const isLast = index === bomDetails.length - 1;
+              const classes = isLast
+                ? "p-4"
+                : "p-4 border-b border-blue-gray-50";
+              return (
+                <tr key={`${detail.itemCode}-${index}`}>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {detail.itemCode}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {detail.itemName}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {detail.quantity}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {detail.note || "-"}
+                    </Typography>
+                  </td>
+                </tr>
+              );
+            }}
+          />
 
-        <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
-          <Button
-            variant="contained"
-            color="default"
-            onClick={() => navigate(`/bom/${bom.itemId}/edit`)}
-          >
-            Sửa
-          </Button>
-          <Button variant="contained" color="error" onClick={handleDelete}>
-            Xóa
-          </Button>
-        </Box>
-      </Paper>
-    </Container>
+          <div className="mt-6 flex justify-end gap-3">
+            <Button
+              type="button"
+              {...getButtonProps("primary")}
+              onClick={() => navigate(`/bom/${bom.itemId}/edit`)}
+            >
+              Sửa
+            </Button>
+            <Button
+              type="button"
+              {...getButtonProps("danger")}
+              onClick={handleDelete}
+            >
+              Xóa
+            </Button>
+          </div>
+        </CardBody>
+      </Card>
+    </div>
   );
 };
 

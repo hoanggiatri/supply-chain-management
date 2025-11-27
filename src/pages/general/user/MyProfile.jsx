@@ -11,6 +11,7 @@ import LoadingPaper from "@/components/content-components/LoadingPaper";
 import toastrService from "@/services/toastrService";
 import { Button } from "@material-tailwind/react";
 import { getButtonProps } from "@/utils/buttonStyles";
+import BackButton from "@components/common/BackButton";
 
 const MyProfile = () => {
   const [employee, setEmployee] = useState(null);
@@ -53,9 +54,17 @@ const MyProfile = () => {
   return (
     <Container>
       <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
-          THÔNG TIN CÁ NHÂN
-        </Typography>
+        <Box
+          display="flex"
+          alignItems="center"
+          justifyContent="space-between"
+          mb={3}
+        >
+          <Typography className="page-title" variant="h4">
+            THÔNG TIN CÁ NHÂN
+          </Typography>
+          <BackButton />
+        </Box>
 
         <Grid container direction="column" spacing={4}>
           <Grid item xs={12}>

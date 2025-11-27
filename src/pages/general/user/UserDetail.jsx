@@ -7,6 +7,7 @@ import LoadingPaper from "@/components/content-components/LoadingPaper";
 import toastrService from "@/services/toastrService";
 import { Button } from "@material-tailwind/react";
 import { getButtonProps } from "@/utils/buttonStyles";
+import BackButton from "@components/common/BackButton";
 
 const UserDetail = () => {
   const { userId } = useParams();
@@ -40,9 +41,17 @@ const UserDetail = () => {
   return (
     <Container>
       <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
-          THÔNG TIN TÀI KHOẢN
-        </Typography>
+        <Box
+          display="flex"
+          alignItems="center"
+          justifyContent="space-between"
+          mb={3}
+        >
+          <Typography className="page-title" variant="h4">
+            THÔNG TIN TÀI KHOẢN
+          </Typography>
+          <BackButton to="/users" label="Quay lại danh sách" />
+        </Box>
 
         <UserForm
           user={user}

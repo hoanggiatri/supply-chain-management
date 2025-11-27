@@ -1,9 +1,19 @@
 import { useEffect, useState } from "react";
-import { Box, Container, Grid, MenuItem, Paper, TableCell, TableRow, TextField, Typography } from "@mui/material";
+import {
+  Card,
+  CardBody,
+  Typography,
+  Input,
+  Select,
+  Option,
+} from "@material-tailwind/react";
 import DataTable from "@/components/content-components/DataTable";
 import MonthlyBarChart from "@/components/content-components/MonthlyBarChart";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
-import { getManufactureReport, getMonthlyManufactureReport } from "@/services/manufacturing/MoService";
+import {
+  getManufactureReport,
+  getMonthlyManufactureReport,
+} from "@/services/manufacturing/MoService";
 import dayjs from "dayjs";
 
 const ManufactureReport = () => {
@@ -25,7 +35,14 @@ const ManufactureReport = () => {
   };
 
   const getEndOfDay = (date) => {
-    return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
+    return new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+      23,
+      59,
+      59
+    );
   };
 
   const [startDate, setStartDate] = useState(getStartOfMonth());
@@ -68,7 +85,7 @@ const ManufactureReport = () => {
   const columns = [
     { id: "itemCode", label: "Mã hàng hóa" },
     { id: "itemName", label: "Tên hàng hóa" },
-    { id: "totalQuantity", label: "Tổng số lượng nhập kho" }
+    { id: "totalQuantity", label: "Tổng số lượng nhập kho" },
   ];
 
   const filteredItems = tableData.filter(
@@ -88,7 +105,7 @@ const ManufactureReport = () => {
   };
 
   const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
+    setRowsPerPage(Number.parseInt(event.target.value, 10));
     setPage(0);
   };
 
@@ -97,57 +114,49 @@ const ManufactureReport = () => {
   }
 
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
-          BÁO CÁO NHẬP KHO
-        </Typography>
-        <Grid container spacing={2} mb={2}>
-          <Grid item xs={6} md={3}>
-            <TextField
-              fullWidth
+    <div className="p-6">
+      <Card className="shadow-lg max-w-6xl mx-auto">
+        <CardBody>
+          <Typography variant="h4" color="blue-gray" className="mb-6 font-bold">
+            BÁO CÁO NHẬP KHO
+          </Typography>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <Input
               label="Từ ngày"
               type="date"
               value={formatDateLocal(startDate)}
               onChange={(e) => setStartDate(new Date(e.target.value))}
-              InputLabelProps={{ shrink: true }}
+              color="blue"
             />
-          </Grid>
-          <Grid item xs={6} md={3}>
-            <TextField
-              fullWidth
+            <Input
               label="Đến ngày"
               type="date"
               value={formatDateLocal(endDate)}
               onChange={(e) => setEndDate(new Date(e.target.value))}
-              InputLabelProps={{ shrink: true }}
+              color="blue"
             />
-          </Grid>
-          <Grid item xs={6} md={3}>
-            <TextField
+            <Select
               label="Loại sản xuất"
-              fullWidth
+              color="blue"
               value={type}
-              onChange={(e) => setType(e.target.value)}
-              select
+              onChange={(val) => setType(val)}
             >
-              <MenuItem value="Tất cả">Tất cả</MenuItem>
-              <MenuItem value="Sản xuất đại trà">Sản xuất đại trà</MenuItem>
-              <MenuItem value="Sản xuất thử nghiệm">Sản xuất thử nghiệm</MenuItem>
-            </TextField>
-          </Grid>
-        </Grid>
+              <Option value="Tất cả">Tất cả</Option>
+              <Option value="Sản xuất đại trà">Sản xuất đại trà</Option>
+              <Option value="Sản xuất thử nghiệm">Sản xuất thử nghiệm</Option>
+            </Select>
+          </div>
 
-        <Box display="flex" justifyContent="center">
-          <MonthlyBarChart
-            data={monthlyData}
-            metric="totalQuantity"
-            label="Tổng số lượng hàng hóa sản xuất"
-            color="#05518B"
-          />
-        </Box>
+          <div className="flex justify-center mb-6">
+            <MonthlyBarChart
+              data={monthlyData}
+              metric="totalQuantity"
+              label="Tổng số lượng hàng hóa sản xuất"
+              color="#05518B"
+            />
+          </div>
 
-        <Box mt={4}>
           <DataTable
             rows={filteredItems}
             columns={columns}
@@ -160,17 +169,47 @@ const ManufactureReport = () => {
             onRowsPerPageChange={handleChangeRowsPerPage}
             search={search}
             setSearch={setSearch}
-            renderRow={(item) => (
-              <TableRow key={item.itemId} hover>
-                <TableCell>{item.itemCode}</TableCell>
-                <TableCell>{item.itemName}</TableCell>
-                <TableCell>{item.totalQuantity}</TableCell>
-              </TableRow>
-            )}
+            renderRow={(item, index) => {
+              const isLast = index === filteredItems.length - 1;
+              const classes = isLast
+                ? "p-4"
+                : "p-4 border-b border-blue-gray-50";
+              return (
+                <tr key={item.itemId}>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {item.itemCode}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {item.itemName}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {item.totalQuantity}
+                    </Typography>
+                  </td>
+                </tr>
+              );
+            }}
           />
-        </Box>
-      </Paper>
-    </Container>
+        </CardBody>
+      </Card>
+    </div>
   );
 };
 

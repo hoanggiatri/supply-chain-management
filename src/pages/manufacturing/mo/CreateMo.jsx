@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Container, Typography, Button, Grid, Paper } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { Button, Card, CardBody, Typography } from "@material-tailwind/react";
 import { createMo } from "@/services/manufacturing/MoService";
 import { getAllItemsInCompany } from "@/services/general/ItemService";
 import { getAllLinesInCompany } from "@/services/general/ManufactureLineService";
 import MoForm from "@/components/manufacturing/MoForm";
 import dayjs from "dayjs";
 import toastrService from "@/services/toastrService";
+import BackButton from "@/components/common/BackButton";
+import { getButtonProps } from "@/utils/buttonStyles";
 
 const CreateMo = () => {
   const navigate = useNavigate();
@@ -51,10 +53,10 @@ const CreateMo = () => {
 
   const validateForm = () => {
     const formErrors = {};
-    if (!mo.itemId) formErrors.itemCode = "Phải chọn hàng hóa";
-    if (!mo.lineId) formErrors.lineCode = "Phải chọn dây chuyền sản xuất";
+    if (!mo.itemId) formErrors.itemId = "Phải chọn hàng hóa";
+    if (!mo.lineId) formErrors.lineId = "Phải chọn dây chuyền sản xuất";
     if (!mo.type?.trim()) formErrors.type = "Loại không được để trống";
-    if (mo.quantity === "" || mo.quantity <= 0)
+    if (!mo.quantity || Number(mo.quantity) <= 0)
       formErrors.quantity = "Số lượng phải > 0";
     if (!mo.status?.trim())
       formErrors.status = "Trạng thái không được để trống";
@@ -77,11 +79,11 @@ const CreateMo = () => {
 
     let newValue = value;
     if (type === "number") {
-      const num = parseFloat(value);
-      if (isNaN(num)) {
+      const num = Number.parseFloat(value);
+      if (Number.isNaN(num)) {
         newValue = "";
       } else {
-        newValue = num < 0 ? 0 : num;
+        newValue = Math.max(0, num);
       }
     }
 
@@ -114,7 +116,6 @@ const CreateMo = () => {
 
       const response = await createMo(request, token);
 
-      // Kiểm tra statusCode trong response body
       if (response?.statusCode === 404) {
         toastrService.error(response?.message || "Hàng hóa chưa có BOM!");
         return;
@@ -124,7 +125,6 @@ const CreateMo = () => {
       navigate("/mos");
     } catch (error) {
       const errorData = error.response?.data;
-      // Kiểm tra statusCode trong error response body
       if (errorData?.statusCode === 404) {
         toastrService.error(errorData?.message || "Hàng hóa chưa có BOM!");
       } else {
@@ -133,41 +133,46 @@ const CreateMo = () => {
     }
   };
 
-  const handleCancel = () => {
-    navigate("/mos");
-  };
-
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
-          THÊM MỚI CÔNG LỆNH SẢN XUẤT
-        </Typography>
+    <div className="p-6">
+      <Card className="shadow-lg max-w-5xl mx-auto">
+        <CardBody>
+          <div className="flex items-center justify-between mb-6">
+            <Typography variant="h4" color="blue-gray" className="font-bold">
+              THÊM MỚI CÔNG LỆNH SẢN XUẤT
+            </Typography>
+            <BackButton to="/mos" label="Quay lại danh sách" />
+          </div>
 
-        <MoForm
-          mo={mo}
-          onChange={handleChange}
-          errors={errors}
-          readOnlyFields={{ moCode: true, status: true }}
-          setMo={setMo}
-          items={items}
-          lines={lines}
-        />
+          <MoForm
+            mo={mo}
+            onChange={handleChange}
+            errors={errors}
+            readOnlyFields={{ moCode: true, status: true }}
+            setMo={setMo}
+            items={items}
+            lines={lines}
+          />
 
-        <Grid container spacing={2} mt={3} justifyContent="flex-end">
-          <Grid item>
-            <Button variant="contained" color="default" onClick={handleSubmit}>
+          <div className="mt-6 flex justify-end gap-3">
+            <Button
+              type="button"
+              {...getButtonProps("primary")}
+              onClick={handleSubmit}
+            >
               Thêm
             </Button>
-          </Grid>
-          <Grid item>
-            <Button variant="outlined" color="default" onClick={handleCancel}>
+            <Button
+              type="button"
+              {...getButtonProps("outlinedSecondary")}
+              onClick={() => navigate("/mos")}
+            >
               Hủy
             </Button>
-          </Grid>
-        </Grid>
-      </Paper>
-    </Container>
+          </div>
+        </CardBody>
+      </Card>
+    </div>
   );
 };
 

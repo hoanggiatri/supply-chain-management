@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Container, Typography, Button, Grid, Paper } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { Button, Card, CardBody, Typography } from "@material-tailwind/react";
 import { createBom } from "@/services/manufacturing/BomService";
 import { getAllItemsInCompany } from "@/services/general/ItemService";
 import BomForm from "@/components/manufacturing/BomForm";
 import BomDetailTable from "@/components/manufacturing/BomDetailTable";
 import toastrService from "@/services/toastrService";
+import BackButton from "@/components/common/BackButton";
+import { getButtonProps } from "@/utils/buttonStyles";
 
 const CreateBom = () => {
   const navigate = useNavigate();
@@ -96,60 +98,64 @@ const CreateBom = () => {
           note: detail.note,
         })),
       };
-      console.log(request);
 
       await createBom(request, token);
       toastrService.success("Tạo BOM thành công!");
       navigate("/boms");
     } catch (error) {
-      console.log(error.response);
       toastrService.error(error.response?.data?.message || "Lỗi khi tạo BOM!");
     }
   };
 
-  const handleCancel = () => {
-    navigate("/boms");
-  };
-
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
-          THÊM MỚI BOM
-        </Typography>
+    <div className="p-6">
+      <Card className="shadow-lg max-w-6xl mx-auto">
+        <CardBody>
+          <div className="flex items-center justify-between mb-6">
+            <Typography variant="h4" color="blue-gray" className="font-bold">
+              THÊM MỚI BOM
+            </Typography>
+            <BackButton to="/boms" label="Quay lại danh sách" />
+          </div>
 
-        <BomForm
-          bom={bom}
-          onChange={handleChange}
-          errors={errors}
-          readOnlyFields={{ bomCode: true }}
-          setBom={setBom}
-        />
-        <Typography variant="h5" mt={3} mb={3}>
-          DANH SÁCH NGUYÊN VẬT LIỆU:
-        </Typography>
+          <BomForm
+            bom={bom}
+            onChange={handleChange}
+            errors={errors}
+            readOnlyFields={{ bomCode: true }}
+            setBom={setBom}
+          />
 
-        <BomDetailTable
-          bomDetails={bomDetails}
-          setBomDetails={setBomDetails}
-          items={items}
-          errors={errors.bomDetailErrors}
-        />
+          <Typography variant="h5" color="blue-gray" className="mt-6 mb-4">
+            DANH SÁCH NGUYÊN VẬT LIỆU
+          </Typography>
 
-        <Grid container spacing={2} mt={3} justifyContent="flex-end">
-          <Grid item>
-            <Button variant="contained" color="default" onClick={handleSubmit}>
+          <BomDetailTable
+            bomDetails={bomDetails}
+            setBomDetails={setBomDetails}
+            items={items}
+            errors={errors.bomDetailErrors}
+          />
+
+          <div className="mt-6 flex justify-end gap-3">
+            <Button
+              type="button"
+              {...getButtonProps("primary")}
+              onClick={handleSubmit}
+            >
               Thêm
             </Button>
-          </Grid>
-          <Grid item>
-            <Button variant="outlined" color="default" onClick={handleCancel}>
+            <Button
+              type="button"
+              {...getButtonProps("outlinedSecondary")}
+              onClick={() => navigate("/boms")}
+            >
               Hủy
             </Button>
-          </Grid>
-        </Grid>
-      </Paper>
-    </Container>
+          </div>
+        </CardBody>
+      </Card>
+    </div>
   );
 };
 

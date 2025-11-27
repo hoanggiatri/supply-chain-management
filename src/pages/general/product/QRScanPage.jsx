@@ -13,6 +13,7 @@ import { scanQRCode } from "@/services/general/ProductService";
 import toastrService from "@/services/toastrService";
 import { Button } from "@material-tailwind/react";
 import { getButtonProps } from "@/utils/buttonStyles";
+import BackButton from "@components/common/BackButton";
 
 const QRScanPage = () => {
   const navigate = useNavigate();
@@ -100,9 +101,17 @@ const QRScanPage = () => {
         elevation={3}
         sx={{ p: 3, mt: 4, textAlign: "center" }}
       >
-        <Typography variant="h4" gutterBottom>
-          QUÉT MÃ QR
-        </Typography>
+        <Box
+          display="flex"
+          alignItems="center"
+          justifyContent="space-between"
+          mb={2}
+        >
+          <Typography variant="h4" gutterBottom className="!mb-0">
+            QUÉT MÃ QR
+          </Typography>
+          <BackButton to="/products" label="Quay lại danh sách" />
+        </Box>
 
         {loading && <CircularProgress sx={{ mb: 2 }} />}
 

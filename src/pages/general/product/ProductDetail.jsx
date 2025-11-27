@@ -19,6 +19,7 @@ import ProductQRCode from "@/components/general/product/ProductQRCode";
 import toastrService from "@/services/toastrService";
 import { Button } from "@material-tailwind/react";
 import { getButtonProps } from "@/utils/buttonStyles";
+import BackButton from "@components/common/BackButton";
 
 const ProductDetail = () => {
   const { productId } = useParams();
@@ -88,11 +89,19 @@ const ProductDetail = () => {
   return (
     <Container>
       <Paper className="paper-container" elevation={3} sx={{ p: 4, mt: 4 }}>
+        <Box
+          display="flex"
+          alignItems="center"
+          justifyContent="space-between"
+          mb={3}
+        >
+          <Typography variant="h4" gutterBottom className="!mb-0">
+            CHI TIẾT SẢN PHẨM
+          </Typography>
+          <BackButton to="/products" label="Quay lại danh sách" />
+        </Box>
         <Grid container spacing={4}>
           <Grid item xs={12} md={8}>
-            <Typography variant="h4" gutterBottom>
-              CHI TIẾT SẢN PHẨM
-            </Typography>
             <Box mb={2}>
               <Typography variant="subtitle1">
                 <strong>Tên Hàng Hóa:</strong> {product.item?.itemName}

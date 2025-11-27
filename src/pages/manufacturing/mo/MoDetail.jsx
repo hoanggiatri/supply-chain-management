@@ -1,17 +1,14 @@
+/* global globalThis */
 import React, { useEffect, useState } from "react";
-import {
-  Container,
-  Paper,
-  Typography,
-  Box,
-  Button,
-  Grid,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-} from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
+import {
+  Button,
+  Card,
+  CardBody,
+  Select,
+  Option,
+  Typography,
+} from "@material-tailwind/react";
 import MoForm from "@/components/manufacturing/MoForm";
 import { getMoById, updateMo } from "@/services/manufacturing/MoService";
 import { getAllItemsInCompany } from "@/services/general/ItemService";
@@ -26,6 +23,8 @@ import LoadingPaper from "@/components/content-components/LoadingPaper";
 import ProcessCard from "@/components/content-components/ProcessCard";
 import dayjs from "dayjs";
 import toastrService from "@/services/toastrService";
+import BackButton from "@/components/common/BackButton";
+import { getButtonProps } from "@/utils/buttonStyles";
 
 const MoDetail = () => {
   const { moId } = useParams();
@@ -112,10 +111,17 @@ const MoDetail = () => {
   };
 
   const handleCancelMo = async () => {
-    const confirmCancel = window.confirm(
-      "Bạn có chắc chắn muốn hủy công lệnh này không?"
-    );
-    if (!confirmCancel) return;
+    const confirmFn =
+      typeof globalThis !== "undefined" &&
+      typeof globalThis.confirm === "function"
+        ? globalThis.confirm.bind(globalThis)
+        : null;
+    if (
+      confirmFn &&
+      !confirmFn("Bạn có chắc chắn muốn hủy công lệnh này không?")
+    ) {
+      return;
+    }
 
     try {
       const request = {
@@ -225,7 +231,6 @@ const MoDetail = () => {
     };
 
     try {
-      console.log("Receive Ticket Request: ", receiveTicketRequest);
       await createReceiveTicket(receiveTicketRequest, token);
       toastrService.success("Yêu cầu nhập kho thành công!");
       setHasRequestedReceive(true);
@@ -252,127 +257,123 @@ const MoDetail = () => {
   }
 
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
-          THÔNG TIN CÔNG LỆNH
-        </Typography>
+    <div className="p-6">
+      <Card className="shadow-lg max-w-6xl mx-auto">
+        <CardBody>
+          <div className="flex items-center justify-between mb-6">
+            <Typography variant="h4" color="blue-gray" className="font-bold">
+              THÔNG TIN CÔNG LỆNH
+            </Typography>
+            <BackButton to="/mos" label="Quay lại danh sách" />
+          </div>
 
-        <Box
-          mt={3}
-          mb={3}
-          display="flex"
-          justifyContent="space-between"
-          gap={2}
-        >
-          <Box display="flex" gap={2}>
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
             <Button
-              variant="contained"
-              color="info"
+              type="button"
+              {...getButtonProps("secondary")}
               onClick={() => navigate(`/bom/${mo.itemId}`)}
             >
               Xem BOM
             </Button>
-          </Box>
 
-          {mo.status === "Chờ xác nhận" && (
-            <Box display="flex" gap={2}>
-              <Button
-                variant="contained"
-                color="success"
-                onClick={() => handleConfirm("mo", mo.moId)}
-              >
-                Xác nhận
-              </Button>
-              <Button
-                variant="contained"
-                color="error"
-                onClick={handleCancelMo}
-              >
-                Hủy
-              </Button>
-            </Box>
-          )}
-        </Box>
+            {mo.status === "Chờ xác nhận" && (
+              <div className="flex gap-3">
+                <Button
+                  type="button"
+                  {...getButtonProps("success")}
+                  onClick={() => handleConfirm("mo", mo.moId)}
+                >
+                  Xác nhận
+                </Button>
+                <Button
+                  type="button"
+                  {...getButtonProps("danger")}
+                  onClick={handleCancelMo}
+                >
+                  Hủy
+                </Button>
+              </div>
+            )}
+          </div>
 
-        {mo.status === "Chờ nhập kho" && !hasRequestedReceive && (
-          <Box mt={3} mb={3} p={2} border="3px solid #ccc" borderRadius={2}>
-            <Typography variant="h5" mb={2}>
-              Chọn kho để nhập thành phẩm:{" "}
-            </Typography>
-            <Grid container spacing={2} alignItems="center">
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth>
-                  <InputLabel>Kho nhập</InputLabel>
+          {mo.status === "Chờ nhập kho" && !hasRequestedReceive && (
+            <div className="border border-blue-gray-100 rounded-lg p-4 mb-6">
+              <Typography variant="h5" color="blue-gray" className="mb-4">
+                Chọn kho để nhập thành phẩm
+              </Typography>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
                   <Select
-                    value={selectedWarehouseId}
-                    onChange={(e) => setSelectedWarehouseId(e.target.value)}
                     label="Kho nhập"
+                    color="blue"
+                    value={selectedWarehouseId}
+                    onChange={(val) => setSelectedWarehouseId(val)}
+                    className="w-full"
                   >
                     {warehouses.map((wh) => (
-                      <MenuItem key={wh.warehouseId} value={wh.warehouseId}>
+                      <Option key={wh.warehouseId} value={wh.warehouseId}>
                         {wh.warehouseCode} - {wh.warehouseName}
-                      </MenuItem>
+                      </Option>
                     ))}
                   </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <Button
-                  variant="contained"
-                  color="default"
-                  onClick={handleCreateReceiveTicket}
-                  disabled={!selectedWarehouseId}
-                >
-                  Yêu cầu nhập kho
-                </Button>
-              </Grid>
-            </Grid>
-          </Box>
-        )}
+                </div>
+                <div className="flex items-center">
+                  <Button
+                    type="button"
+                    {...getButtonProps("primary")}
+                    onClick={handleCreateReceiveTicket}
+                    disabled={!selectedWarehouseId}
+                    className="disabled:opacity-60"
+                  >
+                    Yêu cầu nhập kho
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
 
-        <MoForm
-          mo={mo}
-          onChange={() => {}}
-          errors={{}}
-          readOnlyFields={readOnlyFields}
-          items={items}
-          lines={lines}
-          setMo={setMo}
-        />
+          <MoForm
+            mo={mo}
+            onChange={() => {}}
+            errors={{}}
+            readOnlyFields={readOnlyFields}
+            items={items}
+            lines={lines}
+            setMo={setMo}
+          />
 
-        {mo.status === "Chờ xác nhận" && (
-          <Box mt={3} display="flex" justifyContent="flex-end">
-            <Button
-              variant="contained"
-              color="default"
-              onClick={handleEditClick}
-            >
-              Sửa
-            </Button>
-          </Box>
-        )}
+          {mo.status === "Chờ xác nhận" && (
+            <div className="mt-6 flex justify-end">
+              <Button
+                type="button"
+                {...getButtonProps("primary")}
+                onClick={handleEditClick}
+              >
+                Sửa
+              </Button>
+            </div>
+          )}
 
-        {mo.status !== "Chờ xác nhận" && mo.status !== "Đã hủy" && (
-          <>
-            <Typography variant="h5" mt={3} mb={3}>
-              QUÁ TRÌNH SẢN XUẤT:
-            </Typography>
-
-            <Box sx={{ display: "flex", gap: 2, overflowX: "auto", pb: 1 }}>
-              {processes.map((process) => (
-                <Box key={process.stageDetailOrder} sx={{ flexShrink: 0 }}>
-                  <ProcessCard
-                    process={process}
-                    onComplete={(p) => handleCompleteProcess(p)}
-                  />
-                </Box>
-              ))}
-            </Box>
-          </>
-        )}
-      </Paper>
-    </Container>
+          {mo.status !== "Chờ xác nhận" && mo.status !== "Đã hủy" && (
+            <>
+              <Typography variant="h5" color="blue-gray" className="mt-6 mb-4">
+                QUÁ TRÌNH SẢN XUẤT
+              </Typography>
+              <div className="flex gap-4 overflow-x-auto pb-2">
+                {processes.map((process) => (
+                  <div key={process.stageDetailOrder} className="min-w-[240px]">
+                    <ProcessCard
+                      process={process}
+                      onComplete={(p) => handleCompleteProcess(p)}
+                    />
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </CardBody>
+      </Card>
+    </div>
   );
 };
 

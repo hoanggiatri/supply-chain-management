@@ -1,3 +1,5 @@
+import React from "react";
+import PropTypes from "prop-types";
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -7,7 +9,6 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { Box } from "@mui/material";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
@@ -17,12 +18,13 @@ const MonthlyBarChart = ({
   label = "Số lượng",
   color = "#05518B",
 }) => {
-  const raw = Array.isArray(data)
-    ? data
-    : Array.isArray(data?.data)
-    ? data.data
-    : [];
-  const safeData = raw.filter(Boolean);
+  const resolveData = () => {
+    if (Array.isArray(data)) return data;
+    if (Array.isArray(data?.data)) return data.data;
+    return [];
+  };
+
+  const safeData = resolveData().filter(Boolean);
 
   const chartData = {
     labels: safeData.map((item) => item?.month ?? ""),
@@ -53,10 +55,17 @@ const MonthlyBarChart = ({
   };
 
   return (
-    <Box width="100%" maxWidth="md" mx="auto">
+    <div className="w-full max-w-4xl mx-auto">
       <Bar data={chartData} options={options} />
-    </Box>
+    </div>
   );
+};
+
+MonthlyBarChart.propTypes = {
+  data: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
+  metric: PropTypes.string,
+  label: PropTypes.string,
+  color: PropTypes.string,
 };
 
 export default MonthlyBarChart;

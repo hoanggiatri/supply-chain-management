@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { Container, Typography, Button, Grid, Paper } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import {
   createStage,
@@ -8,6 +7,9 @@ import {
 import StageForm from "@/components/manufacturing/StageForm";
 import StageDetailTable from "@/components/manufacturing/StageDetailTable";
 import toastrService from "@/services/toastrService";
+import { Button, Card, CardBody, Typography } from "@material-tailwind/react";
+import { getButtonProps } from "@/utils/buttonStyles";
+import BackButton from "@/components/common/BackButton";
 
 const CreateStage = () => {
   const navigate = useNavigate();
@@ -97,13 +99,10 @@ const CreateStage = () => {
     }
 
     try {
-      // Kiểm tra item đã có stage chưa
       const checkResult = await checkIsItemCreatedStage(stage.itemId, token);
-      // API trả về boolean (true/false)
       const isCreated = checkResult === true || checkResult === "true";
 
       if (isCreated) {
-        // Hiển thị dialog xác nhận
         const result = await toastrService.confirm(
           "Hàng hóa đã được tạo. Nếu tiếp tục tạo sẽ vô hiệu quy trình sản xuất đã có.",
           "Xác nhận",
@@ -114,12 +113,9 @@ const CreateStage = () => {
         );
 
         if (result.isConfirmed) {
-          // Người dùng chọn Yes => tiếp tục tạo
           await performCreateStage();
         }
-        // Người dùng chọn No => không làm gì
       } else {
-        // Item chưa có stage => tạo bình thường
         await performCreateStage();
       }
     } catch (error) {
@@ -129,49 +125,54 @@ const CreateStage = () => {
     }
   };
 
-  const handleCancel = () => {
-    navigate("/stages");
-  };
-
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
-          THÊM MỚI QUY TRÌNH SẢN XUẤT
-        </Typography>
+    <div className="p-6">
+      <Card className="shadow-lg max-w-6xl mx-auto">
+        <CardBody>
+          <div className="flex items-center justify-between mb-6">
+            <Typography variant="h4" color="blue-gray" className="font-bold">
+              THÊM MỚI QUY TRÌNH SẢN XUẤT
+            </Typography>
+            <BackButton to="/stages" label="Quay lại danh sách" />
+          </div>
 
-        <StageForm
-          stage={stage}
-          onChange={handleChange}
-          errors={errors}
-          readOnlyFields={{ stageCode: true }}
-          setStage={setStage}
-        />
+          <StageForm
+            stage={stage}
+            onChange={handleChange}
+            errors={errors}
+            readOnlyFields={{ stageCode: true }}
+            setStage={setStage}
+          />
 
-        <Typography variant="h5" mt={3} mb={3}>
-          DANH SÁCH CÔNG ĐOẠN:
-        </Typography>
+          <Typography variant="h5" color="blue-gray" className="mt-6 mb-4">
+            DANH SÁCH CÔNG ĐOẠN
+          </Typography>
 
-        <StageDetailTable
-          stageDetails={stageDetails}
-          setStageDetails={setStageDetails}
-          errors={errors.stageDetailErrors}
-        />
+          <StageDetailTable
+            stageDetails={stageDetails}
+            setStageDetails={setStageDetails}
+            errors={errors.stageDetailErrors}
+          />
 
-        <Grid container spacing={2} mt={3} justifyContent="flex-end">
-          <Grid item>
-            <Button variant="contained" color="default" onClick={handleSubmit}>
+          <div className="mt-6 flex justify-end gap-3">
+            <Button
+              type="button"
+              {...getButtonProps("primary")}
+              onClick={handleSubmit}
+            >
               Thêm
             </Button>
-          </Grid>
-          <Grid item>
-            <Button variant="outlined" color="default" onClick={handleCancel}>
+            <Button
+              type="button"
+              {...getButtonProps("outlinedSecondary")}
+              onClick={() => navigate("/stages")}
+            >
               Hủy
             </Button>
-          </Grid>
-        </Grid>
-      </Paper>
-    </Container>
+          </div>
+        </CardBody>
+      </Card>
+    </div>
   );
 };
 

@@ -6,6 +6,7 @@ import ItemForm from "@components/general/ItemForm";
 import toastrService from "@/services/toastrService";
 import { Button } from "@material-tailwind/react";
 import { getButtonProps } from "@/utils/buttonStyles";
+import BackButton from "@components/common/BackButton";
 
 const CreateItem = () => {
   const navigate = useNavigate();
@@ -95,9 +96,12 @@ const CreateItem = () => {
   return (
     <Container>
       <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
-          THÊM MỚI HÀNG HÓA
-        </Typography>
+        <div className="flex items-center justify-between mb-4">
+          <Typography className="page-title" variant="h4">
+            THÊM MỚI HÀNG HÓA
+          </Typography>
+          <BackButton to="/items" label="Quay lại danh sách" />
+        </div>
 
         <ItemForm
           item={formData}

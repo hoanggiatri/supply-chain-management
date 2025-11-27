@@ -5,6 +5,7 @@ import { createEmployee } from "@/services/general/EmployeeService";
 import EmployeeForm from "@components/general/EmployeeForm";
 import toastrService from "@/services/toastrService";
 import { getButtonProps } from "@/utils/buttonStyles";
+import BackButton from "@components/common/BackButton";
 
 const CreateEmployee = () => {
   const navigate = useNavigate();
@@ -96,9 +97,12 @@ const CreateEmployee = () => {
     <div className="p-6">
       <Card className="shadow-lg max-w-5xl mx-auto">
         <CardBody>
-          <Typography variant="h4" color="blue-gray" className="mb-6 font-bold">
-            THÊM MỚI NHÂN VIÊN
-          </Typography>
+          <div className="flex items-center justify-between mb-6">
+            <Typography variant="h4" color="blue-gray" className="font-bold">
+              THÊM MỚI NHÂN VIÊN
+            </Typography>
+            <BackButton to="/employees" label="Quay lại danh sách" />
+          </div>
 
           <EmployeeForm
             employee={formData}

@@ -1,22 +1,16 @@
 import React, { useEffect, useState } from "react";
-import {
-  Container,
-  Paper,
-  Typography,
-  TableRow,
-  TableCell,
-  Box,
-  Button,
-} from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
-import DataTable from "@/components/content-components/DataTable";
-import StageForm from "@/components/manufacturing/StageForm";
 import {
   deleteStage,
   getStageById,
 } from "@/services/manufacturing/StageService";
-import LoadingPaper from "@/components/content-components/LoadingPaper";
 import toastrService from "@/services/toastrService";
+import StageForm from "@/components/manufacturing/StageForm";
+import DataTable from "@/components/content-components/DataTable";
+import LoadingPaper from "@/components/content-components/LoadingPaper";
+import BackButton from "@/components/common/BackButton";
+import { Button, Card, CardBody, Typography } from "@material-tailwind/react";
+import { getButtonProps } from "@/utils/buttonStyles";
 
 const StageDetail = () => {
   const { stageId } = useParams();
@@ -66,38 +60,13 @@ const StageDetail = () => {
     { id: "description", label: "Ghi chú" },
   ];
 
-  const handleRequestSort = (property) => {
-    const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(property);
-  };
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(Number(event.target.value));
-    setPage(1);
-  };
-
-  const filteredDetails = Array.isArray(stageDetails)
-    ? stageDetails.sort((a, b) => {
-        if (orderBy) {
-          if (a[orderBy] < b[orderBy]) return order === "asc" ? -1 : 1;
-          if (a[orderBy] > b[orderBy]) return order === "asc" ? 1 : -1;
-        }
-        return 0;
-      })
-    : [];
-
-  const paginatedDetails = filteredDetails.slice(
-    (page - 1) * rowsPerPage,
-    (page - 1) * rowsPerPage + rowsPerPage
-  );
-
   const handleDelete = async () => {
-    if (!window.confirm("Bạn có chắc muốn xóa công đoạn này không?")) return;
+    if (
+      typeof window !== "undefined" &&
+      !window.confirm("Bạn có chắc muốn xóa công đoạn này không?")
+    ) {
+      return;
+    }
     try {
       await deleteStage(stage.stageId, token);
       toastrService.success("Xóa công đoạn thành công!");
@@ -113,62 +82,125 @@ const StageDetail = () => {
     return <LoadingPaper title="THÔNG TIN QUY TRÌNH SẢN XUẤT" />;
   }
 
+  const sortedDetails = Array.isArray(stageDetails)
+    ? [...stageDetails].sort((a, b) => {
+        if (orderBy) {
+          if (a[orderBy] < b[orderBy]) return order === "asc" ? -1 : 1;
+          if (a[orderBy] > b[orderBy]) return order === "asc" ? 1 : -1;
+        }
+        return 0;
+      })
+    : [];
+
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
-          THÔNG TIN QUY TRÌNH SẢN XUẤT
-        </Typography>
+    <div className="p-6">
+      <Card className="shadow-lg max-w-6xl mx-auto">
+        <CardBody>
+          <div className="flex items-center justify-between mb-6">
+            <Typography variant="h4" color="blue-gray" className="font-bold">
+              THÔNG TIN QUY TRÌNH SẢN XUẤT
+            </Typography>
+            <BackButton to="/stages" label="Quay lại danh sách" />
+          </div>
 
-        <StageForm
-          stage={stage}
-          onChange={() => {}}
-          errors={{}}
-          readOnlyFields={readOnlyFields}
-          setStage={setStage}
-        />
+          <StageForm
+            stage={stage}
+            onChange={() => {}}
+            errors={{}}
+            readOnlyFields={readOnlyFields}
+            setStage={setStage}
+          />
 
-        <Typography variant="h5" mt={3} mb={3}>
-          DANH SÁCH CÔNG ĐOẠN:
-        </Typography>
+          <Typography variant="h5" color="blue-gray" className="mt-6 mb-4">
+            DANH SÁCH CÔNG ĐOẠN
+          </Typography>
 
-        <DataTable
-          rows={paginatedDetails}
-          columns={columns}
-          order={order}
-          orderBy={orderBy}
-          onRequestSort={handleRequestSort}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          search={search}
-          setSearch={setSearch}
-          isLoading={loading}
-          renderRow={(detail, index) => (
-            <TableRow key={index}>
-              <TableCell>{detail.stageOrder}</TableCell>
-              <TableCell>{detail.stageName}</TableCell>
-              <TableCell>{detail.estimatedTime}</TableCell>
-              <TableCell>{detail.description}</TableCell>
-            </TableRow>
-          )}
-        />
+          <DataTable
+            rows={sortedDetails}
+            columns={columns}
+            order={order}
+            orderBy={orderBy}
+            onRequestSort={(property) => {
+              const isAsc = orderBy === property && order === "asc";
+              setOrder(isAsc ? "desc" : "asc");
+              setOrderBy(property);
+            }}
+            page={page}
+            rowsPerPage={rowsPerPage}
+            onPageChange={(_, newPage) => setPage(newPage)}
+            onRowsPerPageChange={(event) =>
+              setRowsPerPage(Number(event.target.value))
+            }
+            search={search}
+            setSearch={setSearch}
+            loading={loading}
+            renderRow={(detail, index) => {
+              const isLast = index === sortedDetails.length - 1;
+              const classes = isLast
+                ? "p-4"
+                : "p-4 border-b border-blue-gray-50";
+              return (
+                <tr key={`${detail.stageOrder}-${detail.stageName}-${index}`}>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {detail.stageOrder}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {detail.stageName}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {detail.estimatedTime}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {detail.description || "-"}
+                    </Typography>
+                  </td>
+                </tr>
+              );
+            }}
+          />
 
-        <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
-          <Button
-            variant="contained"
-            color="default"
-            onClick={() => navigate(`/stage/${stageId}/edit`)}
-          >
-            Sửa
-          </Button>
-          <Button variant="contained" color="error" onClick={handleDelete}>
-            Xóa
-          </Button>
-        </Box>
-      </Paper>
-    </Container>
+          <div className="mt-6 flex justify-end gap-3">
+            <Button
+              type="button"
+              {...getButtonProps("primary")}
+              onClick={() => navigate(`/stage/${stageId}/edit`)}
+            >
+              Sửa
+            </Button>
+            <Button
+              type="button"
+              {...getButtonProps("danger")}
+              onClick={handleDelete}
+            >
+              Xóa
+            </Button>
+          </div>
+        </CardBody>
+      </Card>
+    </div>
   );
 };
 

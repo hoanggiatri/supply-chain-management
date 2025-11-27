@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import toastrService from "@/services/toastrService";
 import { getButtonProps } from "@/utils/buttonStyles";
+import BackButton from "@components/common/BackButton";
 
 const EditCompany = () => {
   const [company, setCompany] = useState(null);
@@ -166,9 +167,12 @@ const EditCompany = () => {
     <div className="p-6">
       <Card className="shadow-lg max-w-5xl mx-auto">
         <CardBody>
-          <Typography variant="h4" color="blue-gray" className="mb-6 font-bold">
-            CHỈNH SỬA THÔNG TIN CÔNG TY
-          </Typography>
+          <div className="flex items-center justify-between mb-6">
+            <Typography variant="h4" color="blue-gray" className="font-bold">
+              CHỈNH SỬA THÔNG TIN CÔNG TY
+            </Typography>
+            <BackButton />
+          </div>
 
           <div className="flex flex-col md:flex-row items-center gap-6 mb-8">
             <img

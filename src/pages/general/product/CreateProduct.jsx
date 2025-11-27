@@ -14,6 +14,7 @@ import { getAllItemsInCompany } from "@/services/general/ItemService";
 import toastrService from "@/services/toastrService";
 import { Button } from "@material-tailwind/react";
 import { getButtonProps } from "@/utils/buttonStyles";
+import BackButton from "@components/common/BackButton";
 
 const CreateProduct = () => {
   const navigate = useNavigate();
@@ -63,9 +64,17 @@ const CreateProduct = () => {
   return (
     <Container maxWidth="md">
       <Paper className="paper-container" elevation={3} sx={{ p: 4, mt: 4 }}>
-        <Typography variant="h4" gutterBottom>
-          TẠO SẢN PHẨM MỚI (GENERATE QR)
-        </Typography>
+        <Box
+          display="flex"
+          alignItems="center"
+          justifyContent="space-between"
+          mb={2}
+        >
+          <Typography variant="h4" gutterBottom>
+            TẠO SẢN PHẨM MỚI (GENERATE QR)
+          </Typography>
+          <BackButton to="/products" label="Quay lại danh sách" />
+        </Box>
         <form onSubmit={handleSubmit}>
           <Grid container spacing={3}>
             <Grid item xs={12}>

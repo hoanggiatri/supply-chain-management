@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Container, Typography, Button, Grid, Paper } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   updateStage,
@@ -9,6 +8,9 @@ import StageForm from "@/components/manufacturing/StageForm";
 import StageDetailTable from "@/components/manufacturing/StageDetailTable";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import toastrService from "@/services/toastrService";
+import { Button, Card, CardBody, Typography } from "@material-tailwind/react";
+import { getButtonProps } from "@/utils/buttonStyles";
+import BackButton from "@/components/common/BackButton";
 
 const EditStage = () => {
   const { stageId } = useParams();
@@ -106,53 +108,58 @@ const EditStage = () => {
     }
   };
 
-  const handleCancel = () => {
-    navigate("/stages");
-  };
-
   if (loading) {
     return <LoadingPaper title="CẬP NHẬT QUY TRÌNH SẢN XUẤT" />;
   }
 
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
-          CẬP NHẬT QUY TRÌNH SẢN XUẤT
-        </Typography>
+    <div className="p-6">
+      <Card className="shadow-lg max-w-6xl mx-auto">
+        <CardBody>
+          <div className="flex items-center justify-between mb-6">
+            <Typography variant="h4" color="blue-gray" className="font-bold">
+              CẬP NHẬT QUY TRÌNH SẢN XUẤT
+            </Typography>
+            <BackButton to="/stages" label="Quay lại danh sách" />
+          </div>
 
-        <StageForm
-          stage={stage}
-          onChange={handleChange}
-          errors={errors}
-          readOnlyFields={readOnlyFields}
-          setStage={setStage}
-        />
+          <StageForm
+            stage={stage}
+            onChange={handleChange}
+            errors={errors}
+            readOnlyFields={readOnlyFields}
+            setStage={setStage}
+          />
 
-        <Typography variant="h5" mt={3} mb={3}>
-          DANH SÁCH CÔNG ĐOẠN:
-        </Typography>
+          <Typography variant="h5" color="blue-gray" className="mt-6 mb-4">
+            DANH SÁCH CÔNG ĐOẠN
+          </Typography>
 
-        <StageDetailTable
-          stageDetails={stageDetails}
-          errors={errors.stageDetailErrors}
-          readOnly
-        />
+          <StageDetailTable
+            stageDetails={stageDetails}
+            errors={errors.stageDetailErrors}
+            readOnly
+          />
 
-        <Grid container spacing={2} mt={3} justifyContent="flex-end">
-          <Grid item>
-            <Button variant="contained" color="default" onClick={handleSubmit}>
+          <div className="mt-6 flex justify-end gap-3">
+            <Button
+              type="button"
+              {...getButtonProps("primary")}
+              onClick={handleSubmit}
+            >
               Lưu
             </Button>
-          </Grid>
-          <Grid item>
-            <Button variant="outlined" color="default" onClick={handleCancel}>
+            <Button
+              type="button"
+              {...getButtonProps("outlinedSecondary")}
+              onClick={() => navigate("/stages")}
+            >
               Hủy
             </Button>
-          </Grid>
-        </Grid>
-      </Paper>
-    </Container>
+          </div>
+        </CardBody>
+      </Card>
+    </div>
   );
 };
 
