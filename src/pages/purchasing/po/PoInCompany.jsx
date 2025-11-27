@@ -1,13 +1,6 @@
 import React, { useEffect, useState } from "react";
-import {
-  Container,
-  Typography,
-  Paper,
-  TableRow,
-  TableCell,
-} from "@mui/material";
+import { Typography, Card, CardBody } from "@material-tailwind/react";
 import { useNavigate } from "react-router-dom";
-import { useTheme } from "@mui/material/styles";
 import DataTable from "@/components/content-components/DataTable";
 import StatusSummaryCard from "@/components/content-components/StatusSummaryCard";
 import { getAllPosInCompany } from "@/services/purchasing/PoService";
@@ -25,7 +18,6 @@ const PoInCompany = () => {
   const token = localStorage.getItem("token");
   const companyId = localStorage.getItem("companyId");
   const navigate = useNavigate();
-  const theme = useTheme();
 
   useEffect(() => {
     const fetchPos = async () => {
@@ -73,73 +65,160 @@ const PoInCompany = () => {
     { id: "status", label: "Trạng thái" },
   ];
 
+  const statusLabels = {
+    "Chờ xác nhận": "Chờ xác nhận",
+    "Đã xác nhận": "Đã xác nhận",
+    "Đang vận chuyển": "Đang vận chuyển",
+    "Chờ nhập kho": "Chờ nhập kho",
+    "Đã hoàn thành": "Đã hoàn thành",
+    "Đã hủy": "Đã hủy",
+  };
+
+  const statusColorMap = {
+    "Chờ xác nhận": "purple",
+    "Đã xác nhận": "blue",
+    "Đang vận chuyển": "cyan",
+    "Chờ nhập kho": "amber",
+    "Đã hoàn thành": "green",
+    "Đã hủy": "red",
+  };
+
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
-          DANH SÁCH ĐƠN MUA HÀNG
-        </Typography>
+    <div className="p-6">
+      <Card className="shadow-lg">
+        <CardBody>
+          <Typography variant="h4" color="blue-gray" className="mb-6 font-bold">
+            DANH SÁCH ĐƠN MUA HÀNG
+          </Typography>
 
-        <StatusSummaryCard
-          data={pos}
-          statusLabels={[
-            "Tất cả",
-            "Chờ xác nhận",
-            "Đã xác nhận",
-            "Đang vận chuyển",
-            "Chờ nhập kho",
-            "Đã hoàn thành",
-            "Đã hủy",
-          ]}
-          getStatus={(po) => po.status}
-          statusColors={{
-            "Tất cả": "#000",
-            "Chờ xác nhận": theme.palette.secondary.main,
-            "Đã xác nhận": theme.palette.primary.main,
-            "Đang vận chuyển": theme.palette.info.main,
-            "Chờ nhập kho": theme.palette.warning.main,
-            "Đã hoàn thành": theme.palette.success.main,
-            "Đã hủy": theme.palette.error.main,
-          }}
-          onSelectStatus={setFilterStatus}
-          selectedStatus={filterStatus}
-        />
+          <StatusSummaryCard
+            data={pos}
+            statusLabels={[
+              "Tất cả",
+              "Chờ xác nhận",
+              "Đã xác nhận",
+              "Đang vận chuyển",
+              "Chờ nhập kho",
+              "Đã hoàn thành",
+              "Đã hủy",
+            ]}
+            getStatus={(po) => po.status}
+            statusColors={{
+              "Tất cả": "#000",
+              "Chờ xác nhận": "#9c27b0",
+              "Đã xác nhận": "#2196f3",
+              "Đang vận chuyển": "#00bcd4",
+              "Chờ nhập kho": "#ff9800",
+              "Đã hoàn thành": "#4caf50",
+              "Đã hủy": "#f44336",
+            }}
+            onSelectStatus={setFilterStatus}
+            selectedStatus={filterStatus}
+          />
 
-        <DataTable
-          rows={filteredPos}
-          columns={columns}
-          order={order}
-          orderBy={orderBy}
-          onRequestSort={handleRequestSort}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          search={search}
-          setSearch={setSearch}
-          height="calc(100vh - 380px)"
-          renderRow={(po) => (
-            <TableRow
-              key={po.poId}
-              hover
-              sx={{ cursor: "pointer" }}
-              onClick={() => navigate(`/po/${po.poId}`)}
-            >
-              <TableCell>{po.poCode}</TableCell>
-              <TableCell>{po.quotationCode}</TableCell>
-              <TableCell>{po.supplierCompanyCode}</TableCell>
-              <TableCell>{po.supplierCompanyName}</TableCell>
-              <TableCell>{po.paymentMethod}</TableCell>
-              <TableCell>{po.createdBy}</TableCell>
-              <TableCell>
-                {po.createdOn ? new Date(po.createdOn).toLocaleString() : ""}
-              </TableCell>
-              <TableCell>{po.status}</TableCell>
-            </TableRow>
-          )}
-        />
-      </Paper>
-    </Container>
+          <DataTable
+            rows={filteredPos}
+            columns={columns}
+            order={order}
+            orderBy={orderBy}
+            onRequestSort={handleRequestSort}
+            page={page}
+            rowsPerPage={rowsPerPage}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            search={search}
+            setSearch={setSearch}
+            statusColumn="status"
+            statusColors={statusColorMap}
+            renderRow={(po, index, page, rowsPerPage, renderStatusCell) => {
+              const isLast = index === filteredPos.length - 1;
+              const classes = isLast
+                ? "p-4"
+                : "p-4 border-b border-blue-gray-50";
+              return (
+                <tr
+                  key={po.poId}
+                  className="hover:bg-blue-gray-50 transition-colors cursor-pointer"
+                  onClick={() => navigate(`/po/${po.poId}`)}
+                >
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {po.poCode || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {po.quotationCode || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {po.supplierCompanyCode || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {po.supplierCompanyName || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {po.paymentMethod || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {po.createdBy || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {po.createdOn
+                        ? new Date(po.createdOn).toLocaleString()
+                        : ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    {renderStatusCell(
+                      statusLabels[po.status] || po.status || "",
+                      statusColorMap[po.status]
+                    )}
+                  </td>
+                </tr>
+              );
+            }}
+          />
+        </CardBody>
+      </Card>
+    </div>
   );
 };
 

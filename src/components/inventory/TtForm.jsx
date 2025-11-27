@@ -1,12 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Grid,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-} from "@mui/material";
+import { Input, Select, Option, Typography } from "@material-tailwind/react";
 import SelectAutocomplete from "@components/content-components/SelectAutocomplete";
 import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
 import toastrService from "@/services/toastrService";
@@ -101,33 +94,38 @@ const TtForm = ({
   };
 
   return (
-    <Grid container spacing={2}>
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <Input
           label="Mã phiếu"
           name="ticketCode"
-          value={ticket.ticketCode}
+          value={ticket.ticketCode || ""}
           onChange={onChange}
           placeholder="Mã phiếu được tạo tự động"
-          InputProps={{ readOnly: isFieldReadOnly("ticketCode") }}
+          readOnly={isFieldReadOnly("ticketCode")}
+          color="blue"
+          className="w-full placeholder:opacity-100"
         />
-      </Grid>
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
+      <div>
+        <Input
           label="Lý do"
           name="reason"
-          value={ticket.reason}
+          value={ticket.reason || ""}
           onChange={onChange}
-          error={!!errors.reason}
-          helperText={errors.reason}
-          InputProps={{ readOnly: isFieldReadOnly("reason") }}
+          readOnly={isFieldReadOnly("reason")}
+          color="blue"
+          className="w-full placeholder:opacity-100"
         />
-      </Grid>
+        {errors.reason && (
+          <Typography variant="small" color="red" className="mt-1">
+            {errors.reason}
+          </Typography>
+        )}
+      </div>
 
-      <Grid item xs={12} sm={6}>
+      <div>
         <SelectAutocomplete
           options={filteredFromWarehouses.map((w) => ({
             label: w.warehouseCode + " - " + w.warehouseName,
@@ -141,9 +139,9 @@ const TtForm = ({
           size="small"
           disabled={isFieldReadOnly("fromWarehouseCode")}
         />
-      </Grid>
+      </div>
 
-      <Grid item xs={12} sm={6}>
+      <div>
         <SelectAutocomplete
           options={filteredToWarehouses.map((w) => ({
             label: w.warehouseCode + " - " + w.warehouseName,
@@ -157,27 +155,31 @@ const TtForm = ({
           size="small"
           disabled={isFieldReadOnly("toWarehouseCode")}
         />
-      </Grid>
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <FormControl fullWidth error={!!errors.status}>
-          <InputLabel>Trạng thái</InputLabel>
-          <Select
-            name="status"
-            value={ticket.status || ""}
-            label="Trạng thái"
-            onChange={onChange}
-            inputProps={{ readOnly: isFieldReadOnly("status") }}
-          >
-            <MenuItem value="Chờ xác nhận">Chờ xác nhận</MenuItem>
-            <MenuItem value="Chờ xuất kho">Chờ xuất kho</MenuItem>
-            <MenuItem value="Chờ nhập kho">Chờ nhập kho</MenuItem>
-            <MenuItem value="Đã hoàn thành">Đã hoàn thành</MenuItem>
-            <MenuItem value="Đã hủy">Đã hủy</MenuItem>
-          </Select>
-        </FormControl>
-      </Grid>
-    </Grid>
+      <div>
+        <Select
+          label="Trạng thái"
+          name="status"
+          value={ticket.status || ""}
+          onChange={onChange}
+          readOnly={isFieldReadOnly("status")}
+          color="blue"
+          className="w-full"
+        >
+          <Option value="Chờ xác nhận">Chờ xác nhận</Option>
+          <Option value="Chờ xuất kho">Chờ xuất kho</Option>
+          <Option value="Chờ nhập kho">Chờ nhập kho</Option>
+          <Option value="Đã hoàn thành">Đã hoàn thành</Option>
+          <Option value="Đã hủy">Đã hủy</Option>
+        </Select>
+        {errors.status && (
+          <Typography variant="small" color="red" className="mt-1">
+            {errors.status}
+          </Typography>
+        )}
+      </div>
+    </div>
   );
 };
 

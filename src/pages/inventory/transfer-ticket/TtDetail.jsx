@@ -1,17 +1,12 @@
 import React, { useEffect, useState } from "react";
-import {
-  Container,
-  Paper,
-  Typography,
-  TableRow,
-  TableCell,
-  Box,
-  Button,
-} from "@mui/material";
+import { Typography, Card, CardBody, Button } from "@material-tailwind/react";
 import { useParams, useNavigate } from "react-router-dom";
 import DataTable from "@/components/content-components/DataTable";
 import TtForm from "@/components/inventory/TtForm";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
+import BackButton from "@/components/common/BackButton";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
+import { getButtonProps } from "@/utils/buttonStyles";
 import {
   getTransferTicketById,
   updateTransferTicket,
@@ -23,6 +18,10 @@ const TtDetail = () => {
   const [ticket, setTicket] = useState(null);
   const [details, setDetails] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState({
+    open: false,
+    onConfirm: null,
+  });
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
@@ -112,11 +111,6 @@ const TtDetail = () => {
   };
 
   const handleCancel = async () => {
-    const confirmCancel = window.confirm(
-      "Bạn có chắc chắn muốn hủy phiếu chuyển kho này không?"
-    );
-    if (!confirmCancel) return;
-
     try {
       const request = {
         ...ticket,
@@ -145,69 +139,130 @@ const TtDetail = () => {
   }
 
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
-          THÔNG TIN PHIẾU CHUYỂN KHO
-        </Typography>
+    <div className="p-6">
+      <Card className="shadow-lg">
+        <CardBody>
+          <div className="flex items-center justify-between mb-6">
+            <Typography variant="h4" color="blue-gray" className="font-bold">
+              THÔNG TIN PHIẾU CHUYỂN KHO
+            </Typography>
+            <BackButton to="/transfer-tickets" label="Quay lại danh sách" />
+          </div>
 
-        {ticket.status === "Chờ xác nhận" && (
-          <Box mt={3} mb={3} display="flex" justifyContent="flex-end" gap={2}>
-            <Button
-              variant="contained"
-              color="default"
-              onClick={() => handleConfirm("tt", ticket.ticketId)}
-            >
-              Xác nhận
-            </Button>
-            <Button variant="contained" color="error" onClick={handleCancel}>
-              Hủy
-            </Button>
-          </Box>
-        )}
-
-        <TtForm
-          ticket={ticket}
-          onChange={() => {}}
-          errors={{}}
-          readOnlyFields={readOnlyFields}
-          setTicket={setTicket}
-        />
-
-        <Typography variant="h5" mt={3} mb={3}>
-          DANH SÁCH HÀNG HÓA CHUYỂN KHO:
-        </Typography>
-
-        <DataTable
-          rows={paginatedDetails}
-          columns={columns}
-          order={order}
-          orderBy={orderBy}
-          onRequestSort={handleRequestSort}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          search={search}
-          setSearch={setSearch}
-          isLoading={loading}
-          renderRow={(detail, index) => (
-            <TableRow key={index}>
-              <TableCell>{detail.itemCode}</TableCell>
-              <TableCell>{detail.itemName}</TableCell>
-              <TableCell>{detail.quantity}</TableCell>
-              <TableCell>{detail.note}</TableCell>
-            </TableRow>
+          {ticket.status === "Chờ xác nhận" && (
+            <div className="flex justify-end gap-2 mb-6">
+              <Button
+                {...getButtonProps("primary")}
+                onClick={() => handleConfirm("tt", ticket.ticketId)}
+              >
+                Xác nhận
+              </Button>
+              <Button
+                {...getButtonProps("danger")}
+                onClick={() =>
+                  setConfirmDialog({
+                    open: true,
+                    onConfirm: handleCancel,
+                  })
+                }
+              >
+                Hủy
+              </Button>
+            </div>
           )}
-        />
 
-        <Box mt={3} display="flex" justifyContent="flex-end">
-          <Button variant="contained" color="default" onClick={handleEditClick}>
-            Sửa
-          </Button>
-        </Box>
-      </Paper>
-    </Container>
+          <TtForm
+            ticket={ticket}
+            onChange={() => {}}
+            errors={{}}
+            readOnlyFields={readOnlyFields}
+            setTicket={setTicket}
+          />
+
+          <Typography variant="h5" className="mt-6 mb-4 font-semibold">
+            DANH SÁCH HÀNG HÓA CHUYỂN KHO:
+          </Typography>
+
+          <DataTable
+            rows={paginatedDetails}
+            columns={columns}
+            order={order}
+            orderBy={orderBy}
+            onRequestSort={handleRequestSort}
+            page={page}
+            rowsPerPage={rowsPerPage}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            search={search}
+            setSearch={setSearch}
+            isLoading={loading}
+            renderRow={(detail, index) => {
+              const isLast = index === paginatedDetails.length - 1;
+              const classes = isLast
+                ? "p-4"
+                : "p-4 border-b border-blue-gray-50";
+              return (
+                <tr key={index}>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {detail.itemCode || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {detail.itemName || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {detail.quantity || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {detail.note || ""}
+                    </Typography>
+                  </td>
+                </tr>
+              );
+            }}
+          />
+
+          <div className="mt-6 flex justify-end">
+            <Button {...getButtonProps("primary")} onClick={handleEditClick}>
+              Sửa
+            </Button>
+          </div>
+        </CardBody>
+      </Card>
+
+      <ConfirmDialog
+        open={confirmDialog.open}
+        onClose={() => setConfirmDialog({ open: false, onConfirm: null })}
+        onConfirm={confirmDialog.onConfirm || (() => {})}
+        title="Xác nhận hủy"
+        message="Bạn có chắc chắn muốn hủy phiếu chuyển kho này không?"
+        confirmText="Xác nhận"
+        cancelText="Hủy"
+        confirmButtonProps="danger"
+      />
+    </div>
   );
 };
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { Grid, TextField } from "@mui/material";
+import { Input } from "@material-tailwind/react";
 
 const RtForm = ({ ticket }) => {
   const formatDateTimeLocal = (isoString) => {
@@ -14,16 +14,65 @@ const RtForm = ({ ticket }) => {
   };
 
   return (
-    <Grid container spacing={2}>
-      <Grid item xs={12} sm={6}><TextField fullWidth label="Mã phiếu" value={ticket.ticketCode} InputProps={{ readOnly: true }} /></Grid>
-      <Grid item xs={12} sm={6}><TextField fullWidth label="Mã tham chiếu" value={ticket.referenceCode} InputProps={{ readOnly: true }} /></Grid>
-      <Grid item xs={12} sm={6}><TextField fullWidth label="Mã kho" value={ticket.warehouseCode} InputProps={{ readOnly: true }} /></Grid>
-      <Grid item xs={12} sm={6}><TextField fullWidth label="Tên kho" value={ticket.warehouseName} InputProps={{ readOnly: true }} /></Grid>
-      <Grid item xs={12} sm={6}><TextField fullWidth label="Ngày nhập kho" type="datetime-local" InputLabelProps={{ shrink: true }} value={formatDateTimeLocal(ticket.receiveDate)} InputProps={{ readOnly: true }} /></Grid>
-      <Grid item xs={12} sm={6}><TextField fullWidth label="Lý do" value={ticket.reason} InputProps={{ readOnly: true }} /></Grid>
-      <Grid item xs={12} sm={6}><TextField fullWidth label="Loại nhập kho" value={ticket.receiveType} InputProps={{ readOnly: true }} /></Grid>
-      <Grid item xs={12} sm={6}><TextField fullWidth label="Trạng thái" value={ticket.status} InputProps={{ readOnly: true }} /></Grid>
-    </Grid>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <Input
+        label="Mã phiếu"
+        value={ticket.ticketCode || ""}
+        readOnly
+        color="blue"
+        className="w-full placeholder:opacity-100"
+      />
+      <Input
+        label="Mã tham chiếu"
+        value={ticket.referenceCode || ""}
+        readOnly
+        color="blue"
+        className="w-full placeholder:opacity-100"
+      />
+      <Input
+        label="Mã kho"
+        value={ticket.warehouseCode || ""}
+        readOnly
+        color="blue"
+        className="w-full placeholder:opacity-100"
+      />
+      <Input
+        label="Tên kho"
+        value={ticket.warehouseName || ""}
+        readOnly
+        color="blue"
+        className="w-full placeholder:opacity-100"
+      />
+      <Input
+        label="Ngày nhập kho"
+        type="datetime-local"
+        value={formatDateTimeLocal(ticket.receiveDate)}
+        readOnly
+        color="blue"
+        className="w-full placeholder:opacity-100"
+      />
+      <Input
+        label="Lý do"
+        value={ticket.reason || ""}
+        readOnly
+        color="blue"
+        className="w-full placeholder:opacity-100"
+      />
+      <Input
+        label="Loại nhập kho"
+        value={ticket.receiveType || ""}
+        readOnly
+        color="blue"
+        className="w-full placeholder:opacity-100"
+      />
+      <Input
+        label="Trạng thái"
+        value={ticket.status || ""}
+        readOnly
+        color="blue"
+        className="w-full placeholder:opacity-100"
+      />
+    </div>
   );
 };
 

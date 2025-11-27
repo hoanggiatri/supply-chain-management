@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Container, Typography, Button, Grid, Paper } from "@mui/material";
+import { Typography, Card, CardBody, Button } from "@material-tailwind/react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   getTransferTicketById,
@@ -10,6 +10,8 @@ import TtForm from "@/components/inventory/TtForm";
 import TtDetailTable from "@/components/inventory/TtDetailTable";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import toastrService from "@/services/toastrService";
+import BackButton from "@/components/common/BackButton";
+import { getButtonProps } from "@/utils/buttonStyles";
 
 const EditTt = () => {
   const { ticketId } = useParams();
@@ -141,45 +143,49 @@ const EditTt = () => {
   }
 
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
-          CẬP NHẬT PHIẾU CHUYỂN KHO
-        </Typography>
+    <div className="p-6">
+      <Card className="shadow-lg">
+        <CardBody>
+          <div className="flex items-center justify-between mb-6">
+            <Typography variant="h4" color="blue-gray" className="font-bold">
+              CẬP NHẬT PHIẾU CHUYỂN KHO
+            </Typography>
+            <BackButton to={`/transfer-ticket/${ticketId}`} label="Quay lại" />
+          </div>
 
-        <TtForm
-          ticket={ticket}
-          onChange={handleChange}
-          errors={errors}
-          readOnlyFields={readOnlyFields}
-          setTicket={setTicket}
-        />
+          <TtForm
+            ticket={ticket}
+            onChange={handleChange}
+            errors={errors}
+            readOnlyFields={readOnlyFields}
+            setTicket={setTicket}
+          />
 
-        <Typography variant="h5" mt={3} mb={3}>
-          DANH SÁCH HÀNG HÓA CHUYỂN KHO:
-        </Typography>
+          <Typography variant="h5" className="mt-6 mb-4 font-semibold">
+            DANH SÁCH HÀNG HÓA CHUYỂN KHO:
+          </Typography>
 
-        <TtDetailTable
-          ticketDetails={ticketDetails}
-          setTicketDetails={setTicketDetails}
-          items={items}
-          errors={errors.ticketDetailErrors}
-        />
+          <TtDetailTable
+            ticketDetails={ticketDetails}
+            setTicketDetails={setTicketDetails}
+            items={items}
+            errors={errors.ticketDetailErrors}
+          />
 
-        <Grid container spacing={2} mt={3} justifyContent="flex-end">
-          <Grid item>
-            <Button variant="contained" color="default" onClick={handleSubmit}>
+          <div className="mt-6 flex justify-end gap-2">
+            <Button {...getButtonProps("primary")} onClick={handleSubmit}>
               Lưu
             </Button>
-          </Grid>
-          <Grid item>
-            <Button variant="outlined" color="default" onClick={handleCancel}>
+            <Button
+              {...getButtonProps("outlinedSecondary")}
+              onClick={handleCancel}
+            >
               Hủy
             </Button>
-          </Grid>
-        </Grid>
-      </Paper>
-    </Container>
+          </div>
+        </CardBody>
+      </Card>
+    </div>
   );
 };
 

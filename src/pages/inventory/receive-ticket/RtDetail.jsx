@@ -1,17 +1,12 @@
 import React, { useEffect, useState } from "react";
-import {
-  Container,
-  Paper,
-  Typography,
-  TableRow,
-  TableCell,
-  Button,
-  Box,
-} from "@mui/material";
+import { Typography, Card, CardBody, Button } from "@material-tailwind/react";
 import { useParams } from "react-router-dom";
 import DataTable from "@/components/content-components/DataTable";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import RtForm from "@/components/inventory/RtForm";
+import BackButton from "@/components/common/BackButton";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
+import { getButtonProps } from "@/utils/buttonStyles";
 import {
   getReceiveTicketById,
   updateReceiveTicket,
@@ -30,6 +25,11 @@ const RtDetail = () => {
   const { ticketId } = useParams();
   const [ticket, setTicket] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState({
+    open: false,
+    type: null, // 'confirm' or 'receive'
+    onConfirm: null,
+  });
 
   const [search, setSearch] = useState("");
   const [order, setOrder] = useState("asc");
@@ -58,9 +58,6 @@ const RtDetail = () => {
   }, [ticketId, token]);
 
   const handleConfirm = async () => {
-    if (!window.confirm("Bạn có chắc muốn xác nhận phiếu nhập kho này không?"))
-      return;
-
     const token = localStorage.getItem("token");
     const employeeName = localStorage.getItem("employeeName");
 
@@ -89,8 +86,6 @@ const RtDetail = () => {
   };
 
   const handleReceive = async () => {
-    if (!window.confirm("Bạn có chắc muốn nhập kho không?")) return;
-
     const token = localStorage.getItem("token");
 
     try {
@@ -215,55 +210,132 @@ const RtDetail = () => {
   if (!ticket) return <LoadingPaper title="THÔNG TIN PHIẾU NHẬP KHO" />;
 
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
-          THÔNG TIN PHIẾU NHẬP KHO
-        </Typography>
+    <div className="p-6">
+      <Card className="shadow-lg">
+        <CardBody>
+          <div className="flex items-center justify-between mb-6">
+            <Typography variant="h4" color="blue-gray" className="font-bold">
+              THÔNG TIN PHIẾU NHẬP KHO
+            </Typography>
+            <BackButton to="/receive-tickets" label="Quay lại danh sách" />
+          </div>
 
-        <Box mt={3} mb={3} display="flex" justifyContent="flex-end" gap={2}>
-          {ticket.status === "Chờ xác nhận" && (
-            <Button variant="contained" color="default" onClick={handleConfirm}>
-              Xác nhận
-            </Button>
-          )}
-          {ticket.status === "Chờ nhập kho" && (
-            <Button variant="contained" color="warning" onClick={handleReceive}>
-              Nhập kho
-            </Button>
-          )}
-        </Box>
+          <div className="flex justify-end gap-2 mb-6">
+            {ticket.status === "Chờ xác nhận" && (
+              <Button
+                {...getButtonProps("primary")}
+                onClick={() =>
+                  setConfirmDialog({
+                    open: true,
+                    type: "confirm",
+                    onConfirm: handleConfirm,
+                  })
+                }
+              >
+                Xác nhận
+              </Button>
+            )}
+            {ticket.status === "Chờ nhập kho" && (
+              <Button
+                {...getButtonProps("warning")}
+                onClick={() =>
+                  setConfirmDialog({
+                    open: true,
+                    type: "receive",
+                    onConfirm: handleReceive,
+                  })
+                }
+              >
+                Nhập kho
+              </Button>
+            )}
+          </div>
 
-        <RtForm ticket={ticket} />
+          <RtForm ticket={ticket} />
 
-        <Typography variant="h5" mt={3} mb={3}>
-          DANH SÁCH HÀNG HÓA NHẬP KHO:
-        </Typography>
+          <Typography variant="h5" className="mt-6 mb-4 font-semibold">
+            DANH SÁCH HÀNG HÓA NHẬP KHO:
+          </Typography>
 
-        <DataTable
-          rows={paginatedDetails}
-          columns={columns}
-          order={order}
-          orderBy={orderBy}
-          onRequestSort={handleRequestSort}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          search={search}
-          setSearch={setSearch}
-          isLoading={loading}
-          renderRow={(detail, index) => (
-            <TableRow key={index}>
-              <TableCell>{detail.itemCode}</TableCell>
-              <TableCell>{detail.itemName}</TableCell>
-              <TableCell>{detail.quantity}</TableCell>
-              <TableCell>{detail.note}</TableCell>
-            </TableRow>
-          )}
-        />
-      </Paper>
-    </Container>
+          <DataTable
+            rows={paginatedDetails}
+            columns={columns}
+            order={order}
+            orderBy={orderBy}
+            onRequestSort={handleRequestSort}
+            page={page}
+            rowsPerPage={rowsPerPage}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            search={search}
+            setSearch={setSearch}
+            isLoading={loading}
+            renderRow={(detail, index) => {
+              const isLast = index === paginatedDetails.length - 1;
+              const classes = isLast
+                ? "p-4"
+                : "p-4 border-b border-blue-gray-50";
+              return (
+                <tr key={index}>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {detail.itemCode || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {detail.itemName || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {detail.quantity || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {detail.note || ""}
+                    </Typography>
+                  </td>
+                </tr>
+              );
+            }}
+          />
+        </CardBody>
+      </Card>
+
+      <ConfirmDialog
+        open={confirmDialog.open}
+        onClose={() =>
+          setConfirmDialog({ open: false, type: null, onConfirm: null })
+        }
+        onConfirm={confirmDialog.onConfirm || (() => {})}
+        title="Xác nhận"
+        message={
+          confirmDialog.type === "confirm"
+            ? "Bạn có chắc muốn xác nhận phiếu nhập kho này không?"
+            : "Bạn có chắc muốn nhập kho không?"
+        }
+        confirmText="Xác nhận"
+        cancelText="Hủy"
+      />
+    </div>
   );
 };
 

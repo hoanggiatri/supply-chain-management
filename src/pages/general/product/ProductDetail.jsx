@@ -20,6 +20,7 @@ import toastrService from "@/services/toastrService";
 import { Button } from "@material-tailwind/react";
 import { getButtonProps } from "@/utils/buttonStyles";
 import BackButton from "@components/common/BackButton";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
 
 const ProductDetail = () => {
   const { productId } = useParams();
@@ -28,6 +29,10 @@ const ProductDetail = () => {
   const [product, setProduct] = useState(null);
   const [companies, setCompanies] = useState([]);
   const [transferCompanyId, setTransferCompanyId] = useState("");
+  const [confirmDialog, setConfirmDialog] = useState({
+    open: false,
+    onConfirm: null,
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -67,15 +72,13 @@ const ProductDetail = () => {
       toastrService.error("Không thể chuyển sản phẩm về cùng một công ty!");
       return;
     }
-    if (window.confirm("Bạn có chắc chắn muốn chuyển sản phẩm này?")) {
-      try {
-        await transferProduct(productId, transferCompanyId, token);
-        toastrService.success("Chuyển sản phẩm thành công!");
-        const updated = await getProductById(productId, token);
-        setProduct(updated);
-      } catch (error) {
-        toastrService.error("Lỗi khi chuyển sản phẩm");
-      }
+    try {
+      await transferProduct(productId, transferCompanyId, token);
+      toastrService.success("Chuyển sản phẩm thành công!");
+      const updated = await getProductById(productId, token);
+      setProduct(updated);
+    } catch (error) {
+      toastrService.error("Lỗi khi chuyển sản phẩm");
     }
   };
 
@@ -151,7 +154,12 @@ const ProductDetail = () => {
               <Button
                 type="button"
                 {...getButtonProps("warning")}
-                onClick={handleTransfer}
+                onClick={() =>
+                  setConfirmDialog({
+                    open: true,
+                    onConfirm: handleTransfer,
+                  })
+                }
               >
                 Chuyển
               </Button>
@@ -176,6 +184,17 @@ const ProductDetail = () => {
           </Button>
         </Box>
       </Paper>
+
+      <ConfirmDialog
+        open={confirmDialog.open}
+        onClose={() => setConfirmDialog({ open: false, onConfirm: null })}
+        onConfirm={confirmDialog.onConfirm || (() => {})}
+        title="Xác nhận chuyển sản phẩm"
+        message="Bạn có chắc chắn muốn chuyển sản phẩm này?"
+        confirmText="Chuyển"
+        cancelText="Hủy"
+        confirmButtonProps="warning"
+      />
     </Container>
   );
 };

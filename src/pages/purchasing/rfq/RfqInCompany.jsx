@@ -1,19 +1,11 @@
 import React, { useEffect, useState } from "react";
-import {
-  Container,
-  TableRow,
-  TableCell,
-  Typography,
-  Paper,
-  Box,
-  Button,
-} from "@mui/material";
+import { Typography, Card, CardBody, Button } from "@material-tailwind/react";
 import DataTable from "@components/content-components/DataTable";
 import StatusSummaryCard from "@/components/content-components/StatusSummaryCard";
 import { getAllRfqsInCompany } from "@/services/purchasing/RfqService";
 import { useNavigate } from "react-router-dom";
-import { useTheme } from "@mui/material/styles";
 import toastrService from "@/services/toastrService";
+import { getButtonProps } from "@/utils/buttonStyles";
 
 const RfqInCompany = () => {
   const [rfqs, setRfqs] = useState([]);
@@ -24,7 +16,6 @@ const RfqInCompany = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [filterStatus, setFilterStatus] = useState("Tất cả");
   const navigate = useNavigate();
-  const theme = useTheme();
 
   const token = localStorage.getItem("token");
   const companyId = localStorage.getItem("companyId");
@@ -75,87 +66,163 @@ const RfqInCompany = () => {
     { id: "status", label: "Trạng thái" },
   ];
 
+  const statusLabels = {
+    "Chưa báo giá": "Chưa báo giá",
+    "Đã báo giá": "Đã báo giá",
+    "Quá hạn báo giá": "Quá hạn báo giá",
+    "Đã chấp nhận": "Đã chấp nhận",
+    "Đã từ chối": "Đã từ chối",
+    "Đã hủy": "Đã hủy",
+  };
+
+  const statusColorMap = {
+    "Chưa báo giá": "purple",
+    "Đã báo giá": "blue",
+    "Quá hạn báo giá": "red",
+    "Đã chấp nhận": "green",
+    "Đã từ chối": "amber",
+    "Đã hủy": "red",
+  };
+
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
-          DANH SÁCH YÊU CẦU BÁO GIÁ
-        </Typography>
-        <StatusSummaryCard
-          data={rfqs}
-          statusLabels={[
-            "Tất cả",
-            "Chưa báo giá",
-            "Đã báo giá",
-            "Quá hạn báo giá",
-            "Đã chấp nhận",
-            "Đã từ chối",
-            "Đã hủy",
-          ]}
-          getStatus={(rfq) => rfq.status}
-          statusColors={{
-            "Tất cả": "#000",
-            "Chưa báo giá": theme.palette.secondary.main,
-            "Đã báo giá": theme.palette.primary.main,
-            "Quá hạn báo giá": theme.palette.error.main,
-            "Đã chấp nhận": theme.palette.success.main,
-            "Đã từ chối": theme.palette.warning.main,
-            "Đã hủy": theme.palette.error.main,
-          }}
-          onSelectStatus={(status) => setFilterStatus(status)}
-          selectedStatus={filterStatus}
-        />
-        <Box mb={3}>
-          <Button
-            variant="contained"
-            color="default"
-            onClick={() => navigate("/create-rfq")}
-          >
-            Thêm mới
-          </Button>
-        </Box>
-        <DataTable
-          rows={filteredRfqs}
-          columns={columns}
-          order={order}
-          orderBy={orderBy}
-          onRequestSort={handleRequestSort}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          search={search}
-          setSearch={setSearch}
-          height="calc(100vh - 450px)"
-          renderRow={(rfq) => (
-            <TableRow
-              key={rfq.rfqCode}
-              hover
-              sx={{ cursor: "pointer" }}
-              onClick={() => navigate(`/rfq/${rfq.rfqId}`)}
+    <div className="p-6">
+      <Card className="shadow-lg">
+        <CardBody>
+          <div className="flex items-center justify-between mb-6">
+            <Typography variant="h4" color="blue-gray" className="font-bold">
+              DANH SÁCH YÊU CẦU BÁO GIÁ
+            </Typography>
+            <Button
+              {...getButtonProps("primary")}
+              onClick={() => navigate("/create-rfq")}
             >
-              <TableCell>{rfq.rfqCode || ""}</TableCell>
-              <TableCell>{rfq.requestedCompanyName || ""}</TableCell>
-              <TableCell>
-                {rfq.needByDate
-                  ? new Date(rfq.needByDate).toLocaleDateString()
-                  : ""}
-              </TableCell>
-              <TableCell>{rfq.createdBy || ""}</TableCell>
-              <TableCell>
-                {rfq.createdOn ? new Date(rfq.createdOn).toLocaleString() : ""}
-              </TableCell>
-              <TableCell>
-                {rfq.lastUpdatedOn
-                  ? new Date(rfq.lastUpdatedOn).toLocaleString()
-                  : ""}
-              </TableCell>
-              <TableCell>{rfq.status || ""}</TableCell>
-            </TableRow>
-          )}
-        />
-      </Paper>
-    </Container>
+              Thêm mới
+            </Button>
+          </div>
+
+          <StatusSummaryCard
+            data={rfqs}
+            statusLabels={[
+              "Tất cả",
+              "Chưa báo giá",
+              "Đã báo giá",
+              "Quá hạn báo giá",
+              "Đã chấp nhận",
+              "Đã từ chối",
+              "Đã hủy",
+            ]}
+            getStatus={(rfq) => rfq.status}
+            statusColors={{
+              "Tất cả": "#000",
+              "Chưa báo giá": "#9c27b0",
+              "Đã báo giá": "#2196f3",
+              "Quá hạn báo giá": "#f44336",
+              "Đã chấp nhận": "#4caf50",
+              "Đã từ chối": "#ff9800",
+              "Đã hủy": "#f44336",
+            }}
+            onSelectStatus={(status) => setFilterStatus(status)}
+            selectedStatus={filterStatus}
+          />
+
+          <DataTable
+            rows={filteredRfqs}
+            columns={columns}
+            order={order}
+            orderBy={orderBy}
+            onRequestSort={handleRequestSort}
+            page={page}
+            rowsPerPage={rowsPerPage}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            search={search}
+            setSearch={setSearch}
+            statusColumn="status"
+            statusColors={statusColorMap}
+            renderRow={(rfq, index, page, rowsPerPage, renderStatusCell) => {
+              const isLast = index === filteredRfqs.length - 1;
+              const classes = isLast
+                ? "p-4"
+                : "p-4 border-b border-blue-gray-50";
+              return (
+                <tr
+                  key={rfq.rfqCode}
+                  className="hover:bg-blue-gray-50 transition-colors cursor-pointer"
+                  onClick={() => navigate(`/rfq/${rfq.rfqId}`)}
+                >
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {rfq.rfqCode || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {rfq.requestedCompanyName || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {rfq.needByDate
+                        ? new Date(rfq.needByDate).toLocaleDateString()
+                        : ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {rfq.createdBy || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {rfq.createdOn
+                        ? new Date(rfq.createdOn).toLocaleString()
+                        : ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {rfq.lastUpdatedOn
+                        ? new Date(rfq.lastUpdatedOn).toLocaleString()
+                        : ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    {renderStatusCell(
+                      statusLabels[rfq.status] || rfq.status || "",
+                      statusColorMap[rfq.status]
+                    )}
+                  </td>
+                </tr>
+              );
+            }}
+          />
+        </CardBody>
+      </Card>
+    </div>
   );
 };
 

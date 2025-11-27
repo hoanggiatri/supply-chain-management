@@ -1,51 +1,78 @@
 import React from "react";
-import { Pie } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend
-} from "chart.js";
-import { Box, Typography } from "@mui/material";
-
-ChartJS.register(ArcElement, Tooltip, Legend);
+import PropTypes from "prop-types";
+import { Card, CardBody } from "@material-tailwind/react";
+import Chart from "react-apexcharts";
 
 const PieChart = ({ data, labelField, valueField, title }) => {
   const chartData = {
-    labels: data.map((d) => d[labelField]),
-    datasets: [
-      {
-        data: data.map((d) => d[valueField]),
-        backgroundColor: [
-          "#05518B", "#FAAD14", "#389E0D"
-        ],
-        borderWidth: 1
-      }
-    ]
-  };
-
-  const options = {
-    responsive: true,
-    plugins: {
+    type: "pie",
+    height: 350,
+    series: data.map((d) => d[valueField]),
+    options: {
+      chart: {
+        toolbar: {
+          show: false,
+        },
+      },
+      title: {
+        show: !!title,
+        text: title || "",
+        style: {
+          fontSize: "16px",
+          fontWeight: 600,
+          fontFamily: "inherit",
+        },
+        align: "center",
+      },
+      labels: data.map((d) => d[labelField]),
+      colors: [
+        "#05518B",
+        "#FAAD14",
+        "#389E0D",
+        "#FF4D4F",
+        "#722ED1",
+        "#13C2C2",
+      ],
       legend: {
         position: "bottom",
-        align: "start",
-        labels: {
-          boxWidth: 20,
-          padding: 20,
-          usePointStyle: true,
-        }
+        fontSize: "12px",
+        fontFamily: "inherit",
+        markers: {
+          width: 12,
+          height: 12,
+          radius: 2,
+        },
       },
-      tooltip: { enabled: true }
-    }
+      dataLabels: {
+        enabled: true,
+        style: {
+          fontSize: "12px",
+          fontFamily: "inherit",
+        },
+      },
+      tooltip: {
+        theme: "light",
+        y: {
+          formatter: (val) => val,
+        },
+      },
+    },
   };
 
   return (
-    <Box width="100%" maxWidth="sm" mx="auto">
-      <Typography variant="h6" align="center" gutterBottom>{title}</Typography>
-      <Pie data={chartData} options={options} />
-    </Box>
+    <Card className="w-full max-w-md mx-auto">
+      <CardBody className="px-2 pb-0">
+        <Chart {...chartData} />
+      </CardBody>
+    </Card>
   );
+};
+
+PieChart.propTypes = {
+  data: PropTypes.array.isRequired,
+  labelField: PropTypes.string.isRequired,
+  valueField: PropTypes.string.isRequired,
+  title: PropTypes.string,
 };
 
 export default PieChart;

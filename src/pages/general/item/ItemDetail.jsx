@@ -8,10 +8,15 @@ import toastrService from "@/services/toastrService";
 import { Button } from "@material-tailwind/react";
 import { getButtonProps } from "@/utils/buttonStyles";
 import BackButton from "@components/common/BackButton";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
 
 const ItemDetail = () => {
   const { itemId } = useParams();
   const [item, setItem] = useState(null);
+  const [confirmDialog, setConfirmDialog] = useState({
+    open: false,
+    onConfirm: null,
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,8 +37,6 @@ const ItemDetail = () => {
   }, [itemId]);
 
   const handleDelete = async () => {
-    if (!window.confirm("Bạn có chắc muốn xóa hàng hóa này không?")) return;
-
     const token = localStorage.getItem("token");
     try {
       await deleteItem(itemId, token);
@@ -83,12 +86,28 @@ const ItemDetail = () => {
           <Button
             type="button"
             {...getButtonProps("danger")}
-            onClick={handleDelete}
+            onClick={() =>
+              setConfirmDialog({
+                open: true,
+                onConfirm: handleDelete,
+              })
+            }
           >
             Xóa
           </Button>
         </Box>
       </Paper>
+
+      <ConfirmDialog
+        open={confirmDialog.open}
+        onClose={() => setConfirmDialog({ open: false, onConfirm: null })}
+        onConfirm={confirmDialog.onConfirm || (() => {})}
+        title="Xác nhận xóa"
+        message="Bạn có chắc muốn xóa hàng hóa này không?"
+        confirmText="Xóa"
+        cancelText="Hủy"
+        confirmButtonProps="danger"
+      />
     </Container>
   );
 };

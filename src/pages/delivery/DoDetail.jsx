@@ -22,6 +22,7 @@ import { createDeliveryProcess } from "@/services/delivery/DoProcessService";
 import { createReceiveTicket } from "@/services/inventory/ReceiveTicketService";
 import dayjs from "dayjs";
 import toastrService from "@/services/toastrService";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
 
 const DoDetail = () => {
   const { doId } = useParams();
@@ -31,6 +32,11 @@ const DoDetail = () => {
   const [deliveryOrder, setDeliveryOrder] = useState(null);
   const [so, setSo] = useState(null);
   const [details, setDetails] = useState([]);
+  const [confirmDialog, setConfirmDialog] = useState({
+    open: false,
+    type: null, // 'confirm', 'pickup', or 'complete'
+    onConfirm: null,
+  });
   const navigate = useNavigate();
 
   const [order, setOrder] = useState("asc");
@@ -66,9 +72,6 @@ const DoDetail = () => {
   };
 
   const handleConfirm = async () => {
-    if (!window.confirm("Bạn có chắc muốn xác nhận đơn vận chuyển này không?"))
-      return;
-
     const employeeName = localStorage.getItem("employeeName");
     try {
       const request = {
@@ -94,8 +97,6 @@ const DoDetail = () => {
   };
 
   const handlePickup = async () => {
-    if (!window.confirm("Đã lấy hàng cho đơn vận chuyển này?")) return;
-
     try {
       const fromProcess = {
         doId: deliveryOrder.doId,
@@ -121,11 +122,6 @@ const DoDetail = () => {
   };
 
   const handleComplete = async () => {
-    if (
-      !window.confirm("Bạn có chắc muốn hoàn thành đơn vận chuyển này không?")
-    )
-      return;
-
     try {
       const toProcess = {
         doId: deliveryOrder.doId,
@@ -199,12 +195,32 @@ const DoDetail = () => {
 
         <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
           {deliveryOrder.status === "Chờ xác nhận" && (
-            <Button variant="contained" color="default" onClick={handleConfirm}>
+            <Button
+              variant="contained"
+              color="default"
+              onClick={() =>
+                setConfirmDialog({
+                  open: true,
+                  type: "confirm",
+                  onConfirm: handleConfirm,
+                })
+              }
+            >
               Xác nhận
             </Button>
           )}
           {deliveryOrder.status === "Chờ lấy hàng" && (
-            <Button variant="contained" color="default" onClick={handlePickup}>
+            <Button
+              variant="contained"
+              color="default"
+              onClick={() =>
+                setConfirmDialog({
+                  open: true,
+                  type: "pickup",
+                  onConfirm: handlePickup,
+                })
+              }
+            >
               Lấy hàng
             </Button>
           )}
@@ -222,7 +238,13 @@ const DoDetail = () => {
               <Button
                 variant="contained"
                 color="default"
-                onClick={handleComplete}
+                onClick={() =>
+                  setConfirmDialog({
+                    open: true,
+                    type: "complete",
+                    onConfirm: handleComplete,
+                  })
+                }
               >
                 Hoàn thành
               </Button>
@@ -273,6 +295,26 @@ const DoDetail = () => {
           )}
         />
       </Paper>
+
+      <ConfirmDialog
+        open={confirmDialog.open}
+        onClose={() =>
+          setConfirmDialog({ open: false, type: null, onConfirm: null })
+        }
+        onConfirm={confirmDialog.onConfirm || (() => {})}
+        title="Xác nhận"
+        message={(() => {
+          if (confirmDialog.type === "confirm") {
+            return "Bạn có chắc muốn xác nhận đơn vận chuyển này không?";
+          }
+          if (confirmDialog.type === "pickup") {
+            return "Đã lấy hàng cho đơn vận chuyển này?";
+          }
+          return "Bạn có chắc muốn hoàn thành đơn vận chuyển này không?";
+        })()}
+        confirmText="Xác nhận"
+        cancelText="Hủy"
+      />
     </Container>
   );
 };

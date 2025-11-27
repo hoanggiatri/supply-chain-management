@@ -1,11 +1,22 @@
 import { useEffect, useState } from "react";
-import { getReceiveReport, getMonthlyReceiveReport } from "@services/inventory/ReceiveTicketService";
-import { Box, Container, Grid, MenuItem, Paper, TableCell, TableRow, TextField, Typography } from "@mui/material";
+import {
+  getReceiveReport,
+  getMonthlyReceiveReport,
+} from "@services/inventory/ReceiveTicketService";
+import {
+  Card,
+  CardBody,
+  Input,
+  Select,
+  Option,
+  Typography,
+} from "@material-tailwind/react";
 import DataTable from "@/components/content-components/DataTable";
 import MonthlyBarChart from "@/components/content-components/MonthlyBarChart";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
 import dayjs from "dayjs";
+import BackButton from "@/components/common/BackButton";
 
 const ReceiveReport = () => {
   const token = localStorage.getItem("token");
@@ -28,7 +39,14 @@ const ReceiveReport = () => {
   };
 
   const getEndOfDay = (date) => {
-    return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
+    return new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+      23,
+      59,
+      59
+    );
   };
 
   const [startDate, setStartDate] = useState(getStartOfMonth());
@@ -53,13 +71,18 @@ const ReceiveReport = () => {
       const data = await getAllWarehousesInCompany(companyId, token);
       setWarehouses(data);
 
-      const monthly = await getMonthlyReceiveReport(companyId, receiveType, warehouseId, token);
+      const monthly = await getMonthlyReceiveReport(
+        companyId,
+        receiveType,
+        warehouseId,
+        token
+      );
       const detail = await getReceiveReport(
         {
           startTime: toLocalDateTimeString(startDate),
           endTime: toLocalDateTimeString(getEndOfDay(endDate)),
           receiveType,
-          warehouseId
+          warehouseId,
         },
         companyId,
         token
@@ -75,7 +98,7 @@ const ReceiveReport = () => {
   const columns = [
     { id: "itemCode", label: "Mã hàng hóa" },
     { id: "itemName", label: "Tên hàng hóa" },
-    { id: "totalQuantity", label: "Tổng số lượng nhập kho" }
+    { id: "totalQuantity", label: "Tổng số lượng nhập kho" },
   ];
 
   const filteredItems = tableData.filter(
@@ -95,7 +118,7 @@ const ReceiveReport = () => {
   };
 
   const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
+    setRowsPerPage(Number.parseInt(event.target.value, 10));
     setPage(0);
   };
 
@@ -104,74 +127,70 @@ const ReceiveReport = () => {
   }
 
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
-          BÁO CÁO NHẬP KHO
-        </Typography>
-        <Grid container spacing={2} mb={2}>
-          <Grid item xs={6} md={3}>
-            <TextField
-              fullWidth
+    <div className="p-6">
+      <Card className="shadow-lg">
+        <CardBody>
+          <div className="flex items-center justify-between mb-6">
+            <Typography variant="h4" color="blue-gray" className="font-bold">
+              BÁO CÁO NHẬP KHO
+            </Typography>
+            <BackButton to="/receive-tickets" label="Quay lại danh sách" />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <Input
               label="Từ ngày"
               type="date"
               value={formatDateLocal(startDate)}
               onChange={(e) => setStartDate(new Date(e.target.value))}
-              InputLabelProps={{ shrink: true }}
+              color="blue"
+              className="w-full placeholder:opacity-100"
             />
-          </Grid>
-          <Grid item xs={6} md={3}>
-            <TextField
-              fullWidth
+            <Input
               label="Đến ngày"
               type="date"
               value={formatDateLocal(endDate)}
               onChange={(e) => setEndDate(new Date(e.target.value))}
-              InputLabelProps={{ shrink: true }}
+              color="blue"
+              className="w-full placeholder:opacity-100"
             />
-          </Grid>
-          <Grid item xs={6} md={3}>
-            <TextField
+            <Select
               label="Loại nhập kho"
-              fullWidth
               value={receiveType}
-              onChange={(e) => setReceiveType(e.target.value)}
-              select
+              onChange={(val) => setReceiveType(val)}
+              color="blue"
+              className="w-full"
             >
-              <MenuItem value="Tất cả">Tất cả</MenuItem>
-              <MenuItem value="Sản xuất">Sản xuất</MenuItem>
-              <MenuItem value="Mua hàng">Mua hàng</MenuItem>
-              <MenuItem value="Chuyển kho">Chuyển kho</MenuItem>
-            </TextField>
-          </Grid>
-          <Grid item xs={6} md={3}>
-            <TextField
+              <Option value="Tất cả">Tất cả</Option>
+              <Option value="Sản xuất">Sản xuất</Option>
+              <Option value="Mua hàng">Mua hàng</Option>
+              <Option value="Chuyển kho">Chuyển kho</Option>
+            </Select>
+            <Select
               label="Kho"
-              fullWidth
               value={warehouseId}
-              onChange={(e) => setWarehouseId(Number(e.target.value))}
-              select
+              onChange={(val) => setWarehouseId(Number(val))}
+              color="blue"
+              className="w-full"
             >
-              <MenuItem value={0}>Tất cả</MenuItem>
+              <Option value={0}>Tất cả</Option>
               {warehouses.map((w) => (
-                <MenuItem key={w.warehouseId} value={w.warehouseId}>
+                <Option key={w.warehouseId} value={w.warehouseId}>
                   {w.warehouseName}
-                </MenuItem>
+                </Option>
               ))}
-            </TextField>
-          </Grid>
-        </Grid>
+            </Select>
+          </div>
 
-        <Box display="flex" justifyContent="center">
-          <MonthlyBarChart
-            data={monthlyData}
-            metric="totalQuantity"
-            label="Tổng số lượng hàng hóa nhập kho"
-            color="#05518B"
-          />
-        </Box>
+          <div className="flex justify-center mb-6">
+            <MonthlyBarChart
+              data={monthlyData}
+              metric="totalQuantity"
+              label="Tổng số lượng hàng hóa nhập kho"
+              color="#05518B"
+            />
+          </div>
 
-        <Box mt={4}>
           <DataTable
             rows={filteredItems}
             columns={columns}
@@ -184,17 +203,47 @@ const ReceiveReport = () => {
             onRowsPerPageChange={handleChangeRowsPerPage}
             search={search}
             setSearch={setSearch}
-            renderRow={(item) => (
-              <TableRow key={item.itemId} hover>
-                <TableCell>{item.itemCode}</TableCell>
-                <TableCell>{item.itemName}</TableCell>
-                <TableCell>{item.totalQuantity}</TableCell>
-              </TableRow>
-            )}
+            renderRow={(item, index) => {
+              const isLast = index === filteredItems.length - 1;
+              const classes = isLast
+                ? "p-4"
+                : "p-4 border-b border-blue-gray-50";
+              return (
+                <tr key={item.itemId}>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {item.itemCode || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {item.itemName || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {item.totalQuantity || ""}
+                    </Typography>
+                  </td>
+                </tr>
+              );
+            }}
           />
-        </Box>
-      </Paper>
-    </Container>
+        </CardBody>
+      </Card>
+    </div>
   );
 };
 

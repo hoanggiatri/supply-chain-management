@@ -1,12 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Container,
-  TableRow,
-  TableCell,
-  Typography,
-  Paper,
-} from "@mui/material";
-import { useTheme } from "@mui/material/styles";
+import { Typography, Card, CardBody } from "@material-tailwind/react";
 import { useNavigate } from "react-router-dom";
 import DataTable from "@/components/content-components/DataTable";
 import StatusSummaryCard from "@/components/content-components/StatusSummaryCard";
@@ -22,7 +15,6 @@ const QuotationInCompany = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [filterStatus, setFilterStatus] = useState("Tất cả");
 
-  const theme = useTheme();
   const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
@@ -70,59 +62,121 @@ const QuotationInCompany = () => {
     { id: "status", label: "Trạng thái" },
   ];
 
+  const statusLabels = {
+    "Đã báo giá": "Đã báo giá",
+    "Đã chấp nhận": "Đã chấp nhận",
+    "Đã từ chối": "Đã từ chối",
+  };
+
+  const statusColorMap = {
+    "Đã báo giá": "blue",
+    "Đã chấp nhận": "green",
+    "Đã từ chối": "red",
+  };
+
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
-          DANH SÁCH BÁO GIÁ
-        </Typography>
+    <div className="p-6">
+      <Card className="shadow-lg">
+        <CardBody>
+          <Typography variant="h4" color="blue-gray" className="mb-6 font-bold">
+            DANH SÁCH BÁO GIÁ
+          </Typography>
 
-        <StatusSummaryCard
-          data={quotations}
-          statusLabels={["Tất cả", "Đã báo giá", "Đã chấp nhận", "Đã từ chối"]}
-          getStatus={(quotation) => quotation.status}
-          statusColors={{
-            "Tất cả": "#000",
-            "Đã báo giá": theme.palette.primary.main,
-            "Đã từ chối": theme.palette.error.main,
-            "Đã chấp nhận": theme.palette.success.main,
-          }}
-          onSelectStatus={setFilterStatus}
-          selectedStatus={filterStatus}
-        />
+          <StatusSummaryCard
+            data={quotations}
+            statusLabels={[
+              "Tất cả",
+              "Đã báo giá",
+              "Đã chấp nhận",
+              "Đã từ chối",
+            ]}
+            getStatus={(quotation) => quotation.status}
+            statusColors={{
+              "Tất cả": "#000",
+              "Đã báo giá": "#2196f3",
+              "Đã từ chối": "#f44336",
+              "Đã chấp nhận": "#4caf50",
+            }}
+            onSelectStatus={setFilterStatus}
+            selectedStatus={filterStatus}
+          />
 
-        <DataTable
-          rows={filteredQuotations}
-          columns={columns}
-          order={order}
-          orderBy={orderBy}
-          onRequestSort={handleRequestSort}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          search={search}
-          setSearch={setSearch}
-          height="calc(100vh - 380px)"
-          renderRow={(q) => (
-            <TableRow
-              key={q.quotationId}
-              hover
-              sx={{ cursor: "pointer" }}
-              onClick={() => navigate(`/quotation/${q.rfqId}`)}
-            >
-              <TableCell>{q.quotationCode}</TableCell>
-              <TableCell>{q.rfqCode}</TableCell>
-              <TableCell>{q.createdBy}</TableCell>
-              <TableCell>
-                {q.createdOn ? new Date(q.createdOn).toLocaleString() : ""}
-              </TableCell>
-              <TableCell>{q.status}</TableCell>
-            </TableRow>
-          )}
-        />
-      </Paper>
-    </Container>
+          <DataTable
+            rows={filteredQuotations}
+            columns={columns}
+            order={order}
+            orderBy={orderBy}
+            onRequestSort={handleRequestSort}
+            page={page}
+            rowsPerPage={rowsPerPage}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            search={search}
+            setSearch={setSearch}
+            statusColumn="status"
+            statusColors={statusColorMap}
+            renderRow={(q, index, page, rowsPerPage, renderStatusCell) => {
+              const isLast = index === filteredQuotations.length - 1;
+              const classes = isLast
+                ? "p-4"
+                : "p-4 border-b border-blue-gray-50";
+              return (
+                <tr
+                  key={q.quotationId}
+                  className="hover:bg-blue-gray-50 transition-colors cursor-pointer"
+                  onClick={() => navigate(`/quotation/${q.rfqId}`)}
+                >
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {q.quotationCode || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {q.rfqCode || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {q.createdBy || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {q.createdOn
+                        ? new Date(q.createdOn).toLocaleString()
+                        : ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    {renderStatusCell(
+                      statusLabels[q.status] || q.status || "",
+                      statusColorMap[q.status]
+                    )}
+                  </td>
+                </tr>
+              );
+            }}
+          />
+        </CardBody>
+      </Card>
+    </div>
   );
 };
 

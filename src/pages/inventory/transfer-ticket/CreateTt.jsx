@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Container, Typography, Button, Grid, Paper } from "@mui/material";
+import { Typography, Card, CardBody, Button } from "@material-tailwind/react";
 import { useNavigate } from "react-router-dom";
 import { getAllItemsInCompany } from "@/services/general/ItemService";
 import { createTransferTicket } from "@/services/inventory/TransferTicketService";
 import TtForm from "@/components/inventory/TtForm";
 import TtDetailTable from "@/components/inventory/TtDetailTable";
 import toastrService from "@/services/toastrService";
+import BackButton from "@/components/common/BackButton";
+import { getButtonProps } from "@/utils/buttonStyles";
 
 const CreateTt = () => {
   const navigate = useNavigate();
@@ -122,45 +124,49 @@ const CreateTt = () => {
   };
 
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
-          TẠO PHIẾU CHUYỂN KHO
-        </Typography>
+    <div className="p-6">
+      <Card className="shadow-lg">
+        <CardBody>
+          <div className="flex items-center justify-between mb-6">
+            <Typography variant="h4" color="blue-gray" className="font-bold">
+              TẠO PHIẾU CHUYỂN KHO
+            </Typography>
+            <BackButton to="/transfer-tickets" label="Quay lại danh sách" />
+          </div>
 
-        <TtForm
-          ticket={ticket}
-          onChange={handleChange}
-          readOnlyFields={{ ticketCode: true, status: true }}
-          setTicket={setTicket}
-          errors={errors}
-        />
+          <TtForm
+            ticket={ticket}
+            onChange={handleChange}
+            readOnlyFields={{ ticketCode: true, status: true }}
+            setTicket={setTicket}
+            errors={errors}
+          />
 
-        <Typography variant="h5" mt={3} mb={3}>
-          DANH SÁCH HÀNG HÓA:
-        </Typography>
+          <Typography variant="h5" className="mt-6 mb-4 font-semibold">
+            DANH SÁCH HÀNG HÓA:
+          </Typography>
 
-        <TtDetailTable
-          ticketDetails={details}
-          setTicketDetails={setDetails}
-          items={items}
-          errors={errors.transferDetailErrors}
-        />
+          <TtDetailTable
+            ticketDetails={details}
+            setTicketDetails={setDetails}
+            items={items}
+            errors={errors.transferDetailErrors}
+          />
 
-        <Grid container spacing={2} mt={3} justifyContent="flex-end">
-          <Grid item>
-            <Button variant="contained" color="default" onClick={handleSubmit}>
+          <div className="mt-6 flex justify-end gap-2">
+            <Button {...getButtonProps("primary")} onClick={handleSubmit}>
               Thêm
             </Button>
-          </Grid>
-          <Grid item>
-            <Button variant="outlined" color="default" onClick={handleCancel}>
+            <Button
+              {...getButtonProps("outlinedSecondary")}
+              onClick={handleCancel}
+            >
               Hủy
             </Button>
-          </Grid>
-        </Grid>
-      </Paper>
-    </Container>
+          </div>
+        </CardBody>
+      </Card>
+    </div>
   );
 };
 

@@ -9,6 +9,7 @@ import StageForm from "@/components/manufacturing/StageForm";
 import DataTable from "@/components/content-components/DataTable";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import BackButton from "@/components/common/BackButton";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
 import { Button, Card, CardBody, Typography } from "@material-tailwind/react";
 import { getButtonProps } from "@/utils/buttonStyles";
 
@@ -17,6 +18,10 @@ const StageDetail = () => {
   const [stage, setStage] = useState(null);
   const [stageDetails, setStageDetails] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState({
+    open: false,
+    onConfirm: null,
+  });
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
@@ -61,12 +66,6 @@ const StageDetail = () => {
   ];
 
   const handleDelete = async () => {
-    if (
-      typeof window !== "undefined" &&
-      !window.confirm("Bạn có chắc muốn xóa công đoạn này không?")
-    ) {
-      return;
-    }
     try {
       await deleteStage(stage.stageId, token);
       toastrService.success("Xóa công đoạn thành công!");
@@ -193,13 +192,29 @@ const StageDetail = () => {
             <Button
               type="button"
               {...getButtonProps("danger")}
-              onClick={handleDelete}
+              onClick={() =>
+                setConfirmDialog({
+                  open: true,
+                  onConfirm: handleDelete,
+                })
+              }
             >
               Xóa
             </Button>
           </div>
         </CardBody>
       </Card>
+
+      <ConfirmDialog
+        open={confirmDialog.open}
+        onClose={() => setConfirmDialog({ open: false, onConfirm: null })}
+        onConfirm={confirmDialog.onConfirm || (() => {})}
+        title="Xác nhận xóa"
+        message="Bạn có chắc muốn xóa công đoạn này không?"
+        confirmText="Xóa"
+        cancelText="Hủy"
+        confirmButtonProps="danger"
+      />
     </div>
   );
 };

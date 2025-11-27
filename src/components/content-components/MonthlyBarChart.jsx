@@ -1,22 +1,14 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Bar } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  BarElement,
-  CategoryScale,
-  LinearScale,
-  Tooltip,
-  Legend,
-} from "chart.js";
-
-ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
+import { Card, CardBody } from "@material-tailwind/react";
+import Chart from "react-apexcharts";
 
 const MonthlyBarChart = ({
   data,
   metric = "totalQuantity",
   label = "Số lượng",
   color = "#05518B",
+  title,
 }) => {
   const resolveData = () => {
     if (Array.isArray(data)) return data;
@@ -27,37 +19,102 @@ const MonthlyBarChart = ({
   const safeData = resolveData().filter(Boolean);
 
   const chartData = {
-    labels: safeData.map((item) => item?.month ?? ""),
-    datasets: [
+    type: "bar",
+    height: 350,
+    series: [
       {
-        label,
+        name: label,
         data: safeData.map((item) => {
           const v = item?.[metric];
           const n = typeof v === "number" ? v : Number(v);
           return Number.isFinite(n) ? n : 0;
         }),
-        backgroundColor: color,
       },
     ],
-  };
-
-  const options = {
-    responsive: true,
-    maintainAspectRatio: true,
-    aspectRatio: 3,
-    plugins: {
-      legend: { display: false },
-      tooltip: { enabled: true },
-    },
-    scales: {
-      y: { beginAtZero: true },
+    options: {
+      chart: {
+        toolbar: {
+          show: false,
+        },
+      },
+      title: {
+        show: !!title,
+        text: title || "",
+        style: {
+          fontSize: "16px",
+          fontWeight: 600,
+          fontFamily: "inherit",
+        },
+      },
+      dataLabels: {
+        enabled: false,
+      },
+      colors: [color],
+      plotOptions: {
+        bar: {
+          columnWidth: "40%",
+          borderRadius: 4,
+        },
+      },
+      xaxis: {
+        categories: safeData.map((item) => item?.month ?? ""),
+        axisTicks: {
+          show: false,
+        },
+        axisBorder: {
+          show: false,
+        },
+        labels: {
+          style: {
+            colors: "#616161",
+            fontSize: "12px",
+            fontFamily: "inherit",
+            fontWeight: 400,
+          },
+        },
+      },
+      yaxis: {
+        labels: {
+          style: {
+            colors: "#616161",
+            fontSize: "12px",
+            fontFamily: "inherit",
+            fontWeight: 400,
+          },
+        },
+      },
+      grid: {
+        show: true,
+        borderColor: "#dddddd",
+        strokeDashArray: 5,
+        xaxis: {
+          lines: {
+            show: true,
+          },
+        },
+        padding: {
+          top: 5,
+          right: 20,
+        },
+      },
+      fill: {
+        opacity: 0.8,
+      },
+      tooltip: {
+        theme: "light",
+        y: {
+          formatter: (val) => `${val} ${label.toLowerCase()}`,
+        },
+      },
     },
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
-      <Bar data={chartData} options={options} />
-    </div>
+    <Card className="w-full">
+      <CardBody className="px-2 pb-0">
+        <Chart {...chartData} />
+      </CardBody>
+    </Card>
   );
 };
 
@@ -66,6 +123,7 @@ MonthlyBarChart.propTypes = {
   metric: PropTypes.string,
   label: PropTypes.string,
   color: PropTypes.string,
+  title: PropTypes.string,
 };
 
 export default MonthlyBarChart;
