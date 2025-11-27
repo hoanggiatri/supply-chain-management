@@ -1,18 +1,12 @@
 import React, { useEffect, useState } from "react";
 import {
-  Container,
-  Paper,
   Typography,
-  Box,
   Button,
-  Grid,
-  FormControl,
-  InputLabel,
   Select,
-  MenuItem,
-  TableRow,
-  TableCell,
-} from "@mui/material";
+  Option,
+  Card,
+  CardBody,
+} from "@material-tailwind/react";
 import DataTable from "@components/content-components/DataTable";
 import {
   getAllInventory,
@@ -30,6 +24,8 @@ import {
 } from "@/services/inventory/TransferTicketService";
 import { getPoById } from "@/services/purchasing/PoService";
 import toastrService from "@/services/toastrService";
+import { getButtonProps } from "@/utils/buttonStyles";
+import BackButton from "@/components/common/BackButton";
 import dayjs from "dayjs";
 
 const CheckInventory = () => {
@@ -352,106 +348,130 @@ const CheckInventory = () => {
   ];
 
   return (
-    <Container>
-      <Paper elevation={3} className="paper-container">
+    <div className="page-container">
+      <div className="flex items-center justify-between mb-4">
         <Typography variant="h4" className="page-title">
           KIỂM TRA TỒN KHO
         </Typography>
+        <BackButton />
+      </div>
 
-        <Box mt={3}>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
-              <FormControl fullWidth>
-                <InputLabel>Kho xuất</InputLabel>
+      <Card className="mb-4 shadow-sm">
+        <CardBody>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+            <div>
+              <Typography variant="small" className="mb-1 font-medium">
+                Kho xuất
+              </Typography>
+              {type === "tt" ? (
+                <Typography className="border border-blue-gray-100 rounded-lg px-3 py-2 bg-blue-gray-50 text-sm">
+                  {warehouses.find(
+                    (w) => String(w.warehouseId) === String(selectedWarehouseId)
+                  )
+                    ? `${
+                        warehouses.find(
+                          (w) =>
+                            String(w.warehouseId) ===
+                            String(selectedWarehouseId)
+                        )?.warehouseCode
+                      } - ${
+                        warehouses.find(
+                          (w) =>
+                            String(w.warehouseId) ===
+                            String(selectedWarehouseId)
+                        )?.warehouseName
+                      }`
+                    : "Không có kho"}
+                </Typography>
+              ) : (
                 <Select
-                  value={selectedWarehouseId}
-                  onChange={handleWarehouseChange}
+                  value={selectedWarehouseId || ""}
+                  onChange={(value) => setSelectedWarehouseId(value)}
+                  color="blue"
+                  className="w-full"
                   label="Kho xuất"
-                  disabled={type === "tt"}
                 >
                   {warehouses.map((wh) => (
-                    <MenuItem key={wh.warehouseId} value={wh.warehouseId}>
+                    <Option key={wh.warehouseId} value={wh.warehouseId}>
                       {wh.warehouseCode} - {wh.warehouseName}
-                    </MenuItem>
+                    </Option>
                   ))}
                 </Select>
-              </FormControl>
-            </Grid>
+              )}
+            </div>
 
-            <Grid item xs={12} sm={6}>
+            <div className="flex md:justify-end">
               <Button
-                variant="contained"
-                color="default"
+                type="button"
+                {...getButtonProps("primary")}
                 onClick={handleCheckInventory}
                 disabled={!selectedWarehouseId || loading}
               >
                 Kiểm tra tồn kho
               </Button>
-            </Grid>
-          </Grid>
-        </Box>
+            </div>
+          </div>
+        </CardBody>
+      </Card>
 
-        <Box mt={3}>
-          <DataTable
-            rows={inventoryResults}
-            columns={columns}
-            order={order}
-            orderBy={orderBy}
-            onRequestSort={handleRequestSort}
-            page={page}
-            rowsPerPage={rowsPerPage}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            search={search}
-            setSearch={setSearch}
-            height="calc(100vh - 500px)"
-            renderRow={(row, index) => (
-              <TableRow key={`${row.itemId || row.supplierItemId}-${index}`}>
-                <TableCell>
-                  {type === "po" ? row.supplierItemCode : row.itemCode}
-                </TableCell>
-                <TableCell>
-                  {type === "po" ? row.supplierItemName : row.itemName}
-                </TableCell>
-                <TableCell>
-                  {row.enough === "Không có tồn kho" ? "-" : row.quantityNeeded}
-                </TableCell>
-                <TableCell>
-                  {row.enough === "Không có tồn kho" ? "-" : row.available}
-                </TableCell>
-                <TableCell>
-                  {{
-                    Đủ: "✔️ Đủ",
-                    "Không đủ": "❌ Không đủ",
-                    "Không có tồn kho": "⚠️ Không có tồn kho",
-                  }[row.enough] || "⏳"}
-                </TableCell>
-              </TableRow>
-            )}
-          />
-        </Box>
+      <DataTable
+        rows={inventoryResults}
+        columns={columns}
+        order={order}
+        orderBy={orderBy}
+        onRequestSort={handleRequestSort}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+        search={search}
+        setSearch={setSearch}
+        height="calc(100vh - 500px)"
+        renderRow={(row, index) => {
+          const key = `${row.itemId || row.supplierItemId}-${index}`;
+          const isLast = index === inventoryResults.length - 1;
+          const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
+          const statusLabel =
+            {
+              Đủ: "✔️ Đủ",
+              "Không đủ": "❌ Không đủ",
+              "Không có tồn kho": "⚠️ Không có tồn kho",
+            }[row.enough] || "⏳";
 
-        {inventoryResults.length > 0 && (
-          <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
-            <Button
-              variant="contained"
-              color="default"
-              onClick={handleConfirm}
-              disabled={loading}
-            >
-              Xác nhận
-            </Button>
-            <Button
-              variant="outlined"
-              color="default"
-              onClick={() => navigate(-1)}
-            >
-              Hủy
-            </Button>
-          </Box>
-        )}
-      </Paper>
-    </Container>
+          return (
+            <tr key={key}>
+              <td className={classes}>
+                {type === "po" ? row.supplierItemCode : row.itemCode}
+              </td>
+              <td className={classes}>
+                {type === "po" ? row.supplierItemName : row.itemName}
+              </td>
+              <td className={classes}>
+                {row.enough === "Không có tồn kho" ? "-" : row.quantityNeeded}
+              </td>
+              <td className={classes}>
+                {row.enough === "Không có tồn kho" ? "-" : row.available}
+              </td>
+              <td className={classes}>{statusLabel}</td>
+            </tr>
+          );
+        }}
+      />
+
+      {inventoryResults.length > 0 && (
+        <div className="mt-4 flex justify-end gap-3">
+          <Button
+            type="button"
+            {...getButtonProps("primary")}
+            onClick={handleConfirm}
+            disabled={loading}
+          >
+            Xác nhận
+          </Button>
+          <BackButton label="Hủy" />
+        </div>
+      )}
+    </div>
   );
 };
 

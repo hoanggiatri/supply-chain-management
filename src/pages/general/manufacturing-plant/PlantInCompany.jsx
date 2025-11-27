@@ -3,7 +3,7 @@ import DataTable from "@components/content-components/DataTable";
 import { useNavigate } from "react-router-dom";
 import { getAllPlantsInCompany } from "@/services/general/ManufacturePlantService";
 import toastrService from "@/services/toastrService";
-import { Button, Typography } from "@material-tailwind/react";
+import { Button, Typography, Card, CardBody } from "@material-tailwind/react";
 import { getButtonProps } from "@/utils/buttonStyles";
 
 const PlantInCompany = () => {
@@ -59,74 +59,79 @@ const PlantInCompany = () => {
   ];
 
   return (
-    <div className="p-4">
-      <div className="mb-6">
-        <Typography variant="h4" color="blue-gray" className="mb-4">
-          DANH SÁCH XƯỞNG SẢN XUẤT
-        </Typography>
-        <div className="mb-4">
-          <Button
-            type="button"
-            {...getButtonProps("primary")}
-            onClick={() => navigate("/create-plant")}
-          >
-            Thêm mới
-          </Button>
-        </div>
-      </div>
-      <DataTable
-        rows={plants}
-        columns={columns}
-        order={order}
-        orderBy={orderBy}
-        onRequestSort={handleRequestSort}
-        page={page}
-        rowsPerPage={rowsPerPage}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-        search={search}
-        setSearch={setSearch}
-        loading={loading}
-        renderRow={(plant, index, page, rowsPerPage) => {
-          const isLast = index === plants.length - 1;
-          const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
-          return (
-            <tr
-              key={plant.plantId}
-              className="hover:bg-blue-gray-50 transition-colors cursor-pointer"
-              onClick={() => navigate(`/plant/${plant.plantId}`)}
+    <div className="p-6">
+      <Card className="shadow-lg">
+        <CardBody>
+          <div className="flex items-center justify-between mb-4">
+            <Typography variant="h4" color="blue-gray" className="font-bold">
+              DANH SÁCH XƯỞNG SẢN XUẤT
+            </Typography>
+            <Button
+              type="button"
+              {...getButtonProps("primary")}
+              onClick={() => navigate("/create-plant")}
             >
-              <td className={classes}>
-                <Typography
-                  variant="small"
-                  color="blue-gray"
-                  className="font-normal"
+              Thêm mới
+            </Button>
+          </div>
+
+          <DataTable
+            rows={plants}
+            columns={columns}
+            order={order}
+            orderBy={orderBy}
+            onRequestSort={handleRequestSort}
+            page={page}
+            rowsPerPage={rowsPerPage}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            search={search}
+            setSearch={setSearch}
+            loading={loading}
+            renderRow={(plant, index, page, rowsPerPage) => {
+              const isLast = index === plants.length - 1;
+              const classes = isLast
+                ? "p-4"
+                : "p-4 border-b border-blue-gray-50";
+              return (
+                <tr
+                  key={plant.plantId}
+                  className="hover:bg-blue-gray-50 transition-colors cursor-pointer"
+                  onClick={() => navigate(`/plant/${plant.plantId}`)}
                 >
-                  {plant.plantCode || ""}
-                </Typography>
-              </td>
-              <td className={classes}>
-                <Typography
-                  variant="small"
-                  color="blue-gray"
-                  className="font-normal"
-                >
-                  {plant.plantName || ""}
-                </Typography>
-              </td>
-              <td className={classes}>
-                <Typography
-                  variant="small"
-                  color="blue-gray"
-                  className="font-normal"
-                >
-                  {plant.description || ""}
-                </Typography>
-              </td>
-            </tr>
-          );
-        }}
-      />
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {plant.plantCode || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {plant.plantName || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {plant.description || ""}
+                    </Typography>
+                  </td>
+                </tr>
+              );
+            }}
+          />
+        </CardBody>
+      </Card>
     </div>
   );
 };

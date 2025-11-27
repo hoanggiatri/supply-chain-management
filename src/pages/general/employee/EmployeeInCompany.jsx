@@ -3,7 +3,7 @@ import DataTable from "@components/content-components/DataTable";
 import { getAllEmployeesInCompany } from "@/services/general/EmployeeService";
 import { useNavigate } from "react-router-dom";
 import toastrService from "@/services/toastrService";
-import { Button, Typography } from "@material-tailwind/react";
+import { Button, Typography, Card, CardBody } from "@material-tailwind/react";
 import { getButtonProps } from "@/utils/buttonStyles";
 
 const EmployeeInCompany = () => {
@@ -115,124 +115,129 @@ const EmployeeInCompany = () => {
   ];
 
   return (
-    <div className="p-4">
-      <div className="mb-6">
-        <Typography variant="h4" color="blue-gray" className="mb-4">
-          DANH SÁCH NHÂN VIÊN
-        </Typography>
-        <div className="mb-4">
-          <Button
-            type="button"
-            {...getButtonProps("primary")}
-            onClick={() => navigate("/create-employee")}
-          >
-            Thêm mới
-          </Button>
-        </div>
-      </div>
-      <DataTable
-        rows={employees}
-        columns={columns}
-        order={order}
-        orderBy={orderBy}
-        onRequestSort={handleRequestSort}
-        page={page}
-        rowsPerPage={rowsPerPage}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-        search={search}
-        setSearch={setSearch}
-        renderRow={(emp, index, page, rowsPerPage, renderStatusCell) => {
-          const isLast = index === employees.length - 1;
-          const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
-          return (
-            <tr
-              key={emp.id}
-              className="hover:bg-blue-gray-50 transition-colors cursor-pointer"
-              onClick={() => navigate(`/employee/${emp.id}`)}
+    <div className="p-6">
+      <Card className="shadow-lg">
+        <CardBody>
+          <div className="flex items-center justify-between mb-4">
+            <Typography variant="h4" color="blue-gray" className="font-bold">
+              DANH SÁCH NHÂN VIÊN
+            </Typography>
+            <Button
+              type="button"
+              {...getButtonProps("primary")}
+              onClick={() => navigate("/create-employee")}
             >
-              <td className={classes}>
-                <Typography
-                  variant="small"
-                  color="blue-gray"
-                  className="font-normal"
+              Thêm mới
+            </Button>
+          </div>
+
+          <DataTable
+            rows={employees}
+            columns={columns}
+            order={order}
+            orderBy={orderBy}
+            onRequestSort={handleRequestSort}
+            page={page}
+            rowsPerPage={rowsPerPage}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            search={search}
+            setSearch={setSearch}
+            renderRow={(emp, index, page, rowsPerPage, renderStatusCell) => {
+              const isLast = index === employees.length - 1;
+              const classes = isLast
+                ? "p-4"
+                : "p-4 border-b border-blue-gray-50";
+              return (
+                <tr
+                  key={emp.id}
+                  className="hover:bg-blue-gray-50 transition-colors cursor-pointer"
+                  onClick={() => navigate(`/employee/${emp.id}`)}
                 >
-                  {emp.employeeCode || ""}
-                </Typography>
-              </td>
-              <td className={classes}>
-                <Typography
-                  variant="small"
-                  color="blue-gray"
-                  className="font-normal"
-                >
-                  {emp.employeeName || ""}
-                </Typography>
-              </td>
-              <td className={classes}>
-                <Typography
-                  variant="small"
-                  color="blue-gray"
-                  className="font-normal"
-                >
-                  {emp.departmentName || ""}
-                </Typography>
-              </td>
-              <td className={classes}>
-                <Typography
-                  variant="small"
-                  color="blue-gray"
-                  className="font-normal"
-                >
-                  {emp.position || ""}
-                </Typography>
-              </td>
-              <td className={classes}>
-                <Typography
-                  variant="small"
-                  color="blue-gray"
-                  className="font-normal"
-                >
-                  {genderLabels[emp.gender] || emp.gender || ""}
-                </Typography>
-              </td>
-              <td className={classes}>
-                <Typography
-                  variant="small"
-                  color="blue-gray"
-                  className="font-normal"
-                >
-                  {emp.dateOfBirth || ""}
-                </Typography>
-              </td>
-              <td className={classes}>
-                <Typography
-                  variant="small"
-                  color="blue-gray"
-                  className="font-normal"
-                >
-                  {emp.email || ""}
-                </Typography>
-              </td>
-              <td className={classes}>
-                <Typography
-                  variant="small"
-                  color="blue-gray"
-                  className="font-normal"
-                >
-                  {emp.phoneNumber || ""}
-                </Typography>
-              </td>
-              <td className={classes}>
-                {renderStatusCell(
-                  statusLabels[emp.status] || emp.status || "",
-                  statusColorMap[emp.status]
-                )}
-              </td>
-            </tr>
-          );
-        }}
-      />
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {emp.employeeCode || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {emp.employeeName || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {emp.departmentName || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {emp.position || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {genderLabels[emp.gender] || emp.gender || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {emp.dateOfBirth || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {emp.email || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {emp.phoneNumber || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    {renderStatusCell(
+                      statusLabels[emp.status] || emp.status || "",
+                      statusColorMap[emp.status]
+                    )}
+                  </td>
+                </tr>
+              );
+            }}
+          />
+        </CardBody>
+      </Card>
     </div>
   );
 };

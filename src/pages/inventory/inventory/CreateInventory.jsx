@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import { Container, Typography, Button, Grid, Paper } from "@mui/material";
+import { Typography, Button, Card, CardBody } from "@material-tailwind/react";
 import { useNavigate } from "react-router-dom";
 import { createInventory } from "@/services/inventory/InventoryService";
 import InventoryForm from "@/components/inventory/InventoryForm";
 import toastrService from "@/services/toastrService";
+import { getButtonProps } from "@/utils/buttonStyles";
+import BackButton from "@/components/common/BackButton";
 
 const CreateInventory = () => {
   const navigate = useNavigate();
@@ -80,33 +82,42 @@ const CreateInventory = () => {
   };
 
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
+    <div className="page-container">
+      <div className="flex items-center justify-between mb-4">
+        <Typography variant="h4" className="page-title">
           THÊM MỚI TỒN KHO
         </Typography>
+        <BackButton to="/inventory-count" label="Quay lại tồn kho" />
+      </div>
 
-        <InventoryForm
-          inventory={inventory}
-          onChange={handleChange}
-          setInventory={setInventory}
-          errors={errors}
-        />
+      <Card className="shadow-sm">
+        <CardBody>
+          <InventoryForm
+            inventory={inventory}
+            onChange={handleChange}
+            setInventory={setInventory}
+            errors={errors}
+          />
 
-        <Grid container spacing={2} mt={3} justifyContent="flex-end">
-          <Grid item>
-            <Button variant="contained" color="default" onClick={handleSubmit}>
+          <div className="mt-6 flex justify-end gap-3">
+            <Button
+              type="button"
+              {...getButtonProps("primary")}
+              onClick={handleSubmit}
+            >
               Thêm
             </Button>
-          </Grid>
-          <Grid item>
-            <Button variant="outlined" color="default" onClick={handleCancel}>
+            <Button
+              type="button"
+              {...getButtonProps("outlinedSecondary")}
+              onClick={handleCancel}
+            >
               Hủy
             </Button>
-          </Grid>
-        </Grid>
-      </Paper>
-    </Container>
+          </div>
+        </CardBody>
+      </Card>
+    </div>
   );
 };
 

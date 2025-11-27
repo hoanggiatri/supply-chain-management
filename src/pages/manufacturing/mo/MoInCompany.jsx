@@ -4,7 +4,7 @@ import StatusSummaryCard from "@/components/content-components/StatusSummaryCard
 import { getAllMosInCompany } from "@/services/manufacturing/MoService";
 import { useNavigate } from "react-router-dom";
 import toastrService from "@/services/toastrService";
-import { Button, Typography } from "@material-tailwind/react";
+import { Button, Typography, Card, CardBody } from "@material-tailwind/react";
 import { getButtonProps } from "@/utils/buttonStyles";
 
 const MoInCompany = () => {
@@ -88,177 +88,189 @@ const MoInCompany = () => {
   ];
 
   return (
-    <div className="p-4">
-      <div className="mb-6">
-        <Typography variant="h4" color="blue-gray" className="mb-4">
-          DANH SÁCH CÔNG LỆNH SẢN XUẤT
-        </Typography>
-
-        <StatusSummaryCard
-          data={mos}
-          statusLabels={[
-            "Tất cả",
-            "Chờ xác nhận",
-            "Chờ sản xuất",
-            "Đang sản xuất",
-            "Chờ nhập kho",
-            "Đã hoàn thành",
-            "Đã hủy",
-          ]}
-          getStatus={(mo) => mo.status}
-          statusColors={{
-            "Tất cả": "#000",
-            "Chờ xác nhận": "#9c27b0",
-            "Chờ sản xuất": "#2196f3",
-            "Đang sản xuất": "#00bcd4",
-            "Chờ nhập kho": "#ff9800",
-            "Đã hoàn thành": "#4caf50",
-            "Đã hủy": "#f44336",
-          }}
-          onSelectStatus={(status) => setFilterStatus(status)}
-          selectedStatus={filterStatus}
-        />
-
-        <div className="mb-4">
-          <Button
-            type="button"
-            {...getButtonProps("primary")}
-            onClick={() => navigate("/create-mo")}
-          >
-            Thêm mới
-          </Button>
-        </div>
-      </div>
-
-      <DataTable
-        rows={filteredMos}
-        columns={columns}
-        order={order}
-        orderBy={orderBy}
-        onRequestSort={handleRequestSort}
-        page={page}
-        rowsPerPage={rowsPerPage}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-        search={search}
-        setSearch={setSearch}
-        statusColumn="status"
-        statusColors={statusColorMap}
-        renderRow={(mo, index, page, rowsPerPage, renderStatusCell) => {
-          const isLast = index === filteredMos.length - 1;
-          const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
-          return (
-            <tr
-              key={mo.moId}
-              className="hover:bg-blue-gray-50 transition-colors cursor-pointer"
-              onClick={() => navigate(`/mo/${mo.moId}`)}
+    <div className="p-6">
+      <Card className="shadow-lg">
+        <CardBody>
+          <div className="mb-4">
+            <Typography
+              variant="h4"
+              color="blue-gray"
+              className="font-bold mb-4"
             >
-              <td className={classes}>
-                <Typography
-                  variant="small"
-                  color="blue-gray"
-                  className="font-normal"
+              DANH SÁCH CÔNG LỆNH SẢN XUẤT
+            </Typography>
+
+            <StatusSummaryCard
+              data={mos}
+              statusLabels={[
+                "Tất cả",
+                "Chờ xác nhận",
+                "Chờ sản xuất",
+                "Đang sản xuất",
+                "Chờ nhập kho",
+                "Đã hoàn thành",
+                "Đã hủy",
+              ]}
+              getStatus={(mo) => mo.status}
+              statusColors={{
+                "Tất cả": "#000",
+                "Chờ xác nhận": "#9c27b0",
+                "Chờ sản xuất": "#2196f3",
+                "Đang sản xuất": "#00bcd4",
+                "Chờ nhập kho": "#ff9800",
+                "Đã hoàn thành": "#4caf50",
+                "Đã hủy": "#f44336",
+              }}
+              onSelectStatus={(status) => setFilterStatus(status)}
+              selectedStatus={filterStatus}
+            />
+
+            <div className="flex justify-end">
+              <Button
+                type="button"
+                {...getButtonProps("primary")}
+                onClick={() => navigate("/create-mo")}
+              >
+                Thêm mới
+              </Button>
+            </div>
+          </div>
+
+          <DataTable
+            rows={filteredMos}
+            columns={columns}
+            order={order}
+            orderBy={orderBy}
+            onRequestSort={handleRequestSort}
+            page={page}
+            rowsPerPage={rowsPerPage}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            search={search}
+            setSearch={setSearch}
+            statusColumn="status"
+            statusColors={statusColorMap}
+            renderRow={(mo, index, page, rowsPerPage, renderStatusCell) => {
+              const isLast = index === filteredMos.length - 1;
+              const classes = isLast
+                ? "p-4"
+                : "p-4 border-b border-blue-gray-50";
+              return (
+                <tr
+                  key={mo.moId}
+                  className="hover:bg-blue-gray-50 transition-colors cursor-pointer"
+                  onClick={() => navigate(`/mo/${mo.moId}`)}
                 >
-                  {mo.moCode || ""}
-                </Typography>
-              </td>
-              <td className={classes}>
-                <Typography
-                  variant="small"
-                  color="blue-gray"
-                  className="font-normal"
-                >
-                  {mo.itemCode || ""}
-                </Typography>
-              </td>
-              <td className={classes}>
-                <Typography
-                  variant="small"
-                  color="blue-gray"
-                  className="font-normal"
-                >
-                  {mo.lineCode || ""}
-                </Typography>
-              </td>
-              <td className={classes}>
-                <Typography
-                  variant="small"
-                  color="blue-gray"
-                  className="font-normal"
-                >
-                  {mo.type || ""}
-                </Typography>
-              </td>
-              <td className={classes}>
-                <Typography
-                  variant="small"
-                  color="blue-gray"
-                  className="font-normal"
-                >
-                  {mo.quantity}
-                </Typography>
-              </td>
-              <td className={classes}>
-                <Typography
-                  variant="small"
-                  color="blue-gray"
-                  className="font-normal"
-                >
-                  {mo.estimatedStartTime
-                    ? new Date(mo.estimatedStartTime).toLocaleString()
-                    : ""}
-                </Typography>
-              </td>
-              <td className={classes}>
-                <Typography
-                  variant="small"
-                  color="blue-gray"
-                  className="font-normal"
-                >
-                  {mo.estimatedEndTime
-                    ? new Date(mo.estimatedEndTime).toLocaleString()
-                    : ""}
-                </Typography>
-              </td>
-              <td className={classes}>
-                <Typography
-                  variant="small"
-                  color="blue-gray"
-                  className="font-normal"
-                >
-                  {mo.createdBy || ""}
-                </Typography>
-              </td>
-              <td className={classes}>
-                <Typography
-                  variant="small"
-                  color="blue-gray"
-                  className="font-normal"
-                >
-                  {mo.createdOn ? new Date(mo.createdOn).toLocaleString() : ""}
-                </Typography>
-              </td>
-              <td className={classes}>
-                <Typography
-                  variant="small"
-                  color="blue-gray"
-                  className="font-normal"
-                >
-                  {mo.lastUpdatedOn
-                    ? new Date(mo.lastUpdatedOn).toLocaleString()
-                    : ""}
-                </Typography>
-              </td>
-              <td className={classes}>
-                {renderStatusCell(
-                  statusLabels[mo.status] || mo.status || "",
-                  statusColorMap[mo.status]
-                )}
-              </td>
-            </tr>
-          );
-        }}
-      />
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {mo.moCode || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {mo.itemCode || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {mo.lineCode || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {mo.type || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {mo.quantity}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {mo.estimatedStartTime
+                        ? new Date(mo.estimatedStartTime).toLocaleString()
+                        : ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {mo.estimatedEndTime
+                        ? new Date(mo.estimatedEndTime).toLocaleString()
+                        : ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {mo.createdBy || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {mo.createdOn
+                        ? new Date(mo.createdOn).toLocaleString()
+                        : ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {mo.lastUpdatedOn
+                        ? new Date(mo.lastUpdatedOn).toLocaleString()
+                        : ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    {renderStatusCell(
+                      statusLabels[mo.status] || mo.status || "",
+                      statusColorMap[mo.status]
+                    )}
+                  </td>
+                </tr>
+              );
+            }}
+          />
+        </CardBody>
+      </Card>
     </div>
   );
 };

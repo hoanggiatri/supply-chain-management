@@ -1,20 +1,13 @@
 import React, { useEffect, useState } from "react";
-import {
-  Container,
-  TableRow,
-  TableCell,
-  Typography,
-  Paper,
-  Box,
-  Button,
-  Grid,
-} from "@mui/material";
+import { Typography, Button } from "@material-tailwind/react";
 import DataTable from "@components/content-components/DataTable";
 import { getAllInventory } from "@/services/inventory/InventoryService";
 import { getAllItemsInCompany } from "@/services/general/ItemService";
 import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
 import SelectAutocomplete from "@components/content-components/SelectAutocomplete";
 import toastrService from "@/services/toastrService";
+import { getButtonProps } from "@/utils/buttonStyles";
+import BackButton from "@/components/common/BackButton";
 
 const Inventory = () => {
   const [inventories, setInventories] = useState([]);
@@ -92,81 +85,86 @@ const Inventory = () => {
   ];
 
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
+    <div className="page-container">
+      <div className="flex items-center justify-between mb-4">
+        <Typography variant="h4" className="page-title">
           TỒN KHO
         </Typography>
+        <BackButton />
+      </div>
 
-        <Box mt={3} mb={3}>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={5}>
-              <SelectAutocomplete
-                options={items.map((item) => ({
-                  label: item.itemCode + " - " + item.itemName,
-                  value: item.itemCode,
-                }))}
-                value={selectedItemCode}
-                onChange={(selected) =>
-                  setSelectedItemCode(selected?.value || "")
-                }
-                placeholder="Chọn hàng hóa"
-              />
-            </Grid>
+      <div className="mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="md:col-span-1">
+            <SelectAutocomplete
+              options={items.map((item) => ({
+                label: `${item.itemCode} - ${item.itemName}`,
+                value: item.itemCode,
+              }))}
+              value={selectedItemCode}
+              onChange={(selected) =>
+                setSelectedItemCode(selected?.value || "")
+              }
+              placeholder="Chọn hàng hóa"
+            />
+          </div>
 
-            <Grid item xs={12} sm={5}>
-              <SelectAutocomplete
-                options={warehouses.map((w) => ({
-                  label: w.warehouseCode + " - " + w.warehouseName,
-                  value: w.warehouseCode,
-                }))}
-                value={selectedWarehouseCode}
-                onChange={(selected) =>
-                  setSelectedWarehouseCode(selected?.value || "")
-                }
-                placeholder="Chọn kho"
-              />
-            </Grid>
+          <div className="md:col-span-1">
+            <SelectAutocomplete
+              options={warehouses.map((w) => ({
+                label: `${w.warehouseCode} - ${w.warehouseName}`,
+                value: w.warehouseCode,
+              }))}
+              value={selectedWarehouseCode}
+              onChange={(selected) =>
+                setSelectedWarehouseCode(selected?.value || "")
+              }
+              placeholder="Chọn kho"
+            />
+          </div>
 
-            <Grid item xs={12} sm={2}>
-              <Button
-                variant="contained"
-                color="default"
-                fullWidth
-                onClick={handleViewInventory}
-              >
-                Xem tồn kho
-              </Button>
-            </Grid>
-          </Grid>
-        </Box>
+          <div className="md:col-span-1 flex items-end">
+            <Button
+              type="button"
+              {...getButtonProps("primary")}
+              onClick={handleViewInventory}
+              className="w-full"
+            >
+              Xem tồn kho
+            </Button>
+          </div>
+        </div>
+      </div>
 
-        <DataTable
-          rows={inventories}
-          columns={columns}
-          order={order}
-          orderBy={orderBy}
-          onRequestSort={handleRequestSort}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          search={search}
-          height="calc(100vh - 360px)"
-          setSearch={setSearch}
-          renderRow={(inv, index) => (
-            <TableRow key={index} hover>
-              <TableCell>{inv.warehouseCode}</TableCell>
-              <TableCell>{inv.warehouseName}</TableCell>
-              <TableCell>{inv.itemCode}</TableCell>
-              <TableCell>{inv.itemName}</TableCell>
-              <TableCell>{inv.quantity}</TableCell>
-              <TableCell>{inv.onDemandQuantity}</TableCell>
-            </TableRow>
-          )}
-        />
-      </Paper>
-    </Container>
+      <DataTable
+        rows={inventories}
+        columns={columns}
+        order={order}
+        orderBy={orderBy}
+        onRequestSort={handleRequestSort}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+        search={search}
+        height="calc(100vh - 360px)"
+        setSearch={setSearch}
+        renderRow={(inv, index) => {
+          const isLast = index === inventories.length - 1;
+          const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
+          return (
+            <tr key={`${inv.warehouseCode}-${inv.itemCode}-${index}`}>
+              <td className={classes}>{inv.warehouseCode}</td>
+              <td className={classes}>{inv.warehouseName}</td>
+              <td className={classes}>{inv.itemCode}</td>
+              <td className={classes}>{inv.itemName}</td>
+              <td className={classes}>{inv.quantity}</td>
+              <td className={classes}>{inv.onDemandQuantity}</td>
+            </tr>
+          );
+        }}
+      />
+    </div>
   );
 };
 

@@ -1,15 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Container,
-  TableRow,
-  TableCell,
-  Typography,
-  Paper,
-  Box,
-  Button,
-  Grid,
-  TextField,
-} from "@mui/material";
+import { Typography, Button, Input } from "@material-tailwind/react";
 import DataTable from "@components/content-components/DataTable";
 import {
   getAllInventory,
@@ -20,6 +10,8 @@ import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
 import SelectAutocomplete from "@components/content-components/SelectAutocomplete";
 import { useNavigate } from "react-router-dom";
 import toastrService from "@/services/toastrService";
+import { getButtonProps } from "@/utils/buttonStyles";
+import BackButton from "@/components/common/BackButton";
 
 const InventoryCount = () => {
   const [inventories, setInventories] = useState([]);
@@ -142,108 +134,116 @@ const InventoryCount = () => {
   ];
 
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
+    <div className="page-container">
+      <div className="flex items-center justify-between mb-4">
+        <Typography variant="h4" className="page-title">
           CẬP NHẬT TỒN KHO
         </Typography>
+        <BackButton to="/inventory" label="Quay lại tồn kho" />
+      </div>
 
-        <Box mt={3} mb={3}>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={5}>
-              <SelectAutocomplete
-                options={items.map((item) => ({
-                  label: item.itemCode + " - " + item.itemName,
-                  value: item.itemCode,
-                }))}
-                value={selectedItemCode}
-                onChange={(selected) =>
-                  setSelectedItemCode(selected?.value || "")
-                }
-                placeholder="Chọn hàng hóa"
-              />
-            </Grid>
+      <div className="mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="md:col-span-1">
+            <SelectAutocomplete
+              options={items.map((item) => ({
+                label: `${item.itemCode} - ${item.itemName}`,
+                value: item.itemCode,
+              }))}
+              value={selectedItemCode}
+              onChange={(selected) =>
+                setSelectedItemCode(selected?.value || "")
+              }
+              placeholder="Chọn hàng hóa"
+            />
+          </div>
 
-            <Grid item xs={12} sm={5}>
-              <SelectAutocomplete
-                options={warehouses.map((w) => ({
-                  label: w.warehouseCode + " - " + w.warehouseName,
-                  value: w.warehouseCode,
-                }))}
-                value={selectedWarehouseCode}
-                onChange={(selected) =>
-                  setSelectedWarehouseCode(selected?.value || "")
-                }
-                placeholder="Chọn kho"
-              />
-            </Grid>
+          <div className="md:col-span-1">
+            <SelectAutocomplete
+              options={warehouses.map((w) => ({
+                label: `${w.warehouseCode} - ${w.warehouseName}`,
+                value: w.warehouseCode,
+              }))}
+              value={selectedWarehouseCode}
+              onChange={(selected) =>
+                setSelectedWarehouseCode(selected?.value || "")
+              }
+              placeholder="Chọn kho"
+            />
+          </div>
 
-            <Grid item xs={12} sm={2}>
-              <Button
-                variant="contained"
-                color="default"
-                fullWidth
-                onClick={handleViewInventory}
-              >
-                Xem tồn kho
-              </Button>
-            </Grid>
-          </Grid>
-        </Box>
+          <div className="md:col-span-1 flex items-end">
+            <Button
+              type="button"
+              {...getButtonProps("primary")}
+              onClick={handleViewInventory}
+              className="w-full"
+            >
+              Xem tồn kho
+            </Button>
+          </div>
+        </div>
+      </div>
 
-        <Box mt={3} mb={3}>
-          <Button
-            variant="contained"
-            color="default"
-            onClick={() => navigate("/create-inventory")}
-          >
-            Thêm mới
-          </Button>
-        </Box>
+      <div className="mb-4 flex justify-end">
+        <Button
+          type="button"
+          {...getButtonProps("primary")}
+          onClick={() => navigate("/create-inventory")}
+        >
+          Thêm mới
+        </Button>
+      </div>
 
-        <DataTable
-          rows={inventories}
-          columns={columns}
-          order={order}
-          orderBy={orderBy}
-          onRequestSort={(property) => {
-            const isAsc = orderBy === property && order === "asc";
-            setOrder(isAsc ? "desc" : "asc");
-            setOrderBy(property);
-          }}
-          page={page}
-          height="calc(100vh - 450px)"
-          rowsPerPage={rowsPerPage}
-          onPageChange={(event, newPage) => setPage(newPage)}
-          onRowsPerPageChange={(event) => {
-            setRowsPerPage(Number(event.target.value));
-            setPage(1);
-          }}
-          search={search}
-          setSearch={setSearch}
-          renderRow={(inventory, index) => (
-            <TableRow key={index} hover>
-              <TableCell>{inventory.warehouseCode}</TableCell>
-              <TableCell>{inventory.warehouseName}</TableCell>
-              <TableCell>{inventory.itemCode}</TableCell>
-              <TableCell>{inventory.itemName}</TableCell>
-              <TableCell>{inventory.quantity}</TableCell>
-              <TableCell>
-                <TextField
+      <DataTable
+        rows={inventories}
+        columns={columns}
+        order={order}
+        orderBy={orderBy}
+        onRequestSort={(property) => {
+          const isAsc = orderBy === property && order === "asc";
+          setOrder(isAsc ? "desc" : "asc");
+          setOrderBy(property);
+        }}
+        page={page}
+        height="calc(100vh - 450px)"
+        rowsPerPage={rowsPerPage}
+        onPageChange={(_, newPage) => setPage(newPage)}
+        onRowsPerPageChange={(event) => {
+          setRowsPerPage(Number(event.target.value));
+          setPage(1);
+        }}
+        search={search}
+        setSearch={setSearch}
+        renderRow={(inventory, index) => {
+          const isLast = index === inventories.length - 1;
+          const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
+          return (
+            <tr key={inventory.inventoryId || index}>
+              <td className={classes}>{inventory.warehouseCode}</td>
+              <td className={classes}>{inventory.warehouseName}</td>
+              <td className={classes}>{inventory.itemCode}</td>
+              <td className={classes}>{inventory.itemName}</td>
+              <td className={classes}>{inventory.quantity}</td>
+              <td className={classes}>
+                <Input
                   type="number"
-                  size="small"
+                  color="blue"
+                  size="md"
+                  className="w-full placeholder:opacity-100"
                   value={
                     inventory.actualQuantity === null
                       ? ""
                       : inventory.actualQuantity
                   }
                   onChange={(e) => {
-                    const value = e.target.value;
+                    const { value } = e.target;
                     const newInventories = inventories.map((inv) =>
                       inv.inventoryId === inventory.inventoryId
                         ? {
                             ...inv,
-                            actualQuantity: value === "" ? null : Number(value),
+                            actualQuantity:
+                              value === "" ? null : Number.parseFloat(value),
                           }
                         : inv
                     );
@@ -263,27 +263,29 @@ const InventoryCount = () => {
                     );
                     setInventories(newInventories);
                   }}
-                  inputProps={{ min: 0 }}
+                  min={0}
                 />
-              </TableCell>
-              <TableCell>{inventory.onDemandQuantity}</TableCell>
-              <TableCell>
-                <TextField
+              </td>
+              <td className={classes}>{inventory.onDemandQuantity}</td>
+              <td className={classes}>
+                <Input
                   type="number"
-                  size="small"
+                  color="blue"
+                  size="md"
+                  className="w-full placeholder:opacity-100"
                   value={
                     inventory.actualOnDemandQuantity === null
                       ? ""
                       : inventory.actualOnDemandQuantity
                   }
                   onChange={(e) => {
-                    const value = e.target.value;
+                    const { value } = e.target;
                     const newInventories = inventories.map((inv) =>
                       inv.inventoryId === inventory.inventoryId
                         ? {
                             ...inv,
                             actualOnDemandQuantity:
-                              value === "" ? null : Number(value),
+                              value === "" ? null : Number.parseFloat(value),
                           }
                         : inv
                     );
@@ -303,28 +305,28 @@ const InventoryCount = () => {
                     );
                     setInventories(newInventories);
                   }}
-                  inputProps={{ min: 0 }}
+                  min={0}
                 />
-              </TableCell>
-              <TableCell>
+              </td>
+              <td className={classes}>
                 {(inventory.actualQuantity !== inventory.quantity ||
                   inventory.actualOnDemandQuantity !==
                     inventory.onDemandQuantity) && (
                   <Button
-                    variant="contained"
-                    color="success"
-                    size="small"
+                    type="button"
+                    {...getButtonProps("success")}
+                    size="sm"
                     onClick={() => handleSaveInventory(inventory)}
                   >
                     Lưu
                   </Button>
                 )}
-              </TableCell>
-            </TableRow>
-          )}
-        />
-      </Paper>
-    </Container>
+              </td>
+            </tr>
+          );
+        }}
+      />
+    </div>
   );
 };
 

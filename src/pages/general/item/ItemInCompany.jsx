@@ -3,7 +3,7 @@ import DataTable from "@components/content-components/DataTable";
 import { getAllItemsInCompany } from "@/services/general/ItemService";
 import { useNavigate } from "react-router-dom";
 import toastrService from "@/services/toastrService";
-import { Button, Typography } from "@material-tailwind/react";
+import { Button, Typography, Card, CardBody } from "@material-tailwind/react";
 import { getButtonProps } from "@/utils/buttonStyles";
 
 const ItemInCompany = () => {
@@ -62,131 +62,136 @@ const ItemInCompany = () => {
   ];
 
   return (
-    <div className="p-4">
-      <div className="mb-6">
-        <Typography variant="h4" color="blue-gray" className="mb-4">
-          DANH SÁCH HÀNG HÓA
-        </Typography>
-        <div className="mb-4">
-          <Button
-            type="button"
-            {...getButtonProps("primary")}
-            onClick={() => navigate("/create-item")}
-          >
-            Thêm mới
-          </Button>
-        </div>
-      </div>
-      <DataTable
-        rows={items}
-        columns={columns}
-        order={order}
-        orderBy={orderBy}
-        onRequestSort={handleRequestSort}
-        page={page}
-        rowsPerPage={rowsPerPage}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-        search={search}
-        setSearch={setSearch}
-        renderRow={(item, index, page, rowsPerPage) => {
-          const isLast = index === items.length - 1;
-          const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
-          return (
-            <tr
-              key={item.itemId}
-              className="hover:bg-blue-gray-50 transition-colors cursor-pointer"
-              onClick={() => navigate(`/item/${item.itemId}`)}
+    <div className="p-6">
+      <Card className="shadow-lg">
+        <CardBody>
+          <div className="flex items-center justify-between mb-4">
+            <Typography variant="h4" color="blue-gray" className="font-bold">
+              DANH SÁCH HÀNG HÓA
+            </Typography>
+            <Button
+              type="button"
+              {...getButtonProps("primary")}
+              onClick={() => navigate("/create-item")}
             >
-              <td className={classes}>
-                <Typography
-                  variant="small"
-                  color="blue-gray"
-                  className="font-normal"
+              Thêm mới
+            </Button>
+          </div>
+
+          <DataTable
+            rows={items}
+            columns={columns}
+            order={order}
+            orderBy={orderBy}
+            onRequestSort={handleRequestSort}
+            page={page}
+            rowsPerPage={rowsPerPage}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            search={search}
+            setSearch={setSearch}
+            renderRow={(item, index, page, rowsPerPage) => {
+              const isLast = index === items.length - 1;
+              const classes = isLast
+                ? "p-4"
+                : "p-4 border-b border-blue-gray-50";
+              return (
+                <tr
+                  key={item.itemId}
+                  className="hover:bg-blue-gray-50 transition-colors cursor-pointer"
+                  onClick={() => navigate(`/item/${item.itemId}`)}
                 >
-                  {item.itemCode || ""}
-                </Typography>
-              </td>
-              <td className={classes}>
-                <Typography
-                  variant="small"
-                  color="blue-gray"
-                  className="font-normal"
-                >
-                  {item.itemName || ""}
-                </Typography>
-              </td>
-              <td className={classes}>
-                <Typography
-                  variant="small"
-                  color="blue-gray"
-                  className="font-normal"
-                >
-                  {item.itemType || ""}
-                </Typography>
-              </td>
-              <td className={classes}>
-                <Typography
-                  variant="small"
-                  color="blue-gray"
-                  className="font-normal"
-                >
-                  {item.uom || ""}
-                </Typography>
-              </td>
-              <td className={classes}>
-                <Typography
-                  variant="small"
-                  color="blue-gray"
-                  className="font-normal"
-                >
-                  {item.technicalSpecifications || ""}
-                </Typography>
-              </td>
-              <td className={classes}>
-                <Typography
-                  variant="small"
-                  color="blue-gray"
-                  className="font-normal"
-                >
-                  {item.importPrice !== null
-                    ? item.importPrice.toLocaleString()
-                    : ""}
-                </Typography>
-              </td>
-              <td className={classes}>
-                <Typography
-                  variant="small"
-                  color="blue-gray"
-                  className="font-normal"
-                >
-                  {item.exportPrice !== null
-                    ? item.exportPrice.toLocaleString()
-                    : ""}
-                </Typography>
-              </td>
-              <td className={classes}>
-                <Typography
-                  variant="small"
-                  color="blue-gray"
-                  className="font-normal"
-                >
-                  {item.description || ""}
-                </Typography>
-              </td>
-              <td className={classes}>
-                <Typography
-                  variant="small"
-                  color="blue-gray"
-                  className="font-normal"
-                >
-                  {item.isSellable ? "Có" : "Không"}
-                </Typography>
-              </td>
-            </tr>
-          );
-        }}
-      />
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {item.itemCode || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {item.itemName || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {item.itemType || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {item.uom || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {item.technicalSpecifications || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {item.importPrice !== null
+                        ? item.importPrice.toLocaleString()
+                        : ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {item.exportPrice !== null
+                        ? item.exportPrice.toLocaleString()
+                        : ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {item.description || ""}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {item.isSellable ? "Có" : "Không"}
+                    </Typography>
+                  </td>
+                </tr>
+              );
+            }}
+          />
+        </CardBody>
+      </Card>
     </div>
   );
 };
