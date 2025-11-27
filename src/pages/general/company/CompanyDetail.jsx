@@ -11,7 +11,6 @@ import CompanyForm from "@/components/general/CompanyForm";
 import { useNavigate } from "react-router-dom";
 import toastrService from "@/services/toastrService";
 import { getButtonProps } from "@/utils/buttonStyles";
-import BackButton from "@components/common/BackButton";
 
 const CompanyDetail = () => {
   const [company, setCompany] = useState(null);
@@ -67,14 +66,9 @@ const CompanyDetail = () => {
       <Card className="shadow-lg">
         <CardBody>
           <div className="flex items-center justify-between mb-6">
-            <Typography
-              variant="h4"
-              color="blue-gray"
-              className="font-bold"
-            >
+            <Typography variant="h4" color="blue-gray" className="font-bold">
               THÔNG TIN CÔNG TY
             </Typography>
-            <BackButton />
           </div>
 
           <div className="flex items-center gap-6 mb-8">
