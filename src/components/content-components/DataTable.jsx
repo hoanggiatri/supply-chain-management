@@ -12,7 +12,7 @@ import {
   Input,
   Option,
   Select,
-  Typography
+  Typography,
 } from "@material-tailwind/react";
 import React from "react";
 
@@ -231,7 +231,7 @@ const DataTable = ({
   return (
     <Card className="h-full w-full shadow-lg">
       {/* Header with Search and Filter Controls */}
-      <div className="p-6 border-b border-blue-gray-50">
+      <div className="py-6 border-b border-blue-gray-50">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="w-full sm:w-40">
             <Select
@@ -242,7 +242,7 @@ const DataTable = ({
               label="Số hàng"
               color="blue"
               containerProps={{
-                className: "min-w-[120px]"
+                className: "min-w-[120px]",
               }}
             >
               <Option value="10">10</Option>
@@ -261,7 +261,7 @@ const DataTable = ({
               icon={<MagnifyingGlassIcon className="h-5 w-5" />}
               color="blue"
               containerProps={{
-                className: "min-w-[200px]"
+                className: "min-w-[200px]",
               }}
             />
           </div>

@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Typography, Button, Input } from "@material-tailwind/react";
+import {
+  Typography,
+  Button,
+  Input,
+  Card,
+  CardBody,
+} from "@material-tailwind/react";
 import DataTable from "@components/content-components/DataTable";
 import {
   getAllInventory,
@@ -11,7 +17,6 @@ import SelectAutocomplete from "@components/content-components/SelectAutocomplet
 import { useNavigate } from "react-router-dom";
 import toastrService from "@/services/toastrService";
 import { getButtonProps } from "@/utils/buttonStyles";
-import BackButton from "@/components/common/BackButton";
 
 const InventoryCount = () => {
   const [inventories, setInventories] = useState([]);
@@ -134,198 +139,204 @@ const InventoryCount = () => {
   ];
 
   return (
-    <div className="page-container">
-      <div className="flex items-center justify-between mb-4">
-        <Typography variant="h4" className="page-title">
-          CẬP NHẬT TỒN KHO
-        </Typography>
-        <BackButton to="/inventory" label="Quay lại tồn kho" />
-      </div>
-
-      <div className="mb-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="md:col-span-1">
-            <SelectAutocomplete
-              options={items.map((item) => ({
-                label: `${item.itemCode} - ${item.itemName}`,
-                value: item.itemCode,
-              }))}
-              value={selectedItemCode}
-              onChange={(selected) =>
-                setSelectedItemCode(selected?.value || "")
-              }
-              placeholder="Chọn hàng hóa"
-            />
-          </div>
-
-          <div className="md:col-span-1">
-            <SelectAutocomplete
-              options={warehouses.map((w) => ({
-                label: `${w.warehouseCode} - ${w.warehouseName}`,
-                value: w.warehouseCode,
-              }))}
-              value={selectedWarehouseCode}
-              onChange={(selected) =>
-                setSelectedWarehouseCode(selected?.value || "")
-              }
-              placeholder="Chọn kho"
-            />
-          </div>
-
-          <div className="md:col-span-1 flex items-end">
+    <div className="p-6">
+      <Card className="shadow-lg">
+        <CardBody>
+          <div className="flex items-center justify-between mb-4">
+            <Typography variant="h4" color="blue-gray" className="font-bold">
+              CẬP NHẬT TỒN KHO
+            </Typography>
             <Button
               type="button"
               {...getButtonProps("primary")}
-              onClick={handleViewInventory}
-              className="w-full"
+              onClick={() => navigate("/create-inventory")}
             >
-              Xem tồn kho
+              Thêm mới
             </Button>
           </div>
-        </div>
-      </div>
 
-      <div className="mb-4 flex justify-end">
-        <Button
-          type="button"
-          {...getButtonProps("primary")}
-          onClick={() => navigate("/create-inventory")}
-        >
-          Thêm mới
-        </Button>
-      </div>
+          <div className="mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="md:col-span-1">
+                <SelectAutocomplete
+                  options={items.map((item) => ({
+                    label: `${item.itemCode} - ${item.itemName}`,
+                    value: item.itemCode,
+                  }))}
+                  value={selectedItemCode}
+                  onChange={(selected) =>
+                    setSelectedItemCode(selected?.value || "")
+                  }
+                  placeholder="Chọn hàng hóa"
+                />
+              </div>
 
-      <DataTable
-        rows={inventories}
-        columns={columns}
-        order={order}
-        orderBy={orderBy}
-        onRequestSort={(property) => {
-          const isAsc = orderBy === property && order === "asc";
-          setOrder(isAsc ? "desc" : "asc");
-          setOrderBy(property);
-        }}
-        page={page}
-        height="calc(100vh - 450px)"
-        rowsPerPage={rowsPerPage}
-        onPageChange={(_, newPage) => setPage(newPage)}
-        onRowsPerPageChange={(event) => {
-          setRowsPerPage(Number(event.target.value));
-          setPage(1);
-        }}
-        search={search}
-        setSearch={setSearch}
-        renderRow={(inventory, index) => {
-          const isLast = index === inventories.length - 1;
-          const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
-          return (
-            <tr key={inventory.inventoryId || index}>
-              <td className={classes}>{inventory.warehouseCode}</td>
-              <td className={classes}>{inventory.warehouseName}</td>
-              <td className={classes}>{inventory.itemCode}</td>
-              <td className={classes}>{inventory.itemName}</td>
-              <td className={classes}>{inventory.quantity}</td>
-              <td className={classes}>
-                <Input
-                  type="number"
-                  color="blue"
-                  size="md"
-                  className="w-full placeholder:opacity-100"
-                  value={
-                    inventory.actualQuantity === null
-                      ? ""
-                      : inventory.actualQuantity
+              <div className="md:col-span-1">
+                <SelectAutocomplete
+                  options={warehouses.map((w) => ({
+                    label: `${w.warehouseCode} - ${w.warehouseName}`,
+                    value: w.warehouseCode,
+                  }))}
+                  value={selectedWarehouseCode}
+                  onChange={(selected) =>
+                    setSelectedWarehouseCode(selected?.value || "")
                   }
-                  onChange={(e) => {
-                    const { value } = e.target;
-                    const newInventories = inventories.map((inv) =>
-                      inv.inventoryId === inventory.inventoryId
-                        ? {
-                            ...inv,
-                            actualQuantity:
-                              value === "" ? null : Number.parseFloat(value),
-                          }
-                        : inv
-                    );
-                    setInventories(newInventories);
-                  }}
-                  onBlur={() => {
-                    const newInventories = inventories.map((inv) =>
-                      inv.inventoryId === inventory.inventoryId
-                        ? {
-                            ...inv,
-                            actualQuantity:
-                              inv.actualQuantity === null
-                                ? 0
-                                : inv.actualQuantity,
-                          }
-                        : inv
-                    );
-                    setInventories(newInventories);
-                  }}
-                  min={0}
+                  placeholder="Chọn kho"
                 />
-              </td>
-              <td className={classes}>{inventory.onDemandQuantity}</td>
-              <td className={classes}>
-                <Input
-                  type="number"
-                  color="blue"
-                  size="md"
-                  className="w-full placeholder:opacity-100"
-                  value={
-                    inventory.actualOnDemandQuantity === null
-                      ? ""
-                      : inventory.actualOnDemandQuantity
-                  }
-                  onChange={(e) => {
-                    const { value } = e.target;
-                    const newInventories = inventories.map((inv) =>
-                      inv.inventoryId === inventory.inventoryId
-                        ? {
-                            ...inv,
-                            actualOnDemandQuantity:
-                              value === "" ? null : Number.parseFloat(value),
-                          }
-                        : inv
-                    );
-                    setInventories(newInventories);
-                  }}
-                  onBlur={() => {
-                    const newInventories = inventories.map((inv) =>
-                      inv.inventoryId === inventory.inventoryId
-                        ? {
-                            ...inv,
-                            actualOnDemandQuantity:
-                              inv.actualOnDemandQuantity === null
-                                ? 0
-                                : inv.actualOnDemandQuantity,
-                          }
-                        : inv
-                    );
-                    setInventories(newInventories);
-                  }}
-                  min={0}
-                />
-              </td>
-              <td className={classes}>
-                {(inventory.actualQuantity !== inventory.quantity ||
-                  inventory.actualOnDemandQuantity !==
-                    inventory.onDemandQuantity) && (
-                  <Button
-                    type="button"
-                    {...getButtonProps("success")}
-                    size="sm"
-                    onClick={() => handleSaveInventory(inventory)}
-                  >
-                    Lưu
-                  </Button>
-                )}
-              </td>
-            </tr>
-          );
-        }}
-      />
+              </div>
+
+              <div className="md:col-span-1 flex items-end">
+                <Button
+                  type="button"
+                  {...getButtonProps("primary")}
+                  onClick={handleViewInventory}
+                  className="w-full"
+                >
+                  Xem tồn kho
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <DataTable
+            rows={inventories}
+            columns={columns}
+            order={order}
+            orderBy={orderBy}
+            onRequestSort={(property) => {
+              const isAsc = orderBy === property && order === "asc";
+              setOrder(isAsc ? "desc" : "asc");
+              setOrderBy(property);
+            }}
+            page={page}
+            height="calc(100vh - 450px)"
+            rowsPerPage={rowsPerPage}
+            onPageChange={(_, newPage) => setPage(newPage)}
+            onRowsPerPageChange={(event) => {
+              setRowsPerPage(Number(event.target.value));
+              setPage(1);
+            }}
+            search={search}
+            setSearch={setSearch}
+            renderRow={(inventory, index) => {
+              const isLast = index === inventories.length - 1;
+              const classes = isLast
+                ? "p-4"
+                : "p-4 border-b border-blue-gray-50";
+              return (
+                <tr key={inventory.inventoryId || index}>
+                  <td className={classes}>{inventory.warehouseCode}</td>
+                  <td className={classes}>{inventory.warehouseName}</td>
+                  <td className={classes}>{inventory.itemCode}</td>
+                  <td className={classes}>{inventory.itemName}</td>
+                  <td className={classes}>{inventory.quantity}</td>
+                  <td className={classes}>
+                    <Input
+                      type="number"
+                      color="blue"
+                      size="md"
+                      className="w-full placeholder:opacity-100"
+                      value={
+                        inventory.actualQuantity === null
+                          ? ""
+                          : inventory.actualQuantity
+                      }
+                      onChange={(e) => {
+                        const { value } = e.target;
+                        const newInventories = inventories.map((inv) =>
+                          inv.inventoryId === inventory.inventoryId
+                            ? {
+                                ...inv,
+                                actualQuantity:
+                                  value === ""
+                                    ? null
+                                    : Number.parseFloat(value),
+                              }
+                            : inv
+                        );
+                        setInventories(newInventories);
+                      }}
+                      onBlur={() => {
+                        const newInventories = inventories.map((inv) =>
+                          inv.inventoryId === inventory.inventoryId
+                            ? {
+                                ...inv,
+                                actualQuantity:
+                                  inv.actualQuantity === null
+                                    ? 0
+                                    : inv.actualQuantity,
+                              }
+                            : inv
+                        );
+                        setInventories(newInventories);
+                      }}
+                      min={0}
+                    />
+                  </td>
+                  <td className={classes}>{inventory.onDemandQuantity}</td>
+                  <td className={classes}>
+                    <Input
+                      type="number"
+                      color="blue"
+                      size="md"
+                      className="w-full placeholder:opacity-100"
+                      value={
+                        inventory.actualOnDemandQuantity === null
+                          ? ""
+                          : inventory.actualOnDemandQuantity
+                      }
+                      onChange={(e) => {
+                        const { value } = e.target;
+                        const newInventories = inventories.map((inv) =>
+                          inv.inventoryId === inventory.inventoryId
+                            ? {
+                                ...inv,
+                                actualOnDemandQuantity:
+                                  value === ""
+                                    ? null
+                                    : Number.parseFloat(value),
+                              }
+                            : inv
+                        );
+                        setInventories(newInventories);
+                      }}
+                      onBlur={() => {
+                        const newInventories = inventories.map((inv) =>
+                          inv.inventoryId === inventory.inventoryId
+                            ? {
+                                ...inv,
+                                actualOnDemandQuantity:
+                                  inv.actualOnDemandQuantity === null
+                                    ? 0
+                                    : inv.actualOnDemandQuantity,
+                              }
+                            : inv
+                        );
+                        setInventories(newInventories);
+                      }}
+                      min={0}
+                    />
+                  </td>
+                  <td className={classes}>
+                    {(inventory.actualQuantity !== inventory.quantity ||
+                      inventory.actualOnDemandQuantity !==
+                        inventory.onDemandQuantity) && (
+                      <Button
+                        type="button"
+                        {...getButtonProps("success")}
+                        size="sm"
+                        onClick={() => handleSaveInventory(inventory)}
+                      >
+                        Lưu
+                      </Button>
+                    )}
+                  </td>
+                </tr>
+              );
+            }}
+          />
+        </CardBody>
+      </Card>
     </div>
   );
 };
