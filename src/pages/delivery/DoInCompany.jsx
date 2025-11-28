@@ -23,7 +23,14 @@ const DoInCompany = () => {
     const fetchDos = async () => {
       try {
         const data = await getAllDeliveryOrdersInCompany(companyId, token);
-        setDos(data);
+        const normalized = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.data)
+          ? data.data
+          : Array.isArray(data?.content)
+          ? data.content
+          : [];
+        setDos(normalized);
       } catch (error) {
         toastrService.error(
           error.response?.data?.message ||
@@ -36,8 +43,12 @@ const DoInCompany = () => {
 
   const filteredDos =
     filterStatus === "Tất cả"
-      ? dos
-      : dos.filter((ord) => ord.status === filterStatus);
+      ? Array.isArray(dos)
+        ? dos
+        : []
+      : Array.isArray(dos)
+      ? dos.filter((ord) => ord.status === filterStatus)
+      : [];
 
   const handleRequestSort = (property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -113,41 +124,71 @@ const DoInCompany = () => {
                 "Đang vận chuyển": "blue",
                 "Đã hoàn thành": "green",
               }}
-              renderRow={(ord, _index, _page, _rowsPerPage, renderStatusCell) => (
+              renderRow={(
+                ord,
+                _index,
+                _page,
+                _rowsPerPage,
+                renderStatusCell
+              ) => (
                 <tr
                   key={ord.doId}
                   className="border-b border-blue-gray-100 hover:bg-blue-gray-50 transition-colors cursor-pointer"
                   onClick={() => navigate(`/do/${ord.doId}`)}
                 >
                   <td className="p-4">
-                    <Typography variant="small" color="blue-gray" className="font-normal">
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
                       {ord.doCode}
                     </Typography>
                   </td>
                   <td className="p-4">
-                    <Typography variant="small" color="blue-gray" className="font-normal">
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
                       {ord.soCode}
                     </Typography>
                   </td>
                   <td className="p-4">
-                    <Typography variant="small" color="blue-gray" className="font-normal">
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
                       {ord.createdBy}
                     </Typography>
                   </td>
                   <td className="p-4">
-                    <Typography variant="small" color="blue-gray" className="font-normal">
-                      {ord.createdOn ? new Date(ord.createdOn).toLocaleString() : ""}
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
+                      {ord.createdOn
+                        ? new Date(ord.createdOn).toLocaleString()
+                        : ""}
                     </Typography>
                   </td>
                   <td className="p-4">
-                    <Typography variant="small" color="blue-gray" className="font-normal">
+                    <Typography
+                      variant="small"
+                      color="blue-gray"
+                      className="font-normal"
+                    >
                       {ord.lastUpdatedOn
                         ? new Date(ord.lastUpdatedOn).toLocaleString()
                         : ""}
                     </Typography>
                   </td>
                   <td className="p-4">
-                    {renderStatusCell ? renderStatusCell(ord.status) : ord.status}
+                    {renderStatusCell
+                      ? renderStatusCell(ord.status)
+                      : ord.status}
                   </td>
                 </tr>
               )}
