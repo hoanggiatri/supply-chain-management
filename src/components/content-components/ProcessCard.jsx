@@ -14,8 +14,19 @@ const STATUS_COLORS = {
   default: "bg-blue-gray-300",
 };
 
-const ProcessCard = ({ process, onComplete }) => {
+const ProcessCard = ({ process, onComplete, moStatus }) => {
   const statusClass = STATUS_COLORS[process.status] || STATUS_COLORS.default;
+
+  // Show check button if:
+  // 1. Process status is "Đang thực hiện", OR
+  // 2. Process is the first one (stageDetailOrder === 1) and MO is in production status
+  //    and process hasn't been started yet (no startedOn)
+  const canComplete =
+    process.status === "Đang thực hiện" ||
+    (process.stageDetailOrder === 1 &&
+      (moStatus === "Đang sản xuất" || moStatus === "Chờ sản xuất") &&
+      !process.startedOn &&
+      process.status !== "Đã hoàn thành");
 
   return (
     <Card className="border border-blue-gray-100 shadow-md h-full flex flex-col">
@@ -25,11 +36,13 @@ const ProcessCard = ({ process, onComplete }) => {
         <Typography variant="h6" className="font-semibold text-white">
           {process.stageDetailOrder}. {process.stageDetailName}
         </Typography>
-        {process.status === "Đang thực hiện" && (
+        {canComplete && (
           <IconButton
             variant="text"
             color="white"
             onClick={() => onComplete?.(process)}
+            aria-label={`Hoàn thành công đoạn ${process.stageDetailOrder}: ${process.stageDetailName}`}
+            title={`Hoàn thành công đoạn ${process.stageDetailOrder}: ${process.stageDetailName}`}
           >
             <CheckIcon className="h-5 w-5 text-white" />
           </IconButton>
@@ -59,6 +72,7 @@ const ProcessCard = ({ process, onComplete }) => {
 ProcessCard.propTypes = {
   process: PropTypes.object.isRequired,
   onComplete: PropTypes.func,
+  moStatus: PropTypes.string,
 };
 
 export default ProcessCard;

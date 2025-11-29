@@ -4,7 +4,6 @@ import {
   Input,
   Select,
   Option,
-  Textarea,
   Typography,
   IconButton,
   Button,
@@ -35,12 +34,15 @@ const BomDetailRow = ({
         <Select
           label="Chọn nguyên vật liệu"
           color="blue"
-          value={detail.itemId || ""}
+          value={detail.itemId ? String(detail.itemId) : ""}
           onChange={(value) => handleItemSelect(index, value)}
           className="w-full"
+          menuProps={{
+            className: "z-[9999]",
+          }}
         >
           {materialOptions.map((option) => (
-            <Option key={option.value} value={option.value}>
+            <Option key={option.value} value={String(option.value)}>
               {option.label}
             </Option>
           ))}
@@ -70,7 +72,7 @@ const BomDetailRow = ({
         )}
       </td>
       <td className={classes}>
-        <Textarea
+        <Input
           label="Ghi chú"
           value={detail.note || ""}
           onChange={(e) => handleDetailChange(index, "note", e.target.value)}
@@ -145,7 +147,7 @@ const BomDetailTable = ({
         item.itemType === "Bán thành phẩm"
     )
     .map((item) => ({
-      value: item.itemId,
+      value: String(item.itemId),
       label: `${item.itemCode} - ${item.itemName}`,
     }));
 
@@ -167,7 +169,7 @@ const BomDetailTable = ({
 
   return (
     <>
-      <div className="overflow-x-auto rounded-lg border border-blue-gray-100">
+      <div className="overflow-x-auto overflow-y-visible rounded-lg border border-blue-gray-100">
         <table className="w-full min-w-max table-auto text-left">
           <thead>
             <tr>

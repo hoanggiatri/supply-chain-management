@@ -92,14 +92,22 @@ const MoInCompany = () => {
       <Card className="shadow-lg">
         <CardBody>
           <div className="mb-4">
-            <Typography
-              variant="h4"
-              color="blue-gray"
-              className="font-bold mb-4"
-            >
-              DANH SÁCH CÔNG LỆNH SẢN XUẤT
-            </Typography>
-
+            <div className="flex items-center justify-between mb-4">
+              <Typography
+                variant="h4"
+                color="blue-gray"
+                className="font-bold mb-4"
+              >
+                DANH SÁCH CÔNG LỆNH SẢN XUẤT
+              </Typography>
+              <Button
+                type="button"
+                {...getButtonProps("primary")}
+                onClick={() => navigate("/create-mo")}
+              >
+                Thêm mới
+              </Button>
+            </div>
             <StatusSummaryCard
               data={mos}
               statusLabels={[
@@ -124,16 +132,6 @@ const MoInCompany = () => {
               onSelectStatus={(status) => setFilterStatus(status)}
               selectedStatus={filterStatus}
             />
-
-            <div className="flex justify-end">
-              <Button
-                type="button"
-                {...getButtonProps("primary")}
-                onClick={() => navigate("/create-mo")}
-              >
-                Thêm mới
-              </Button>
-            </div>
           </div>
 
           <DataTable

@@ -119,10 +119,21 @@ const ItDetail = () => {
       if (ticket.issueType === "Sản xuất" && ticket.referenceId) {
         try {
           const mo = await getMoById(ticket.referenceId, token);
+          // Only send allowed fields, exclude read-only and computed fields
+          const toISO8601String = (dateString) => {
+            if (!dateString) return null;
+            return new Date(dateString).toISOString();
+          };
+
           await updateMo(
             ticket.referenceId,
             {
-              ...mo,
+              itemId: Number(mo.itemId),
+              lineId: Number(mo.lineId),
+              type: mo.type,
+              quantity: mo.quantity,
+              estimatedStartTime: toISO8601String(mo.estimatedStartTime),
+              estimatedEndTime: toISO8601String(mo.estimatedEndTime),
               status: "Đang sản xuất",
             },
             token

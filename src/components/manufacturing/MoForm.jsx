@@ -25,32 +25,66 @@ const MoForm = ({
   };
 
   const handleItemChange = (value) => {
+    if (!value) {
+      // If value is empty, clear the selection
+      if (typeof setMo === "function") {
+        setMo((prev) => ({
+          ...prev,
+          itemId: "",
+          itemCode: "",
+        }));
+      } else {
+        handleSelectChange("itemId", "");
+      }
+      return;
+    }
+
     const selectedItem = items.find(
       (item) => String(item.itemId) === String(value)
     );
-    if (typeof setMo === "function") {
-      setMo((prev) => ({
-        ...prev,
-        itemId: selectedItem?.itemId || "",
-        itemCode: selectedItem?.itemCode || "",
-      }));
-    } else {
-      handleSelectChange("itemId", selectedItem?.itemId || "");
+
+    if (selectedItem) {
+      if (typeof setMo === "function") {
+        setMo((prev) => ({
+          ...prev,
+          itemId: selectedItem.itemId,
+          itemCode: selectedItem.itemCode || "",
+        }));
+      } else {
+        handleSelectChange("itemId", selectedItem.itemId);
+      }
     }
   };
 
   const handleLineChange = (value) => {
+    if (!value) {
+      // If value is empty, clear the selection
+      if (typeof setMo === "function") {
+        setMo((prev) => ({
+          ...prev,
+          lineId: "",
+          lineCode: "",
+        }));
+      } else {
+        handleSelectChange("lineId", "");
+      }
+      return;
+    }
+
     const selectedLine = lines.find(
       (line) => String(line.lineId) === String(value)
     );
-    if (typeof setMo === "function") {
-      setMo((prev) => ({
-        ...prev,
-        lineCode: selectedLine?.lineCode || "",
-        lineId: selectedLine?.lineId || "",
-      }));
-    } else {
-      handleSelectChange("lineId", selectedLine?.lineId || "");
+
+    if (selectedLine) {
+      if (typeof setMo === "function") {
+        setMo((prev) => ({
+          ...prev,
+          lineId: selectedLine.lineId,
+          lineCode: selectedLine.lineCode || "",
+        }));
+      } else {
+        handleSelectChange("lineId", selectedLine.lineId);
+      }
     }
   };
 
@@ -78,16 +112,18 @@ const MoForm = ({
       );
     }
 
+    const currentValue = mo.itemId ? String(mo.itemId) : "";
+
     return (
       <Select
         label="Chọn hàng hóa"
         color="blue"
-        value={mo.itemId || ""}
+        value={currentValue}
         onChange={handleItemChange}
         className="w-full"
       >
         {items.map((item) => (
-          <Option key={item.itemId} value={item.itemId}>
+          <Option key={item.itemId} value={String(item.itemId)}>
             {item.itemCode} - {item.itemName}
           </Option>
         ))}
@@ -108,16 +144,18 @@ const MoForm = ({
       );
     }
 
+    const currentValue = mo.lineId ? String(mo.lineId) : "";
+
     return (
       <Select
         label="Chọn dây chuyền"
         color="blue"
-        value={mo.lineId || ""}
+        value={currentValue}
         onChange={handleLineChange}
         className="w-full"
       >
         {lines.map((line) => (
-          <Option key={line.lineId} value={line.lineId}>
+          <Option key={line.lineId} value={String(line.lineId)}>
             {line.lineCode} - {line.lineName}
           </Option>
         ))}

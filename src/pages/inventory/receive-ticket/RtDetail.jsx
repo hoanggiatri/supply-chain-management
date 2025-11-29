@@ -12,7 +12,6 @@ import {
   updateReceiveTicket,
 } from "@/services/inventory/ReceiveTicketService";
 import { getMoById, updateMo } from "@/services/manufacturing/MoService";
-import dayjs from "dayjs";
 import { increaseQuantity } from "@/services/inventory/InventoryService";
 import {
   getTransferTicketById,
@@ -44,7 +43,6 @@ const RtDetail = () => {
       setLoading(true);
       try {
         const data = await getReceiveTicketById(ticketId, token);
-        console.log(data);
         setTicket(data);
       } catch (error) {
         toastrService.error(
@@ -62,11 +60,17 @@ const RtDetail = () => {
     const employeeName = localStorage.getItem("employeeName");
 
     try {
+      // Only send allowed fields, exclude read-only and computed fields
       await updateReceiveTicket(
         ticket.ticketId,
         {
-          ...ticket,
+          companyId: Number(ticket.companyId),
+          warehouseId: Number(ticket.warehouseId),
+          reason: ticket.reason,
+          receiveType: ticket.receiveType,
+          referenceCode: ticket.referenceCode,
           status: "Chờ nhập kho",
+          receiveDate: ticket.receiveDate,
           createdBy: employeeName,
         },
         token
@@ -89,15 +93,26 @@ const RtDetail = () => {
     const token = localStorage.getItem("token");
 
     try {
-      const now = toLocalDateTimeString(new Date().toISOString());
+      const receiveDateISO = new Date().toISOString();
 
       if (ticket.receiveType === "Sản xuất" && ticket.referenceId) {
         try {
           const mo = await getMoById(ticket.referenceId, token);
+          // Only send allowed fields, exclude read-only and computed fields
+          const toISO8601String = (dateString) => {
+            if (!dateString) return null;
+            return new Date(dateString).toISOString();
+          };
+
           await updateMo(
             ticket.referenceId,
             {
-              ...mo,
+              itemId: Number(mo.itemId),
+              lineId: Number(mo.lineId),
+              type: mo.type,
+              quantity: mo.quantity,
+              estimatedStartTime: toISO8601String(mo.estimatedStartTime),
+              estimatedEndTime: toISO8601String(mo.estimatedEndTime),
               status: "Đã hoàn thành",
             },
             token
@@ -137,25 +152,29 @@ const RtDetail = () => {
       try {
         await Promise.all(
           ticket.receiveTicketDetails.map((detail) =>
-            Promise.all([
-              increaseQuantity(
-                {
-                  warehouseId: ticket.warehouseId,
-                  itemId: detail.itemId,
-                  quantity: detail.quantity,
-                },
-                token
-              ),
-            ])
+            increaseQuantity(
+              {
+                warehouseId: ticket.warehouseId,
+                itemId: detail.itemId,
+                quantity: detail.quantity,
+              },
+              token
+            )
           )
         );
 
+        // Only send allowed fields, exclude read-only and computed fields
         await updateReceiveTicket(
           ticket.ticketId,
           {
-            ...ticket,
+            companyId: Number(ticket.companyId),
+            warehouseId: Number(ticket.warehouseId),
+            reason: ticket.reason || "",
+            receiveType: ticket.receiveType || "",
+            referenceCode: ticket.referenceCode || "",
             status: "Đã hoàn thành",
-            receiveDate: now,
+            receiveDate: receiveDateISO,
+            createdBy: ticket.createdBy || "",
           },
           token
         );
@@ -164,7 +183,7 @@ const RtDetail = () => {
         setTicket((prev) => ({
           ...prev,
           status: "Đã hoàn thành",
-          receiveDate: now,
+          receiveDate: receiveDateISO,
         }));
       } catch (inventoryError) {
         toastrService.error("Cập nhật tồn kho thất bại!");
@@ -174,11 +193,6 @@ const RtDetail = () => {
         error.response?.data?.message || "Có lỗi xảy ra khi nhập kho!"
       );
     }
-  };
-
-  const toLocalDateTimeString = (localDateTimeString) => {
-    if (!localDateTimeString) return null;
-    return dayjs(localDateTimeString).format("YYYY-MM-DDTHH:mm:ss");
   };
 
   const columns = [

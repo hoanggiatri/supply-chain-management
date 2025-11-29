@@ -89,8 +89,10 @@ const MoDetail = () => {
       }
     };
 
-    fetchProcesses();
-  }, [moId, token]);
+    if (moId && token) {
+      fetchProcesses();
+    }
+  }, [moId, token, mo?.status]);
 
   useEffect(() => {
     const fetchWarehouses = async () => {
@@ -110,6 +112,11 @@ const MoDetail = () => {
     navigate(`/check-inventory/${type}/${id}`);
   };
 
+  const toISO8601String = (dateString) => {
+    if (!dateString) return null;
+    return dayjs(dateString).toISOString();
+  };
+
   const handleCancelMo = async () => {
     const confirmFn =
       typeof globalThis !== "undefined" &&
@@ -124,8 +131,14 @@ const MoDetail = () => {
     }
 
     try {
+      // Only send allowed fields, exclude read-only and computed fields
       const request = {
-        ...mo,
+        itemId: Number(mo.itemId),
+        lineId: Number(mo.lineId),
+        type: mo.type,
+        quantity: mo.quantity,
+        estimatedStartTime: toISO8601String(mo.estimatedStartTime),
+        estimatedEndTime: toISO8601String(mo.estimatedEndTime),
         status: "Đã hủy",
       };
       await updateMo(moId, request, token);
@@ -156,12 +169,54 @@ const MoDetail = () => {
     const now = dayjs().format("YYYY-MM-DDTHH:mm:ss");
 
     try {
+      // Validate process data
+      if (!currentProcess.id) {
+        toastrService.error("Không tìm thấy ID của process!");
+        return;
+      }
+
+      // Convert moId to number if needed
+      const moIdNum = Number(moId);
+      if (Number.isNaN(moIdNum)) {
+        toastrService.error("ID công lệnh không hợp lệ!");
+        return;
+      }
+
+      // If process hasn't started yet, start it first
+      const startedOn = currentProcess.startedOn || now;
+      const isFirstProcess = currentProcess.stageDetailOrder === 1;
+      const isStartingFirstProcess =
+        !currentProcess.startedOn && isFirstProcess;
+
+      // If starting the first process and MO is "Chờ sản xuất", update MO to "Đang sản xuất"
+      if (isStartingFirstProcess && mo.status === "Chờ sản xuất") {
+        await updateMo(
+          moIdNum,
+          {
+            itemId: Number(mo.itemId),
+            lineId: Number(mo.lineId),
+            type: mo.type,
+            quantity: mo.quantity,
+            estimatedStartTime: toISO8601String(mo.estimatedStartTime),
+            estimatedEndTime: toISO8601String(mo.estimatedEndTime),
+            status: "Đang sản xuất",
+          },
+          token
+        );
+
+        setMo((prevMo) => ({
+          ...prevMo,
+          status: "Đang sản xuất",
+        }));
+      }
+
+      // Update current process to completed
       await updateProcess(
         currentProcess.id,
         {
-          moId,
+          moId: moIdNum,
           stageDetailId: currentProcess.stageDetailId,
-          startedOn: currentProcess.startedOn,
+          startedOn: startedOn,
           finishedOn: now,
           status: "Đã hoàn thành",
         },
@@ -174,10 +229,16 @@ const MoDetail = () => {
       const nextProcess = processes[currentIndex + 1];
 
       if (nextProcess) {
+        // Start next process
+        if (!nextProcess.id) {
+          toastrService.error("Không tìm thấy ID của process tiếp theo!");
+          return;
+        }
+
         await updateProcess(
           nextProcess.id,
           {
-            moId,
+            moId: moIdNum,
             stageDetailId: nextProcess.stageDetailId,
             startedOn: now,
             status: "Đang thực hiện",
@@ -185,10 +246,17 @@ const MoDetail = () => {
           token
         );
       } else {
+        // All processes completed, update MO status
+        // Only send allowed fields, exclude read-only and computed fields
         await updateMo(
-          moId,
+          moIdNum,
           {
-            ...mo,
+            itemId: Number(mo.itemId),
+            lineId: Number(mo.lineId),
+            type: mo.type,
+            quantity: mo.quantity,
+            estimatedStartTime: toISO8601String(mo.estimatedStartTime),
+            estimatedEndTime: toISO8601String(mo.estimatedEndTime),
             status: "Chờ nhập kho",
           },
           token
@@ -200,12 +268,16 @@ const MoDetail = () => {
         }));
       }
 
-      const updatedProcesses = await getAllProcessesInMo(moId, token);
+      // Refresh processes list
+      const updatedProcesses = await getAllProcessesInMo(moIdNum, token);
       const sorted = updatedProcesses.sort(
         (a, b) => a.stageDetailOrder - b.stageDetailOrder
       );
       setProcesses(sorted);
+
+      toastrService.success("Cập nhật process thành công!");
     } catch (error) {
+      console.error("Error updating process:", error);
       toastrService.error(
         error.response?.data?.message || "Có lỗi khi cập nhật process!"
       );
@@ -365,6 +437,7 @@ const MoDetail = () => {
                     <ProcessCard
                       process={process}
                       onComplete={(p) => handleCompleteProcess(p)}
+                      moStatus={mo?.status}
                     />
                   </div>
                 ))}
