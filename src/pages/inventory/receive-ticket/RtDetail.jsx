@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Typography, Card, CardBody, Button } from "@material-tailwind/react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import DataTable from "@/components/content-components/DataTable";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import RtForm from "@/components/inventory/RtForm";
@@ -22,6 +22,7 @@ import toastrService from "@/services/toastrService";
 
 const RtDetail = () => {
   const { ticketId } = useParams();
+  const navigate = useNavigate();
   const [ticket, setTicket] = useState(null);
   const [loading, setLoading] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState({
@@ -29,6 +30,7 @@ const RtDetail = () => {
     type: null, // 'confirm' or 'receive'
     onConfirm: null,
   });
+  const [showMoNavigateButton, setShowMoNavigateButton] = useState(false);
 
   const [search, setSearch] = useState("");
   const [order, setOrder] = useState("asc");
@@ -113,10 +115,11 @@ const RtDetail = () => {
               quantity: mo.quantity,
               estimatedStartTime: toISO8601String(mo.estimatedStartTime),
               estimatedEndTime: toISO8601String(mo.estimatedEndTime),
-              status: "Đã hoàn thành",
+              status: "Đã nhập kho",
             },
             token
           );
+          setShowMoNavigateButton(true);
         } catch (moError) {
           toastrService.error("Cập nhật MO thất bại!");
         }
@@ -261,6 +264,14 @@ const RtDetail = () => {
                 }
               >
                 Nhập kho
+              </Button>
+            )}
+            {showMoNavigateButton && ticket.receiveType === "Sản xuất" && ticket.referenceId && (
+              <Button
+                {...getButtonProps("success")}
+                onClick={() => navigate(`/mo/${ticket.referenceId}`)}
+              >
+                Quay về công lệnh sản xuất
               </Button>
             )}
           </div>
