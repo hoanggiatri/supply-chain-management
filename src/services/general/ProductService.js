@@ -5,52 +5,62 @@ const axiosAuth = (token) => ({
   headers: { Authorization: `Bearer ${token}` },
 });
 
-export const createProduct = async (itemId, data, token) => {
-  const res = await axios.post(`${BASE_URL}/product/${itemId}`, data, axiosAuth(token));
+export const getAllProducts = async (companyId, params, token) => {
+  const res = await axios.get(`${BASE_URL}/product/company/${companyId}`, {
+    ...axiosAuth(token),
+    params,
+  });
   return res.data;
 };
 
 export const getProductById = async (productId, token) => {
-  const res = await axios.get(`${BASE_URL}/product/${productId}`, axiosAuth(token));
-  return res.data;
-};
-
-export const getAllProductsByItem = async (itemId, token) => {
-  const res = await axios.get(`${BASE_URL}/product/item/${itemId}`, axiosAuth(token));
-  return res.data;
-};
-
-export const getAllProductsByCompany = async (companyId, token) => {
-  const res = await axios.get(`${BASE_URL}/product/company/${companyId}`, axiosAuth(token));
+  const res = await axios.get(
+    `${BASE_URL}/product/${productId}`,
+    axiosAuth(token)
+  );
   return res.data;
 };
 
 export const getProductsByBatch = async (batchNo, token) => {
-  const res = await axios.get(`${BASE_URL}/product/batch/${batchNo}`, axiosAuth(token));
+  const res = await axios.get(
+    `${BASE_URL}/product/batch/${batchNo}`,
+    axiosAuth(token)
+  );
   return res.data;
 };
 
-export const updateProduct = async (productId, data, token) => {
-  const res = await axios.put(`${BASE_URL}/product/${productId}`, data, axiosAuth(token));
+export const scanQRCodeDetail = async (qrCode, token) => {
+  const res = await axios.get(
+    `${BASE_URL}/product/scan/${qrCode}`,
+    axiosAuth(token)
+  );
   return res.data;
 };
 
-export const deleteProduct = async (productId, token) => {
-  const res = await axios.delete(`${BASE_URL}/product/${productId}`, axiosAuth(token));
+export const downloadQRPDF = async (batchNo, token) => {
+  const res = await axios.get(`${BASE_URL}/product/batch/${batchNo}/qr-pdf`, {
+    ...axiosAuth(token),
+    responseType: "blob",
+  });
   return res.data;
 };
 
-export const scanQRCode = async (qrCode, token) => {
-  const res = await axios.get(`${BASE_URL}/product/scan/${qrCode}`, axiosAuth(token));
+export const downloadSingleQR = async (productId, token) => {
+  const res = await axios.get(`${BASE_URL}/product/${productId}/qr-pdf`, {
+    ...axiosAuth(token),
+    responseType: "blob",
+  });
   return res.data;
 };
 
-export const transferProduct = async (productId, newCompanyId, token) => {
-  const res = await axios.put(`${BASE_URL}/product/${productId}/transfer`, { newCompanyId }, axiosAuth(token));
+export const downloadMultipleQR = async (productIds, token) => {
+  const res = await axios.post(
+    `${BASE_URL}/product/multiple/qr-pdf`,
+    { productIds },
+    {
+      ...axiosAuth(token),
+      responseType: "blob",
+    }
+  );
   return res.data;
-};
-
-export const getQRCodeImage = async (productId, token) => {
-  const res = await axios.get(`${BASE_URL}/product/${productId}/qr-image`, axiosAuth(token));
-  return res.data; // Assuming this returns base64 string or url
 };

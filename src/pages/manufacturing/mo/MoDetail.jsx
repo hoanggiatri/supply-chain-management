@@ -1,4 +1,3 @@
-/* global globalThis */
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -8,9 +7,25 @@ import {
   Select,
   Option,
   Typography,
+  Dialog,
+  DialogHeader,
+  DialogBody,
+  DialogFooter,
+  Input,
 } from "@material-tailwind/react";
+import { Grid } from "@mui/material";
+import {
+  QrCode2 as QrCode2Icon,
+  List as ListIcon,
+  Download as DownloadIcon,
+  QrCodeScanner as QrCodeScannerIcon,
+} from "@mui/icons-material";
 import MoForm from "@/components/manufacturing/MoForm";
-import { getMoById, updateMo } from "@/services/manufacturing/MoService";
+import {
+  getMoById,
+  updateMo,
+  completeMo,
+} from "@/services/manufacturing/MoService";
 import { getAllItemsInCompany } from "@/services/general/ItemService";
 import { getAllLinesInCompany } from "@/services/general/ManufactureLineService";
 import {
@@ -19,6 +34,8 @@ import {
 } from "@/services/manufacturing/ProcessService";
 import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
 import { createReceiveTicket } from "@/services/inventory/ReceiveTicketService";
+import { downloadQRPDF } from "@/services/general/ProductService";
+import QRScannerModal from "@/components/general/product/QRScannerModal";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import ProcessCard from "@/components/content-components/ProcessCard";
 import dayjs from "dayjs";
@@ -35,6 +52,10 @@ const MoDetail = () => {
   const [selectedWarehouseId, setSelectedWarehouseId] = useState("");
   const [warehouses, setWarehouses] = useState([]);
   const [hasRequestedReceive, setHasRequestedReceive] = useState(false);
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
+  const [completedQuantity, setCompletedQuantity] = useState(0);
+  const [isCompletingMo, setIsCompletingMo] = useState(false);
+  const [scanModalOpen, setScanModalOpen] = useState(false);
 
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
@@ -118,15 +139,7 @@ const MoDetail = () => {
   };
 
   const handleCancelMo = async () => {
-    const confirmFn =
-      typeof globalThis !== "undefined" &&
-      typeof globalThis.confirm === "function"
-        ? globalThis.confirm.bind(globalThis)
-        : null;
-    if (
-      confirmFn &&
-      !confirmFn("Bạn có chắc chắn muốn hủy công lệnh này không?")
-    ) {
+    if (!window.confirm("Bạn có chắc chắn muốn hủy công lệnh này không?")) {
       return;
     }
 
@@ -313,6 +326,64 @@ const MoDetail = () => {
     }
   };
 
+  const handleCompleteMo = async () => {
+    if (!completedQuantity || completedQuantity <= 0) {
+      toastrService.error("Số lượng hoàn thành phải lớn hơn 0!");
+      return;
+    }
+
+    if (completedQuantity > mo.quantity) {
+      toastrService.warning("Số lượng hoàn thành vượt quá số lượng kế hoạch!");
+    }
+
+    setIsCompletingMo(true);
+
+    try {
+      const result = await completeMo(moId, completedQuantity, token);
+
+      toastrService.success("Hoàn thành công lệnh thành công!");
+
+      if (result.productsGenerated) {
+        toastrService.info(
+          `Đã tạo ${completedQuantity} sản phẩm với QR codes!`
+        );
+      }
+
+      const updatedMo = await getMoById(moId, token);
+      setMo(updatedMo);
+      setShowCompleteModal(false);
+    } catch (error) {
+      toastrService.error(
+        error.response?.data?.message || "Có lỗi khi hoàn thành công lệnh!"
+      );
+    } finally {
+      setIsCompletingMo(false);
+    }
+  };
+
+  const handleDownloadBatchQR = async () => {
+    if (!mo.batchNo) {
+      toastrService.error("Không tìm thấy batch number!");
+      return;
+    }
+
+    try {
+      toastrService.info("Đang tạo file PDF...");
+      const blob = await downloadQRPDF(mo.batchNo, token);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `QR_Batch_${mo.batchNo}.pdf`;
+      link.click();
+      window.URL.revokeObjectURL(url);
+      toastrService.success("Tải QR codes thành công!");
+    } catch (error) {
+      toastrService.error(
+        error.response?.data?.message || "Có lỗi xảy ra khi tải QR codes!"
+      );
+    }
+  };
+
   const readOnlyFields = {
     moCode: true,
     status: true,
@@ -323,6 +394,10 @@ const MoDetail = () => {
     estimatedStartTime: true,
     estimatedEndTime: true,
   };
+
+  const allProcessesCompleted =
+    processes.length > 0 &&
+    processes.every((p) => p.status === "Đã hoàn thành");
 
   if (!mo) {
     return <LoadingPaper title="THÔNG TIN CÔNG LỆNH" />;
@@ -366,7 +441,80 @@ const MoDetail = () => {
                 </Button>
               </div>
             )}
+
+            {mo.status === "Đang sản xuất" && allProcessesCompleted && (
+              <Button
+                {...getButtonProps("success")}
+                onClick={() => {
+                  setCompletedQuantity(mo.quantity);
+                  setShowCompleteModal(true);
+                }}
+              >
+                Hoàn thành công lệnh
+              </Button>
+            )}
           </div>
+
+          {mo.status === "Đã hoàn thành" && mo.batchNo && (
+            <Card className="mb-6 border border-blue-gray-100">
+              <CardBody>
+                <div className="flex items-center gap-2 mb-4">
+                  <QrCode2Icon color="primary" />
+                  <Typography variant="h5" color="blue-gray">
+                    Thông tin sản phẩm đã tạo
+                  </Typography>
+                </div>
+
+                <Grid container spacing={2}>
+                  <Grid item xs={12} md={6}>
+                    <Typography variant="small" color="gray">
+                      Batch Number
+                    </Typography>
+                    <Typography variant="h6">{mo.batchNo}</Typography>
+                  </Grid>
+
+                  <Grid item xs={12} md={6}>
+                    <Typography variant="small" color="gray">
+                      Số lượng sản phẩm
+                    </Typography>
+                    <Typography variant="h6">
+                      {mo.completedQuantity} sản phẩm
+                    </Typography>
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        {...getButtonProps("primary")}
+                        onClick={() =>
+                          navigate(`/products?batch=${mo.batchNo}`)
+                        }
+                      >
+                        <ListIcon className="mr-2" />
+                        Xem danh sách sản phẩm
+                      </Button>
+
+                      <Button
+                        {...getButtonProps("secondary")}
+                        onClick={handleDownloadBatchQR}
+                      >
+                        <DownloadIcon className="mr-2" />
+                        Tải QR Codes (PDF)
+                      </Button>
+
+                      <Button
+                        {...getButtonProps("secondary")}
+                        onClick={() => setScanModalOpen(true)}
+                      >
+                        <QrCodeScannerIcon className="mr-2" />
+                        Quét QR
+                      </Button>
+                    </div>
+                  </Grid>
+                </Grid>
+              </CardBody>
+            </Card>
+          )}
 
           {mo.status === "Chờ nhập kho" && !hasRequestedReceive && (
             <div className="border border-blue-gray-100 rounded-lg p-4 mb-6">
@@ -446,6 +594,50 @@ const MoDetail = () => {
           )}
         </CardBody>
       </Card>
+
+      <Dialog
+        open={showCompleteModal}
+        handler={() => setShowCompleteModal(false)}
+      >
+        <DialogHeader>Hoàn thành công lệnh sản xuất</DialogHeader>
+        <DialogBody>
+          <Input
+            label="Số lượng hoàn thành"
+            type="number"
+            color="blue"
+            size="lg"
+            value={completedQuantity}
+            onChange={(e) => setCompletedQuantity(Number(e.target.value))}
+            className="w-full"
+          />
+          <Typography variant="small" color="gray" className="mt-2">
+            Số lượng kế hoạch: {mo.quantity}
+          </Typography>
+        </DialogBody>
+        <DialogFooter className="gap-2">
+          <Button
+            {...getButtonProps("secondary")}
+            onClick={() => setShowCompleteModal(false)}
+          >
+            Hủy
+          </Button>
+          <Button
+            {...getButtonProps("success")}
+            onClick={handleCompleteMo}
+            disabled={isCompletingMo}
+          >
+            {isCompletingMo ? "Đang xử lý..." : "Xác nhận"}
+          </Button>
+        </DialogFooter>
+      </Dialog>
+
+      <QRScannerModal
+        open={scanModalOpen}
+        onClose={() => setScanModalOpen(false)}
+        onScanSuccess={(productData) => {
+          navigate(`/products/${productData.productId}`);
+        }}
+      />
     </div>
   );
 };
