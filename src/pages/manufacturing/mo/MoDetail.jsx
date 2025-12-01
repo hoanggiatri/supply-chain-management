@@ -33,7 +33,10 @@ import {
   updateProcess,
 } from "@/services/manufacturing/ProcessService";
 import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
-import { createReceiveTicket } from "@/services/inventory/ReceiveTicketService";
+import { 
+  createReceiveTicket,
+  getAllReceiveTicketsInCompany 
+} from "@/services/inventory/ReceiveTicketService";
 import { downloadQRPDF } from "@/services/general/ProductService";
 import QRScannerModal from "@/components/general/product/QRScannerModal";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
@@ -52,6 +55,7 @@ const MoDetail = () => {
   const [selectedWarehouseId, setSelectedWarehouseId] = useState("");
   const [warehouses, setWarehouses] = useState([]);
   const [hasRequestedReceive, setHasRequestedReceive] = useState(false);
+  const [receiveTicketId, setReceiveTicketId] = useState(null);
   const [showCompleteModal, setShowCompleteModal] = useState(false);
   const [completedQuantity, setCompletedQuantity] = useState(0);
   const [isCompletingMo, setIsCompletingMo] = useState(false);
@@ -76,6 +80,31 @@ const MoDetail = () => {
 
     fetchMo();
   }, [moId, token]);
+
+  useEffect(() => {
+    const checkExistingReceiveTicket = async () => {
+      if (!mo || mo.status !== "Chờ nhập kho") return;
+      
+      try {
+        const allTickets = await getAllReceiveTicketsInCompany(companyId, token);
+        const existingTicket = allTickets.find(
+          ticket => 
+            ticket.receiveType === "Sản xuất" && 
+            ticket.referenceId === parseInt(moId) &&
+            (ticket.status === "Chờ xác nhận" || ticket.status === "Chờ nhập kho")
+        );
+        
+        if (existingTicket) {
+          setHasRequestedReceive(true);
+          setReceiveTicketId(existingTicket.ticketId);
+        }
+      } catch (error) {
+        console.error("Lỗi khi kiểm tra phiếu nhập kho:", error);
+      }
+    };
+
+    checkExistingReceiveTicket();
+  }, [mo, moId, companyId, token]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -316,9 +345,10 @@ const MoDetail = () => {
     };
 
     try {
-      await createReceiveTicket(receiveTicketRequest, token);
+      const result = await createReceiveTicket(receiveTicketRequest, token);
       toastrService.success("Yêu cầu nhập kho thành công!");
       setHasRequestedReceive(true);
+      setReceiveTicketId(result.ticketId);
     } catch (error) {
       toastrService.error(
         error.response?.data?.message || "Không thể tạo phiếu nhập kho!"
@@ -442,7 +472,7 @@ const MoDetail = () => {
               </div>
             )}
 
-            {mo.status === "Đang sản xuất" && allProcessesCompleted && (
+            {mo.status === "Đã nhập kho" && (
               <Button
                 {...getButtonProps("success")}
                 onClick={() => {
@@ -550,6 +580,25 @@ const MoDetail = () => {
                 </div>
               </div>
             </div>
+          )}
+
+          {hasRequestedReceive && receiveTicketId && mo.status === "Chờ nhập kho" && (
+            <Card className="mb-6 bg-green-50">
+              <CardBody>
+                <Typography variant="h6" color="green" className="mb-2">
+                  Đã tạo phiếu nhập kho thành công!
+                </Typography>
+                <Typography variant="small" color="gray" className="mb-4">
+                  Vui lòng chuyển đến trang nhập kho để xác nhận.
+                </Typography>
+                <Button
+                  {...getButtonProps("primary")}
+                  onClick={() => navigate(`/receive-ticket/${receiveTicketId}`)}
+                >
+                  Đến trang nhập kho
+                </Button>
+              </CardBody>
+            </Card>
           )}
 
           <MoForm
