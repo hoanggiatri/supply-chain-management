@@ -36,6 +36,7 @@ const AllProducts = () => {
   const [qrModalOpen, setQrModalOpen] = useState(false);
   const [scanModalOpen, setScanModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [filters, setFilters] = useState({
     batch: "",
     status: "",
@@ -62,6 +63,7 @@ const AllProducts = () => {
   }, [filters]);
 
   const fetchProducts = async () => {
+    setLoading(true);
     try {
       const params = {};
       if (filters.batch) params.batchNo = filters.batch;
@@ -72,6 +74,8 @@ const AllProducts = () => {
       setProducts(data);
     } catch (error) {
       toastrService.error("Có lỗi xảy ra khi lấy danh sách sản phẩm!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -239,105 +243,117 @@ const AllProducts = () => {
             </Card>
           )}
 
-          <DataTable
-            rows={products}
-            columns={columns}
-            page={page}
-            rowsPerPage={rowsPerPage}
-            onPageChange={(e, newPage) => setPage(newPage)}
-            onRowsPerPageChange={(e) => {
-              setRowsPerPage(Number(e.target.value));
-              setPage(1);
-            }}
-            search={search}
-            setSearch={setSearch}
-            checkboxSelection={true}
-            selectedRows={selectedProducts}
-            onSelectionChange={setSelectedProducts}
-            renderRow={(product, index) => {
-              const isLast = index === products.length - 1;
-              const classes = isLast
-                ? "p-4"
-                : "p-4 border-b border-blue-gray-50";
-              return (
-                <tr key={product.productId}>
-                  <td className={classes}>
-                    <input
-                      type="checkbox"
-                      checked={selectedProducts.some(
-                        (p) => p.productId === product.productId
-                      )}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setSelectedProducts([...selectedProducts, product]);
-                        } else {
-                          setSelectedProducts(
-                            selectedProducts.filter(
-                              (p) => p.productId !== product.productId
-                            )
-                          );
-                        }
-                      }}
-                    />
-                  </td>
-                  <td className={classes}>
-                    <Typography variant="small" className="font-normal">
-                      {product.productId}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Chip value={product.serialNumber} color="blue" size="sm" />
-                  </td>
-                  <td className={classes}>
-                    <Typography variant="small" className="font-normal">
-                      {product.itemName}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography variant="small" className="font-normal">
-                      {product.batchNo}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Chip
-                      value={product.status}
-                      color={getStatusColor(product.status)}
-                      size="sm"
-                    />
-                  </td>
-                  <td className={classes}>
-                    <div className="flex gap-2">
-                      <IconButton
+          {loading ? (
+            <div className="text-center py-8">
+              <Typography variant="small" color="gray">
+                Đang tải danh sách sản phẩm...
+              </Typography>
+            </div>
+          ) : (
+            <DataTable
+              rows={products}
+              columns={columns}
+              page={page}
+              rowsPerPage={rowsPerPage}
+              onPageChange={(e, newPage) => setPage(newPage)}
+              onRowsPerPageChange={(e) => {
+                setRowsPerPage(Number(e.target.value));
+                setPage(1);
+              }}
+              search={search}
+              setSearch={setSearch}
+              checkboxSelection={true}
+              selectedRows={selectedProducts}
+              onSelectionChange={setSelectedProducts}
+              renderRow={(product, index) => {
+                const isLast = index === products.length - 1;
+                const classes = isLast
+                  ? "p-4"
+                  : "p-4 border-b border-blue-gray-50";
+                return (
+                  <tr key={product.productId}>
+                    <td className={classes}>
+                      <input
+                        type="checkbox"
+                        checked={selectedProducts.some(
+                          (p) => p.productId === product.productId
+                        )}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedProducts([...selectedProducts, product]);
+                          } else {
+                            setSelectedProducts(
+                              selectedProducts.filter(
+                                (p) => p.productId !== product.productId
+                              )
+                            );
+                          }
+                        }}
+                      />
+                    </td>
+                    <td className={classes}>
+                      <Typography variant="small" className="font-normal">
+                        {product.productId}
+                      </Typography>
+                    </td>
+                    <td className={classes}>
+                      <Chip
+                        value={product.serialNumber}
+                        color="blue"
                         size="sm"
-                        onClick={() => handleViewQR(product)}
-                        title="Xem QR Code"
-                      >
-                        <QrCodeIcon fontSize="small" />
-                      </IconButton>
-                      <IconButton
+                      />
+                    </td>
+                    <td className={classes}>
+                      <Typography variant="small" className="font-normal">
+                        {product.itemName}
+                      </Typography>
+                    </td>
+                    <td className={classes}>
+                      <Typography variant="small" className="font-normal">
+                        {product.batchNo}
+                      </Typography>
+                    </td>
+                    <td className={classes}>
+                      <Chip
+                        value={product.status}
+                        color={getStatusColor(product.status)}
                         size="sm"
-                        onClick={() =>
-                          handleDownloadSingleQR(product.productId)
-                        }
-                        title="Tải QR Code"
-                      >
-                        <DownloadIcon fontSize="small" />
-                      </IconButton>
-                      <IconButton
-                        size="sm"
-                        onClick={() =>
-                          navigate(`/products/${product.productId}`)
-                        }
-                        title="Chi tiết"
-                      >
-                        <VisibilityIcon fontSize="small" />
-                      </IconButton>
-                    </div>
-                  </td>
-                </tr>
-              );
-            }}
-          />
+                      />
+                    </td>
+                    <td className={classes}>
+                      <div className="flex gap-2">
+                        <IconButton
+                          size="sm"
+                          onClick={() => handleViewQR(product)}
+                          title="Xem QR Code"
+                        >
+                          <QrCodeIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          size="sm"
+                          onClick={() =>
+                            handleDownloadSingleQR(product.productId)
+                          }
+                          title="Tải QR Code"
+                        >
+                          <DownloadIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          size="sm"
+                          onClick={() =>
+                            navigate(`/products/${product.productId}`)
+                          }
+                          title="Chi tiết"
+                        >
+                          <VisibilityIcon fontSize="small" />
+                        </IconButton>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              }}
+            />
+          )}
         </CardBody>
       </Card>
 

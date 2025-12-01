@@ -150,7 +150,7 @@ const QRScannerModal = ({ open, onClose, onScanSuccess }) => {
                     label="Nhập mã QR"
                     value={manualInput}
                     onChange={(e) => setManualInput(e.target.value)}
-                    onKeyPress={(e) => {
+                    onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         handleManualSubmit();
                       }

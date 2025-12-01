@@ -261,7 +261,7 @@ const generalRoutes = [
     ),
   },
   {
-    path: "/products/scan",
+    path: "/product/scan",
     element: (
       <PrivateRoute element={<ScanQR />} allowedRoles={["c_admin", "user"]} />
     ),

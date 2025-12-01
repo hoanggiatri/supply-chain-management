@@ -96,6 +96,14 @@ const ProductQRModal = ({ open, onClose, product }) => {
         <Button {...getButtonProps("secondary")} onClick={onClose}>
           Đóng
         </Button>
+        <Button
+          {...getButtonProps("info")}
+          onClick={() => {
+            window.location.href = `/products/${product.productId}`;
+          }}
+        >
+          Xem chi tiết
+        </Button>
         <Button {...getButtonProps("primary")} onClick={handleDownload}>
           <DownloadIcon className="mr-2" />
           Tải xuống

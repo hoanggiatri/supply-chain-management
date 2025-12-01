@@ -169,7 +169,7 @@ const ScanQR = () => {
                     size="lg"
                     value={qrCodeInput}
                     onChange={(e) => setQrCodeInput(e.target.value)}
-                    onKeyPress={(e) => {
+                    onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         handleManualSubmit();
                       }
@@ -191,13 +191,24 @@ const ScanQR = () => {
           {!loading && productDetail && (
             <Card className="mt-6 bg-blue-gray-50">
               <CardBody className="space-y-4">
-                <Typography
-                  variant="h5"
-                  color="blue-gray"
-                  className="font-bold"
-                >
-                  THÔNG TIN SẢN PHẨM
-                </Typography>
+                <div className="flex justify-between items-center">
+                  <Typography
+                    variant="h5"
+                    color="blue-gray"
+                    className="font-bold"
+                  >
+                    THÔNG TIN SẢN PHẨM
+                  </Typography>
+                  <Button
+                    {...getButtonProps("primary")}
+                    size="sm"
+                    onClick={() =>
+                      (window.location.href = `/products/${productDetail.productId}`)
+                    }
+                  >
+                    Xem chi tiết
+                  </Button>
+                </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>

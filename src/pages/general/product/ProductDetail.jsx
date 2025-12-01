@@ -12,7 +12,9 @@ import {
   Download as DownloadIcon,
   Print as PrintIcon,
   Link as LinkIcon,
+  QrCodeScanner as QrCodeScannerIcon,
 } from "@mui/icons-material";
+import QRScannerModal from "@/components/general/product/QRScannerModal";
 import { Grid, Divider, Box } from "@mui/material";
 import { QRCodeCanvas } from "qrcode.react";
 import BackButton from "@/components/common/BackButton";
@@ -28,6 +30,7 @@ import dayjs from "dayjs";
 const ProductDetail = () => {
   const { productId } = useParams();
   const [product, setProduct] = useState(null);
+  const [scanModalOpen, setScanModalOpen] = useState(false);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
@@ -103,7 +106,16 @@ const ProductDetail = () => {
 
   return (
     <div className="p-6">
-      <BackButton to="/products" label="Quay lại danh sách" />
+      <div className="flex justify-between items-center mb-4">
+        <BackButton to="/products" label="Quay lại danh sách" />
+        <Button
+          {...getButtonProps("secondary")}
+          onClick={() => setScanModalOpen(true)}
+        >
+          <QrCodeScannerIcon className="mr-2" />
+          Quét QR khác
+        </Button>
+      </div>
 
       <Grid container spacing={3} sx={{ mt: 2 }}>
         <Grid item xs={12} md={4}>
@@ -252,6 +264,15 @@ const ProductDetail = () => {
           </Card>
         </Grid>
       </Grid>
+
+      <QRScannerModal
+        open={scanModalOpen}
+        onClose={() => setScanModalOpen(false)}
+        onScanSuccess={(productData) => {
+          navigate(`/products/${productData.productId}`);
+          setScanModalOpen(false);
+        }}
+      />
     </div>
   );
 };
