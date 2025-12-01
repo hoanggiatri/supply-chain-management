@@ -1,201 +1,258 @@
 import React, { useEffect, useState } from "react";
-import {
-  Container,
-  Typography,
-  Paper,
-  Grid,
-  Box,
-  Divider,
-  TextField,
-  MenuItem,
-} from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import {
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Typography,
+  Chip,
+} from "@material-tailwind/react";
+import {
+  Download as DownloadIcon,
+  Print as PrintIcon,
+  Link as LinkIcon,
+} from "@mui/icons-material";
+import { Grid, Divider, Box } from "@mui/material";
+import { QRCodeCanvas } from "qrcode.react";
+import BackButton from "@/components/common/BackButton";
+import LoadingPaper from "@/components/content-components/LoadingPaper";
+import {
   getProductById,
-  transferProduct,
+  downloadSingleQR,
 } from "@/services/general/ProductService";
-import { getAllCompanies } from "@/services/general/CompanyService";
-import ProductQRCode from "@/components/general/product/ProductQRCode";
 import toastrService from "@/services/toastrService";
-import { Button } from "@material-tailwind/react";
 import { getButtonProps } from "@/utils/buttonStyles";
-import BackButton from "@components/common/BackButton";
-import ConfirmDialog from "@/components/common/ConfirmDialog";
+import dayjs from "dayjs";
 
 const ProductDetail = () => {
   const { productId } = useParams();
+  const [product, setProduct] = useState(null);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  const [product, setProduct] = useState(null);
-  const [companies, setCompanies] = useState([]);
-  const [transferCompanyId, setTransferCompanyId] = useState("");
-  const [confirmDialog, setConfirmDialog] = useState({
-    open: false,
-    onConfirm: null,
-  });
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const productData = await getProductById(productId, token);
-        setProduct(productData);
+    fetchProduct();
+  }, [productId]);
 
-        try {
-          const companiesData = await getAllCompanies(token);
-          if (Array.isArray(companiesData)) {
-            setCompanies(companiesData);
-          } else if (companiesData.content) {
-            setCompanies(companiesData.content);
-          } else {
-            setCompanies([]);
-          }
-        } catch (e) {
-          console.error("Failed to load companies", e);
-        }
-      } catch (error) {
-        toastrService.error("Lỗi khi tải thông tin sản phẩm");
-      }
-    };
-    fetchData();
-  }, [productId, token]);
-
-  const handleTransfer = async () => {
-    if (!transferCompanyId) {
-      toastrService.warning("Vui lòng chọn công ty để chuyển");
-      return;
-    }
-    if (
-      product.company &&
-      (String(transferCompanyId) === String(product.company.companyId) ||
-        String(transferCompanyId) === String(product.company.id))
-    ) {
-      toastrService.error("Không thể chuyển sản phẩm về cùng một công ty!");
-      return;
-    }
+  const fetchProduct = async () => {
     try {
-      await transferProduct(productId, transferCompanyId, token);
-      toastrService.success("Chuyển sản phẩm thành công!");
-      const updated = await getProductById(productId, token);
-      setProduct(updated);
+      const data = await getProductById(productId, token);
+      setProduct(data);
     } catch (error) {
-      toastrService.error("Lỗi khi chuyển sản phẩm");
+      toastrService.error("Có lỗi xảy ra khi lấy thông tin sản phẩm!");
     }
   };
 
-  if (!product)
-    return (
-      <Container>
-        <Typography>Loading...</Typography>
-      </Container>
-    );
+  const handleDownloadQR = async () => {
+    try {
+      const blob = await downloadSingleQR(productId, token);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `QR_${product.serialNumber}.pdf`;
+      link.click();
+      window.URL.revokeObjectURL(url);
+      toastrService.success("Tải QR code thành công!");
+    } catch (error) {
+      toastrService.error("Có lỗi xảy ra khi tải QR code!");
+    }
+  };
+
+  const handlePrintQR = () => {
+    const canvas = document.getElementById("product-qr-canvas");
+    if (canvas) {
+      const dataUrl = canvas.toDataURL();
+      const printWindow = window.open("", "_blank");
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Print QR Code - ${product.serialNumber}</title>
+            <style>
+              body { text-align: center; padding: 20px; }
+              img { max-width: 400px; }
+              h3 { margin-top: 10px; }
+            </style>
+          </head>
+          <body>
+            <img src="${dataUrl}" />
+            <h3>${product.serialNumber}</h3>
+            <p>${product.qrCode}</p>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.print();
+    }
+  };
+
+  const getStatusColor = (status) => {
+    const statusMap = {
+      PRODUCED: "orange",
+      IN_WAREHOUSE: "green",
+      ISSUED: "blue",
+      SOLD: "purple",
+      DELIVERED: "deep-purple",
+    };
+    return statusMap[status] || "gray";
+  };
+
+  if (!product) {
+    return <LoadingPaper title="THÔNG TIN SẢN PHẨM" />;
+  }
 
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3} sx={{ p: 4, mt: 4 }}>
-        <Box
-          display="flex"
-          alignItems="center"
-          justifyContent="space-between"
-          mb={3}
-        >
-          <Typography variant="h4" gutterBottom className="!mb-0">
-            CHI TIẾT SẢN PHẨM
-          </Typography>
-          <BackButton to="/products" label="Quay lại danh sách" />
-        </Box>
-        <Grid container spacing={4}>
-          <Grid item xs={12} md={8}>
-            <Box mb={2}>
-              <Typography variant="subtitle1">
-                <strong>Tên Hàng Hóa:</strong> {product.item?.itemName}
-              </Typography>
-              <Typography variant="subtitle1">
-                <strong>Mã Hàng Hóa:</strong> {product.item?.itemCode}
-              </Typography>
-              <Typography variant="subtitle1">
-                <strong>Số Serial:</strong> {product.serialNumber}
-              </Typography>
-              <Typography variant="subtitle1">
-                <strong>Số Lô (Batch):</strong> {product.batchNumber}
-              </Typography>
-              <Typography variant="subtitle1">
-                <strong>Trạng Thái:</strong> {product.status}
-              </Typography>
-              <Typography variant="subtitle1">
-                <strong>Công Ty Hiện Tại:</strong>{" "}
-                {product.company?.name || "N/A"}
-              </Typography>
-              <Typography variant="subtitle1">
-                <strong>Ngày Tạo:</strong>{" "}
-                {new Date(product.createdDate).toLocaleString()}
-              </Typography>
-            </Box>
+    <div className="p-6">
+      <BackButton to="/products" label="Quay lại danh sách" />
 
-            <Divider sx={{ my: 3 }} />
+      <Grid container spacing={3} sx={{ mt: 2 }}>
+        <Grid item xs={12} md={4}>
+          <Card>
+            <CardBody className="text-center">
+              <Typography variant="h6" className="mb-4">
+                QR Code
+              </Typography>
 
-            <Typography variant="h6" gutterBottom>
-              Chuyển Sản Phẩm (Transfer)
-            </Typography>
-            <Box display="flex" gap={2} alignItems="center">
-              <TextField
-                select
-                label="Chọn Công Ty Đích"
-                size="small"
-                sx={{ width: 250 }}
-                value={transferCompanyId}
-                onChange={(e) => setTransferCompanyId(e.target.value)}
-              >
-                {companies.map((comp) => (
-                  <MenuItem key={comp.companyId} value={comp.companyId}>
-                    {comp.companyName || comp.name}
-                  </MenuItem>
-                ))}
-              </TextField>
-              <Button
-                type="button"
-                {...getButtonProps("warning")}
-                onClick={() =>
-                  setConfirmDialog({
-                    open: true,
-                    onConfirm: handleTransfer,
-                  })
-                }
-              >
-                Chuyển
-              </Button>
-            </Box>
-          </Grid>
+              <Box className="p-4 bg-white inline-block">
+                <QRCodeCanvas
+                  id="product-qr-canvas"
+                  value={product.qrCode}
+                  size={200}
+                  level="H"
+                  includeMargin={true}
+                />
+              </Box>
 
-          <Grid item xs={12} md={4} display="flex" justifyContent="center">
-            <ProductQRCode
-              qrCode={product.qrCode}
-              productId={product.productId}
-            />
-          </Grid>
+              <Typography variant="small" className="mt-4 block">
+                {product.qrCode}
+              </Typography>
+
+              <div className="mt-4 space-y-2">
+                <Button
+                  {...getButtonProps("primary")}
+                  fullWidth
+                  onClick={handleDownloadQR}
+                >
+                  <DownloadIcon className="mr-2" />
+                  Tải QR Code
+                </Button>
+
+                <Button
+                  {...getButtonProps("secondary")}
+                  fullWidth
+                  onClick={handlePrintQR}
+                >
+                  <PrintIcon className="mr-2" />
+                  In QR Code
+                </Button>
+              </div>
+            </CardBody>
+          </Card>
         </Grid>
 
-        <Box mt={4}>
-          <Button
-            type="button"
-            {...getButtonProps("outlinedSecondary")}
-            onClick={() => navigate("/products")}
-          >
-            Quay lại danh sách
-          </Button>
-        </Box>
-      </Paper>
+        <Grid item xs={12} md={8}>
+          <Card>
+            <CardHeader floated={false} shadow={false}>
+              <Typography variant="h5">Thông tin sản phẩm</Typography>
+            </CardHeader>
+            <CardBody>
+              <Grid container spacing={2}>
+                <Grid item xs={6}>
+                  <Typography variant="small" color="gray" className="mb-1">
+                    Product ID
+                  </Typography>
+                  <Typography variant="h6">{product.productId}</Typography>
+                </Grid>
 
-      <ConfirmDialog
-        open={confirmDialog.open}
-        onClose={() => setConfirmDialog({ open: false, onConfirm: null })}
-        onConfirm={confirmDialog.onConfirm || (() => {})}
-        title="Xác nhận chuyển sản phẩm"
-        message="Bạn có chắc chắn muốn chuyển sản phẩm này?"
-        confirmText="Chuyển"
-        cancelText="Hủy"
-        confirmButtonProps="warning"
-      />
-    </Container>
+                <Grid item xs={6}>
+                  <Typography variant="small" color="gray" className="mb-1">
+                    Serial Number
+                  </Typography>
+                  <Chip value={product.serialNumber} color="blue" />
+                </Grid>
+
+                <Grid item xs={12}>
+                  <Divider />
+                </Grid>
+
+                <Grid item xs={6}>
+                  <Typography variant="small" color="gray" className="mb-1">
+                    Tên sản phẩm
+                  </Typography>
+                  <Typography variant="h6">{product.itemName}</Typography>
+                </Grid>
+
+                <Grid item xs={6}>
+                  <Typography variant="small" color="gray" className="mb-1">
+                    Mã sản phẩm
+                  </Typography>
+                  <Typography>{product.itemCode}</Typography>
+                </Grid>
+
+                <Grid item xs={6}>
+                  <Typography variant="small" color="gray" className="mb-1">
+                    Batch Number
+                  </Typography>
+                  <Button
+                    size="sm"
+                    variant="text"
+                    onClick={() =>
+                      navigate(`/products?batch=${product.batchNo}`)
+                    }
+                  >
+                    #{product.batchNo}
+                  </Button>
+                </Grid>
+
+                <Grid item xs={6}>
+                  <Typography variant="small" color="gray" className="mb-1">
+                    Trạng thái
+                  </Typography>
+                  <Chip
+                    value={product.status}
+                    color={getStatusColor(product.status)}
+                  />
+                </Grid>
+
+                <Grid item xs={12}>
+                  <Divider />
+                </Grid>
+
+                <Grid item xs={6}>
+                  <Typography variant="small" color="gray" className="mb-1">
+                    Ngày sản xuất
+                  </Typography>
+                  <Typography>
+                    {dayjs(product.createdOn).format("DD/MM/YYYY HH:mm")}
+                  </Typography>
+                </Grid>
+
+                <Grid item xs={6}>
+                  <Typography variant="small" color="gray" className="mb-1">
+                    Giá bán
+                  </Typography>
+                  <Typography variant="h6" color="blue">
+                    {product.exportPrice?.toLocaleString("vi-VN")} VNĐ
+                  </Typography>
+                </Grid>
+
+                {product.moCode && (
+                  <Grid item xs={12}>
+                    <Button
+                      {...getButtonProps("secondary")}
+                      onClick={() => navigate(`/mo/${product.moId}`)}
+                    >
+                      <LinkIcon className="mr-2" />
+                      Xem công lệnh sản xuất: {product.moCode}
+                    </Button>
+                  </Grid>
+                )}
+              </Grid>
+            </CardBody>
+          </Card>
+        </Grid>
+      </Grid>
+    </div>
   );
 };
 

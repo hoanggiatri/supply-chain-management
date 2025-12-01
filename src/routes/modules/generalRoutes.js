@@ -40,14 +40,15 @@ import LineDetail from "@/pages/general/manufacturing-line/LineDetail";
 import EditLine from "@/pages/general/manufacturing-line/EditLine";
 import CreateLine from "@/pages/general/manufacturing-line/CreateLine";
 
+import AllProducts from "@/pages/general/product/AllProducts";
+import ProductDetail from "@/pages/general/product/ProductDetail";
+import ScanQR from "@/pages/general/product/ScanQR";
+
 const generalRoutes = [
   {
     path: "/homepage",
     element: (
-      <PrivateRoute
-        element={<HomePage />}
-        allowedRoles={["c_admin", "user"]}
-      />
+      <PrivateRoute element={<HomePage />} allowedRoles={["c_admin", "user"]} />
     ),
   },
   {
@@ -83,10 +84,7 @@ const generalRoutes = [
   {
     path: "/department/:departmentId",
     element: (
-      <PrivateRoute
-        element={<DepartmentDetail />}
-        allowedRoles={["c_admin"]}
-      />
+      <PrivateRoute element={<DepartmentDetail />} allowedRoles={["c_admin"]} />
     ),
   },
   {
@@ -101,10 +99,7 @@ const generalRoutes = [
   {
     path: "/employee/:employeeId",
     element: (
-      <PrivateRoute
-        element={<EmployeeDetail />}
-        allowedRoles={["c_admin"]}
-      />
+      <PrivateRoute element={<EmployeeDetail />} allowedRoles={["c_admin"]} />
     ),
   },
   {
@@ -119,10 +114,7 @@ const generalRoutes = [
   {
     path: "/create-employee",
     element: (
-      <PrivateRoute
-        element={<CreateEmployee />}
-        allowedRoles={["c_admin"]}
-      />
+      <PrivateRoute element={<CreateEmployee />} allowedRoles={["c_admin"]} />
     ),
   },
   {
@@ -166,9 +158,7 @@ const generalRoutes = [
   },
   {
     path: "/item/:itemId/edit",
-    element: (
-      <PrivateRoute element={<EditItem />} allowedRoles={["c_admin"]} />
-    ),
+    element: <PrivateRoute element={<EditItem />} allowedRoles={["c_admin"]} />,
   },
   {
     path: "/create-item-from-excel",
@@ -191,37 +181,25 @@ const generalRoutes = [
   {
     path: "/warehouse/:warehouseId",
     element: (
-      <PrivateRoute
-        element={<WarehouseDetail />}
-        allowedRoles={["c_admin"]}
-      />
+      <PrivateRoute element={<WarehouseDetail />} allowedRoles={["c_admin"]} />
     ),
   },
   {
     path: "/create-warehouse",
     element: (
-      <PrivateRoute
-        element={<CreateWarehouse />}
-        allowedRoles={["c_admin"]}
-      />
+      <PrivateRoute element={<CreateWarehouse />} allowedRoles={["c_admin"]} />
     ),
   },
   {
     path: "/warehouse/:warehouseId/edit",
     element: (
-      <PrivateRoute
-        element={<EditWarehouse />}
-        allowedRoles={["c_admin"]}
-      />
+      <PrivateRoute element={<EditWarehouse />} allowedRoles={["c_admin"]} />
     ),
   },
   {
     path: "/plants",
     element: (
-      <PrivateRoute
-        element={<PlantInCompany />}
-        allowedRoles={["c_admin"]}
-      />
+      <PrivateRoute element={<PlantInCompany />} allowedRoles={["c_admin"]} />
     ),
   },
   {
@@ -262,12 +240,33 @@ const generalRoutes = [
   },
   {
     path: "/line/:lineId/edit",
+    element: <PrivateRoute element={<EditLine />} allowedRoles={["c_admin"]} />,
+  },
+  {
+    path: "/products",
     element: (
-      <PrivateRoute element={<EditLine />} allowedRoles={["c_admin"]} />
+      <PrivateRoute
+        element={<AllProducts />}
+        allowedRoles={["c_admin", "user"]}
+      />
+    ),
+  },
+  {
+    path: "/products/:productId",
+    element: (
+      <PrivateRoute
+        element={<ProductDetail />}
+        allowedRoles={["c_admin", "user"]}
+      />
+    ),
+  },
+  {
+    path: "/products/scan",
+    element: (
+      <PrivateRoute element={<ScanQR />} allowedRoles={["c_admin", "user"]} />
     ),
   },
   { path: "/unauthorized", element: <Unauthorized /> },
 ];
 
 export default generalRoutes;
-

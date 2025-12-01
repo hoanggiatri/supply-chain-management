@@ -33,6 +33,7 @@ import {
   MagnifyingGlassIcon,
   ArrowRightOnRectangleIcon,
   ChevronDownIcon,
+  QrCodeIcon,
 } from "@heroicons/react/24/solid";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -53,6 +54,7 @@ const SideBarMT = () => {
           purchasing: false,
           sales: false,
           delivery: false,
+          product: false,
         };
   });
 
@@ -86,7 +88,8 @@ const SideBarMT = () => {
     navigate("/login");
   };
 
-  const isActive = (path) => selectedPath === path || location.pathname === path;
+  const isActive = (path) =>
+    selectedPath === path || location.pathname === path;
 
   return (
     <Card className="h-screen w-[280px] rounded-none shadow-xl shadow-blue-gray-900/5 flex flex-col">
@@ -222,6 +225,17 @@ const SideBarMT = () => {
                     </ListItem>
                   </>
                 )}
+
+                <ListItem
+                  selected={isActive("/products")}
+                  onClick={() => handleSelect("/products")}
+                  className="pl-8"
+                >
+                  <ListItemPrefix>
+                    <CubeIcon className="h-5 w-5" />
+                  </ListItemPrefix>
+                  Quản lý sản phẩm
+                </ListItem>
               </List>
             </AccordionBody>
           </Accordion>
@@ -294,6 +308,49 @@ const SideBarMT = () => {
                     </ListItemPrefix>
                     Báo cáo sản xuất
                   </ListItem>
+
+                  <Accordion
+                    open={openMenus.product || false}
+                    icon={
+                      <ChevronDownIcon
+                        strokeWidth={2.5}
+                        className={`mx-auto h-4 w-4 transition-transform ${
+                          openMenus.product ? "rotate-180" : ""
+                        }`}
+                      />
+                    }
+                  >
+                    <ListItem className="p-0 pl-8" selected={openMenus.product}>
+                      <AccordionHeader
+                        onClick={() => handleToggle("product")}
+                        className="border-b-0 p-3"
+                      >
+                        <ListItemPrefix>
+                          <CubeIcon className="h-5 w-5" />
+                        </ListItemPrefix>
+                        <Typography
+                          color="blue-gray"
+                          className="mr-auto font-normal"
+                        >
+                          Sản phẩm đã tạo
+                        </Typography>
+                      </AccordionHeader>
+                    </ListItem>
+                    <AccordionBody className="py-1">
+                      <List className="p-0">
+                        <ListItem
+                          selected={isActive("/products/scan")}
+                          onClick={() => handleSelect("/products/scan")}
+                          className="pl-16"
+                        >
+                          <ListItemPrefix>
+                            <QrCodeIcon className="h-5 w-5" />
+                          </ListItemPrefix>
+                          Quét QR Code
+                        </ListItem>
+                      </List>
+                    </AccordionBody>
+                  </Accordion>
                 </List>
               </AccordionBody>
             </Accordion>
@@ -389,7 +446,10 @@ const SideBarMT = () => {
                     />
                   }
                 >
-                  <ListItem className="p-0 pl-8" selected={openMenus.inventoryReport}>
+                  <ListItem
+                    className="p-0 pl-8"
+                    selected={openMenus.inventoryReport}
+                  >
                     <AccordionHeader
                       onClick={() => handleToggle("inventoryReport")}
                       className="border-b-0 p-3"
@@ -397,7 +457,10 @@ const SideBarMT = () => {
                       <ListItemPrefix>
                         <ChartBarIcon className="h-5 w-5" />
                       </ListItemPrefix>
-                      <Typography color="blue-gray" className="mr-auto font-normal">
+                      <Typography
+                        color="blue-gray"
+                        className="mr-auto font-normal"
+                      >
                         Báo cáo nhập xuất
                       </Typography>
                     </AccordionHeader>
