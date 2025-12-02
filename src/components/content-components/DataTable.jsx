@@ -56,9 +56,9 @@ const DataTable = ({
   const getComparator = (order, orderBy) =>
     order === "desc"
       ? (a, b) =>
-          b[orderBy] < a[orderBy] ? -1 : b[orderBy] > a[orderBy] ? 1 : 0
+        b[orderBy] < a[orderBy] ? -1 : b[orderBy] > a[orderBy] ? 1 : 0
       : (a, b) =>
-          a[orderBy] < b[orderBy] ? -1 : a[orderBy] > b[orderBy] ? 1 : 0;
+        a[orderBy] < b[orderBy] ? -1 : a[orderBy] > b[orderBy] ? 1 : 0;
 
   const filterRows = (rows, search) => {
     if (!Array.isArray(rows)) return [];
@@ -275,8 +275,13 @@ const DataTable = ({
               {normalizedColumns.map((column, index) => (
                 <th
                   key={column.id}
-                  className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50"
-                  onClick={handleSort(column.id)}
+                  className={`border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors ${column.sortable !== false
+                      ? "cursor-pointer hover:bg-blue-gray-50"
+                      : ""
+                    }`}
+                  onClick={
+                    column.sortable !== false ? handleSort(column.id) : undefined
+                  }
                 >
                   <Typography
                     variant="small"
@@ -284,12 +289,17 @@ const DataTable = ({
                     className="flex items-center justify-between gap-2 font-normal leading-none opacity-70"
                   >
                     {column.label}{" "}
-                    {index !== normalizedColumns.length - 1 && (
-                      <ChevronUpDownIcon strokeWidth={2} className="h-4 w-4" />
-                    )}
+                    {column.sortable !== false &&
+                      index !== normalizedColumns.length - 1 && (
+                        <ChevronUpDownIcon
+                          strokeWidth={2}
+                          className="h-4 w-4"
+                        />
+                      )}
                   </Typography>
                 </th>
               ))}
+
             </tr>
           </thead>
           {loading ? (

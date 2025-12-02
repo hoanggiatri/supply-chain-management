@@ -21,7 +21,7 @@ import BackButton from "@/components/common/BackButton";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import {
   getProductById,
-  downloadSingleQR,
+  downloadMultipleQR,
 } from "@/services/general/ProductService";
 import toastrService from "@/services/toastrService";
 import { getButtonProps } from "@/utils/buttonStyles";
@@ -49,7 +49,7 @@ const ProductDetail = () => {
 
   const handleDownloadQR = async () => {
     try {
-      const blob = await downloadSingleQR(productId, token);
+      const blob = await downloadMultipleQR([productId], token);
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
@@ -201,19 +201,33 @@ const ProductDetail = () => {
                   <Typography>{product.itemCode}</Typography>
                 </Grid>
 
+                {product.description && (
+                  <Grid item xs={12}>
+                    <Typography variant="small" color="gray" className="mb-1">
+                      Mô tả
+                    </Typography>
+                    <Typography>{product.description}</Typography>
+                  </Grid>
+                )}
+
+                {product.technicalSpecifications && (
+                  <Grid item xs={12}>
+                    <Typography variant="small" color="gray" className="mb-1">
+                      Thông số kỹ thuật
+                    </Typography>
+                    <Typography>{product.technicalSpecifications}</Typography>
+                  </Grid>
+                )}
+
+                <Grid item xs={12}>
+                  <Divider />
+                </Grid>
+
                 <Grid item xs={6}>
                   <Typography variant="small" color="gray" className="mb-1">
                     Batch Number
                   </Typography>
-                  <Button
-                    size="sm"
-                    variant="text"
-                    onClick={() =>
-                      navigate(`/products?batch=${product.batchNo}`)
-                    }
-                  >
-                    #{product.batchNo}
-                  </Button>
+                  <Typography>{product.batchNo}</Typography>
                 </Grid>
 
                 <Grid item xs={6}>
@@ -226,27 +240,34 @@ const ProductDetail = () => {
                   />
                 </Grid>
 
-                <Grid item xs={12}>
-                  <Divider />
-                </Grid>
+                {product.currentCompanyName && (
+                  <Grid item xs={6}>
+                    <Typography variant="small" color="gray" className="mb-1">
+                      Công ty hiện tại
+                    </Typography>
+                    <Typography>{product.currentCompanyName}</Typography>
+                  </Grid>
+                )}
 
-                <Grid item xs={6}>
-                  <Typography variant="small" color="gray" className="mb-1">
-                    Ngày sản xuất
-                  </Typography>
-                  <Typography>
-                    {dayjs(product.createdOn).format("DD/MM/YYYY HH:mm")}
-                  </Typography>
-                </Grid>
+                {product.manufacturerCompanyName && (
+                  <Grid item xs={6}>
+                    <Typography variant="small" color="gray" className="mb-1">
+                      Nhà sản xuất
+                    </Typography>
+                    <Typography>{product.manufacturerCompanyName}</Typography>
+                  </Grid>
+                )}
 
-                <Grid item xs={6}>
-                  <Typography variant="small" color="gray" className="mb-1">
-                    Giá bán
-                  </Typography>
-                  <Typography variant="h6" color="blue">
-                    {product.exportPrice?.toLocaleString("vi-VN")} VNĐ
-                  </Typography>
-                </Grid>
+                {product.manufacturedDate && (
+                  <Grid item xs={6}>
+                    <Typography variant="small" color="gray" className="mb-1">
+                      Ngày sản xuất
+                    </Typography>
+                    <Typography>
+                      {dayjs(product.manufacturedDate).format("DD/MM/YYYY HH:mm")}
+                    </Typography>
+                  </Grid>
+                )}
 
                 {product.moCode && (
                   <Grid item xs={12}>
@@ -278,3 +299,4 @@ const ProductDetail = () => {
 };
 
 export default ProductDetail;
+
