@@ -12,6 +12,7 @@ import {
   DialogBody,
   DialogFooter,
   Input,
+  Spinner,
 } from "@material-tailwind/react";
 import { Grid } from "@mui/material";
 import {
@@ -33,9 +34,9 @@ import {
   updateProcess,
 } from "@/services/manufacturing/ProcessService";
 import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
-import { 
+import {
   createReceiveTicket,
-  getAllReceiveTicketsInCompany 
+  getAllReceiveTicketsInCompany,
 } from "@/services/inventory/ReceiveTicketService";
 import { downloadQRPDF } from "@/services/general/ProductService";
 import QRScannerModal from "@/components/general/product/QRScannerModal";
@@ -60,6 +61,7 @@ const MoDetail = () => {
   const [completedQuantity, setCompletedQuantity] = useState(0);
   const [isCompletingMo, setIsCompletingMo] = useState(false);
   const [scanModalOpen, setScanModalOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
@@ -82,24 +84,36 @@ const MoDetail = () => {
   }, [moId, token]);
 
   useEffect(() => {
+    setLoading(true);
+    setHasRequestedReceive(false);
+    setReceiveTicketId(null);
     const checkExistingReceiveTicket = async () => {
-      if (!mo || mo.status !== "Chờ nhập kho") return;
-      
+      if (!mo || mo.status !== "Chờ nhập kho") {
+        setLoading(false);
+        return;
+      }
+
       try {
-        const allTickets = await getAllReceiveTicketsInCompany(companyId, token);
-        const existingTicket = allTickets.find(
-          ticket => 
-            ticket.receiveType === "Sản xuất" && 
-            ticket.referenceId === parseInt(moId) &&
-            (ticket.status === "Chờ xác nhận" || ticket.status === "Chờ nhập kho")
+        const allTickets = await getAllReceiveTicketsInCompany(
+          companyId,
+          token
         );
-        
+        const existingTicket = allTickets.find(
+          (ticket) =>
+            ticket.receiveType === "Sản xuất" &&
+            ticket.referenceId === parseInt(moId) &&
+            (ticket.status === "Chờ xác nhận" ||
+              ticket.status === "Chờ nhập kho")
+        );
+
         if (existingTicket) {
           setHasRequestedReceive(true);
           setReceiveTicketId(existingTicket.ticketId);
         }
       } catch (error) {
         console.error("Lỗi khi kiểm tra phiếu nhập kho:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -433,6 +447,10 @@ const MoDetail = () => {
     return <LoadingPaper title="THÔNG TIN CÔNG LỆNH" />;
   }
 
+  if (loading) {
+    return null;
+  }
+
   return (
     <div className="p-6">
       <Card className="shadow-lg max-w-6xl mx-auto">
@@ -582,24 +600,28 @@ const MoDetail = () => {
             </div>
           )}
 
-          {hasRequestedReceive && receiveTicketId && mo.status === "Chờ nhập kho" && (
-            <Card className="mb-6 bg-green-50">
-              <CardBody>
-                <Typography variant="h6" color="green" className="mb-2">
-                  Đã tạo phiếu nhập kho thành công!
-                </Typography>
-                <Typography variant="small" color="gray" className="mb-4">
-                  Vui lòng chuyển đến trang nhập kho để xác nhận.
-                </Typography>
-                <Button
-                  {...getButtonProps("primary")}
-                  onClick={() => navigate(`/receive-ticket/${receiveTicketId}`)}
-                >
-                  Đến trang nhập kho
-                </Button>
-              </CardBody>
-            </Card>
-          )}
+          {hasRequestedReceive &&
+            receiveTicketId &&
+            mo.status === "Chờ nhập kho" && (
+              <Card className="mb-6 bg-green-50">
+                <CardBody>
+                  <Typography variant="h6" color="green" className="mb-2">
+                    Đã tạo phiếu nhập kho thành công!
+                  </Typography>
+                  <Typography variant="small" color="gray" className="mb-4">
+                    Vui lòng chuyển đến trang nhập kho để xác nhận.
+                  </Typography>
+                  <Button
+                    {...getButtonProps("primary")}
+                    onClick={() =>
+                      navigate(`/receive-ticket/${receiveTicketId}`)
+                    }
+                  >
+                    Đến trang nhập kho
+                  </Button>
+                </CardBody>
+              </Card>
+            )}
 
           <MoForm
             mo={mo}

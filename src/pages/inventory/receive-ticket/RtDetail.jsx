@@ -41,6 +41,29 @@ const RtDetail = () => {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
+    const fetchTicket = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const updatedTicket = await getReceiveTicketById(ticketId, token);
+        setTicket(updatedTicket);
+
+        if (
+          updatedTicket.receiveType === "Sản xuất" &&
+          updatedTicket.status === "Đã hoàn thành"
+        ) {
+          setShowMoNavigateButton(true);
+        } else {
+          setShowMoNavigateButton(false);
+        }
+      } catch (error) {
+        console.error("Lỗi khi lấy ticket:", error);
+      }
+    };
+
+    fetchTicket();
+  }, [ticketId]);
+
+  useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
@@ -266,14 +289,16 @@ const RtDetail = () => {
                 Nhập kho
               </Button>
             )}
-            {showMoNavigateButton && ticket.receiveType === "Sản xuất" && ticket.referenceId && (
-              <Button
-                {...getButtonProps("success")}
-                onClick={() => navigate(`/mo/${ticket.referenceId}`)}
-              >
-                Quay về công lệnh sản xuất
-              </Button>
-            )}
+            {showMoNavigateButton &&
+              ticket.receiveType === "Sản xuất" &&
+              ticket.referenceId && (
+                <Button
+                  {...getButtonProps("success")}
+                  onClick={() => navigate(`/mo/${ticket.referenceId}`)}
+                >
+                  Quay về công lệnh sản xuất
+                </Button>
+              )}
           </div>
 
           <RtForm ticket={ticket} />
