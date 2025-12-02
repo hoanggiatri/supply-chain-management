@@ -11,18 +11,25 @@ import {
 import { QRCodeCanvas } from "qrcode.react";
 import { Download as DownloadIcon } from "@mui/icons-material";
 import { getButtonProps } from "@/utils/buttonStyles";
+import { downloadMultipleQR } from "@/services/general/ProductService";
+import toastrService from "@/services/toastrService";
 
 const ProductQRModal = ({ open, onClose, product }) => {
   if (!product) return null;
 
-  const handleDownload = () => {
-    const canvas = document.getElementById("modal-qr-canvas");
-    if (canvas) {
-      const url = canvas.toDataURL("image/png");
+  const handleDownload = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const blob = await downloadMultipleQR([product.productId], token);
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
-      link.download = `QR_${product.serialNumber}.png`;
       link.href = url;
+      link.download = `QR_${product.serialNumber}.pdf`;
       link.click();
+      window.URL.revokeObjectURL(url);
+      toastrService.success("Tải QR code thành công!");
+    } catch (error) {
+      toastrService.error("Có lỗi xảy ra khi tải QR code!");
     }
   };
 
@@ -114,3 +121,4 @@ const ProductQRModal = ({ open, onClose, product }) => {
 };
 
 export default ProductQRModal;
+

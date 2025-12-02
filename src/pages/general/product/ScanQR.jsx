@@ -31,7 +31,7 @@ const ScanQR = () => {
   useEffect(() => {
     return () => {
       if (scanner) {
-        scanner.stop().catch(() => {});
+        scanner.stop().catch(() => { });
       }
     };
   }, [scanner]);
@@ -66,7 +66,7 @@ const ScanQR = () => {
           html5QrCode.stop();
           setIsScanning(false);
         },
-        () => {}
+        () => { }
       );
     } catch (error) {
       toastrService.error("Không thể khởi động camera!");
@@ -96,6 +96,7 @@ const ScanQR = () => {
       IN_WAREHOUSE: "green",
       ISSUED: "blue",
       SOLD: "purple",
+      DELIVERED: "deep-purple",
     };
     return statusMap[status] || "gray";
   };
@@ -273,26 +274,24 @@ const ScanQR = () => {
                     />
                   </div>
 
-                  {productDetail.warehouseName && (
+                  {productDetail.currentCompanyName && (
                     <div>
                       <Typography variant="small" color="gray">
-                        Kho hiện tại
+                        Công ty hiện tại
                       </Typography>
                       <Typography variant="small" className="font-semibold">
-                        {productDetail.warehouseName}
+                        {productDetail.currentCompanyName}
                       </Typography>
                     </div>
                   )}
 
-                  {productDetail.manufactureDate && (
+                  {productDetail.manufacturerCompanyName && (
                     <div>
                       <Typography variant="small" color="gray">
-                        Ngày sản xuất
+                        Nhà sản xuất
                       </Typography>
                       <Typography variant="small" className="font-semibold">
-                        {new Date(
-                          productDetail.manufactureDate
-                        ).toLocaleDateString()}
+                        {productDetail.manufacturerCompanyName}
                       </Typography>
                     </div>
                   )}
@@ -307,3 +306,4 @@ const ScanQR = () => {
 };
 
 export default ScanQR;
+
