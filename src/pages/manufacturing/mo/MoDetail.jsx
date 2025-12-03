@@ -19,7 +19,6 @@ import {
   QrCode2 as QrCode2Icon,
   List as ListIcon,
   Download as DownloadIcon,
-  QrCodeScanner as QrCodeScannerIcon,
 } from "@mui/icons-material";
 import MoForm from "@/components/manufacturing/MoForm";
 import {
@@ -39,7 +38,6 @@ import {
   getAllReceiveTicketsInCompany,
 } from "@/services/inventory/ReceiveTicketService";
 import { downloadQRPDF } from "@/services/general/ProductService";
-import QRScannerModal from "@/components/general/product/QRScannerModal";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import ProcessCard from "@/components/content-components/ProcessCard";
 import dayjs from "dayjs";
@@ -60,7 +58,6 @@ const MoDetail = () => {
   const [showCompleteModal, setShowCompleteModal] = useState(false);
   const [completedQuantity, setCompletedQuantity] = useState(0);
   const [isCompletingMo, setIsCompletingMo] = useState(false);
-  const [scanModalOpen, setScanModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
@@ -549,14 +546,6 @@ const MoDetail = () => {
                         <DownloadIcon className="mr-2" />
                         Tải QR Codes (PDF)
                       </Button>
-
-                      <Button
-                        {...getButtonProps("secondary")}
-                        onClick={() => setScanModalOpen(true)}
-                      >
-                        <QrCodeScannerIcon className="mr-2" />
-                        Quét QR
-                      </Button>
                     </div>
                   </Grid>
                 </Grid>
@@ -701,14 +690,6 @@ const MoDetail = () => {
           </Button>
         </DialogFooter>
       </Dialog>
-
-      <QRScannerModal
-        open={scanModalOpen}
-        onClose={() => setScanModalOpen(false)}
-        onScanSuccess={(productData) => {
-          navigate(`/products/${productData.productId}`);
-        }}
-      />
     </div>
   );
 };

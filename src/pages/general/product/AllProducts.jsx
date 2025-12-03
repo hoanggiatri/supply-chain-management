@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Button,
@@ -7,27 +7,27 @@ import {
   CardBody,
   Chip,
   IconButton,
+  Checkbox,
   Input,
+  CardFooter,
 } from "@material-tailwind/react";
 import {
   QrCode2 as QrCodeIcon,
-  Download as DownloadIcon,
   Visibility as VisibilityIcon,
   QrCodeScanner as QrCodeScannerIcon,
+  Download as DownloadIcon,
 } from "@mui/icons-material";
-import DataTable from "@/components/content-components/DataTable";
+import { MagnifyingGlassIcon, ChevronUpDownIcon } from "@heroicons/react/24/outline";
 import ProductQRModal from "@/components/general/product/ProductQRModal";
 import QRScannerModal from "@/components/general/product/QRScannerModal";
-import {
-  getAllProducts,
-  downloadMultipleQR,
-} from "@/services/general/ProductService";
+import { getAllProducts, downloadMultipleQR } from "@/services/general/ProductService";
 import toastrService from "@/services/toastrService";
 import { getButtonProps } from "@/utils/buttonStyles";
 
 const AllProducts = () => {
   const [products, setProducts] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
+  const [selectAll, setSelectAll] = useState(false);
   const [qrModalOpen, setQrModalOpen] = useState(false);
   const [scanModalOpen, setScanModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -70,8 +70,39 @@ const AllProducts = () => {
     setQrModalOpen(true);
   };
 
-  const handleDownloadQR = async (productIds) => {
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedProducts([]);
+      setSelectAll(false);
+    } else {
+      setSelectedProducts([...filteredProducts]);
+      setSelectAll(true);
+    }
+  };
+
+  const handleSelectProduct = (product, checked) => {
+    if (checked) {
+      const newSelected = [...selectedProducts, product];
+      setSelectedProducts(newSelected);
+      setSelectAll(newSelected.length === filteredProducts.length);
+    } else {
+      const newSelected = selectedProducts.filter(
+        (p) => p.productId !== product.productId
+      );
+      setSelectedProducts(newSelected);
+      setSelectAll(false);
+    }
+  };
+
+  const handleDownloadSelectedQR = async () => {
+    if (selectedProducts.length === 0) {
+      toastrService.warning("Vui lòng chọn ít nhất một sản phẩm!");
+      return;
+    }
+
     try {
+      const productIds = selectedProducts.map((p) => p.productId);
+      toastrService.info("Đang tạo file PDF...");
       const blob = await downloadMultipleQR(productIds, token);
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -80,15 +111,11 @@ const AllProducts = () => {
       link.click();
       window.URL.revokeObjectURL(url);
       toastrService.success("Tải QR code thành công!");
+      setSelectedProducts([]);
+      setSelectAll(false);
     } catch (error) {
       toastrService.error("Có lỗi xảy ra khi tải QR code!");
     }
-  };
-
-  const handleDownloadSelectedQR = async () => {
-    const productIds = selectedProducts.map((p) => p.productId);
-    await handleDownloadQR(productIds);
-    setSelectedProducts([]);
   };
 
   const getStatusColor = (status) => {
@@ -102,16 +129,33 @@ const AllProducts = () => {
     return statusMap[status] || "gray";
   };
 
-  const columns = [
-    { id: "selection", label: "", sortable: false },
-    { id: "productId", label: "ID" },
-    { id: "serialNumber", label: "Serial Number" },
-    { id: "itemName", label: "Tên sản phẩm" },
-    { id: "batchNo", label: "Batch" },
-    { id: "status", label: "Trạng thái" },
-    { id: "actions", label: "Thao tác", sortable: false },
-  ];
+  // Filter and sort logic
+  const filterRows = (rows, searchTerm) => {
+    if (!searchTerm) return rows;
+    const lowercased = searchTerm.toLowerCase();
+    return rows.filter((row) =>
+      Object.values(row).some((value) =>
+        String(value).toLowerCase().includes(lowercased)
+      )
+    );
+  };
 
+  const sortRows = (rows, order, orderBy) => {
+    return [...rows].sort((a, b) => {
+      if (order === "desc") {
+        return b[orderBy] < a[orderBy] ? -1 : b[orderBy] > a[orderBy] ? 1 : 0;
+      }
+      return a[orderBy] < b[orderBy] ? -1 : a[orderBy] > b[orderBy] ? 1 : 0;
+    });
+  };
+
+  const filteredProducts = filterRows(products, search);
+  const sortedProducts = sortRows(filteredProducts, order, orderBy);
+  const paginatedProducts = sortedProducts.slice(
+    (page - 1) * rowsPerPage,
+    page * rowsPerPage
+  );
+  const totalPages = Math.ceil(sortedProducts.length / rowsPerPage);
 
   return (
     <div className="p-6">
@@ -141,6 +185,18 @@ const AllProducts = () => {
             </div>
           </div>
 
+          {/* Search */}
+          <div className="mb-4 w-72">
+            <Input
+              label="Tìm kiếm"
+              value={search}
+              placeholder="Nhập từ khóa tìm kiếm"
+              onChange={(e) => setSearch(e.target.value)}
+              icon={<MagnifyingGlassIcon className="h-5 w-5" />}
+              color="blue"
+            />
+          </div>
+
           {loading ? (
             <div className="text-center py-8">
               <Typography variant="small" color="gray">
@@ -148,110 +204,198 @@ const AllProducts = () => {
               </Typography>
             </div>
           ) : (
-            <DataTable
-              rows={products}
-              columns={columns}
-              page={page}
-              rowsPerPage={rowsPerPage}
-              onPageChange={(e, newPage) => setPage(newPage)}
-              onRowsPerPageChange={(e) => {
-                setRowsPerPage(Number(e.target.value));
-                setPage(1);
-              }}
-              search={search}
-              setSearch={setSearch}
-              order={order}
-              orderBy={orderBy}
-              onRequestSort={handleRequestSort}
-              checkboxSelection={true}
-              selectedRows={selectedProducts}
-              onSelectionChange={setSelectedProducts}
-              renderRow={(product, index) => {
-                const isLast = index === products.length - 1;
-                const classes = isLast
-                  ? "p-4"
-                  : "p-4 border-b border-blue-gray-50";
-                return (
-                  <tr key={product.productId}>
-                    <td className={classes}>
-                      <input
-                        type="checkbox"
-                        checked={selectedProducts.some(
-                          (p) => p.productId === product.productId
-                        )}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelectedProducts([...selectedProducts, product]);
-                          } else {
-                            setSelectedProducts(
-                              selectedProducts.filter(
-                                (p) => p.productId !== product.productId
-                              )
-                            );
-                          }
-                        }}
-                      />
-                    </td>
-                    <td className={classes}>
-                      <Typography variant="small" className="font-normal">
-                        {product.productId}
-                      </Typography>
-                    </td>
-                    <td className={classes}>
-                      <Chip
-                        value={product.serialNumber}
-                        color="blue"
-                        size="sm"
-                      />
-                    </td>
-                    <td className={classes}>
-                      <Typography variant="small" className="font-normal">
-                        {product.itemName}
-                      </Typography>
-                    </td>
-                    <td className={classes}>
-                      <Typography variant="small" className="font-normal">
-                        {product.batchNo}
-                      </Typography>
-                    </td>
-                    <td className={classes}>
-                      <Chip
-                        value={product.status}
-                        color={getStatusColor(product.status)}
-                        size="sm"
-                      />
-                    </td>
-                    <td className={classes}>
-                      <div className="flex gap-2">
-                        <IconButton
-                          size="sm"
-                          onClick={() => handleViewQR(product)}
-                          title="Xem QR Code"
+            <>
+              <div className="overflow-auto">
+                <table className="w-full min-w-max table-auto text-left">
+                  <thead>
+                    <tr>
+                      <th className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-4">
+                        <Checkbox
+                          checked={selectAll}
+                          onChange={handleSelectAll}
+                          color="blue"
+                        />
+                      </th>
+                      <th
+                        className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 cursor-pointer hover:bg-blue-gray-50"
+                        onClick={() => handleRequestSort("productId")}
+                      >
+                        <Typography
+                          variant="small"
+                          color="blue-gray"
+                          className="flex items-center gap-2 font-normal leading-none opacity-70"
                         >
-                          <QrCodeIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton
-                          size="sm"
-                          onClick={() => handleDownloadQR([product.productId])}
-                          title="Tải QR Code"
+                          ID
+                          <ChevronUpDownIcon strokeWidth={2} className="h-4 w-4" />
+                        </Typography>
+                      </th>
+                      <th
+                        className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 cursor-pointer hover:bg-blue-gray-50"
+                        onClick={() => handleRequestSort("serialNumber")}
+                      >
+                        <Typography
+                          variant="small"
+                          color="blue-gray"
+                          className="flex items-center gap-2 font-normal leading-none opacity-70"
                         >
-                          <DownloadIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton
-                          size="sm"
-                          onClick={() =>
-                            navigate(`/products/${product.productId}`)
-                          }
-                          title="Chi tiết"
+                          Serial Number
+                          <ChevronUpDownIcon strokeWidth={2} className="h-4 w-4" />
+                        </Typography>
+                      </th>
+                      <th
+                        className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 cursor-pointer hover:bg-blue-gray-50"
+                        onClick={() => handleRequestSort("itemName")}
+                      >
+                        <Typography
+                          variant="small"
+                          color="blue-gray"
+                          className="flex items-center gap-2 font-normal leading-none opacity-70"
                         >
-                          <VisibilityIcon fontSize="small" />
-                        </IconButton>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              }}
-            />
+                          Tên sản phẩm
+                          <ChevronUpDownIcon strokeWidth={2} className="h-4 w-4" />
+                        </Typography>
+                      </th>
+                      <th
+                        className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 cursor-pointer hover:bg-blue-gray-50"
+                        onClick={() => handleRequestSort("batchNo")}
+                      >
+                        <Typography
+                          variant="small"
+                          color="blue-gray"
+                          className="flex items-center gap-2 font-normal leading-none opacity-70"
+                        >
+                          Batch
+                          <ChevronUpDownIcon strokeWidth={2} className="h-4 w-4" />
+                        </Typography>
+                      </th>
+                      <th
+                        className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 cursor-pointer hover:bg-blue-gray-50"
+                        onClick={() => handleRequestSort("status")}
+                      >
+                        <Typography
+                          variant="small"
+                          color="blue-gray"
+                          className="flex items-center gap-2 font-normal leading-none opacity-70"
+                        >
+                          Trạng thái
+                          <ChevronUpDownIcon strokeWidth={2} className="h-4 w-4" />
+                        </Typography>
+                      </th>
+                      <th className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-4">
+                        <Typography
+                          variant="small"
+                          color="blue-gray"
+                          className="font-normal leading-none opacity-70"
+                        >
+                          Thao tác
+                        </Typography>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedProducts.map((product, index) => {
+                      const isLast = index === paginatedProducts.length - 1;
+                      const classes = isLast
+                        ? "p-4"
+                        : "p-4 border-b border-blue-gray-50";
+                      const isSelected = selectedProducts.some(
+                        (p) => p.productId === product.productId
+                      );
+
+                      return (
+                        <tr key={product.productId}>
+                          <td className={classes}>
+                            <Checkbox
+                              checked={isSelected}
+                              onChange={(e) =>
+                                handleSelectProduct(product, e.target.checked)
+                              }
+                              color="blue"
+                            />
+                          </td>
+                          <td className={classes}>
+                            <Typography variant="small" className="font-normal">
+                              {product.productId}
+                            </Typography>
+                          </td>
+                          <td className={classes}>
+                            <Chip
+                              value={product.serialNumber}
+                              color="blue"
+                              size="sm"
+                            />
+                          </td>
+                          <td className={classes}>
+                            <Typography variant="small" className="font-normal">
+                              {product.itemName}
+                            </Typography>
+                          </td>
+                          <td className={classes}>
+                            <Typography variant="small" className="font-normal">
+                              {product.batchNo}
+                            </Typography>
+                          </td>
+                          <td className={classes}>
+                            <Chip
+                              value={product.status}
+                              color={getStatusColor(product.status)}
+                              size="sm"
+                            />
+                          </td>
+                          <td className={classes}>
+                            <div className="flex gap-2">
+                              <IconButton
+                                size="sm"
+                                color="blue"
+                                onClick={() => handleViewQR(product)}
+                                title="Xem QR Code"
+                              >
+                                <QrCodeIcon fontSize="small" />
+                              </IconButton>
+                              <IconButton
+                                size="sm"
+                                color="blue-gray"
+                                onClick={() =>
+                                  navigate(`/products/${product.productId}`)
+                                }
+                                title="Chi tiết"
+                              >
+                                <VisibilityIcon fontSize="small" />
+                              </IconButton>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Pagination */}
+              <CardFooter className="flex items-center justify-between border-t border-blue-gray-50 p-4">
+                <Typography variant="small" color="blue-gray" className="font-normal">
+                  Trang {page} / {totalPages} (Tổng: {sortedProducts.length} kết quả)
+                </Typography>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outlined"
+                    size="sm"
+                    onClick={() => setPage(page - 1)}
+                    disabled={page === 1}
+                  >
+                    Trước
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    size="sm"
+                    onClick={() => setPage(page + 1)}
+                    disabled={page >= totalPages}
+                  >
+                    Sau
+                  </Button>
+                </div>
+              </CardFooter>
+            </>
           )}
         </CardBody>
       </Card>
@@ -274,4 +418,3 @@ const AllProducts = () => {
 };
 
 export default AllProducts;
-
