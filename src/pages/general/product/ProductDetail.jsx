@@ -9,11 +9,11 @@ import {
   Chip,
 } from "@material-tailwind/react";
 import {
-  Download as DownloadIcon,
-  Print as PrintIcon,
-  Link as LinkIcon,
-  QrCodeScanner as QrCodeScannerIcon,
-} from "@mui/icons-material";
+  ArrowDownTrayIcon,
+  PrinterIcon,
+  LinkIcon,
+  ViewfinderCircleIcon,
+} from "@heroicons/react/24/outline";
 import QRScannerModal from "@/components/general/product/QRScannerModal";
 import { Grid, Divider, Box } from "@mui/material";
 import { QRCodeCanvas } from "qrcode.react";
@@ -26,6 +26,7 @@ import {
 import toastrService from "@/services/toastrService";
 import { getButtonProps } from "@/utils/buttonStyles";
 import dayjs from "dayjs";
+import StatusBadge from "@/components/common/StatusBadge";
 
 const ProductDetail = () => {
   const { productId } = useParams();
@@ -112,7 +113,7 @@ const ProductDetail = () => {
           {...getButtonProps("secondary")}
           onClick={() => setScanModalOpen(true)}
         >
-          <QrCodeScannerIcon className="mr-2" />
+          <ViewfinderCircleIcon className="mr-2 h-5 w-5" />
           Quét QR khác
         </Button>
       </div>
@@ -145,7 +146,7 @@ const ProductDetail = () => {
                   fullWidth
                   onClick={handleDownloadQR}
                 >
-                  <DownloadIcon className="mr-2" />
+                  <ArrowDownTrayIcon className="mr-2 h-5 w-5" />
                   Tải QR Code
                 </Button>
 
@@ -154,7 +155,7 @@ const ProductDetail = () => {
                   fullWidth
                   onClick={handlePrintQR}
                 >
-                  <PrintIcon className="mr-2" />
+                  <PrinterIcon className="mr-2 h-5 w-5" />
                   In QR Code
                 </Button>
               </div>
@@ -234,10 +235,7 @@ const ProductDetail = () => {
                   <Typography variant="small" color="gray" className="mb-1">
                     Trạng thái
                   </Typography>
-                  <Chip
-                    value={product.status}
-                    color={getStatusColor(product.status)}
-                  />
+                  <StatusBadge status={product.status} />
                 </Grid>
 
                 {product.currentCompanyName && (
@@ -275,7 +273,7 @@ const ProductDetail = () => {
                       {...getButtonProps("secondary")}
                       onClick={() => navigate(`/mo/${product.moId}`)}
                     >
-                      <LinkIcon className="mr-2" />
+                      <LinkIcon className="mr-2 h-5 w-5" />
                       Xem công lệnh sản xuất: {product.moCode}
                     </Button>
                   </Grid>

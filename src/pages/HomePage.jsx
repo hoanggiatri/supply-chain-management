@@ -6,182 +6,149 @@ import {
   Button,
 } from "@material-tailwind/react";
 import {
-  ChartBarIcon,
-  TruckIcon,
-  ShoppingCartIcon,
   CubeIcon,
-  BuildingOfficeIcon,
   ClipboardDocumentListIcon,
-} from "@heroicons/react/24/solid";
+  ShoppingCartIcon,
+  ShoppingBagIcon,
+  QrCodeIcon,
+  PlusIcon,
+  ArrowRightIcon,
+} from "@heroicons/react/24/outline";
+import { useNavigate } from "react-router-dom";
 
 const HomePage = () => {
-  const userName = localStorage.getItem("userName") || "Người dùng";
-  const companyName = localStorage.getItem("companyName") || "Công ty";
+  const navigate = useNavigate();
+  const userName = localStorage.getItem("userName") || "User";
+  const companyType = localStorage.getItem("companyType");
 
-  const features = [
+  const quickStats = [
     {
-      icon: BuildingOfficeIcon,
-      title: "Quản lý Công ty",
-      description: "Quản lý thông tin công ty, bộ phận, nhân viên và phân quyền hệ thống một cách hiệu quả",
-      color: "bg-blue-500",
-    },
-    {
+      title: "Sản phẩm",
+      value: "120",
       icon: CubeIcon,
-      title: "Quản lý Sản xuất",
-      description: "Theo dõi quy trình sản xuất, lệnh sản xuất và tối ưu hóa năng suất sản xuất",
-      color: "bg-orange-500",
+      color: "blue",
+      bgColor: "bg-blue-50 dark:bg-blue-900/20",
+      textColor: "text-blue-600 dark:text-blue-400",
+      path: "/products",
     },
     {
-      icon: ShoppingCartIcon,
-      title: "Quản lý Mua hàng",
-      description: "Xử lý đơn mua hàng, quản lý nhà cung cấp và tối ưu chi phí mua hàng",
-      color: "bg-green-500",
-    },
-    {
+      title: "Công lệnh SX",
+      value: "5",
       icon: ClipboardDocumentListIcon,
-      title: "Quản lý Bán hàng",
-      description: "Quản lý đơn bán hàng, khách hàng và theo dõi doanh thu bán hàng",
-      color: "bg-purple-500",
+      color: "green",
+      bgColor: "bg-green-50 dark:bg-green-900/20",
+      textColor: "text-green-600 dark:text-green-400",
+      path: "/mos",
     },
     {
-      icon: TruckIcon,
-      title: "Quản lý Vận chuyển",
-      description: "Theo dõi đơn vận chuyển, tối ưu tuyến đường và quản lý giao nhận",
-      color: "bg-red-500",
+      title: "Đơn mua hàng",
+      value: "8",
+      icon: ShoppingCartIcon,
+      color: "orange",
+      bgColor: "bg-orange-50 dark:bg-orange-900/20",
+      textColor: "text-orange-600 dark:text-orange-400",
+      path: "/pos",
     },
     {
-      icon: ChartBarIcon,
-      title: "Báo cáo & Phân tích",
-      description: "Phân tích dữ liệu, tạo báo cáo và hỗ trợ ra quyết định kinh doanh",
-      color: "bg-indigo-500",
+      title: "Đơn bán hàng",
+      value: "12",
+      icon: ShoppingBagIcon,
+      color: "purple",
+      bgColor: "bg-purple-50 dark:bg-purple-900/20",
+      textColor: "text-purple-600 dark:text-purple-400",
+      path: "/sos",
     },
   ];
 
-  const stats = [
-    { label: "Mô-đun", value: "6+", color: "text-blue-500" },
-    { label: "Tính năng", value: "50+", color: "text-green-500" },
-    { label: "Người dùng", value: "100+", color: "text-purple-500" },
-    { label: "Doanh nghiệp", value: "20+", color: "text-orange-500" },
+  const quickActions = [
+    {
+      title: "Tạo hàng hóa mới",
+      description: "Thêm hàng hóa vật tư vào kho",
+      icon: CubeIcon,
+      path: "/items",
+      color: "bg-blue-50 text-blue-600",
+    },
+    {
+      title: "Tạo công lệnh SX",
+      description: "Lập kế hoạch sản xuất mới",
+      icon: ClipboardDocumentListIcon,
+      path: "/mos",
+      color: "bg-green-50 text-green-600",
+    },
+    {
+      title: "Quét mã QR",
+      description: "Tra cứu thông tin sản phẩm nhanh",
+      icon: QrCodeIcon,
+      path: "/product/scan",
+      color: "bg-purple-50 text-purple-600",
+    },
   ];
 
   return (
-    <div className="h-full overflow-y-auto">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white">
-        <div className="max-w-7xl mx-auto px-6 py-16">
-          <div className="text-center">
-            <Typography variant="h2" className="font-bold mb-4">
-              Chào mừng trở lại, {userName}! 👋
-            </Typography>
-            <Typography variant="lead" className="mb-2 text-blue-100">
-              {companyName}
-            </Typography>
-            <Typography variant="paragraph" className="text-blue-100 max-w-3xl mx-auto">
-              Hệ thống quản lý chuỗi cung ứng toàn diện - Giải pháp số hóa doanh nghiệp
-            </Typography>
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12">
-            {stats.map((stat, index) => (
-              <Card key={index} className="bg-white/10 backdrop-blur-lg border border-white/20">
-                <CardBody className="text-center py-6">
-                  <Typography variant="h3" className={`font-bold ${stat.color}`}>
-                    {stat.value}
-                  </Typography>
-                  <Typography variant="small" className="text-white font-medium mt-2">
-                    {stat.label}
-                  </Typography>
-                </CardBody>
-              </Card>
-            ))}
-          </div>
-        </div>
+    <div className="p-6 min-h-screen bg-gray-50/50 dark:bg-dark-bg">
+      {/* Welcome Section */}
+      <div className="mb-8 animate-fade-in">
+        <Typography variant="h3" color="blue-gray" className="font-bold dark:text-dark-text mb-2">
+          Xin chào, 
+        </Typography>
+        <Typography color="gray" className="font-normal dark:text-dark-muted text-lg">
+          Chào mừng bạn quay trở lại hệ thống quản lý chuỗi cung ứng.
+        </Typography>
       </div>
 
-      {/* Features Section */}
-      <div className="max-w-7xl mx-auto px-6 py-16">
-        <div className="text-center mb-12">
-          <Typography variant="h3" color="blue-gray" className="font-bold mb-4">
-            Tính năng nổi bật
-          </Typography>
-          <Typography variant="paragraph" color="gray" className="max-w-2xl mx-auto">
-            Hệ thống cung cấp đầy đủ các tính năng quản lý chuỗi cung ứng từ đầu đến cuối
-          </Typography>
-        </div>
+      {/* Quick Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10 animate-fade-in">
+        {quickStats.map((stat, index) => (
+          <Card 
+            key={index} 
+            className={`cursor-pointer hover:shadow-lg transition-all duration-300 border border-transparent dark:border-dark-border dark:bg-dark-surface ${stat.bgColor}`}
+            onClick={() => navigate(stat.path)}
+          >
+            <CardBody className="p-6 flex items-center justify-between">
+              <div>
+                <Typography variant="small" className="font-medium text-blue-gray-600 dark:text-dark-muted mb-1">
+                  {stat.title}
+                </Typography>
+                <Typography variant="h4" color="blue-gray" className="font-bold dark:text-dark-text">
+                  {stat.value}
+                </Typography>
+              </div>
+              <div className={`p-3 rounded-full bg-white/60 dark:bg-white/10 ${stat.textColor}`}>
+                <stat.icon className="h-6 w-6" />
+              </div>
+            </CardBody>
+          </Card>
+        ))}
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {features.map((feature, index) => (
-            <Card
+      {/* Quick Actions */}
+      <div className="animate-fade-in" style={{ animationDelay: "0.1s" }}>
+        <Typography variant="h5" color="blue-gray" className="font-bold mb-6 dark:text-dark-text">
+          Thao tác nhanh
+        </Typography>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {quickActions.map((action, index) => (
+            <Card 
               key={index}
-              className="hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer border border-blue-gray-100"
+              className="cursor-pointer hover:shadow-lg transition-all duration-300 border border-blue-gray-50 dark:border-dark-border dark:bg-dark-surface group"
+              onClick={() => navigate(action.path)}
             >
-              <CardBody className="text-center">
-                <div className={`${feature.color} w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg`}>
-                  <feature.icon className="h-8 w-8 text-white" />
+              <CardBody className="p-6">
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${action.color} dark:bg-opacity-10`}>
+                  <action.icon className="h-6 w-6" />
                 </div>
-                <Typography variant="h5" color="blue-gray" className="mb-2 font-bold">
-                  {feature.title}
+                <Typography variant="h6" color="blue-gray" className="font-bold mb-2 dark:text-dark-text group-hover:text-blue-600 transition-colors">
+                  {action.title}
                 </Typography>
-                <Typography variant="small" color="gray" className="font-normal">
-                  {feature.description}
+                <Typography variant="small" color="gray" className="font-normal dark:text-dark-muted">
+                  {action.description}
                 </Typography>
+                <div className="mt-4 flex items-center text-blue-500 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity transform translate-x-[-10px] group-hover:translate-x-0 duration-300">
+                  Thực hiện ngay <ArrowRightIcon className="h-4 w-4 ml-1" />
+                </div>
               </CardBody>
             </Card>
           ))}
-        </div>
-      </div>
-
-      {/* About Section */}
-      <div className="bg-gray-50 py-16">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <Typography variant="h3" color="blue-gray" className="font-bold mb-6">
-                Về hệ thống quản lý chuỗi cung ứng
-              </Typography>
-              <Typography variant="paragraph" color="gray" className="mb-4">
-                Hệ thống quản lý chuỗi cung ứng là giải pháp toàn diện giúp doanh nghiệp
-                số hóa và tối ưu hóa toàn bộ quy trình từ sản xuất, mua hàng, bán hàng
-                đến vận chuyển và phân phối.
-              </Typography>
-              <Typography variant="paragraph" color="gray" className="mb-4">
-                Với giao diện thân thiện, dễ sử dụng và các tính năng mạnh mẽ, hệ thống
-                giúp doanh nghiệp nâng cao hiệu quả hoạt động, giảm chi phí và tăng
-                khả năng cạnh tranh trên thị trường.
-              </Typography>
-              <div className="flex gap-4 mt-8">
-                <Button color="blue" size="lg">
-                  Khám phá thêm
-                </Button>
-                <Button variant="outlined" color="blue" size="lg">
-                  Hướng dẫn sử dụng
-                </Button>
-              </div>
-            </div>
-            <div>
-              <img
-                src="https://blog.cedarmanagement.co.uk/wp-content/uploads/2020/04/Supply-chain-blog-cover-desktop-size-15-04.png"
-                alt="Supply Chain Management"
-                className="rounded-2xl shadow-2xl"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* CTA Section */}
-      <div className="bg-gradient-to-br from-blue-600 to-blue-800 text-white py-16">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <Typography variant="h3" className="font-bold mb-4">
-            Sẵn sàng bắt đầu?
-          </Typography>
-          <Typography variant="paragraph" className="text-blue-100 mb-8">
-            Khám phá các tính năng mạnh mẽ của hệ thống và tối ưu hóa chuỗi cung ứng của bạn ngay hôm nay
-          </Typography>
-          <Button color="white" size="lg">
-            Bắt đầu ngay
-          </Button>
         </div>
       </div>
     </div>

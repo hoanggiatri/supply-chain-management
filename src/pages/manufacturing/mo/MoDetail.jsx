@@ -16,10 +16,10 @@ import {
 } from "@material-tailwind/react";
 import { Grid } from "@mui/material";
 import {
-  QrCode2 as QrCode2Icon,
-  List as ListIcon,
-  Download as DownloadIcon,
-} from "@mui/icons-material";
+  QrCodeIcon,
+  ListBulletIcon,
+  ArrowDownTrayIcon,
+} from "@heroicons/react/24/outline";
 import MoForm from "@/components/manufacturing/MoForm";
 import {
   getMoById,
@@ -44,6 +44,7 @@ import dayjs from "dayjs";
 import toastrService from "@/services/toastrService";
 import BackButton from "@/components/common/BackButton";
 import { getButtonProps } from "@/utils/buttonStyles";
+import StatusBadge from "@/components/common/StatusBadge";
 
 const MoDetail = () => {
   const { moId } = useParams();
@@ -453,9 +454,12 @@ const MoDetail = () => {
       <Card className="shadow-lg max-w-6xl mx-auto">
         <CardBody>
           <div className="flex items-center justify-between mb-6">
-            <Typography variant="h4" color="blue-gray" className="font-bold">
-              THÔNG TIN CÔNG LỆNH
-            </Typography>
+            <div className="flex items-center gap-3">
+              <Typography variant="h4" color="blue-gray" className="font-bold">
+                THÔNG TIN CÔNG LỆNH
+              </Typography>
+              <StatusBadge status={mo.status} />
+            </div>
             <BackButton to="/mos" label="Quay lại danh sách" />
           </div>
 
@@ -504,7 +508,7 @@ const MoDetail = () => {
             <Card className="mb-6 border border-blue-gray-100">
               <CardBody>
                 <div className="flex items-center gap-2 mb-4">
-                  <QrCode2Icon color="primary" />
+                  <QrCodeIcon className="h-6 w-6 text-blue-500" />
                   <Typography variant="h5" color="blue-gray">
                     Thông tin sản phẩm đã tạo
                   </Typography>
@@ -535,7 +539,7 @@ const MoDetail = () => {
                           navigate(`/products?batch=${mo.batchNo}`)
                         }
                       >
-                        <ListIcon className="mr-2" />
+                        <ListBulletIcon className="mr-2 h-5 w-5" />
                         Xem danh sách sản phẩm
                       </Button>
 
@@ -543,7 +547,7 @@ const MoDetail = () => {
                         {...getButtonProps("secondary")}
                         onClick={handleDownloadBatchQR}
                       >
-                        <DownloadIcon className="mr-2" />
+                        <ArrowDownTrayIcon className="mr-2 h-5 w-5" />
                         Tải QR Codes (PDF)
                       </Button>
                     </div>

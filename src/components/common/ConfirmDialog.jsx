@@ -1,5 +1,4 @@
 import React from "react";
-import PropTypes from "prop-types";
 import {
   Dialog,
   DialogHeader,
@@ -8,62 +7,103 @@ import {
   Button,
   Typography,
 } from "@material-tailwind/react";
-import { getButtonProps } from "@/utils/buttonStyles";
+import {
+  ExclamationTriangleIcon,
+  CheckCircleIcon,
+  InformationCircleIcon,
+  XCircleIcon,
+} from "@heroicons/react/24/outline";
 
+/**
+ * Confirmation Dialog Component
+ * Beautiful confirmation dialogs with icons and colors
+ */
 const ConfirmDialog = ({
   open,
   onClose,
   onConfirm,
-  title = "Xác nhận",
-  message = "Bạn có chắc chắn muốn thực hiện hành động này không?",
+  title,
+  message,
   confirmText = "Xác nhận",
   cancelText = "Hủy",
-  confirmButtonProps = "primary",
-  cancelButtonProps = "outlinedSecondary",
+  type = "warning", // warning, danger, success, info
+  loading = false,
 }) => {
-  const handleConfirm = () => {
-    onConfirm();
-    onClose();
+  const configs = {
+    warning: {
+      icon: ExclamationTriangleIcon,
+      iconColor: "text-amber-600",
+      iconBg: "bg-amber-50",
+      confirmColor: "amber",
+    },
+    danger: {
+      icon: XCircleIcon,
+      iconColor: "text-red-600",
+      iconBg: "bg-red-50",
+      confirmColor: "red",
+    },
+    success: {
+      icon: CheckCircleIcon,
+      iconColor: "text-green-600",
+      iconBg: "bg-green-50",
+      confirmColor: "green",
+    },
+    info: {
+      icon: InformationCircleIcon,
+      iconColor: "text-blue-600",
+      iconBg: "bg-blue-50",
+      confirmColor: "blue",
+    },
+  };
+
+  const config = configs[type];
+  const Icon = config.icon;
+
+  const handleConfirm = async () => {
+    await onConfirm();  // xử lý logic
+    onClose();          // đóng dialog
   };
 
   return (
-    <Dialog open={open} handler={onClose} size="sm">
-      <DialogHeader>
-        <Typography variant="h5" color="blue-gray">
+    <Dialog
+      open={open}
+      handler={onClose}
+      size="sm"
+    >
+      <DialogHeader className="justify-center">
+        <div className={`p-4 rounded-full ${config.iconBg} mb-2`}>
+          <Icon className={`h-12 w-12 ${config.iconColor}`} />
+        </div>
+      </DialogHeader>
+      <DialogBody className="text-center px-8">
+        <Typography variant="h5" color="blue-gray" className="mb-3 font-bold">
           {title}
         </Typography>
-      </DialogHeader>
-      <DialogBody divider>
-        <Typography variant="paragraph" color="blue-gray">
+        <Typography variant="paragraph" color="gray" className="font-normal">
           {message}
         </Typography>
       </DialogBody>
-      <DialogFooter>
+      <DialogFooter className="justify-center gap-3 pb-6">
         <Button
-          {...getButtonProps(cancelButtonProps)}
-          onClick={onClose}
-          className="mr-2"
+          variant="outlined"
+          color="blue-gray"
+          onClick={handleConfirm}
+          disabled={loading}
+          className="min-w-[100px]"
         >
           {cancelText}
         </Button>
-        <Button {...getButtonProps(confirmButtonProps)} onClick={handleConfirm}>
-          {confirmText}
+        <Button
+          color={config.confirmColor}
+          onClick={handleConfirm}
+          disabled={loading}
+          className="min-w-[100px]"
+        >
+          {loading ? "Đang xử lý..." : confirmText}
         </Button>
       </DialogFooter>
     </Dialog>
   );
-};
-
-ConfirmDialog.propTypes = {
-  open: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired,
-  onConfirm: PropTypes.func.isRequired,
-  title: PropTypes.string,
-  message: PropTypes.string,
-  confirmText: PropTypes.string,
-  cancelText: PropTypes.string,
-  confirmButtonProps: PropTypes.string,
-  cancelButtonProps: PropTypes.string,
 };
 
 export default ConfirmDialog;
