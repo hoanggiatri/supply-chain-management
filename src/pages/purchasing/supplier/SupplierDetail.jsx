@@ -1,29 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import {
-  Container,
-  Paper,
-  Typography,
-  Box,
-  TableRow,
-  TableCell,
-  Button,
-} from "@mui/material";
-import CompanyForm from "@components/general/CompanyForm";
-import DataTable from "@components/content-components/DataTable";
+import { Container, Paper, Typography, Box, Button } from "@mui/material";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import { getCompanyById } from "@/services/general/CompanyService";
 import { getAllItemsInCompany } from "@/services/general/ItemService";
 import toastrService from "@/services/toastrService";
+import ItemCard from "@/components/marketplace/ItemCard";
 
 const SupplierDetail = () => {
   const { supplierId } = useParams();
   const [company, setCompany] = useState(null);
   const [items, setItems] = useState([]);
-  const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState("itemCode");
-  const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
@@ -49,67 +36,132 @@ const SupplierDetail = () => {
 
   if (!company) return <LoadingPaper title="THÔNG TIN NHÀ CUNG CẤP" />;
 
-  const columns = [
-    { id: "itemName", label: "Tên hàng hóa" },
-    { id: "uom", label: "Đơn vị tính" },
-    { id: "technicalSpecifications", label: "Thông số kỹ thuật" },
-    { id: "description", label: "Mô tả" },
-  ];
+  const logoUrl = company.logoUrl || company.logo;
 
   return (
     <Container>
       <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
-          THÔNG TIN NHÀ CUNG CẤP
-        </Typography>
+        {/* Header + action */}
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          mb={3}
+        >
+          <Typography className="page-title" variant="h4">
+            THÔNG TIN NHÀ CUNG CẤP
+          </Typography>
 
-        <Box mt={3} mb={3} display="flex" justifyContent="flex-end" gap={2}>
           <Button
             variant="contained"
-            color="default"
+            color="primary"
             onClick={() => navigate("/create-rfq", { state: { supplierId } })}
           >
             Yêu cầu báo giá
           </Button>
         </Box>
 
-        <CompanyForm
-          companyData={company}
-          readOnly
-          onChange={() => {}}
-          errors={{}}
-        />
-
-        <Box mt={5}>
-          <Typography variant="h5" mb={3}>
-            DANH SÁCH HÀNG HÓA:
-          </Typography>
-          <DataTable
-            rows={items}
-            columns={columns}
-            order={order}
-            orderBy={orderBy}
-            onRequestSort={(property) => {
-              const isAsc = orderBy === property && order === "asc";
-              setOrder(isAsc ? "desc" : "asc");
-              setOrderBy(property);
+        {/* Company info - không dùng input, trình bày đẹp hơn */}
+        <Box
+          display="flex"
+          flexDirection={{ xs: "column", md: "row" }}
+          gap={3}
+          alignItems={{ xs: "flex-start", md: "center" }}
+          mb={4}
+        >
+          {/* Logo / Avatar */}
+          <Box
+            sx={{
+              width: 96,
+              height: 96,
+              borderRadius: "50%",
+              bgcolor: "#ECEFF1",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              overflow: "hidden",
+              border: "1px solid #CFD8DC",
             }}
-            page={page}
-            rowsPerPage={rowsPerPage}
-            onPageChange={(e, newPage) => setPage(newPage)}
-            onRowsPerPageChange={(e) => {
-              setRowsPerPage(parseInt(e.target.value, 10));
-              setPage(1);
-            }}
-            renderRow={(item) => (
-              <TableRow key={item.itemId}>
-                <TableCell>{item.itemName}</TableCell>
-                <TableCell>{item.uom}</TableCell>
-                <TableCell>{item.technicalSpecifications}</TableCell>
-                <TableCell>{item.description}</TableCell>
-              </TableRow>
+          >
+            {logoUrl ? (
+              <img
+                src={logoUrl}
+                alt={company.companyName}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            ) : (
+              <Typography variant="h4" color="primary">
+                {company.companyName?.charAt(0)?.toUpperCase() || "N"}
+              </Typography>
             )}
-          />
+          </Box>
+
+          {/* General info */}
+          <Box flex={1}>
+            <Typography variant="h5" gutterBottom>
+              {company.companyName}
+            </Typography>
+            <Typography variant="body2" color="textSecondary">
+              {company.mainIndustry || "Chưa cập nhật ngành nghề chính"}
+            </Typography>
+
+            <Box
+              mt={2}
+              display="grid"
+              gridTemplateColumns={{ xs: "1fr", md: "1fr 1fr" }}
+              gap={1.5}
+            >
+              <Typography variant="body2">
+                <strong>Mã công ty:</strong> {company.companyCode}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Mã số thuế:</strong> {company.taxCode || "Không có"}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Người đại diện:</strong>{" "}
+                {company.representativeName || "Không có"}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Chức vụ:</strong> {company.representativeTitle || "—"}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Số điện thoại:</strong>{" "}
+                {company.phoneNumber || company.phone || "Không có"}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Email:</strong> {company.email || "Không có"}
+              </Typography>
+              <Typography variant="body2" sx={{ gridColumn: { md: "1 / 3" } }}>
+                <strong>Địa chỉ:</strong> {company.address || "Không có"}
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
+
+        {/* Items with images */}
+        <Box mt={2}>
+          <Typography variant="h5" mb={2}>
+            HÀNG HÓA CUNG CẤP
+          </Typography>
+
+          {items.length === 0 ? (
+            <Typography variant="body2" color="textSecondary">
+              Nhà cung cấp chưa có hàng hóa bán.
+            </Typography>
+          ) : (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {items.map((item) => (
+                <ItemCard
+                  key={item.itemId || item.id}
+                  itemCode={item.itemCode || item.code}
+                  itemName={item.itemName}
+                  imageUrl={item.imageUrl || item.image}
+                  quantity={item.minimumOrderQuantity || 1}
+                  note={item.description || item.technicalSpecifications}
+                />
+              ))}
+            </div>
+          )}
         </Box>
       </Paper>
     </Container>

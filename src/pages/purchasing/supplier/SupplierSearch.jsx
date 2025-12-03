@@ -121,6 +121,16 @@ const SupplierSearch = () => {
     }
   };
 
+  const getInitials = (name) => {
+    if (!name) return "NC";
+    const parts = name.trim().split(" ");
+    if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+    return (
+      parts[0].charAt(0).toUpperCase() +
+      parts[parts.length - 1].charAt(0).toUpperCase()
+    );
+  };
+
   return (
     <div className="p-6">
       <Card className="shadow-lg">
@@ -163,69 +173,67 @@ const SupplierSearch = () => {
               Không tìm thấy nhà cung cấp nào.
             </Typography>
           ) : (
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-2">
-              {filteredSuppliers.map((supplier) => (
-                <button
-                  key={supplier.id}
-                  type="button"
-                  onClick={() => navigate(`/supplier/${supplier.id}`)}
-                  className="text-left"
-                >
-                  <Card className="h-full cursor-pointer transition-shadow hover:shadow-lg">
-                    <CardBody className="space-y-2">
-                      <Typography
-                        variant="h6"
-                        color="blue-gray"
-                        className="font-semibold"
-                      >
-                        {supplier.companyCode} - {supplier.companyName}
-                      </Typography>
-                      <div className="grid grid-cols-1 gap-2 text-sm text-blue-gray-600 md:grid-cols-2">
-                        <div className="space-y-1">
-                          <Typography variant="small" className="font-medium">
-                            Mã số thuế:{" "}
-                            <span className="font-normal">
-                              {supplier.taxCode || "Không có"}
-                            </span>
-                          </Typography>
-                          <Typography variant="small" className="font-medium">
-                            Ngành nghề chính:{" "}
-                            <span className="font-normal">
-                              {supplier.mainIndustry || "Không có"}
-                            </span>
-                          </Typography>
-                          <Typography variant="small" className="font-medium">
-                            Người đại diện:{" "}
-                            <span className="font-normal">
-                              {supplier.representativeName || "Không có"}
-                            </span>
-                          </Typography>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {filteredSuppliers.map((supplier) => {
+                const logoUrl = supplier.logoUrl || supplier.logo;
+                const mainIndustry =
+                  supplier.mainIndustry || "Chưa cập nhật ngành nghề";
+
+                return (
+                  <button
+                    key={supplier.id}
+                    type="button"
+                    onClick={() => navigate(`/supplier/${supplier.id}`)}
+                    className="text-left"
+                  >
+                    <Card className="h-full cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                      <CardBody>
+                        <div className="flex items-center gap-4">
+                          {/* Logo / Avatar */}
+                          <div className="h-16 w-16 rounded-full bg-blue-gray-50 flex items-center justify-center overflow-hidden border border-blue-gray-100 shadow-sm">
+                            {logoUrl ? (
+                              <img
+                                src={logoUrl}
+                                alt={supplier.companyName}
+                                className="h-full w-full object-cover"
+                                loading="lazy"
+                                onError={(e) => {
+                                  // Fallback to initials if logo lỗi
+                                  e.currentTarget.style.display = "none";
+                                }}
+                              />
+                            ) : (
+                              <Typography
+                                variant="h6"
+                                className="font-bold text-blue-600"
+                              >
+                                {getInitials(supplier.companyName)}
+                              </Typography>
+                            )}
+                          </div>
+
+                          {/* Company name + main industry */}
+                          <div className="space-y-1">
+                            <Typography
+                              variant="h6"
+                              color="blue-gray"
+                              className="font-semibold line-clamp-2"
+                            >
+                              {supplier.companyName}
+                            </Typography>
+                            <Typography
+                              variant="small"
+                              className="text-blue-gray-500 line-clamp-1"
+                            >
+                              {mainIndustry}
+                            </Typography>
+                          </div>
                         </div>
-                        <div className="space-y-1">
-                          <Typography variant="small" className="font-medium">
-                            Số điện thoại:{" "}
-                            <span className="font-normal">
-                              {supplier.phoneNumber || "Không có"}
-                            </span>
-                          </Typography>
-                          <Typography variant="small" className="font-medium">
-                            Email:{" "}
-                            <span className="font-normal">
-                              {supplier.email || "Không có"}
-                            </span>
-                          </Typography>
-                          <Typography variant="small" className="font-medium">
-                            Địa chỉ:{" "}
-                            <span className="font-normal">
-                              {supplier.address || "Không có"}
-                            </span>
-                          </Typography>
-                        </div>
-                      </div>
-                    </CardBody>
-                  </Card>
-                </button>
-              ))}
+                      </CardBody>
+                    </Card>
+                  </button>
+                );
+              })}
             </div>
           )}
         </CardBody>
