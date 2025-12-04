@@ -298,7 +298,7 @@ const HeaderMT = () => {
   const breadcrumbs = getBreadcrumbs();
 
   return (
-    <Navbar className="sticky top-0 z-30 h-max max-w-full rounded-none px-4 py-2 lg:px-8 border-b border-blue-gray-100 dark:border-dark-border bg-white/90 dark:bg-dark-surface/95 backdrop-blur-md shadow-sm transition-all duration-300">
+    <Navbar className="sticky top-0 z-30 min-h-[64px] max-w-full rounded-none px-3 py-3 lg:px-8 border-b border-blue-gray-100 dark:border-dark-border bg-white/90 dark:bg-dark-surface/95 backdrop-blur-md shadow-sm transition-all duration-300">
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
           {/* Breadcrumb */}

@@ -931,7 +931,7 @@ const SideBarMT = () => {
         }`}
     >
       {/* Fixed Header */}
-      <div className="flex items-center justify-between p-4 min-h-[64px] bg-blue-600 dark:bg-blue-900 transition-colors">
+      <div className="flex items-center justify-between p-4 min-h-[67px] bg-blue-600 dark:bg-blue-900 transition-colors">
         {!isCollapsed && (
           <Typography variant="h6" color="white" className="font-bold tracking-wide">
             Quản lí Chuỗi cung ứng
