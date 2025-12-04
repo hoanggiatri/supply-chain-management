@@ -27,7 +27,7 @@ import {
 
 // Navigation items based on department
 const BASE_NAV_ITEMS = [
-  { label: "Dashboard", path: "/marketplace/dashboard", Icon: HomeIcon },
+  { label: "Bảng điều khiển", path: "/marketplace/dashboard", Icon: HomeIcon },
 ];
 
 // Items cho dropdown Mua hàng

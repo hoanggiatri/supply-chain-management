@@ -75,7 +75,7 @@ const Dashboard = () => {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <Typography variant="h4" className="text-blue-gray-900 font-bold">
-            Marketplace Dashboard
+            Bảng Điều Khiển Marketplace
           </Typography>
           <Typography variant="small" className="text-blue-gray-500 mt-1">
             Tổng quan nhanh về RFQ, báo giá và đơn hàng của bạn.
