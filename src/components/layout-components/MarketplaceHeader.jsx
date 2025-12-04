@@ -22,6 +22,7 @@ import {
   TruckIcon,
   BuildingStorefrontIcon,
   BriefcaseIcon,
+  ChartBarIcon,
 } from "@heroicons/react/24/outline";
 
 // Navigation items based on department
@@ -29,11 +30,11 @@ const BASE_NAV_ITEMS = [
   { label: "Dashboard", path: "/marketplace/dashboard", Icon: HomeIcon },
 ];
 
-// Items riêng cho từng bộ phận (không include Dashboard để tránh trùng)
-const PURCHASING_ONLY_ITEMS = [
+// Items cho dropdown Mua hàng
+const PURCHASING_DROPDOWN_ITEMS = [
   {
     label: "Tìm NCC",
-    path: "/supplier-search",
+    path: "/marketplace/supplier-search",
     Icon: MagnifyingGlassCircleIcon,
   },
   {
@@ -47,9 +48,15 @@ const PURCHASING_ONLY_ITEMS = [
     Icon: CurrencyDollarIcon,
   },
   { label: "Đơn mua hàng", path: "/marketplace/pos", Icon: ShoppingCartIcon },
+  {
+    label: "Báo cáo mua hàng",
+    path: "/marketplace/purchase-report",
+    Icon: ChartBarIcon,
+  },
 ];
 
-const SALES_ONLY_ITEMS = [
+// Items cho dropdown Bán hàng
+const SALES_DROPDOWN_ITEMS = [
   {
     label: "Yêu cầu từ KH",
     path: "/marketplace/supplier-rfqs",
@@ -68,10 +75,6 @@ const SALES_ONLY_ITEMS = [
   { label: "Đơn bán hàng", path: "/marketplace/sos", Icon: TruckIcon },
 ];
 
-const PURCHASING_NAV_ITEMS = [...BASE_NAV_ITEMS, ...PURCHASING_ONLY_ITEMS];
-
-const SALES_NAV_ITEMS = [...BASE_NAV_ITEMS, ...SALES_ONLY_ITEMS];
-
 const MarketplaceHeader = () => {
   const [openNav, setOpenNav] = useState(false);
   const navigate = useNavigate();
@@ -79,20 +82,15 @@ const MarketplaceHeader = () => {
 
   // Get user info from localStorage
   const fullName = localStorage.getItem("fullName") || "Người dùng";
-  const department = localStorage.getItem("department") || "";
+  const department =
+    localStorage.getItem("departmentName") ||
+    localStorage.getItem("department") ||
+    "";
   const companyName = localStorage.getItem("companyName") || "";
 
-  // Determine nav items based on department
-  let navItems = [
-    ...BASE_NAV_ITEMS,
-    ...PURCHASING_ONLY_ITEMS,
-    ...SALES_ONLY_ITEMS,
-  ];
-  if (department === "Mua hàng") {
-    navItems = PURCHASING_NAV_ITEMS;
-  } else if (department === "Bán hàng") {
-    navItems = SALES_NAV_ITEMS;
-  }
+  // Determine department type
+  const isPurchasing = department === "Mua hàng";
+  const isSales = department === "Bán hàng";
 
   // Handle navigation
   const handleNavClick = useCallback(
@@ -112,10 +110,21 @@ const MarketplaceHeader = () => {
   // Check if path is active
   const isActive = (path) => location.pathname.startsWith(path);
 
+  // Check if any dropdown item is active
+  const isDropdownActive = () => {
+    if (isPurchasing) {
+      return PURCHASING_DROPDOWN_ITEMS.some((item) => isActive(item.path));
+    } else if (isSales) {
+      return SALES_DROPDOWN_ITEMS.some((item) => isActive(item.path));
+    }
+    return false;
+  };
+
   // Navigation list component
   const navList = (
     <ul className="flex flex-col gap-2 lg:flex-row lg:items-center lg:gap-1">
-      {navItems.map(({ path, label, Icon }) => (
+      {/* Dashboard button */}
+      {BASE_NAV_ITEMS.map(({ path, label, Icon }) => (
         <li key={path}>
           <Button
             variant={isActive(path) ? "filled" : "text"}
@@ -133,6 +142,112 @@ const MarketplaceHeader = () => {
           </Button>
         </li>
       ))}
+
+      {/* Dropdown cho Mua hàng */}
+      {isPurchasing && (
+        <li>
+          <Menu placement="bottom-start">
+            <MenuHandler>
+              <Button
+                variant={isDropdownActive() ? "filled" : "text"}
+                color={isDropdownActive() ? "blue" : "blue-gray"}
+                size="sm"
+                className={`flex items-center gap-2 px-4 py-2 ${
+                  isDropdownActive()
+                    ? "bg-blue-600 text-white"
+                    : "hover:bg-blue-gray-50"
+                }`}
+              >
+                <ShoppingCartIcon className="h-5 w-5" />
+                <span className="font-medium">Mua hàng</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                  className="h-4 w-4"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="m19.5 8.25-7.5 7.5-7.5-7.5"
+                  />
+                </svg>
+              </Button>
+            </MenuHandler>
+            <MenuList className="p-1">
+              {PURCHASING_DROPDOWN_ITEMS.map(({ path, label, Icon }) => (
+                <MenuItem
+                  key={path}
+                  className={`flex items-center gap-2 rounded ${
+                    isActive(path) ? "bg-blue-50" : ""
+                  }`}
+                  onClick={() => handleNavClick(path)}
+                >
+                  {Icon && <Icon className="h-4 w-4" />}
+                  <Typography variant="small" className="font-medium">
+                    {label}
+                  </Typography>
+                </MenuItem>
+              ))}
+            </MenuList>
+          </Menu>
+        </li>
+      )}
+
+      {/* Dropdown cho Bán hàng */}
+      {isSales && (
+        <li>
+          <Menu placement="bottom-start">
+            <MenuHandler>
+              <Button
+                variant={isDropdownActive() ? "filled" : "text"}
+                color={isDropdownActive() ? "blue" : "blue-gray"}
+                size="sm"
+                className={`flex items-center gap-2 px-4 py-2 ${
+                  isDropdownActive()
+                    ? "bg-blue-600 text-white"
+                    : "hover:bg-blue-gray-50"
+                }`}
+              >
+                <BriefcaseIcon className="h-5 w-5" />
+                <span className="font-medium">Bán hàng</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                  className="h-4 w-4"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="m19.5 8.25-7.5 7.5-7.5-7.5"
+                  />
+                </svg>
+              </Button>
+            </MenuHandler>
+            <MenuList className="p-1">
+              {SALES_DROPDOWN_ITEMS.map(({ path, label, Icon }) => (
+                <MenuItem
+                  key={path}
+                  className={`flex items-center gap-2 rounded ${
+                    isActive(path) ? "bg-blue-50" : ""
+                  }`}
+                  onClick={() => handleNavClick(path)}
+                >
+                  {Icon && <Icon className="h-4 w-4" />}
+                  <Typography variant="small" className="font-medium">
+                    {label}
+                  </Typography>
+                </MenuItem>
+              ))}
+            </MenuList>
+          </Menu>
+        </li>
+      )}
     </ul>
   );
 
@@ -169,21 +284,23 @@ const MarketplaceHeader = () => {
         {/* User Menu and Mobile Toggle */}
         <div className="flex items-center gap-2">
           {/* Department Badge */}
-          <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-blue-gray-50 rounded-full">
-            <span className="text-sm">
-              {department === "Mua hàng" ? (
-                <ShoppingCartIcon className="h-4 w-4 text-blue-gray-700" />
-              ) : (
-                <BriefcaseIcon className="h-4 w-4 text-blue-gray-700" />
-              )}
-            </span>
-            <Typography
-              variant="small"
-              className="font-medium text-blue-gray-700"
-            >
-              {department}
-            </Typography>
-          </div>
+          {department && (
+            <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-blue-gray-50 rounded-full">
+              <span className="text-sm">
+                {department === "Mua hàng" ? (
+                  <ShoppingCartIcon className="h-4 w-4 text-blue-gray-700" />
+                ) : (
+                  <BriefcaseIcon className="h-4 w-4 text-blue-gray-700" />
+                )}
+              </span>
+              <Typography
+                variant="small"
+                className="font-medium text-blue-gray-700"
+              >
+                {department}
+              </Typography>
+            </div>
+          )}
 
           {/* User Menu */}
           <Menu placement="bottom-end">
@@ -229,7 +346,7 @@ const MarketplaceHeader = () => {
             <MenuList className="p-1">
               <MenuItem
                 className="flex items-center gap-2 rounded"
-                onClick={() => navigate("/my-profile")}
+                onClick={() => navigate("/marketplace/my-profile")}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

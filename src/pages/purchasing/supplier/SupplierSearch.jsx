@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Card,
   CardBody,
@@ -26,6 +26,10 @@ const SupplierSearch = () => {
   const token = localStorage.getItem("token");
   const companyId = Number(localStorage.getItem("companyId"));
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Kiểm tra xem đang ở marketplace context hay không
+  const isMarketplaceContext = location.pathname.startsWith("/marketplace/");
 
   const fetchSuppliers = async (pageToLoad = 1) => {
     setLoading(true);
@@ -183,7 +187,12 @@ const SupplierSearch = () => {
                   <button
                     key={supplier.id}
                     type="button"
-                    onClick={() => navigate(`/supplier/${supplier.id}`)}
+                    onClick={() => {
+                      const supplierPath = isMarketplaceContext
+                        ? `/marketplace/supplier/${supplier.id}`
+                        : `/supplier/${supplier.id}`;
+                      navigate(supplierPath);
+                    }}
                     className="text-left"
                   >
                     <Card className="h-full cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1">

@@ -101,7 +101,7 @@ const RfqMarketplace = () => {
   }, []);
 
   const handleCreateRfq = useCallback(() => {
-    navigate("/create-rfq");
+    navigate("/marketplace/create-rfq");
   }, [navigate]);
 
   // Get first item image from RFQ
@@ -221,4 +221,3 @@ const RfqMarketplace = () => {
 };
 
 export default RfqMarketplace;
-

@@ -24,6 +24,24 @@ export const updateItem = async (itemId, data, token) => {
   return res.data;
 };
 
+export const updateItemImage = async (itemId, file, token) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await axios.post(
+    `${BASE_URL}/item/${itemId}/image`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  return res.data;
+};
+
 export const deleteItem = async (itemId, token) => {
   const res = await axios.delete(`${BASE_URL}/item/${itemId}`, axiosAuth(token));
   return res.data;

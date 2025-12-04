@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Container, Typography, Button, Grid, Paper } from "@mui/material";
+import { Card, CardBody, Typography, Button } from "@material-tailwind/react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { createRfq } from "@/services/purchasing/RfqService";
 import RfqForm from "@/components/purchasing/RfqForm";
@@ -137,45 +137,51 @@ const CreateRfq = () => {
   };
 
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
-          TẠO YÊU CẦU BÁO GIÁ (RFQ)
-        </Typography>
+    <div className="mx-auto max-w-6xl p-4 sm:p-6">
+      <Card className="shadow-lg">
+        <CardBody>
+          <Typography
+            variant="h4"
+            color="blue-gray"
+            className="mb-6 font-bold uppercase"
+          >
+            TẠO YÊU CẦU BÁO GIÁ (RFQ)
+          </Typography>
 
-        <RfqForm
-          rfq={rfq}
-          onChange={handleChange}
-          setRfq={setRfq}
-          errors={errors}
-          readOnlyFields={readOnlyFields}
-        />
+          <RfqForm
+            rfq={rfq}
+            onChange={handleChange}
+            setRfq={setRfq}
+            errors={errors}
+            readOnlyFields={readOnlyFields}
+          />
 
-        <Typography variant="h5" mt={3} mb={3}>
-          DANH SÁCH HÀNG HÓA YÊU CẦU BÁO GIÁ:
-        </Typography>
+          <Typography
+            variant="h5"
+            color="blue-gray"
+            className="mt-8 mb-4 font-semibold"
+          >
+            DANH SÁCH HÀNG HÓA YÊU CẦU BÁO GIÁ
+          </Typography>
 
-        <RfqDetailTable
-          rfqDetails={details}
-          setRfqDetails={setDetails}
-          requestedCompanyId={rfq.requestedCompanyId}
-          errors={errors.rfqDetailErrors}
-        />
+          <RfqDetailTable
+            rfqDetails={details}
+            setRfqDetails={setDetails}
+            requestedCompanyId={rfq.requestedCompanyId}
+            errors={errors.rfqDetailErrors}
+          />
 
-        <Grid container spacing={2} mt={3} justifyContent="flex-end">
-          <Grid item>
-            <Button variant="contained" color="default" onClick={handleSubmit}>
+          <div className="mt-8 flex justify-end gap-3">
+            <Button color="blue" onClick={handleSubmit}>
               Gửi yêu cầu
             </Button>
-          </Grid>
-          <Grid item>
-            <Button variant="outlined" color="default" onClick={handleCancel}>
+            <Button variant="outlined" color="blue-gray" onClick={handleCancel}>
               Hủy
             </Button>
-          </Grid>
-        </Grid>
-      </Paper>
-    </Container>
+          </div>
+        </CardBody>
+      </Card>
+    </div>
   );
 };
 

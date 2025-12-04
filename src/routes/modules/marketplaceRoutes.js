@@ -7,6 +7,7 @@ import CustomerQuotationMarketplace from "@/pages/marketplace/quotation/Customer
 import CustomerQuotationDetailMarketplace from "@/pages/marketplace/quotation/CustomerQuotationDetailMarketplace";
 import PoMarketplace from "@/pages/marketplace/po/PoMarketplace";
 import PoDetailMarketplace from "@/pages/marketplace/po/PoDetailMarketplace";
+import PurchaseReportMarketplace from "@/pages/marketplace/po/PurchaseReportMarketplace";
 
 // Marketplace - Sales (Bán hàng)
 import SupplierRfqMarketplace from "@/pages/marketplace/rfq/SupplierRfqMarketplace";
@@ -48,7 +49,8 @@ const marketplaceRoutes = [
   },
 
   {
-    path: "/my-profile",
+    // Profile trong khu vực marketplace để tránh trùng với route my-profile truyền thống
+    path: "/marketplace/my-profile",
     element: (
       <PrivateRoute
         element={<MyProfile />}
@@ -62,9 +64,9 @@ const marketplaceRoutes = [
   // PURCHASING DEPARTMENT ROUTES (Mua hàng)
   // ==========================================
 
-  // Supplier Search
+  // Supplier Search (namespace riêng cho marketplace)
   {
-    path: "/supplier-search",
+    path: "/marketplace/supplier-search",
     element: (
       <PrivateRoute
         element={<SupplierSearch />}
@@ -74,7 +76,7 @@ const marketplaceRoutes = [
     ),
   },
   {
-    path: "/supplier/:supplierId",
+    path: "/marketplace/supplier/:supplierId",
     element: (
       <PrivateRoute
         element={<SupplierDetail />}
@@ -84,9 +86,9 @@ const marketplaceRoutes = [
     ),
   },
 
-  // Create RFQ
+  // Create RFQ (namespace marketplace)
   {
-    path: "/create-rfq",
+    path: "/marketplace/create-rfq",
     element: (
       <PrivateRoute
         element={<CreateRfq />}
@@ -96,9 +98,9 @@ const marketplaceRoutes = [
     ),
   },
 
-  // Create PO
+  // Create PO (namespace marketplace)
   {
-    path: "/create-po/:quotationId",
+    path: "/marketplace/create-po/:quotationId",
     element: (
       <PrivateRoute
         element={<CreatePo />}
@@ -168,6 +170,18 @@ const marketplaceRoutes = [
     element: (
       <PrivateRoute
         element={<PoDetailMarketplace />}
+        allowedRoles={["user"]}
+        allowedDepartments={["Mua hàng"]}
+      />
+    ),
+  },
+
+  // Purchase Report - Báo cáo mua hàng
+  {
+    path: "/marketplace/purchase-report",
+    element: (
+      <PrivateRoute
+        element={<PurchaseReportMarketplace />}
         allowedRoles={["user"]}
         allowedDepartments={["Mua hàng"]}
       />

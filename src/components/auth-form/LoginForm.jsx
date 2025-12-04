@@ -4,7 +4,14 @@ import { getDepartmentById } from "@/services/general/DepartmentService";
 import { getEmployeeById } from "@/services/general/EmployeeService";
 import { getButtonProps } from "@/utils/buttonStyles";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
-import { Alert, Button, Card, CardBody, Input, Typography } from "@material-tailwind/react";
+import {
+  Alert,
+  Button,
+  Card,
+  CardBody,
+  Input,
+  Typography,
+} from "@material-tailwind/react";
 import { setupTokenExpirationCheck } from "@utils/tokenUtils";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -68,8 +75,19 @@ const LoginForm = () => {
       const { companyType, address } = companyData;
       localStorage.setItem("companyType", companyType);
       localStorage.setItem("companyAddress", address);
+
+      // Thiết lập kiểm tra hết hạn token
       setupTokenExpirationCheck(navigate);
-      navigate("/homepage");
+
+      // Điều hướng theo vai trò và bộ phận
+      if (
+        role === "user" &&
+        (departmentName === "Mua hàng" || departmentName === "Bán hàng")
+      ) {
+        navigate("/marketplace/dashboard");
+      } else {
+        navigate("/homepage");
+      }
     } catch (error) {
       const errorMessage =
         error.response?.data?.message ||

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Container, Paper, Typography, Box, Button } from "@mui/material";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import { getCompanyById } from "@/services/general/CompanyService";
@@ -14,6 +14,10 @@ const SupplierDetail = () => {
 
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Kiểm tra xem đang ở marketplace context hay không
+  const isMarketplaceContext = location.pathname.startsWith("/marketplace/");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -55,7 +59,17 @@ const SupplierDetail = () => {
           <Button
             variant="contained"
             color="primary"
-            onClick={() => navigate("/create-rfq", { state: { supplierId } })}
+            onClick={() => {
+              const createRfqPath = isMarketplaceContext
+                ? "/marketplace/create-rfq"
+                : "/create-rfq";
+              navigate(createRfqPath, {
+                state: {
+                  supplierId,
+                  from: isMarketplaceContext ? "marketplace" : "company",
+                },
+              });
+            }}
           >
             Yêu cầu báo giá
           </Button>

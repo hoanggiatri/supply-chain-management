@@ -14,6 +14,9 @@ const CreateItem = () => {
   const companyId = localStorage.getItem("companyId");
   const [errors, setErrors] = useState({});
 
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+
   const [formData, setFormData] = useState({
     itemName: "",
     itemType: "",
@@ -65,8 +68,15 @@ const CreateItem = () => {
     setFormData((prev) => ({ ...prev, [name]: newValue }));
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
   const handleSubmit = async () => {
-    console.log("formData", formData);
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
@@ -74,8 +84,20 @@ const CreateItem = () => {
     }
 
     try {
-      console.log(formData);
-      await createItem(companyId, formData, token);
+      let payload = formData;
+
+      // Nếu có chọn ảnh thì dùng FormData để gửi kèm file
+      if (imageFile) {
+        const formDataToSend = new FormData();
+        Object.entries(formData).forEach(([key, value]) => {
+          // Tránh undefined/null bị chuyển thành "undefined"/"null"
+          formDataToSend.append(key, value ?? "");
+        });
+        formDataToSend.append("file", imageFile);
+        payload = formDataToSend;
+      }
+
+      await createItem(companyId, payload, token);
       toastrService.success("Thêm hàng hóa thành công!");
       navigate("/items");
     } catch (error) {
@@ -101,6 +123,36 @@ const CreateItem = () => {
             THÊM MỚI HÀNG HÓA
           </Typography>
           <BackButton to="/items" label="Quay lại danh sách" />
+        </div>
+
+        <div className="flex flex-col md:flex-row items-center gap-6 mb-6">
+          <img
+            src={
+              imagePreview ||
+              "https://cdn-icons-png.freepik.com/512/2774/2774806.png"
+            }
+            alt="Item"
+            className="w-32 h-32 object-cover rounded-lg shadow-md"
+          />
+          <div className="flex flex-col gap-2 w-full md:w-auto">
+            <Button
+              {...getButtonProps("outlinedSecondary")}
+              type="button"
+              className="w-full md:w-auto"
+              onClick={() =>
+                document.getElementById("item-image-input")?.click()
+              }
+            >
+              Chọn ảnh
+            </Button>
+            <input
+              id="item-image-input"
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="hidden"
+            />
+          </div>
         </div>
 
         <ItemForm

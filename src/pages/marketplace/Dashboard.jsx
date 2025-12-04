@@ -85,7 +85,7 @@ const Dashboard = () => {
           <Button
             color="blue"
             size="sm"
-            onClick={() => navigate("/create-rfq")}
+            onClick={() => navigate("/marketplace/create-rfq")}
           >
             Tạo RFQ mới
           </Button>
@@ -93,7 +93,7 @@ const Dashboard = () => {
             variant="outlined"
             color="blue"
             size="sm"
-            onClick={() => navigate("/supplier-search")}
+            onClick={() => navigate("/marketplace/supplier-search")}
           >
             Tìm nhà cung cấp
           </Button>
@@ -152,7 +152,7 @@ const Dashboard = () => {
             <Button
               variant="outlined"
               color="blue"
-              onClick={() => navigate("/create-rfq")}
+              onClick={() => navigate("/marketplace/create-rfq")}
             >
               Tạo RFQ
             </Button>
