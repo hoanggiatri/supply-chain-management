@@ -39,7 +39,7 @@ const AdminLogin = () => {
     try {
       await adminLogin(formData.email, formData.password);
 
-      setupTokenExpirationCheck();
+      setupTokenExpirationCheck(navigate);
       navigate(`/admin-verify-otp/${formData.email}`);
 
     } catch (error) {

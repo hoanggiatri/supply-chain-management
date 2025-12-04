@@ -1,6 +1,6 @@
 import { jwtDecode } from "jwt-decode";
 
-export const setupTokenExpirationCheck = () => {
+export const setupTokenExpirationCheck = (navigateCallback) => {
   const token = localStorage.getItem("token");
   if (token) {
     try {
@@ -12,15 +12,30 @@ export const setupTokenExpirationCheck = () => {
         setTimeout(() => {
           alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
           localStorage.clear();
-          window.location.href = "/login";
+          if (navigateCallback) {
+            navigateCallback("/login");
+          } else {
+            window.location.href = "/login";
+          }
         }, timeRemaining);
       } else {
+        // Token đã hết hạn
         alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
         localStorage.clear();
-        window.location.href = "/login";
+        if (navigateCallback) {
+          navigateCallback("/login");
+        } else {
+          window.location.href = "/login";
+        }
       }
     } catch (error) {
       console.error("Lỗi giải mã token:", error);
+      localStorage.clear();
+      if (navigateCallback) {
+        navigateCallback("/login");
+      } else {
+        window.location.href = "/login";
+      }
     }
   }
 };

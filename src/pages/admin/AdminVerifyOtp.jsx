@@ -40,7 +40,7 @@ const AdminVerifyOtp = () => {
       localStorage.setItem("token", token);
       localStorage.setItem("role", role);
 
-      setupTokenExpirationCheck();
+      setupTokenExpirationCheck(navigate);
       navigate("/admin/dashboard");
     } catch (error) {
       setErrors((prevErrors) => ({

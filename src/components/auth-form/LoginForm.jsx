@@ -68,7 +68,7 @@ const LoginForm = () => {
       const { companyType, address } = companyData;
       localStorage.setItem("companyType", companyType);
       localStorage.setItem("companyAddress", address);
-      setupTokenExpirationCheck();
+      setupTokenExpirationCheck(navigate);
       navigate("/homepage");
     } catch (error) {
       const errorMessage =
