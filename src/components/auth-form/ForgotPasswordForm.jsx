@@ -1,7 +1,14 @@
 import React, { useState } from "react";
-import { Typography, Input, Button, Alert, Card, CardBody } from "@material-tailwind/react";
+import {
+  Typography,
+  Input,
+  Button,
+  Alert,
+  Card,
+  CardBody,
+} from "@material-tailwind/react";
 import { useNavigate } from "react-router-dom";
-import { sendVerifyOtp } from "@/services/general/AuthService";
+import { forgotPassword } from "@/services/general/AuthService";
 import { getButtonProps } from "@/utils/buttonStyles";
 import toastrService from "@/services/toastrService";
 
@@ -29,7 +36,7 @@ const ForgotPasswordForm = () => {
     setErrors({});
 
     try {
-      await sendVerifyOtp(email);
+      await forgotPassword(email);
       localStorage.setItem("forgotEmail", email);
       toastrService.success("Kiểm tra email để nhận mã OTP.");
       navigate("/verify-forgot-password-otp");

@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Typography, Input, Button, Alert, Card, CardBody } from "@material-tailwind/react";
 import {
-  verifyForgotPasswordOtp,
-  sendVerifyOtp,
-} from "@/services/general/AuthService";
+  Typography,
+  Input,
+  Button,
+  Alert,
+  Card,
+  CardBody,
+} from "@material-tailwind/react";
+import { verifyOtp, forgotPassword } from "@/services/general/AuthService";
 import { getButtonProps } from "@/utils/buttonStyles";
 import { useNavigate } from "react-router-dom";
 import toastrService from "@/services/toastrService";
@@ -46,13 +50,12 @@ const OtpForgotPasswordForm = () => {
     }
 
     try {
-      await verifyForgotPasswordOtp({ email, otp });
+      await verifyOtp({ email, otp: Number(otp) });
       toastrService.success("Xác thực thành công!");
       navigate("/reset-password");
     } catch (error) {
       const errorMessage =
-        error.response?.data?.message ||
-        "Xác thực thất bại! Vui lòng thử lại.";
+        error.response?.data?.message || "Xác thực thất bại! Vui lòng thử lại.";
       toastrService.error(errorMessage);
       setErrors((prevErrors) => ({
         ...prevErrors,
@@ -63,7 +66,7 @@ const OtpForgotPasswordForm = () => {
 
   const handleResendOtp = async () => {
     try {
-      await sendVerifyOtp(email);
+      await forgotPassword(email);
       toastrService.success("Mã OTP đã được gửi lại!");
       setResendTimer(60);
     } catch (error) {
@@ -143,7 +146,9 @@ const OtpForgotPasswordForm = () => {
                   : "text-blue-600 hover:text-blue-700 transition-colors"
               }`}
             >
-              {resendTimer > 0 ? `Gửi lại OTP (${resendTimer}s)` : "Gửi lại OTP"}
+              {resendTimer > 0
+                ? `Gửi lại OTP (${resendTimer}s)`
+                : "Gửi lại OTP"}
             </button>
           </Typography>
         </form>

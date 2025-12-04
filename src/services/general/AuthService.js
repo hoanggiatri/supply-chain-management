@@ -15,12 +15,22 @@ export const verifyOtp = async (data) => {
   await axios.post(`${BASE_URL}/auth/verify-otp`, data);
 };
 
+// Gửi email để nhận OTP quên mật khẩu
+export const forgotPassword = async (email) => {
+  await axios.post(`${BASE_URL}/auth/forgot-password`, { email });
+};
+
+// Xác thực OTP quên mật khẩu (có thể cần endpoint riêng, tạm thời giữ nguyên)
 export const verifyForgotPasswordOtp = async (data) => {
   await axios.post(`${BASE_URL}/auth/forgot-password`, data);
 };
 
+// Reset password sau khi đã verify OTP
 export const resetPassword = async (data) => {
-  await axios.post(`${BASE_URL}/auth/reset-password`, data);
+  await axios.post(`${BASE_URL}/auth/reset-password`, {
+    email: data.email,
+    newPassword: data.newPassword,
+  });
 };
 
 export const login = async (data) => {
