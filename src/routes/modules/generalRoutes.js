@@ -8,7 +8,6 @@ import CompanyDetail from "@pages/general/company/CompanyDetail";
 import EditCompany from "@/pages/general/company/EditCompany";
 
 import DepartmentInCompany from "@pages/general/department/DepartmentInCompany";
-import DepartmentDetail from "@pages/general/department/DepartmentDetail";
 
 import EmployeeInCompany from "@pages/general/employee/EmployeeInCompany";
 import EmployeeDetail from "@pages/general/employee/EmployeeDetail";
@@ -26,17 +25,14 @@ import CreateItem from "@/pages/general/item/CreateItem";
 import CreateItemFromExcel from "@/pages/general/item/CreateItemFromExcel";
 
 import WarehouseInCompany from "@pages/general/warehouse/WarehouseInCompany";
-import WarehouseDetail from "@pages/general/warehouse/WarehouseDetail";
 import EditWarehouse from "@/pages/general/warehouse/EditWarehouse";
 import CreateWarehouse from "@pages/general/warehouse/CreateWarehouse";
 
 import PlantInCompany from "@/pages/general/manufacturing-plant/PlantInCompany";
-import PlantDetail from "@/pages/general/manufacturing-plant/PlantDetail";
 import EditPlant from "@/pages/general/manufacturing-plant/EditPlant";
 import CreatePlant from "@/pages/general/manufacturing-plant/CreatePlant";
 
 import LineInCompany from "@/pages/general/manufacturing-line/LineInCompany";
-import LineDetail from "@/pages/general/manufacturing-line/LineDetail";
 import EditLine from "@/pages/general/manufacturing-line/EditLine";
 import CreateLine from "@/pages/general/manufacturing-line/CreateLine";
 
@@ -79,12 +75,6 @@ const generalRoutes = [
         element={<DepartmentInCompany />}
         allowedRoles={["c_admin"]}
       />
-    ),
-  },
-  {
-    path: "/department/:departmentId",
-    element: (
-      <PrivateRoute element={<DepartmentDetail />} allowedRoles={["c_admin"]} />
     ),
   },
   {
@@ -179,12 +169,6 @@ const generalRoutes = [
     ),
   },
   {
-    path: "/warehouse/:warehouseId",
-    element: (
-      <PrivateRoute element={<WarehouseDetail />} allowedRoles={["c_admin"]} />
-    ),
-  },
-  {
     path: "/create-warehouse",
     element: (
       <PrivateRoute element={<CreateWarehouse />} allowedRoles={["c_admin"]} />
@@ -203,12 +187,6 @@ const generalRoutes = [
     ),
   },
   {
-    path: "/plant/:plantId",
-    element: (
-      <PrivateRoute element={<PlantDetail />} allowedRoles={["c_admin"]} />
-    ),
-  },
-  {
     path: "/create-plant",
     element: (
       <PrivateRoute element={<CreatePlant />} allowedRoles={["c_admin"]} />
@@ -224,12 +202,6 @@ const generalRoutes = [
     path: "/lines",
     element: (
       <PrivateRoute element={<LineInCompany />} allowedRoles={["c_admin"]} />
-    ),
-  },
-  {
-    path: "/line/:lineId",
-    element: (
-      <PrivateRoute element={<LineDetail />} allowedRoles={["c_admin"]} />
     ),
   },
   {

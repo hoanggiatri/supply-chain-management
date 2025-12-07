@@ -1,64 +1,61 @@
 import React from "react";
-import { Input, Typography } from "@material-tailwind/react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
-const PlantForm = ({ plant, onChange, errors, readOnlyFields }) => {
+const PlantForm = ({ plant, onChange, errors = {}, readOnlyFields = {} }) => {
   const isFieldReadOnly = (field) => readOnlyFields[field] ?? false;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {/* Mã xưởng */}
-      <div>
+      <div className="space-y-2">
+        <Label htmlFor="plantCode">
+          Mã xưởng <span className="text-red-500">*</span>
+        </Label>
         <Input
-          label="Mã xưởng"
+          id="plantCode"
           name="plantCode"
-          color="blue"
           value={plant.plantCode || ""}
           onChange={onChange}
-          className="w-full placeholder:opacity-100"
           readOnly={isFieldReadOnly("plantCode")}
-          required
+          disabled={isFieldReadOnly("plantCode")}
+          className={errors.plantCode ? "border-red-500" : ""}
         />
         {errors.plantCode && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.plantCode}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.plantCode}</p>
         )}
       </div>
 
-      {/* Tên xưởng */}
-      <div>
+      <div className="space-y-2">
+        <Label htmlFor="plantName">
+          Tên xưởng <span className="text-red-500">*</span>
+        </Label>
         <Input
-          label="Tên xưởng"
+          id="plantName"
           name="plantName"
-          color="blue"
           value={plant.plantName || ""}
           onChange={onChange}
-          className="w-full placeholder:opacity-100"
           readOnly={isFieldReadOnly("plantName")}
-          required
+          className={errors.plantName ? "border-red-500" : ""}
         />
         {errors.plantName && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.plantName}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.plantName}</p>
         )}
       </div>
 
-      {/* Mô tả */}
-      <div className="md:col-span-2">
-        <Input
-          label="Mô tả"
+      <div className="md:col-span-2 space-y-2">
+        <Label htmlFor="description">Mô tả</Label>
+        <Textarea
+          id="description"
           name="description"
-          color="blue"
           value={plant.description || ""}
           onChange={onChange}
-          className="w-full placeholder:opacity-100"
           readOnly={isFieldReadOnly("description")}
+          className={errors.description ? "border-red-500" : ""}
+          rows={3}
         />
         {errors.description && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.description}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.description}</p>
         )}
       </div>
     </div>

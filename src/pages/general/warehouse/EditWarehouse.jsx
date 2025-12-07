@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, Box } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import WarehouseForm from "@components/general/WarehouseForm";
 import {
   getWarehouseById,
   updateWarehouse,
 } from "@/services/general/WarehouseService";
-import LoadingPaper from "@/components/content-components/LoadingPaper";
 import toastrService from "@/services/toastrService";
-import { Button } from "@material-tailwind/react";
-import { getButtonProps } from "@/utils/buttonStyles";
-import BackButton from "@components/common/BackButton";
+import { Button } from "@/components/ui/button";
+import FormPageLayout from "@/components/layout/FormPageLayout";
+import { Skeleton } from "@/components/ui/skeleton";
+import { BuildingStorefrontIcon } from "@heroicons/react/24/solid";
 
 const EditWarehouse = () => {
   const { warehouseId } = useParams();
@@ -18,6 +17,7 @@ const EditWarehouse = () => {
   const [warehouse, setWarehouse] = useState(null);
   const [editedWarehouse, setEditedWarehouse] = useState(null);
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(true);
 
   const validateForm = () => {
     const errors = {};
@@ -46,6 +46,8 @@ const EditWarehouse = () => {
           error.response?.data?.message ||
             "Có lỗi xảy ra khi lấy thông tin kho!"
         );
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -105,52 +107,64 @@ const EditWarehouse = () => {
     }
   };
 
-  if (!warehouse) return null;
-
-  if (!warehouse) {
-    return <LoadingPaper title="CHỈNH SỬA THÔNG TIN KHO HÀNG" />;
+  if (loading) {
+    return (
+      <FormPageLayout
+        breadcrumbItems={[
+          { label: "Danh sách kho", path: "/warehouses" },
+          { label: "Chỉnh sửa" },
+        ]}
+        backLink="/warehouses"
+      >
+        <div className="space-y-4">
+          <Skeleton className="h-32 w-32 rounded-lg" />
+          <Skeleton className="h-8 w-1/3" />
+          <Skeleton className="h-[400px] w-full" />
+        </div>
+      </FormPageLayout>
+    );
   }
 
+  if (!warehouse) return null;
+
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Box
-          display="flex"
-          alignItems="center"
-          justifyContent="space-between"
-          mb={3}
-        >
-          <Typography className="page-title" variant="h4">
-            CHỈNH SỬA THÔNG TIN KHO HÀNG
-          </Typography>
-          <BackButton to="/warehouses" label="Quay lại danh sách" />
-        </Box>
+    <FormPageLayout
+      breadcrumbItems={[
+        { label: "Danh sách kho", path: "/warehouses" },
+        { label: "Chỉnh sửa" },
+      ]}
+      backLink={`/warehouse/${warehouseId}`}
+      backLabel="Quay lại chi tiết"
+    >
+      <div className="flex flex-col md:flex-row gap-8">
+        {/* Left Column: Icon Placeholder */}
+        <div className="w-full md:w-1/3 flex flex-col gap-4">
+          <div className="w-32 h-32 bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg flex items-center justify-center shadow-sm">
+            <BuildingStorefrontIcon className="w-16 h-16 text-orange-600" />
+          </div>
+          <div className="text-sm text-gray-500">
+            Icon đại diện cho kho hàng
+          </div>
+        </div>
 
-        <WarehouseForm
-          warehouse={editedWarehouse}
-          onChange={handleChange}
-          errors={errors}
-          readOnlyFields={[]}
-        />
+        {/* Right Column: Form */}
+        <div className="w-full md:w-2/3 flex flex-col">
+          <WarehouseForm
+            warehouse={editedWarehouse}
+            onChange={handleChange}
+            errors={errors}
+            readOnlyFields={{}}
+          />
 
-        <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
-          <Button
-            type="button"
-            {...getButtonProps("primary")}
-            onClick={handleSave}
-          >
-            Lưu
-          </Button>
-          <Button
-            type="button"
-            {...getButtonProps("outlinedSecondary")}
-            onClick={handleCancel}
-          >
-            Hủy
-          </Button>
-        </Box>
-      </Paper>
-    </Container>
+          <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-100">
+            <Button variant="outline" onClick={handleCancel}>
+              Hủy
+            </Button>
+            <Button onClick={handleSave}>Lưu</Button>
+          </div>
+        </div>
+      </div>
+    </FormPageLayout>
   );
 };
 

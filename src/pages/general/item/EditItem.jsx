@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, Box } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
+import { getItemById, updateItem, updateItemImage } from "@/services/general/ItemService";
 import ItemForm from "@components/general/ItemForm";
-import { getItemById, updateItem } from "@/services/general/ItemService";
+import ImageUpload from "@/components/common/ImageUpload";
+import FormPageLayout from "@/components/layout/FormPageLayout";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import toastrService from "@/services/toastrService";
-import { Button } from "@material-tailwind/react";
-import { getButtonProps } from "@/utils/buttonStyles";
-import BackButton from "@components/common/BackButton";
+import { Button } from "@/components/ui/button";
+import { Save, X } from "lucide-react";
 
 const EditItem = () => {
   const { itemId } = useParams();
@@ -15,6 +15,9 @@ const EditItem = () => {
   const [item, setItem] = useState(null);
   const [editedItem, setEditedItem] = useState(null);
   const [errors, setErrors] = useState({});
+
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
 
   const validateForm = () => {
     const errors = {};
@@ -45,10 +48,11 @@ const EditItem = () => {
         const data = await getItemById(itemId, token);
         setItem(data);
         setEditedItem(data);
+        setImagePreview(data.imageUrl);
       } catch (error) {
         toastrService.error(
           error.response?.data?.message ||
-            "Có lỗi xảy ra khi lấy thông tin hàng hóa!"
+          "Có lỗi xảy ra khi lấy thông tin hàng hóa!"
         );
       }
     };
@@ -72,6 +76,16 @@ const EditItem = () => {
     setEditedItem((prev) => ({ ...prev, [name]: newValue }));
   };
 
+  const handleImageChange = (file) => {
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    } else {
+      setImageFile(null);
+      setImagePreview(null);
+    }
+  };
+
   const handleCancel = () => {
     setEditedItem(item);
     navigate(`/item/${itemId}`);
@@ -87,21 +101,38 @@ const EditItem = () => {
     const token = localStorage.getItem("token");
 
     try {
-      const {
-        itemId: _iid,
-        companyId,
-        itemCode,
-        ...payload
-      } = editedItem || {};
-      const updatedItem = await updateItem(itemId, payload, token);
+      // 1. Update Info (JSON)
+      // Exclude itemCode and companyId as they are not allowed to be updated
+      const itemData = {
+        itemName: editedItem.itemName,
+        itemType: editedItem.itemType,
+        uom: editedItem.uom,
+        technicalSpecifications: editedItem.technicalSpecifications,
+        description: editedItem.description,
+        importPrice: editedItem.importPrice,
+        exportPrice: editedItem.exportPrice,
+        isSellable: editedItem.isSellable,
+      };
+
+      const updatedItem = await updateItem(itemId, itemData, token);
+
+      // 2. Update Image (if changed)
+      if (imageFile) {
+        await updateItemImage(itemId, imageFile, token);
+      }
+
+      // Update local state with the result from updateItem (which contains updated info)
+      // Note: If image was updated, updatedItem might not have the new URL immediately depending on backend response,
+      // but we can rely on the fact that the operation succeeded.
       setItem(updatedItem);
       setEditedItem(updatedItem);
+
       toastrService.success("Cập nhật thông tin hàng hóa thành công!");
       navigate(`/item/${itemId}`);
     } catch (error) {
       toastrService.error(
         error.response?.data?.message ||
-          "Có lỗi xảy ra khi cập nhật thông tin hàng hóa!"
+        "Có lỗi xảy ra khi cập nhật thông tin hàng hóa!"
       );
     }
   };
@@ -114,46 +145,61 @@ const EditItem = () => {
     itemCode: true,
   };
 
+  const breadcrumbs = (
+    <>
+      <span className="cursor-pointer hover:text-blue-600" onClick={() => navigate("/items")}>Danh sách</span>
+      <span>/</span>
+      <span className="cursor-pointer hover:text-blue-600" onClick={() => navigate(`/item/${itemId}`)}>Chi tiết hàng hóa</span>
+      <span>/</span>
+      <span className="text-gray-900 font-medium">Chỉnh sửa</span>
+    </>
+  );
+
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Box
-          display="flex"
-          alignItems="center"
-          justifyContent="space-between"
-          mb={3}
-        >
-          <Typography className="page-title" variant="h4">
-            CHỈNH SỬA HÀNG HÓA
-          </Typography>
-          <BackButton to="/items" label="Quay lại danh sách" />
-        </Box>
+    <FormPageLayout breadcrumbs={breadcrumbs} backLink={`/item/${itemId}`}>
+      <div className="flex flex-col md:flex-row gap-8">
+        {/* Left Column: Image Upload */}
+        <div className="w-full md:w-1/3 flex flex-col gap-4">
+          <ImageUpload
+            previewUrl={imagePreview}
+            onFileChange={handleImageChange}
+            inputId="item-image-input"
+          />
+        </div>
 
-        <ItemForm
-          item={editedItem}
-          onChange={handleChange}
-          errors={errors}
-          readOnlyFields={readOnlyFields}
-        />
+        {/* Right Column: Form */}
+        <div className="w-full md:w-2/3 flex flex-col">
+          <ItemForm
+            item={editedItem}
+            onChange={handleChange}
+            errors={errors}
+            readOnlyFields={readOnlyFields}
+          />
 
-        <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
-          <Button
-            type="button"
-            {...getButtonProps("primary")}
-            onClick={handleSave}
-          >
-            Lưu
-          </Button>
-          <Button
-            type="button"
-            {...getButtonProps("outlinedSecondary")}
-            onClick={handleCancel}
-          >
-            Hủy
-          </Button>
-        </Box>
-      </Paper>
-    </Container>
+          {/* Actions */}
+          <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-100">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleCancel}
+              className="gap-2"
+            >
+              <X className="w-4 h-4" />
+              Hủy
+            </Button>
+            <Button
+              type="button"
+              variant="default"
+              onClick={handleSave}
+              className="gap-2 bg-blue-600 hover:bg-blue-700 min-w-[120px]"
+            >
+              <Save className="w-4 h-4" />
+              Lưu
+            </Button>
+          </div>
+        </div>
+      </div>
+    </FormPageLayout>
   );
 };
 

@@ -1,18 +1,14 @@
-import React, { useEffect, useRef, useState } from "react";
-import DataTable from "@components/content-components/DataTable";
-import { getAllEmployeesInCompany } from "@/services/general/EmployeeService";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { getAllEmployeesInCompany } from "@/services/general/EmployeeService";
 import toastrService from "@/services/toastrService";
-import { Button, Typography, Card, CardBody } from "@material-tailwind/react";
-import { getButtonProps } from "@/utils/buttonStyles";
+import { DataTable, createSortableHeader } from "@/components/ui/data-table";
+import { AddButton } from "@/components/common/ActionButtons";
+import ListPageLayout from "@/components/layout/ListPageLayout";
 
 const EmployeeInCompany = () => {
   const [employees, setEmployees] = useState([]);
-  const [search, setSearch] = useState("");
-  const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState("employeeCode");
-  const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const fetchTimeoutRef = useRef(null);
   const abortControllerRef = useRef(null);
@@ -41,6 +37,7 @@ const EmployeeInCompany = () => {
         const controller = new AbortController();
         abortControllerRef.current = controller;
 
+        setLoading(true);
         try {
           const employees = await getAllEmployeesInCompany(companyId, token, {
             signal: controller.signal,
@@ -56,6 +53,8 @@ const EmployeeInCompany = () => {
             error.response?.data?.message ||
               "Có lỗi xảy ra khi lấy danh sách nhân viên!"
           );
+        } finally {
+          if (isMounted) setLoading(false);
         }
       }, delay);
     };
@@ -69,176 +68,105 @@ const EmployeeInCompany = () => {
     };
   }, [companyId, token]);
 
-  const handleRequestSort = (property) => {
-    const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(property);
-  };
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(Number(event.target.value));
-    setPage(1);
-  };
-
-  const statusLabels = {
-    active: "Đang hoạt động",
-    inactive: "Ngừng hoạt động",
-    resigned: "Đã nghỉ",
-  };
-
-  const statusColorMap = {
-    active: "green",
-    inactive: "amber",
-    resigned: "red",
-  };
-
-  const genderLabels = {
-    male: "Nam",
-    female: "Nữ",
-    other: "Khác",
-  };
-
   const columns = [
-    { id: "employeeCode", label: "Mã nhân viên" },
-    { id: "employeeName", label: "Tên nhân viên" },
-    { id: "departmentName", label: "Bộ phận" },
-    { id: "position", label: "Chức vụ" },
-    { id: "gender", label: "Giới tính" },
-    { id: "dateOfBirth", label: "Ngày sinh" },
-    { id: "email", label: "Email" },
-    { id: "phoneNumber", label: "Số điện thoại" },
-    { id: "status", label: "Trạng thái" },
+    {
+      accessorKey: "employeeCode",
+      header: createSortableHeader("Mã nhân viên"),
+      cell: ({ getValue }) => {
+        const code = getValue();
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+            {code}
+          </span>
+        );
+      },
+    },
+    {
+      accessorKey: "employeeName",
+      header: createSortableHeader("Tên nhân viên"),
+    },
+    {
+      accessorKey: "departmentName",
+      header: createSortableHeader("Bộ phận"),
+    },
+    {
+      accessorKey: "position",
+      header: createSortableHeader("Chức vụ"),
+    },
+    {
+      accessorKey: "gender",
+      header: createSortableHeader("Giới tính"),
+      cell: ({ getValue }) => {
+        const gender = getValue();
+        const genderLabels = {
+          male: "Nam",
+          female: "Nữ",
+          other: "Khác",
+        };
+        return genderLabels[gender] || gender || "";
+      },
+    },
+    {
+      accessorKey: "dateOfBirth",
+      header: createSortableHeader("Ngày sinh"),
+    },
+    {
+      accessorKey: "email",
+      header: createSortableHeader("Email"),
+    },
+    {
+      accessorKey: "phoneNumber",
+      header: createSortableHeader("Số điện thoại"),
+    },
+    {
+      accessorKey: "status",
+      header: createSortableHeader("Trạng thái"),
+      cell: ({ getValue }) => {
+        const status = getValue();
+        const statusLabels = {
+          active: "Đang hoạt động",
+          inactive: "Ngừng hoạt động",
+          resigned: "Đã nghỉ",
+        };
+        const statusColors = {
+          active: "bg-green-100 text-green-700",
+          inactive: "bg-amber-100 text-amber-700",
+          resigned: "bg-red-100 text-red-700",
+        };
+
+        const label = statusLabels[status] || status;
+        const colorClass = statusColors[status] || "bg-gray-100 text-gray-700";
+
+        return (
+          <span
+            className={`inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-medium ${colorClass}`}
+          >
+            {label}
+          </span>
+        );
+      },
+    },
   ];
 
   return (
-    <div className="p-6">
-      <Card className="shadow-lg">
-        <CardBody>
-          <div className="flex items-center justify-between mb-4">
-            <Typography variant="h4" color="blue-gray" className="font-bold">
-              DANH SÁCH NHÂN VIÊN
-            </Typography>
-            <Button
-              type="button"
-              {...getButtonProps("primary")}
-              onClick={() => navigate("/create-employee")}
-            >
-              Thêm mới
-            </Button>
-          </div>
-
-          <DataTable
-            rows={employees}
-            columns={columns}
-            order={order}
-            orderBy={orderBy}
-            onRequestSort={handleRequestSort}
-            page={page}
-            rowsPerPage={rowsPerPage}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            search={search}
-            setSearch={setSearch}
-            renderRow={(emp, index, page, rowsPerPage, renderStatusCell) => {
-              const isLast = index === employees.length - 1;
-              const classes = isLast
-                ? "p-4"
-                : "p-4 border-b border-blue-gray-50";
-              return (
-                <tr
-                  key={emp.id}
-                  className="hover:bg-blue-gray-50 transition-colors cursor-pointer"
-                  onClick={() => navigate(`/employee/${emp.id}`)}
-                >
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {emp.employeeCode || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {emp.employeeName || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {emp.departmentName || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {emp.position || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {genderLabels[emp.gender] || emp.gender || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {emp.dateOfBirth || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {emp.email || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {emp.phoneNumber || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    {renderStatusCell(
-                      statusLabels[emp.status] || emp.status || "",
-                      statusColorMap[emp.status]
-                    )}
-                  </td>
-                </tr>
-              );
-            }}
-          />
-        </CardBody>
-      </Card>
-    </div>
+    <ListPageLayout
+      breadcrumbs="Nhân viên"
+      title="Danh sách nhân viên"
+      description="Quản lý nhân viên trong công ty"
+      actions={
+        <AddButton
+          onClick={() => navigate("/create-employee")}
+          label="Thêm mới"
+        />
+      }
+    >
+      <DataTable
+        columns={columns}
+        data={employees}
+        loading={loading}
+        onRowClick={(row) => navigate(`/employee/${row.id}`)}
+      />
+    </ListPageLayout>
   );
 };
 

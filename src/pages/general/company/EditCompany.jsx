@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Button, Card, CardBody, Typography } from "@material-tailwind/react";
 import {
   getCompanyById,
   updateCompany,
@@ -7,15 +6,17 @@ import {
 } from "@/services/general/CompanyService";
 import CompanyForm from "@components/general/CompanyForm";
 import { useNavigate } from "react-router-dom";
-import LoadingPaper from "@/components/content-components/LoadingPaper";
 import toastrService from "@/services/toastrService";
-import { getButtonProps } from "@/utils/buttonStyles";
-import BackButton from "@components/common/BackButton";
+import { Button } from "@/components/ui/button";
+import FormPageLayout from "@/components/layout/FormPageLayout";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ImageUpload } from "@/components/common/ImageUpload";
 
 const EditCompany = () => {
   const [company, setCompany] = useState(null);
   const [editedCompany, setEditedCompany] = useState(null);
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(true);
 
   const [logoFile, setLogoFile] = useState(null);
   const [logoPreview, setLogoPreview] = useState(null);
@@ -40,6 +41,8 @@ const EditCompany = () => {
         toastrService.error(
           error.response?.data?.message || "Lỗi khi lấy thông tin công ty!"
         );
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -99,16 +102,6 @@ const EditCompany = () => {
 
     try {
       const { joinDate, id, country, ...payload } = editedCompany || {};
-      // const normalizeStatus = (status) => {
-      //   if (!status) return status;
-      //   const s = status.toString().toLowerCase().trim();
-      //   if (["active", "inactived", "closed"].includes(s)) return s;
-      //   if (s.includes("đang")) return "active";
-      //   if (s.includes("ngừng")) return "inactived";
-      //   if (s.includes("đóng")) return "closed";
-      //   return status;
-      // };
-      // payload.status = normalizeStatus(payload.status);
       await updateCompany(companyId, payload, token);
 
       const updatedCompany = await getCompanyById(companyId, token);
@@ -159,22 +152,43 @@ const EditCompany = () => {
     }
   };
 
-  if (!company) {
-    return <LoadingPaper title="CHỈNH SỬA THÔNG TIN CÔNG TY" />;
+  if (loading) {
+    return (
+      <FormPageLayout
+        breadcrumbs="Thông tin công ty / Chỉnh sửa"
+        backLink="/company"
+      >
+        <div className="space-y-4">
+          <Skeleton className="h-32 w-32 rounded-lg" />
+          <Skeleton className="h-8 w-1/3" />
+          <Skeleton className="h-[400px] w-full" />
+        </div>
+      </FormPageLayout>
+    );
   }
 
-  return (
-    <div className="p-6">
-      <Card className="shadow-lg max-w-5xl mx-auto">
-        <CardBody>
-          <div className="flex items-center justify-between mb-6">
-            <Typography variant="h4" color="blue-gray" className="font-bold">
-              CHỈNH SỬA THÔNG TIN CÔNG TY
-            </Typography>
-            <BackButton />
-          </div>
+  if (!company) return null;
 
-          <div className="flex flex-col md:flex-row items-center gap-6 mb-8">
+  return (
+    <FormPageLayout
+      breadcrumbItems={[
+        { label: "Thông tin công ty", path: "/company" },
+        { label: "Chỉnh sửa" },
+      ]}
+      backLink="/company"
+      backLabel="Quay lại"
+    >
+      {/* Title với icon */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-semibold text-gray-900 flex items-center gap-2">
+          CHỈNH SỬA THÔNG TIN CÔNG TY
+        </h1>
+      </div>
+
+      <div className="flex flex-col lg:flex-row items-start gap-8 mb-8 bg-white rounded-lg border border-gray-200 p-6">
+        {/* Left: Logo */}
+        <div className="flex-shrink-0">
+          <div className="w-32 h-32 rounded-lg overflow-hidden border border-gray-200 bg-gray-50 shadow-sm mb-3">
             <img
               src={
                 logoPreview ||
@@ -182,63 +196,46 @@ const EditCompany = () => {
                 "https://cdn-icons-png.freepik.com/512/2774/2774806.png"
               }
               alt="Company Logo"
-              className="w-32 h-32 object-cover rounded-lg shadow-md"
+              className="w-full h-full object-cover"
             />
-            <div className="flex flex-col gap-2 w-full md:w-auto">
-              <Button
-                {...getButtonProps("outlinedSecondary")}
-                className="w-full md:w-auto"
-                type="button"
-                onClick={() =>
-                  document.getElementById("company-logo-input")?.click()
-                }
-              >
-                Chọn logo
-              </Button>
-              <input
-                id="company-logo-input"
-                type="file"
-                accept="image/*"
-                onChange={handleLogoChange}
-                className="hidden"
-              />
-              <Button
-                {...getButtonProps("primary")}
-                type="button"
-                disabled={!logoFile}
-                onClick={handleUploadLogo}
-                className="w-full md:w-auto disabled:opacity-60 disabled:cursor-not-allowed"
-              >
-                Cập nhật logo
-              </Button>
-            </div>
           </div>
+          <input
+            type="file"
+            id="company-logo-input"
+            accept="image/*"
+            onChange={handleLogoChange}
+            className="hidden"
+          />
+          <label
+            htmlFor="company-logo-input"
+            className="block w-32 px-3 py-2 text-xs text-center bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 cursor-pointer transition-colors"
+          >
+            Chọn logo
+          </label>
+          {logoFile && (
+            <Button onClick={handleUploadLogo} size="sm" className="w-32 mt-2">
+              Cập nhật logo
+            </Button>
+          )}
+        </div>
 
+        {/* Right: Form với Grid 2 cột */}
+        <div className="flex-1 w-full">
           <CompanyForm
             companyData={editedCompany}
             onChange={handleChange}
             errors={errors}
           />
+        </div>
+      </div>
 
-          <div className="mt-6 flex justify-end gap-3">
-            <Button
-              type="button"
-              {...getButtonProps("primary")}
-              onClick={handleSave}
-            >
-              Lưu
-            </Button>
-            <Button
-              type="button"
-              {...getButtonProps("outlinedSecondary")}
-              onClick={handleCancel}
-            >
-              Hủy
-            </Button>
-          </div>
-        </CardBody>
-      </Card>
-    </div>
+      <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-100">
+        <Button variant="outline" onClick={handleCancel}>
+          Hủy
+        </Button>
+        <Button onClick={handleSave}>Lưu thay đổi</Button>
+      </div>
+    </FormPageLayout>
   );
 };
 

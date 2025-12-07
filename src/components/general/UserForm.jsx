@@ -1,5 +1,13 @@
 import React from "react";
-import { Input, Select, Option, Typography } from "@material-tailwind/react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const getRoleLabel = (roleValue) => {
   const roleMap = {
@@ -19,8 +27,14 @@ const getStatusLabel = (statusValue) => {
   return statusMap[statusValue] || statusValue;
 };
 
-const UserForm = ({ user, onChange, errors, role, readOnly }) => {
-  const isReadOnly = readOnly || role === "user";
+const UserForm = ({
+  user,
+  onChange,
+  errors = {},
+  role,
+  readOnlyFields = {},
+}) => {
+  const isFieldReadOnly = (field) => readOnlyFields[field] ?? false;
 
   const handleSelectChange = (name, value) => {
     onChange({
@@ -33,121 +47,117 @@ const UserForm = ({ user, onChange, errors, role, readOnly }) => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {/* Mã nhân viên hoặc Username */}
-      <div>
-        {(role === "c-admin" || role === "user") && (
+      {(role === "c-admin" || role === "user") && (
+        <div className="space-y-2">
+          <Label htmlFor="employeeCode">
+            Mã nhân viên <span className="text-red-500">*</span>
+          </Label>
           <Input
-            label="Mã nhân viên"
+            id="employeeCode"
             name="employeeCode"
-            color="blue"
             value={user.employeeCode || ""}
-            className="w-full placeholder:opacity-100"
-            readOnly
+            onChange={onChange}
+            readOnly={isFieldReadOnly("employeeCode")}
+            disabled={isFieldReadOnly("employeeCode")}
+            className={errors.employeeCode ? "border-red-500" : ""}
           />
-        )}
-        {role === "s-admin" && (
-          <Input
-            label="Username"
-            name="username"
-            color="blue"
-            value={user.username || ""}
-            onChange={isReadOnly ? undefined : onChange}
-            className="w-full placeholder:opacity-100"
-            readOnly={isReadOnly}
-            required
-          />
-        )}
-        {errors.employeeCode && (role === "c-admin" || role === "user") && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.employeeCode}
-          </Typography>
-        )}
-        {errors.username && role === "s-admin" && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.username}
-          </Typography>
-        )}
-      </div>
+          {errors.employeeCode && (
+            <p className="text-sm text-red-500">{errors.employeeCode}</p>
+          )}
+        </div>
+      )}
 
-      {/* Email */}
-      <div>
+      {role === "s-admin" && (
+        <div className="space-y-2">
+          <Label htmlFor="username">
+            Username <span className="text-red-500">*</span>
+          </Label>
+          <Input
+            id="username"
+            name="username"
+            value={user.username || ""}
+            onChange={onChange}
+            readOnly={isFieldReadOnly("username")}
+            disabled={isFieldReadOnly("username")}
+            className={errors.username ? "border-red-500" : ""}
+          />
+          {errors.username && (
+            <p className="text-sm text-red-500">{errors.username}</p>
+          )}
+        </div>
+      )}
+
+      <div className="space-y-2">
+        <Label htmlFor="email">
+          Email <span className="text-red-500">*</span>
+        </Label>
         <Input
-          label="Email"
+          id="email"
           name="email"
           type="email"
-          color="blue"
           value={user.email || ""}
-          onChange={isReadOnly ? undefined : onChange}
-          className="w-full placeholder:opacity-100"
-          readOnly={isReadOnly}
-          required
+          onChange={onChange}
+          readOnly={isFieldReadOnly("email")}
+          className={errors.email ? "border-red-500" : ""}
         />
-        {errors.email && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.email}
-          </Typography>
-        )}
+        {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
       </div>
 
-      {/* Vai trò */}
-      <div>
-        {isReadOnly ? (
+      <div className="space-y-2">
+        <Label htmlFor="role">
+          Vai trò <span className="text-red-500">*</span>
+        </Label>
+        {isFieldReadOnly("role") ? (
           <Input
-            label="Vai trò"
-            color="blue"
             value={getRoleLabel(user.role) || ""}
             readOnly
-            className="w-full placeholder:opacity-100"
+            className="bg-gray-50"
           />
         ) : (
           <Select
-            label="Vai trò"
             value={user.role || ""}
-            color="blue"
-            onChange={(val) => handleSelectChange("role", val)}
-            className="w-full placeholder:opacity-100"
+            onValueChange={(val) => handleSelectChange("role", val)}
           >
-            {role === "s-admin" && (
-              <Option value="s_admin">Quản trị hệ thống</Option>
-            )}
-            <Option value="c_admin">Quản trị công ty</Option>
-            <Option value="user">Nhân viên</Option>
+            <SelectTrigger className={errors.role ? "border-red-500" : ""}>
+              <SelectValue placeholder="Chọn vai trò" />
+            </SelectTrigger>
+            <SelectContent>
+              {role === "s-admin" && (
+                <SelectItem value="s_admin">Quản trị hệ thống</SelectItem>
+              )}
+              <SelectItem value="c_admin">Quản trị công ty</SelectItem>
+              <SelectItem value="user">Nhân viên</SelectItem>
+            </SelectContent>
           </Select>
         )}
-        {errors.role && !isReadOnly && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.role}
-          </Typography>
-        )}
+        {errors.role && <p className="text-sm text-red-500">{errors.role}</p>}
       </div>
 
-      {/* Trạng thái */}
-      <div>
-        {isReadOnly ? (
+      <div className="space-y-2">
+        <Label htmlFor="status">Trạng thái</Label>
+        {isFieldReadOnly("status") ? (
           <Input
-            label="Trạng thái"
-            color="blue"
             value={getStatusLabel(user.status) || ""}
             readOnly
-            className="w-full placeholder:opacity-100"
+            className="bg-gray-50"
           />
         ) : (
           <Select
-            label="Trạng thái"
             value={user.status || ""}
-            color="blue"
-            onChange={(val) => handleSelectChange("status", val)}
-            className="w-full placeholder:opacity-100"
+            onValueChange={(val) => handleSelectChange("status", val)}
           >
-            <Option value="active">Đang hoạt động</Option>
-            <Option value="inactive">Ngừng hoạt động</Option>
-            <Option value="resigned">Đã nghỉ</Option>
+            <SelectTrigger className={errors.status ? "border-red-500" : ""}>
+              <SelectValue placeholder="Chọn trạng thái" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="active">Đang hoạt động</SelectItem>
+              <SelectItem value="inactive">Ngừng hoạt động</SelectItem>
+              <SelectItem value="resigned">Đã nghỉ</SelectItem>
+            </SelectContent>
           </Select>
         )}
-        {errors.status && !isReadOnly && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.status}
-          </Typography>
+        {errors.status && (
+          <p className="text-sm text-red-500">{errors.status}</p>
         )}
       </div>
     </div>

@@ -1,19 +1,26 @@
 import React, { useEffect, useState } from "react";
-import DataTable from "@components/content-components/DataTable";
 import { useNavigate } from "react-router-dom";
-import { getAllPlantsInCompany } from "@/services/general/ManufacturePlantService";
+import {
+  getAllPlantsInCompany,
+  updatePlant,
+} from "@/services/general/ManufacturePlantService";
 import toastrService from "@/services/toastrService";
-import { Button, Typography, Card, CardBody } from "@material-tailwind/react";
-import { getButtonProps } from "@/utils/buttonStyles";
+import { DataTable, createSortableHeader } from "@/components/ui/data-table";
+import { AddButton } from "@/components/common/ActionButtons";
+import ListPageLayout from "@/components/layout/ListPageLayout";
+import QuickViewModal from "@/components/common/QuickViewModal";
+import PlantForm from "@/components/general/PlantForm";
+import { PencilIcon } from "@heroicons/react/24/outline";
 
 const PlantInCompany = () => {
   const [plants, setPlants] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [search, setSearch] = useState("");
-  const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState("plantName");
-  const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [selectedPlant, setSelectedPlant] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [formData, setFormData] = useState({});
+  const [errors, setErrors] = useState({});
+  const [saving, setSaving] = useState(false);
   const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
@@ -39,100 +46,194 @@ const PlantInCompany = () => {
     }
   }, [companyId, token]);
 
-  const handleRequestSort = (property) => {
-    const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(property);
-  };
-
-  const handleChangePage = (event, newPage) => setPage(newPage);
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(Number(event.target.value));
-    setPage(1);
-  };
-
   const columns = [
-    { id: "plantCode", label: "Mã xưởng" },
-    { id: "plantName", label: "Tên xưởng" },
-    { id: "description", label: "Mô tả" },
+    {
+      accessorKey: "plantCode",
+      header: createSortableHeader("Mã xưởng"),
+      cell: ({ getValue }) => {
+        const code = getValue();
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+            {code}
+          </span>
+        );
+      },
+    },
+    {
+      accessorKey: "plantName",
+      header: createSortableHeader("Tên xưởng"),
+    },
+    {
+      accessorKey: "description",
+      header: createSortableHeader("Mô tả"),
+      cell: ({ getValue }) => getValue() || "-",
+    },
+    {
+      id: "actions",
+      header: "Thao tác",
+      cell: ({ row }) => (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setSelectedPlant(row.original);
+            setFormData(row.original);
+            setEditMode(true);
+            setModalOpen(true);
+          }}
+          className="p-2 hover:bg-gray-100 rounded-md transition-colors"
+          title="Chỉnh sửa"
+        >
+          <PencilIcon className="h-5 w-5 text-green-600" />
+        </button>
+      ),
+    },
   ];
 
   return (
-    <div className="p-6">
-      <Card className="shadow-lg">
-        <CardBody>
-          <div className="flex items-center justify-between mb-4">
-            <Typography variant="h4" color="blue-gray" className="font-bold">
-              DANH SÁCH XƯỞNG SẢN XUẤT
-            </Typography>
-            <Button
-              type="button"
-              {...getButtonProps("primary")}
-              onClick={() => navigate("/create-plant")}
-            >
-              Thêm mới
-            </Button>
-          </div>
-
-          <DataTable
-            rows={plants}
-            columns={columns}
-            order={order}
-            orderBy={orderBy}
-            onRequestSort={handleRequestSort}
-            page={page}
-            rowsPerPage={rowsPerPage}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            search={search}
-            setSearch={setSearch}
-            loading={loading}
-            renderRow={(plant, index, page, rowsPerPage) => {
-              const isLast = index === plants.length - 1;
-              const classes = isLast
-                ? "p-4"
-                : "p-4 border-b border-blue-gray-50";
-              return (
-                <tr
-                  key={plant.plantId}
-                  className="hover:bg-blue-gray-50 transition-colors cursor-pointer"
-                  onClick={() => navigate(`/plant/${plant.plantId}`)}
-                >
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {plant.plantCode || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {plant.plantName || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {plant.description || ""}
-                    </Typography>
-                  </td>
-                </tr>
-              );
-            }}
+    <>
+      <ListPageLayout
+        breadcrumbs="Xưởng sản xuất"
+        title="Danh sách xưởng sản xuất"
+        description="Quản lý các xưởng sản xuất trong hệ thống"
+        actions={
+          <AddButton
+            onClick={() => navigate("/create-plant")}
+            label="Thêm mới"
           />
-        </CardBody>
-      </Card>
-    </div>
+        }
+      >
+        <DataTable
+          columns={columns}
+          data={plants}
+          loading={loading}
+          onRowClick={(row) => {
+            setSelectedPlant(row);
+            setFormData(row);
+            setEditMode(false);
+            setModalOpen(true);
+          }}
+        />
+      </ListPageLayout>
+
+      {/* Modal */}
+      <QuickViewModal
+        open={modalOpen}
+        onClose={() => {
+          setModalOpen(false);
+          setEditMode(false);
+          setErrors({});
+        }}
+        title={editMode ? "CHỈNH SỬA XƯỞNG" : "CHI TIẾT XƯỞNG"}
+      >
+        {selectedPlant && (
+          <div className="space-y-4">
+            {!editMode ? (
+              /* View Mode */
+              <>
+                <div className="space-y-3">
+                  <div>
+                    <span className="text-sm text-gray-500">Mã xưởng:</span>
+                    <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+                      {selectedPlant.plantCode}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-sm text-gray-500">Tên xưởng:</span>
+                    <span className="ml-2 text-sm font-medium text-gray-900">
+                      {selectedPlant.plantName}
+                    </span>
+                  </div>
+                  {selectedPlant.description && (
+                    <div>
+                      <span className="text-sm text-gray-500">Mô tả:</span>
+                      <p className="mt-1 text-sm text-gray-700">
+                        {selectedPlant.description}
+                      </p>
+                    </div>
+                  )}
+                </div>
+                <div className="flex gap-3 pt-4 border-t">
+                  <button
+                    onClick={() => setEditMode(true)}
+                    className="flex-1 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                  >
+                    Chỉnh sửa
+                  </button>
+                  <button
+                    onClick={() => setModalOpen(false)}
+                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
+                  >
+                    Đóng
+                  </button>
+                </div>
+              </>
+            ) : (
+              /* Edit Mode */
+              <>
+                <PlantForm
+                  plant={formData}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      [e.target.name]: e.target.value,
+                    })
+                  }
+                  errors={errors}
+                  readOnlyFields={{ plantCode: true }}
+                />
+                <div className="flex gap-3 pt-4 border-t">
+                  <button
+                    onClick={async () => {
+                      setSaving(true);
+                      try {
+                        const { plantId, companyId, plantCode, ...payload } =
+                          formData;
+                        await updatePlant(
+                          selectedPlant.plantId,
+                          payload,
+                          token
+                        );
+                        toastrService.success("Cập nhật xưởng thành công!");
+                        setModalOpen(false);
+                        setEditMode(false);
+                        // Refresh data
+                        const result = await getAllPlantsInCompany(
+                          companyId,
+                          token
+                        );
+                        setPlants(result);
+                      } catch (error) {
+                        toastrService.error(
+                          error.response?.data?.message ||
+                            "Lỗi khi cập nhật xưởng!"
+                        );
+                      } finally {
+                        setSaving(false);
+                      }
+                    }}
+                    disabled={saving}
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
+                  >
+                    {saving ? "Đang lưu..." : "Lưu"}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setEditMode(false);
+                      setFormData(selectedPlant);
+                      setErrors({});
+                    }}
+                    disabled={saving}
+                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors disabled:opacity-50"
+                  >
+                    Hủy
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+      </QuickViewModal>
+    </>
   );
 };
 

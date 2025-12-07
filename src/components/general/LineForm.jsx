@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Input, Select, Option, Typography } from "@material-tailwind/react";
 import { getAllPlantsInCompany } from "@/services/general/ManufacturePlantService";
 import toastrService from "@/services/toastrService";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 
 const LineForm = ({
   line,
@@ -32,7 +35,7 @@ const LineForm = ({
       } catch (error) {
         toastrService.error(
           error.response?.data?.message ||
-            "Có lỗi khi lấy danh sách xưởng sản xuất!"
+          "Có lỗi khi lấy danh sách xưởng sản xuất!"
         );
       }
     };
@@ -42,100 +45,92 @@ const LineForm = ({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* Xưởng sản xuất */}
-      <div>
+      <div className="space-y-2">
+        <Label htmlFor="plantId">Xưởng sản xuất <span className="text-red-500">*</span></Label>
         <Select
-          label="Xưởng sản xuất"
           value={line.plantId || ""}
-          color="blue"
-          onChange={(val) => handleSelectChange("plantId", val)}
-          className="w-full placeholder:opacity-100"
+          onValueChange={(val) => handleSelectChange("plantId", val)}
           disabled={isFieldReadOnly("plantId")}
         >
-          {plants.map((plant) => (
-            <Option key={plant.plantId} value={plant.plantId}>
-              {plant.plantCode} - {plant.plantName}
-            </Option>
-          ))}
+          <SelectTrigger className={errors.plantId ? "border-red-500" : ""}>
+            <SelectValue placeholder="Chọn xưởng sản xuất" />
+          </SelectTrigger>
+          <SelectContent>
+            {plants.map((plant) => (
+              <SelectItem key={plant.plantId} value={plant.plantId}>
+                {plant.plantCode} - {plant.plantName}
+              </SelectItem>
+            ))}
+          </SelectContent>
         </Select>
         {errors.plantId && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.plantId}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.plantId}</p>
         )}
       </div>
 
       {/* Mã dây chuyền */}
-      <div>
+      <div className="space-y-2">
+        <Label htmlFor="lineCode">Mã dây chuyền {requireLineCode && <span className="text-red-500">*</span>}</Label>
         <Input
-          label="Mã dây chuyền"
+          id="lineCode"
           name="lineCode"
-          color="blue"
           value={line.lineCode || ""}
           onChange={onChange}
-          className="w-full placeholder:opacity-100"
           readOnly={isFieldReadOnly("lineCode")}
-          required={requireLineCode}
+          disabled={isFieldReadOnly("lineCode")}
+          className={errors.lineCode ? "border-red-500" : ""}
         />
         {errors.lineCode && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.lineCode}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.lineCode}</p>
         )}
       </div>
 
       {/* Tên dây chuyền */}
-      <div>
+      <div className="space-y-2">
+        <Label htmlFor="lineName">Tên dây chuyền <span className="text-red-500">*</span></Label>
         <Input
-          label="Tên dây chuyền"
+          id="lineName"
           name="lineName"
-          color="blue"
           value={line.lineName || ""}
           onChange={onChange}
-          className="w-full placeholder:opacity-100"
           readOnly={isFieldReadOnly("lineName")}
-          required
+          className={errors.lineName ? "border-red-500" : ""}
         />
         {errors.lineName && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.lineName}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.lineName}</p>
         )}
       </div>
 
       {/* Công suất */}
-      <div>
+      <div className="space-y-2">
+        <Label htmlFor="capacity">Công suất</Label>
         <Input
-          label="Công suất"
+          id="capacity"
           name="capacity"
           type="number"
-          color="blue"
           value={line.capacity ?? ""}
           onChange={onChange}
-          className="w-full placeholder:opacity-100"
           readOnly={isFieldReadOnly("capacity")}
+          className={errors.capacity ? "border-red-500" : ""}
         />
         {errors.capacity && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.capacity}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.capacity}</p>
         )}
       </div>
 
       {/* Mô tả */}
-      <div className="md:col-span-2">
-        <Input
-          label="Mô tả"
+      <div className="md:col-span-2 space-y-2">
+        <Label htmlFor="description">Mô tả</Label>
+        <Textarea
+          id="description"
           name="description"
-          color="blue"
           value={line.description || ""}
           onChange={onChange}
-          className="w-full placeholder:opacity-100"
           readOnly={isFieldReadOnly("description")}
+          className={errors.description ? "border-red-500" : ""}
         />
         {errors.description && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.description}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.description}</p>
         )}
       </div>
     </div>

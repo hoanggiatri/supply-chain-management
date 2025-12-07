@@ -1,185 +1,121 @@
-import React, { useEffect, useRef, useState } from "react";
-import DataTable from "@components/content-components/DataTable";
-import { getAllUsersInCompany } from "@/services/general/UserService";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { getAllUsersInCompany } from "@/services/general/UserService";
 import toastrService from "@/services/toastrService";
-import { Typography, Card, CardBody } from "@material-tailwind/react";
+import { DataTable, createSortableHeader } from "@/components/ui/data-table";
+import { AddButton } from "@/components/common/ActionButtons";
+import ListPageLayout from "@/components/layout/ListPageLayout";
 
 const UserInCompany = () => {
   const [users, setUsers] = useState([]);
-  const [search, setSearch] = useState("");
-  const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState("employeeCode");
-  const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const fetchTimeoutRef = useRef(null);
-  const abortControllerRef = useRef(null);
-  const lastFetchRef = useRef(0);
-  const FETCH_DEBOUNCE_MS = 500;
 
   const token = localStorage.getItem("token");
   const companyId = localStorage.getItem("companyId");
 
   useEffect(() => {
-    if (!companyId || !token) {
-      return;
-    }
-
-    let isMounted = true;
-
-    const scheduleFetchUsers = () => {
-      const now = Date.now();
-      const elapsed = now - lastFetchRef.current;
-      const delay =
-        elapsed >= FETCH_DEBOUNCE_MS ? 0 : FETCH_DEBOUNCE_MS - elapsed;
-
-      clearTimeout(fetchTimeoutRef.current);
-      fetchTimeoutRef.current = setTimeout(async () => {
-        abortControllerRef.current?.abort();
-        const controller = new AbortController();
-        abortControllerRef.current = controller;
-
-        try {
-          const users = await getAllUsersInCompany(companyId, token, {
-            signal: controller.signal,
-          });
-          if (!isMounted) return;
-          setUsers(users.data);
-          lastFetchRef.current = Date.now();
-        } catch (error) {
-          if (error?.code === "ERR_CANCELED") {
-            return;
-          }
-          toastrService.error(
-            error.response?.data?.message || "Lỗi khi tải danh sách người dùng!"
-          );
-        }
-      }, delay);
+    let abortController = new AbortController();
+    const fetchUsers = async () => {
+      setLoading(true);
+      try {
+        const result = await getAllUsersInCompany(
+          companyId,
+          token,
+          abortController.signal
+        );
+        setUsers(result.data || result);
+      } catch (error) {
+        if (error.name === "CanceledError") return;
+        toastrService.error(
+          error.response?.data?.message || "Lỗi khi tải danh sách người dùng!"
+        );
+      } finally {
+        setLoading(false);
+      }
     };
 
-    scheduleFetchUsers();
+    const timer = setTimeout(() => {
+      if (companyId && token) {
+        fetchUsers();
+      }
+    }, 500);
 
     return () => {
-      isMounted = false;
-      clearTimeout(fetchTimeoutRef.current);
-      abortControllerRef.current?.abort();
+      clearTimeout(timer);
+      abortController.abort();
     };
   }, [companyId, token]);
 
-  const handleRequestSort = (property) => {
-    const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(property);
-  };
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(Number(event.target.value));
-    setPage(1);
-  };
-
-  const roleLabels = {
-    c_admin: "Quản trị công ty",
-    s_admin: "Quản trị hệ thống",
-    user: "Nhân viên",
-  };
-
-  const statusLabels = {
-    active: "Đang hoạt động",
-    inactive: "Ngừng hoạt động",
-    resigned: "Đã nghỉ",
-  };
-
-  const statusColorMap = {
-    active: "green",
-    inactive: "amber",
-    resigned: "red",
-  };
-
   const columns = [
-    { id: "employeeCode", label: "Mã nhân viên" },
-    { id: "email", label: "Email" },
-    { id: "role", label: "Vai trò" },
-    { id: "status", label: "Trạng thái" },
+    {
+      accessorKey: "employeeCode",
+      header: createSortableHeader("Mã nhân viên"),
+      cell: ({ getValue }) => {
+        const code = getValue();
+        if (!code) return "N/A";
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+            {code}
+          </span>
+        );
+      },
+    },
+    {
+      accessorKey: "email",
+      header: createSortableHeader("Email"),
+    },
+    {
+      accessorKey: "role",
+      header: createSortableHeader("Vai trò"),
+      cell: ({ getValue }) => {
+        const role = getValue();
+        const roleLabels = {
+          c_admin: "Quản trị công ty",
+          s_admin: "Quản trị hệ thống",
+          user: "Nhân viên",
+        };
+        return roleLabels[role] || role;
+      },
+    },
+    {
+      accessorKey: "status",
+      header: createSortableHeader("Trạng thái"),
+      cell: ({ getValue }) => {
+        const status = getValue();
+        const statusLabels = {
+          active: "Đang hoạt động",
+          inactive: "Ngừng hoạt động",
+          resigned: "Đã nghỉ",
+        };
+        const statusColors = {
+          active: "bg-green-100 text-green-700",
+          inactive: "bg-amber-100 text-amber-700",
+          resigned: "bg-red-100 text-red-700",
+        };
+
+        const label = statusLabels[status] || status;
+        const colorClass = statusColors[status] || "bg-gray-100 text-gray-700";
+
+        return (
+          <span
+            className={`inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-medium ${colorClass}`}
+          >
+            {label}
+          </span>
+        );
+      },
+    },
   ];
 
   return (
-    <div className="p-6">
-      <Card className="shadow-lg">
-        <CardBody>
-          <div className="flex items-center justify-between mb-4">
-            <Typography variant="h4" color="blue-gray" className="font-bold">
-              DANH SÁCH TÀI KHOẢN
-            </Typography>
-          </div>
-
-          <DataTable
-            rows={users}
-            columns={columns}
-            order={order}
-            orderBy={orderBy}
-            onRequestSort={handleRequestSort}
-            page={page}
-            rowsPerPage={rowsPerPage}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            search={search}
-            setSearch={setSearch}
-            renderRow={(user, index, page, rowsPerPage, renderStatusCell) => {
-              const isLast = index === users.length - 1;
-              const classes = isLast
-                ? "p-4"
-                : "p-4 border-b border-blue-gray-50";
-              return (
-                <tr
-                  key={user.employeeId}
-                  className="hover:bg-blue-gray-50 transition-colors cursor-pointer"
-                  onClick={() => navigate(`/user/${user.userId}`)}
-                >
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {user.employeeCode || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {user.email || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {roleLabels[user.role] || user.role || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    {renderStatusCell(
-                      statusLabels[user.status] || user.status || "",
-                      statusColorMap[user.status]
-                    )}
-                  </td>
-                </tr>
-              );
-            }}
-          />
-        </CardBody>
-      </Card>
-    </div>
+    <ListPageLayout
+      breadcrumbs="Tài khoản"
+      title="Danh sách tài khoản"
+      description="Quản lý tài khoản người dùng trong hệ thống"
+    >
+      <DataTable columns={columns} data={users} loading={loading} />
+    </ListPageLayout>
   );
 };
 

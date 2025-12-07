@@ -1,5 +1,7 @@
 import React from "react";
-import { Input, Select, Option, Typography } from "@material-tailwind/react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const CompanyForm = ({ companyData, onChange, errors, readOnly = false }) => {
   const handleSelectChange = (name, value) => {
@@ -14,230 +16,205 @@ const CompanyForm = ({ companyData, onChange, errors, readOnly = false }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* Mã công ty */}
-      <div>
+      <div className="space-y-2">
+        <Label htmlFor="companyCode">Mã công ty</Label>
         <Input
-          label="Mã công ty"
+          id="companyCode"
           name="companyCode"
-          color="blue"
           value={companyData.companyCode || ""}
-          className="w-full placeholder:opacity-100"
           readOnly
+          className="bg-gray-100"
         />
         {errors.companyCode && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.companyCode}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.companyCode}</p>
         )}
       </div>
 
       {/* Tên công ty */}
-      <div>
+      <div className="space-y-2">
+        <Label htmlFor="companyName">Tên công ty <span className="text-red-500">*</span></Label>
         <Input
-          label="Tên công ty"
+          id="companyName"
           name="companyName"
-          color="blue"
           value={companyData.companyName || ""}
           onChange={onChange}
-          className="w-full placeholder:opacity-100"
           readOnly={readOnly}
-          required
+          className={errors.companyName ? "border-red-500" : ""}
         />
         {errors.companyName && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.companyName}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.companyName}</p>
         )}
       </div>
 
       {/* Mã số thuế */}
-      <div>
+      <div className="space-y-2">
+        <Label htmlFor="taxCode">Mã số thuế <span className="text-red-500">*</span></Label>
         <Input
-          label="Mã số thuế"
+          id="taxCode"
           name="taxCode"
           value={companyData.taxCode || ""}
-          color="blue"
-          className="w-full placeholder:opacity-100"
           readOnly
-          required
+          className="bg-gray-100"
         />
         {errors.taxCode && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.taxCode}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.taxCode}</p>
         )}
       </div>
 
       {/* Tên người đại diện */}
-      <div>
+      <div className="space-y-2">
+        <Label htmlFor="representativeName">Tên người đại diện <span className="text-red-500">*</span></Label>
         <Input
-          label="Tên người đại diện"
+          id="representativeName"
           name="representativeName"
-          color="blue"
           value={companyData.representativeName || ""}
           onChange={onChange}
-          className="w-full placeholder:opacity-100"
           readOnly={readOnly}
-          required
+          className={errors.representativeName ? "border-red-500" : ""}
         />
         {errors.representativeName && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.representativeName}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.representativeName}</p>
         )}
       </div>
 
       {/* Loại hình doanh nghiệp */}
-      <div>
+      <div className="space-y-2">
+        <Label htmlFor="companyType">Loại hình doanh nghiệp</Label>
         <Select
-          label="Loại hình doanh nghiệp"
           value={companyData.companyType || ""}
-          onChange={(val) => handleSelectChange("companyType", val)}
-          color="blue"
-          className="w-full placeholder:opacity-100"
-          readOnly={readOnly}
+          onValueChange={(val) => handleSelectChange("companyType", val)}
+          disabled={readOnly}
         >
-          <Option value="Doanh nghiệp sản xuất">Doanh nghiệp sản xuất</Option>
-          <Option value="Doanh nghiệp thương mại">
-            Doanh nghiệp thương mại
-          </Option>
+          <SelectTrigger className={errors.companyType ? "border-red-500" : ""}>
+            <SelectValue placeholder="Chọn loại hình doanh nghiệp" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Doanh nghiệp sản xuất">Doanh nghiệp sản xuất</SelectItem>
+            <SelectItem value="Doanh nghiệp thương mại">Doanh nghiệp thương mại</SelectItem>
+          </SelectContent>
         </Select>
         {errors.companyType && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.companyType}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.companyType}</p>
         )}
       </div>
 
       {/* Ngành nghề chính */}
-      <div>
+      <div className="space-y-2">
+        <Label htmlFor="mainIndustry">Ngành nghề chính</Label>
         <Input
-          label="Ngành nghề chính"
+          id="mainIndustry"
           name="mainIndustry"
           value={companyData.mainIndustry || ""}
           onChange={onChange}
-          color="blue"
-          className="w-full placeholder:opacity-100"
           readOnly={readOnly}
+          className={errors.mainIndustry ? "border-red-500" : ""}
         />
         {errors.mainIndustry && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.mainIndustry}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.mainIndustry}</p>
         )}
       </div>
 
       {/* Địa chỉ */}
-      <div>
+      <div className="space-y-2">
+        <Label htmlFor="address">Địa chỉ <span className="text-red-500">*</span></Label>
         <Input
-          label="Địa chỉ"
+          id="address"
           name="address"
           value={companyData.address || ""}
           onChange={onChange}
-          color="blue"
-          className="w-full placeholder:opacity-100"
           readOnly={readOnly}
-          required
+          className={errors.address ? "border-red-500" : ""}
         />
         {errors.address && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.address}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.address}</p>
         )}
       </div>
 
       {/* Số điện thoại */}
-      <div>
+      <div className="space-y-2">
+        <Label htmlFor="phoneNumber">Số điện thoại <span className="text-red-500">*</span></Label>
         <Input
-          label="Số điện thoại"
+          id="phoneNumber"
           name="phoneNumber"
           value={companyData.phoneNumber || ""}
           onChange={onChange}
-          color="blue"
-          className="w-full placeholder:opacity-100"
           readOnly={readOnly}
-          required
+          className={errors.phoneNumber ? "border-red-500" : ""}
         />
         {errors.phoneNumber && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.phoneNumber}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.phoneNumber}</p>
         )}
       </div>
 
       {/* Email */}
-      <div>
+      <div className="space-y-2">
+        <Label htmlFor="email">Email <span className="text-red-500">*</span></Label>
         <Input
-          label="Email"
+          id="email"
           name="email"
           type="email"
           value={companyData.email || ""}
           onChange={onChange}
-          color="blue"
-          className="w-full placeholder:opacity-100"
           readOnly={readOnly}
-          required
+          className={errors.email ? "border-red-500" : ""}
         />
         {errors.email && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.email}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.email}</p>
         )}
       </div>
 
       {/* Ngày bắt đầu */}
-      <div>
+      <div className="space-y-2">
+        <Label htmlFor="startDate">Ngày bắt đầu</Label>
         <Input
-          label="Ngày bắt đầu"
+          id="startDate"
           name="startDate"
           type="date"
           value={companyData.startDate?.substring(0, 10) || ""}
           onChange={onChange}
-          color="blue"
-          className="w-full placeholder:opacity-100"
           readOnly={readOnly}
+          className={errors.startDate ? "border-red-500" : ""}
         />
         {errors.startDate && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.startDate}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.startDate}</p>
         )}
       </div>
 
       {/* Website */}
-      <div>
+      <div className="space-y-2">
+        <Label htmlFor="websiteAddress">Website</Label>
         <Input
-          label="Website"
+          id="websiteAddress"
           name="websiteAddress"
           value={companyData.websiteAddress || ""}
           onChange={onChange}
-          color="blue"
-          className="w-full placeholder:opacity-100"
           readOnly={readOnly}
+          className={errors.websiteAddress ? "border-red-500" : ""}
         />
         {errors.websiteAddress && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.websiteAddress}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.websiteAddress}</p>
         )}
       </div>
 
       {/* Trạng thái */}
-      <div>
+      <div className="space-y-2">
+        <Label htmlFor="status">Trạng thái</Label>
         <Select
-          label="Trạng thái"
           value={companyData.status || ""}
-          onChange={(val) => handleSelectChange("status", val)}
-          color="blue"
-          className="w-full placeholder:opacity-100"
+          onValueChange={(val) => handleSelectChange("status", val)}
+          disabled={readOnly}
         >
-          <Option value="active">Đang hoạt động</Option>
-          <Option value="inactive">Ngừng hoạt động</Option>
-          <Option value="closed">Đã đóng</Option>
+          <SelectTrigger className={errors.status ? "border-red-500" : ""}>
+            <SelectValue placeholder="Chọn trạng thái" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="active">Đang hoạt động</SelectItem>
+            <SelectItem value="inactive">Ngừng hoạt động</SelectItem>
+            <SelectItem value="closed">Đã đóng</SelectItem>
+          </SelectContent>
         </Select>
         {errors.status && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.status}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.status}</p>
         )}
       </div>
     </div>

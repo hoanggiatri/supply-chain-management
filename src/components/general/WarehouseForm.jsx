@@ -1,5 +1,7 @@
 import React from "react";
-import { Input, Select, Option, Typography } from "@material-tailwind/react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const WarehouseForm = ({ warehouse, onChange, errors, readOnlyFields }) => {
   const isFieldReadOnly = (field) => readOnlyFields[field] ?? false;
@@ -16,101 +18,96 @@ const WarehouseForm = ({ warehouse, onChange, errors, readOnlyFields }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* Tên kho */}
-      <div>
+      <div className="space-y-2">
+        <Label htmlFor="warehouseName">Tên kho <span className="text-red-500">*</span></Label>
         <Input
-          label="Tên kho"
+          id="warehouseName"
           name="warehouseName"
-          color="blue"
           value={warehouse.warehouseName || ""}
           onChange={onChange}
-          className="w-full placeholder:opacity-100"
           readOnly={isFieldReadOnly("warehouseName")}
-          required
+          className={errors.warehouseName ? "border-red-500" : ""}
         />
         {errors.warehouseName && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.warehouseName}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.warehouseName}</p>
         )}
       </div>
 
       {/* Sức chứa tối đa */}
-      <div>
+      <div className="space-y-2">
+        <Label htmlFor="maxCapacity">Sức chứa tối đa (m³)</Label>
         <Input
-          label="Sức chứa tối đa (m³)"
+          id="maxCapacity"
           name="maxCapacity"
           type="number"
-          color="blue"
           value={warehouse.maxCapacity ?? ""}
           onChange={onChange}
-          className="w-full placeholder:opacity-100"
           readOnly={isFieldReadOnly("maxCapacity")}
+          className={errors.maxCapacity ? "border-red-500" : ""}
         />
         {errors.maxCapacity && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.maxCapacity}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.maxCapacity}</p>
         )}
       </div>
 
       {/* Loại kho */}
-      <div>
+      <div className="space-y-2">
+        <Label htmlFor="warehouseType">Loại kho</Label>
         <Select
-          label="Loại kho"
           value={warehouse.warehouseType || ""}
-          color="blue"
-          onChange={(val) => handleSelectChange("warehouseType", val)}
-          className="w-full placeholder:opacity-100"
+          onValueChange={(val) => handleSelectChange("warehouseType", val)}
           disabled={isFieldReadOnly("warehouseType")}
         >
-          <Option value="Nguyên vật liệu">Nguyên vật liệu</Option>
-          <Option value="Thành phẩm">Thành phẩm</Option>
-          <Option value="Hàng lỗi">Hàng lỗi</Option>
-          <Option value="Nhận hàng">Nhận hàng</Option>
-          <Option value="Xuất hàng">Xuất hàng</Option>
+          <SelectTrigger className={errors.warehouseType ? "border-red-500" : ""}>
+            <SelectValue placeholder="Chọn loại kho" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Nguyên vật liệu">Nguyên vật liệu</SelectItem>
+            <SelectItem value="Thành phẩm">Thành phẩm</SelectItem>
+            <SelectItem value="Hàng lỗi">Hàng lỗi</SelectItem>
+            <SelectItem value="Nhận hàng">Nhận hàng</SelectItem>
+            <SelectItem value="Xuất hàng">Xuất hàng</SelectItem>
+          </SelectContent>
         </Select>
         {errors.warehouseType && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.warehouseType}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.warehouseType}</p>
         )}
       </div>
 
       {/* Mô tả */}
-      <div className="md:col-span-2">
+      <div className="md:col-span-2 space-y-2">
+        <Label htmlFor="description">Mô tả</Label>
         <Input
-          label="Mô tả"
+          id="description"
           name="description"
-          color="blue"
           value={warehouse.description || ""}
           onChange={onChange}
-          className="w-full placeholder:opacity-100"
           readOnly={isFieldReadOnly("description")}
+          className={errors.description ? "border-red-500" : ""}
         />
         {errors.description && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.description}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.description}</p>
         )}
       </div>
 
       {/* Trạng thái */}
-      <div>
+      <div className="space-y-2">
+        <Label htmlFor="status">Trạng thái</Label>
         <Select
-          label="Trạng thái"
           value={warehouse.status || ""}
-          color="blue"
-          onChange={(val) => handleSelectChange("status", val)}
-          className="w-full placeholder:opacity-100"
+          onValueChange={(val) => handleSelectChange("status", val)}
           disabled={isFieldReadOnly("status")}
         >
-          <Option value="Đang sử dụng">Đang sử dụng</Option>
-          <Option value="Ngưng sử dụng">Ngừng sử dụng</Option>
+          <SelectTrigger className={errors.status ? "border-red-500" : ""}>
+            <SelectValue placeholder="Chọn trạng thái" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Đang sử dụng">Đang sử dụng</SelectItem>
+            <SelectItem value="Ngưng sử dụng">Ngừng sử dụng</SelectItem>
+          </SelectContent>
         </Select>
         {errors.status && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.status}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.status}</p>
         )}
       </div>
     </div>

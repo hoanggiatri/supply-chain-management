@@ -1,17 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, Box, Grid } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-
 import EmployeeForm from "@components/general/EmployeeForm";
 import UserForm from "@components/general/UserForm";
-
 import { getEmployeeById } from "@/services/general/EmployeeService";
 import { getUserByEmployeeId } from "@/services/general/UserService";
-import LoadingPaper from "@/components/content-components/LoadingPaper";
 import toastrService from "@/services/toastrService";
-import { Button } from "@material-tailwind/react";
-import { getButtonProps } from "@/utils/buttonStyles";
-import BackButton from "@components/common/BackButton";
+import FormPageLayout from "@/components/layout/FormPageLayout";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const MyProfile = () => {
   const [employee, setEmployee] = useState(null);
@@ -48,90 +44,87 @@ const MyProfile = () => {
   }, [token]);
 
   if (!employee || !user) {
-    return <LoadingPaper title="THÔNG TIN CÁ NHÂN" />;
+    return (
+      <FormPageLayout backLink="/" backLabel="Quay lại trang chủ">
+        <div className="space-y-4">
+          <Skeleton className="h-32 w-32 rounded-full" />
+          <Skeleton className="h-8 w-1/3" />
+          <Skeleton className="h-[400px] w-full" />
+        </div>
+      </FormPageLayout>
+    );
   }
 
+  const readOnlyFields = Object.keys(employee).reduce((acc, key) => {
+    acc[key] = true;
+    return acc;
+  }, {});
+
+  const userReadOnlyFields = Object.keys(user).reduce((acc, key) => {
+    acc[key] = true;
+    return acc;
+  }, {});
+
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Box
-          display="flex"
-          alignItems="center"
-          justifyContent="space-between"
-          mb={3}
-        >
-          <Typography className="page-title" variant="h4">
-            THÔNG TIN CÁ NHÂN
-          </Typography>
-          <BackButton />
-        </Box>
+    <FormPageLayout backLink="/" backLabel="Quay lại trang chủ">
+      <div className="space-y-8">
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            Thông tin nhân viên
+          </h3>
 
-        <Grid container direction="column" spacing={4}>
-          <Grid item xs={12}>
-            <Typography variant="h5" gutterBottom>
-              THÔNG TIN NHÂN VIÊN:
-            </Typography>
-
-            <Box mb={3}>
-              <img
-                src={
-                  employee.avatar ||
-                  "https://img.freepik.com/premium-vector/default-avatar-profile-icon-social-media-user-image-gray-avatar-icon-blank-profile-silhouette-vector-illustration_561158-3383.jpg"
-                }
-                alt="avatar"
-                style={{
-                  width: 100,
-                  height: 100,
-                  objectFit: "cover",
-                  borderRadius: "50%",
-                }}
-              />
-            </Box>
-
-            <EmployeeForm
-              employee={employee}
-              onChange={() => {}}
-              errors={{}}
-              readOnlyFields={Object.keys(employee)}
+          <div className="mb-6">
+            <img
+              src={
+                employee.avatar ||
+                "https://img.freepik.com/premium-vector/default-avatar-profile-icon-social-media-user-image-gray-avatar-icon-blank-profile-silhouette-vector-illustration_561158-3383.jpg"
+              }
+              alt="avatar"
+              className="w-24 h-24 rounded-full object-cover border-2 border-gray-200"
             />
+          </div>
 
-            <Box mt={2} display="flex" justifyContent="flex-end">
-              <Button
-                type="button"
-                {...getButtonProps("primary")}
-                onClick={() => navigate(`/employee/${employee.id}/edit`)}
-              >
-                Sửa thông tin
-              </Button>
-            </Box>
-          </Grid>
+          <EmployeeForm
+            employee={employee}
+            onChange={() => {}}
+            errors={{}}
+            readOnlyFields={readOnlyFields}
+          />
 
-          <Grid item xs={12}>
-            <Typography variant="h5" sx={{ pb: 3 }}>
-              THÔNG TIN TÀI KHOẢN:
-            </Typography>
+          <div className="mt-4 flex justify-end">
+            <Button
+              type="button"
+              onClick={() => navigate(`/employee/${employee.id}/edit`)}
+            >
+              Sửa thông tin
+            </Button>
+          </div>
+        </div>
 
-            <UserForm
-              user={user}
-              onChange={() => {}}
-              errors={{}}
-              readOnly
-              role={role}
-            />
+        <div className="border-t border-gray-200 pt-8">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            Thông tin tài khoản
+          </h3>
 
-            <Box mt={2} display="flex" justifyContent="flex-end">
-              <Button
-                type="button"
-                {...getButtonProps("primary")}
-                onClick={() => navigate(`/user/${employeeId}/edit`)}
-              >
-                Sửa tài khoản
-              </Button>
-            </Box>
-          </Grid>
-        </Grid>
-      </Paper>
-    </Container>
+          <UserForm
+            user={user}
+            onChange={() => {}}
+            errors={{}}
+            readOnlyFields={userReadOnlyFields}
+            role={role}
+          />
+
+          <div className="mt-4 flex justify-end">
+            <Button
+              type="button"
+              onClick={() => navigate(`/user/${employeeId}/edit`)}
+            >
+              Sửa tài khoản
+            </Button>
+          </div>
+        </div>
+      </div>
+    </FormPageLayout>
   );
 };
 

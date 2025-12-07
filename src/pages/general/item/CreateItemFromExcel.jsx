@@ -1,44 +1,59 @@
 import React, { useState } from "react";
-import {
-  Container,
-  Typography,
-  Grid,
-  Paper,
-  TableRow,
-  TableCell,
-  Box,
-} from "@mui/material";
-import DataTable from "@/components/content-components/DataTable";
 import useExcelUpload from "@/hooks/useExcelUpload";
 import { useNavigate } from "react-router-dom";
 import { createItem } from "@/services/general/ItemService";
 import toastrService from "@/services/toastrService";
-import { Button } from "@material-tailwind/react";
-import { getButtonProps } from "@/utils/buttonStyles";
-import BackButton from "@components/common/BackButton";
+import FormPageLayout from "@/components/layout/FormPageLayout";
+import { Button } from "@/components/ui/button";
+import { DataTable, createSortableHeader } from "@/components/ui/data-table";
+import { FileSpreadsheet, Upload, Save, X } from "lucide-react";
 
 const CreateItemFromExcel = () => {
   const navigate = useNavigate();
   const { excelData: initialExcelData, handleExcelUpload } = useExcelUpload();
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [search, setSearch] = useState("");
-  const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState("itemName");
-  const [page, setPage] = useState(1);
   const companyId = localStorage.getItem("companyId");
   const token = localStorage.getItem("token");
   const [excelData, setExcelData] = useState(initialExcelData || []);
   const [fileName, setFileName] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const columns = [
-    { id: "itemName", label: "Tên hàng hóa" },
-    { id: "itemType", label: "Loại hàng hóa" },
-    { id: "uom", label: "Đơn vị tính" },
-    { id: "technicalSpecifications", label: "Thông số kỹ thuật" },
-    { id: "importPrice", label: "Giá nhập" },
-    { id: "exportPrice", label: "Giá xuất" },
-    { id: "description", label: "Mô tả" },
-    { id: "isSellable", label: "Hàng bán" },
+    {
+      accessorKey: "itemName",
+      header: createSortableHeader("Tên hàng hóa"),
+    },
+    {
+      accessorKey: "itemType",
+      header: createSortableHeader("Loại hàng hóa"),
+    },
+    {
+      accessorKey: "uom",
+      header: createSortableHeader("Đơn vị tính"),
+    },
+    {
+      accessorKey: "technicalSpecifications",
+      header: "Thông số kỹ thuật",
+    },
+    {
+      accessorKey: "importPrice",
+      header: createSortableHeader("Giá nhập"),
+    },
+    {
+      accessorKey: "exportPrice",
+      header: createSortableHeader("Giá xuất"),
+    },
+    {
+      accessorKey: "description",
+      header: "Mô tả",
+    },
+    {
+      accessorKey: "isSellable",
+      header: "Hàng bán",
+      cell: ({ getValue }) => {
+        const val = getValue();
+        return val === 1 || val === "1" || val === true ? "Có" : "Không";
+      },
+    },
   ];
 
   const handleDataLoaded = (data) => {
@@ -59,6 +74,7 @@ const CreateItemFromExcel = () => {
   };
 
   const handleSubmit = async () => {
+    setLoading(true);
     try {
       for (const item of excelData) {
         const newItemData = {
@@ -83,110 +99,76 @@ const CreateItemFromExcel = () => {
       toastrService.error(
         error.response?.data?.message || "Lỗi khi thêm hàng hóa!"
       );
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <div className="flex items-center justify-between mb-4">
-          <Typography className="page-title" variant="h4">
-            NHẬP HÀNG HÓA TỪ EXCEL
-          </Typography>
-          <BackButton to="/items" label="Quay lại danh sách" />
+    <FormPageLayout
+      breadcrumbItems={[
+        { label: "Danh sách hàng hóa", path: "/items" },
+        { label: "Nhập từ Excel" },
+      ]}
+      backLink="/items"
+      backLabel="Quay lại danh sách"
+    >
+      <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm mb-6">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            className="gap-2"
+            onClick={() =>
+              document.getElementById("excel-upload-input").click()
+            }
+          >
+            <Upload className="w-4 h-4" />
+            Tải file Excel
+          </Button>
+          <input
+            id="excel-upload-input"
+            type="file"
+            accept=".xlsx, .xls"
+            hidden
+            onChange={(e) => {
+              if (e.target.files.length > 0) {
+                setFileName(e.target.files[0].name);
+                handleExcelUpload(e, handleDataLoaded);
+              }
+            }}
+          />
+          {fileName && (
+            <span className="text-sm text-gray-600 flex items-center gap-2">
+              <FileSpreadsheet className="w-4 h-4 text-green-600" />
+              {fileName}
+            </span>
+          )}
         </div>
+      </div>
 
-        <Grid container spacing={2} mt={3} mb={3}>
-          <Grid item xs={12}>
-            <Box display="flex" alignItems="center">
-              <Button
-                type="button"
-                {...getButtonProps("primary")}
-                component="label"
-              >
-                Tải file Excel
-                <input
-                  type="file"
-                  accept=".xlsx, .xls"
-                  hidden
-                  onChange={(e) => {
-                    if (e.target.files.length > 0) {
-                      setFileName(e.target.files[0].name);
-                      handleExcelUpload(e, handleDataLoaded);
-                    }
-                  }}
-                />
-              </Button>
-              {fileName && (
-                <Typography variant="body1" ml={1}>
-                  {fileName}
-                </Typography>
-              )}
-            </Box>
-          </Grid>
-        </Grid>
+      {excelData.length > 0 && (
+        <div className="space-y-6">
+          <div className="border rounded-md">
+            <DataTable columns={columns} data={excelData} loading={false} />
+          </div>
 
-        {excelData.length > 0 && (
-          <>
-            <DataTable
-              rows={excelData}
-              columns={columns}
-              order={order}
-              orderBy={orderBy}
-              onRequestSort={(property) => {
-                const isAsc = orderBy === property && order === "asc";
-                setOrder(isAsc ? "desc" : "asc");
-                setOrderBy(property);
-              }}
-              page={page}
-              rowsPerPage={rowsPerPage}
-              onPageChange={(_, newPage) => setPage(newPage + 1)}
-              onRowsPerPageChange={(e) => setRowsPerPage(+e.target.value)}
-              search={search}
-              setSearch={setSearch}
-              renderRow={(row, index) => (
-                <TableRow key={index}>
-                  {columns.map((column) => {
-                    if (column.id === "isSellable") {
-                      return (
-                        <TableCell key={column.id}>
-                          {row[column.id] === 1 || row[column.id] === "1"
-                            ? "Có"
-                            : "Không"}
-                        </TableCell>
-                      );
-                    }
-                    return (
-                      <TableCell key={column.id}>{row[column.id]}</TableCell>
-                    );
-                  })}
-                </TableRow>
-              )}
-            />
-            <Grid container spacing={2} mt={3} justifyContent="flex-end">
-              <Grid item>
-                <Button
-                  type="button"
-                  {...getButtonProps("primary")}
-                  onClick={handleSubmit}
-                >
-                  Thêm tất cả
-                </Button>
-              </Grid>
-              <Grid item>
-                <Button
-                  type="button"
-                  {...getButtonProps("outlinedSecondary")}
-                  onClick={() => navigate("/items")}
-                >
-                  Hủy
-                </Button>
-              </Grid>
-            </Grid>
-          </>
-        )}
-      </Paper>
-    </Container>
+          <div className="flex justify-end gap-4 pt-6 border-t border-gray-100">
+            <Button
+              variant="outline"
+              onClick={() => navigate("/items")}
+              className="gap-2"
+            >
+              <X className="w-4 h-4" />
+              Hủy
+            </Button>
+            <Button onClick={handleSubmit} disabled={loading} className="gap-2">
+              <Save className="w-4 h-4" />
+              {loading ? "Đang xử lý..." : "Thêm tất cả"}
+            </Button>
+          </div>
+        </div>
+      )}
+    </FormPageLayout>
   );
 };
 

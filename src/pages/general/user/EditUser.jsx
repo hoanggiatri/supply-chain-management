@@ -1,20 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, Box } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import UserForm from "@components/general/UserForm";
 import UpdatePasswordForm from "@components/general/UpdatePasswordForm";
 import { getUserById, updateUser } from "@/services/general/UserService";
-import LoadingPaper from "@/components/content-components/LoadingPaper";
 import toastrService from "@/services/toastrService";
-import { Button } from "@material-tailwind/react";
-import { getButtonProps } from "@/utils/buttonStyles";
-import BackButton from "@components/common/BackButton";
+import FormPageLayout from "@/components/layout/FormPageLayout";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const EditUser = () => {
   const { userId } = useParams();
   const [user, setUser] = useState(null);
   const [errors, setErrors] = useState({});
   const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   const role = localStorage.getItem("role");
@@ -30,6 +29,8 @@ const EditUser = () => {
           error.response?.data?.message ||
             "Có lỗi xảy ra khi lấy thông tin người dùng!"
         );
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -68,7 +69,7 @@ const EditUser = () => {
     try {
       await updateUser(userId, user, token);
       toastrService.success("Cập nhật tài khoản thành công!");
-      navigate(-1);
+      navigate(`/user/${userId}`);
     } catch (error) {
       toastrService.error(
         error.response?.data?.message || "Lỗi khi cập nhật tài khoản!"
@@ -76,77 +77,100 @@ const EditUser = () => {
     }
   };
 
-  if (!user) {
-    return <LoadingPaper title="CHỈNH SỬA TÀI KHOẢN" />;
+  if (loading) {
+    return (
+      <FormPageLayout
+        breadcrumbItems={[
+          { label: "Danh sách tài khoản", path: "/users" },
+          { label: "Chỉnh sửa" },
+        ]}
+        backLink="/users"
+      >
+        <div className="space-y-4">
+          <Skeleton className="h-32 w-32 rounded-full" />
+          <Skeleton className="h-8 w-1/3" />
+          <Skeleton className="h-[300px] w-full" />
+        </div>
+      </FormPageLayout>
+    );
   }
 
+  if (!user) return null;
+
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Box
-          display="flex"
-          alignItems="center"
-          justifyContent="space-between"
-          mb={3}
-        >
-          <Typography className="page-title" variant="h4">
-            CHỈNH SỬA TÀI KHOẢN
-          </Typography>
-          <BackButton to="/users" label="Quay lại danh sách" />
-        </Box>
-
-        <UserForm
-          user={user}
-          onChange={handleChange}
-          errors={errors}
-          role={role}
-        />
-
-        <Box
-          mt={3}
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-        >
-          {!showPasswordForm ? (
-            <Button
-              type="button"
-              {...getButtonProps("success")}
-              onClick={() => setShowPasswordForm(true)}
-            >
-              Thay đổi mật khẩu
-            </Button>
-          ) : (
-            <span />
-          )}
-
-          <Box display="flex" gap={2}>
-            <Button
-              type="button"
-              {...getButtonProps("outlinedSecondary")}
-              onClick={() => navigate(`/user/${userId}`)}
-            >
-              Hủy
-            </Button>
-            <Button
-              type="button"
-              {...getButtonProps("primary")}
-              onClick={handleSave}
-            >
-              Lưu
-            </Button>
-          </Box>
-        </Box>
-        {showPasswordForm && (
-          <Box mt={3}>
-            <UpdatePasswordForm
-              userId={userId}
-              onSuccess={() => setShowPasswordForm(false)}
+    <FormPageLayout
+      breadcrumbItems={[
+        { label: "Danh sách tài khoản", path: "/users" },
+        { label: "Chỉnh sửa" },
+      ]}
+      backLink="/users"
+      backLabel="Quay lại danh sách"
+    >
+      <div className="flex flex-col md:flex-row gap-8">
+        {/* Left Column: Avatar */}
+        <div className="w-full md:w-1/3 flex flex-col gap-4">
+          <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200 bg-gray-50 shadow-md">
+            <img
+              src={
+                user.employeeAvatar ||
+                "https://img.freepik.com/premium-vector/default-avatar-profile-icon-social-media-user-image-gray-avatar-icon-blank-profile-silhouette-vector-illustration_561158-3383.jpg"
+              }
+              alt="avatar"
+              className="w-full h-full object-cover"
             />
-          </Box>
-        )}
-      </Paper>
-    </Container>
+          </div>
+          <div className="text-sm text-gray-500">
+            Avatar từ nhân viên liên kết
+          </div>
+        </div>
+
+        {/* Right Column: Form */}
+        <div className="w-full md:w-2/3 flex flex-col">
+          <UserForm
+            user={user}
+            onChange={handleChange}
+            errors={errors}
+            role={role}
+          />
+
+          <div className="mt-6 flex justify-between items-center pt-6 border-t border-gray-100">
+            {!showPasswordForm ? (
+              <Button
+                type="button"
+                variant="success"
+                onClick={() => setShowPasswordForm(true)}
+              >
+                Thay đổi mật khẩu
+              </Button>
+            ) : (
+              <span />
+            )}
+
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => navigate(`/user/${userId}`)}
+              >
+                Hủy
+              </Button>
+              <Button type="button" onClick={handleSave}>
+                Lưu
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {showPasswordForm && (
+        <div className="mt-6">
+          <UpdatePasswordForm
+            userId={userId}
+            onSuccess={() => setShowPasswordForm(false)}
+          />
+        </div>
+      )}
+    </FormPageLayout>
   );
 };
 

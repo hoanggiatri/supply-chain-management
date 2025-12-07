@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, Box } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import EmployeeForm from "@components/general/EmployeeForm";
 import {
@@ -7,11 +6,11 @@ import {
   updateEmployee,
   updateEmployeeAvatar,
 } from "@/services/general/EmployeeService";
-import LoadingPaper from "@/components/content-components/LoadingPaper";
 import toastrService from "@/services/toastrService";
-import { Button } from "@material-tailwind/react";
-import { getButtonProps } from "@/utils/buttonStyles";
-import BackButton from "@components/common/BackButton";
+import FormPageLayout from "@/components/layout/FormPageLayout";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ImageUpload } from "@/components/common/ImageUpload";
 
 const EditEmployee = () => {
   const { employeeId } = useParams();
@@ -19,6 +18,7 @@ const EditEmployee = () => {
   const [employee, setEmployee] = useState(null);
   const [editedEmployee, setEditedEmployee] = useState(null);
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(true);
 
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
@@ -68,6 +68,8 @@ const EditEmployee = () => {
           error.response?.data?.message ||
             "Có lỗi xảy ra khi lấy thông tin nhân viên!"
         );
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -149,96 +151,95 @@ const EditEmployee = () => {
     }
   };
 
-  if (!employee) {
-    return <LoadingPaper title="CHỈNH SỬA THÔNG TIN NHÂN VIÊN" />;
+  if (loading) {
+    return (
+      <FormPageLayout
+        breadcrumbs="Danh sách nhân viên / Chỉnh sửa"
+        backLink="/employees"
+      >
+        <div className="space-y-4">
+          <Skeleton className="h-32 w-32 rounded-full" />
+          <Skeleton className="h-8 w-1/3" />
+          <Skeleton className="h-[400px] w-full" />
+        </div>
+      </FormPageLayout>
+    );
   }
+
+  if (!employee) return null;
 
   const readOnlyFields = {
     employeeCode: true,
   };
 
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Box
-          display="flex"
-          alignItems="center"
-          justifyContent="space-between"
-          mb={3}
-        >
-          <Typography className="page-title" variant="h4">
-            CHỈNH SỬA THÔNG TIN NHÂN VIÊN
-          </Typography>
-          <BackButton to="/employees" label="Quay lại danh sách" />
-        </Box>
-        <Box display="flex" alignItems="center" gap={3} mb={3}>
-          <img
-            src={
-              avatarPreview ||
-              employee.avatar ||
-              "https://img.freepik.com/premium-vector/default-avatar-profile-icon-social-media-user-image-gray-avatar-icon-blank-profile-silhouette-vector-illustration_561158-3383.jpg"
-            }
-            alt="avatar"
-            style={{
-              width: 120,
-              height: 120,
-              objectFit: "cover",
-              borderRadius: "50%",
-            }}
-          />
-          <Box display="flex" flexDirection="column" gap={2}>
-            <Button
-              type="button"
-              {...getButtonProps("outlinedSecondary")}
-              onClick={() =>
-                document.getElementById("employee-avatar-input")?.click()
+    <FormPageLayout
+      breadcrumbItems={[
+        { label: "Danh sách nhân viên", path: "/employees" },
+        { label: "Chỉnh sửa" },
+      ]}
+      backLink="/employees"
+      backLabel="Quay lại danh sách"
+    >
+      {/* Title với icon */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-semibold text-gray-900 flex items-center gap-2">
+          CHỈNH SỬA THÔNG TIN NHÂN VIÊN
+        </h1>
+      </div>
+
+      <div className="flex flex-col lg:flex-row items-start gap-8 mb-8 bg-white rounded-lg border border-gray-200 p-6">
+        {/* Left: Avatar tròn */}
+        <div className="flex-shrink-0">
+          <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200 bg-gray-50 shadow-md mb-3">
+            <img
+              src={
+                avatarPreview ||
+                employee.avatar ||
+                "https://img.freepik.com/premium-vector/default-avatar-profile-icon-social-media-user-image-gray-avatar-icon-blank-profile-silhouette-vector-illustration_561158-3383.jpg"
               }
-            >
-              Chọn ảnh
-            </Button>
-            <input
-              id="employee-avatar-input"
-              type="file"
-              hidden
-              accept="image/*"
-              onChange={handleAvatarChange}
+              alt="Avatar"
+              className="w-full h-full object-cover"
             />
-            <Button
-              type="button"
-              {...getButtonProps("primary")}
-              disabled={!avatarFile}
-              onClick={handleUploadImage}
-            >
+          </div>
+          <input
+            type="file"
+            id="employee-avatar-input"
+            accept="image/*"
+            onChange={handleAvatarChange}
+            className="hidden"
+          />
+          <label
+            htmlFor="employee-avatar-input"
+            className="block w-32 px-3 py-2 text-xs text-center bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 cursor-pointer transition-colors"
+          >
+            Chọn ảnh
+          </label>
+          {avatarFile && (
+            <Button onClick={handleUploadImage} size="sm" className="w-32 mt-2">
               Cập nhật ảnh
             </Button>
-          </Box>
-        </Box>
+          )}
+        </div>
 
-        <EmployeeForm
-          employee={editedEmployee}
-          onChange={handleChange}
-          errors={errors}
-          readOnlyFields={readOnlyFields}
-        />
+        {/* Right: Form với Grid 2 cột */}
+        <div className="flex-1 w-full">
+          <EmployeeForm
+            employee={editedEmployee}
+            onChange={handleChange}
+            errors={errors}
+            readOnlyFields={readOnlyFields}
+          />
+        </div>
+      </div>
 
-        <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
-          <Button
-            type="button"
-            {...getButtonProps("primary")}
-            onClick={handleSave}
-          >
-            Lưu
-          </Button>
-          <Button
-            type="button"
-            {...getButtonProps("outlinedSecondary")}
-            onClick={handleCancel}
-          >
-            Hủy
-          </Button>
-        </Box>
-      </Paper>
-    </Container>
+      <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-100">
+        <Button variant="outline" onClick={handleCancel}>
+          Hủy
+        </Button>
+        <Button onClick={handleSave}>Lưu thay đổi</Button>
+      </div>
+    </FormPageLayout>
   );
 };
 

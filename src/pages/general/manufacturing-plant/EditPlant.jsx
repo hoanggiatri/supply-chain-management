@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Container, Paper, Typography, Box } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import PlantForm from "@components/general/PlantForm";
 import {
   getPlantById,
   updatePlant,
 } from "@/services/general/ManufacturePlantService";
-import LoadingPaper from "@/components/content-components/LoadingPaper";
 import toastrService from "@/services/toastrService";
-import { Button } from "@material-tailwind/react";
-import { getButtonProps } from "@/utils/buttonStyles";
-import BackButton from "@components/common/BackButton";
+import FormPageLayout from "@/components/layout/FormPageLayout";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { BuildingOfficeIcon } from "@heroicons/react/24/solid";
 
 const EditPlant = () => {
   const { plantId } = useParams();
@@ -18,6 +17,7 @@ const EditPlant = () => {
   const [plant, setPlant] = useState(null);
   const [editedPlant, setEditedPlant] = useState(null);
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(true);
 
   const validateForm = () => {
     const errors = {};
@@ -41,6 +41,8 @@ const EditPlant = () => {
           error.response?.data?.message ||
             "Có lỗi xảy ra khi lấy thông tin xưởng!"
         );
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -84,50 +86,66 @@ const EditPlant = () => {
     plantCode: true,
   };
 
-  if (!plant) {
-    return <LoadingPaper title="CHỈNH SỬA THÔNG TIN XƯỞNG" />;
+  if (loading) {
+    return (
+      <FormPageLayout
+        breadcrumbItems={[
+          { label: "Danh sách xưởng", path: "/plants" },
+          { label: "Chỉnh sửa" },
+        ]}
+        backLink="/plants"
+      >
+        <div className="space-y-4">
+          <Skeleton className="h-32 w-32 rounded-lg" />
+          <Skeleton className="h-8 w-1/3" />
+          <Skeleton className="h-[200px] w-full" />
+        </div>
+      </FormPageLayout>
+    );
   }
 
+  if (!plant) return null;
+
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Box
-          display="flex"
-          alignItems="center"
-          justifyContent="space-between"
-          mb={3}
-        >
-          <Typography className="page-title" variant="h4">
-            CHỈNH SỬA THÔNG TIN XƯỞNG
-          </Typography>
-          <BackButton to="/plants" label="Quay lại danh sách" />
-        </Box>
+    <FormPageLayout
+      breadcrumbItems={[
+        { label: "Danh sách xưởng", path: "/plants" },
+        { label: "Chỉnh sửa" },
+      ]}
+      backLink="/plants"
+      backLabel="Quay lại danh sách"
+    >
+      <div className="flex flex-col md:flex-row gap-8">
+        {/* Left Column: Icon Placeholder */}
+        <div className="w-full md:w-1/3 flex flex-col gap-4">
+          <div className="w-32 h-32 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg flex items-center justify-center shadow-sm">
+            <BuildingOfficeIcon className="w-16 h-16 text-purple-600" />
+          </div>
+          <div className="text-sm text-gray-500">
+            Icon đại diện cho xưởng sản xuất
+          </div>
+        </div>
 
-        <PlantForm
-          plant={editedPlant}
-          onChange={handleChange}
-          errors={errors}
-          readOnlyFields={readOnlyFields}
-        />
+        {/* Right Column: Form */}
+        <div className="w-full md:w-2/3 flex flex-col">
+          <PlantForm
+            plant={editedPlant}
+            onChange={handleChange}
+            errors={errors}
+            readOnlyFields={readOnlyFields}
+          />
 
-        <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
-          <Button
-            type="button"
-            {...getButtonProps("primary")}
-            onClick={handleSave}
-          >
-            Lưu
-          </Button>
-          <Button
-            type="button"
-            {...getButtonProps("outlinedSecondary")}
-            onClick={handleCancel}
-          >
-            Hủy
-          </Button>
-        </Box>
-      </Paper>
-    </Container>
+          <div className="mt-6 flex justify-end gap-2 pt-6 border-t border-gray-100">
+            <Button type="button" variant="outline" onClick={handleCancel}>
+              Hủy
+            </Button>
+            <Button type="button" onClick={handleSave}>
+              Lưu
+            </Button>
+          </div>
+        </div>
+      </div>
+    </FormPageLayout>
   );
 };
 
