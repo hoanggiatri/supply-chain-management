@@ -1,14 +1,10 @@
 import React, { useState } from "react";
-import {
-  Button as MTButton,
-  Card,
-  CardBody,
-  Input,
-  Typography,
-} from "@material-tailwind/react";
-import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
+import { Eye, EyeOff } from "lucide-react";
 import { updatePassword } from "@/services/general/UserService";
 import toastrService from "@/services/toastrService";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 
 const UpdatePasswordForm = ({ userId, onSuccess }) => {
   const [formData, setFormData] = useState({
@@ -21,10 +17,15 @@ const UpdatePasswordForm = ({ userId, onSuccess }) => {
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    // Clear error when user types
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
 
   const validate = () => {
@@ -42,14 +43,18 @@ const UpdatePasswordForm = ({ userId, onSuccess }) => {
     return errors;
   };
 
-  const handleSubmit = async () => {
-    const errors = validate();
-    if (Object.keys(errors).length > 0) {
-      setErrors(errors);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const validationErrors = validate();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
       return;
     }
 
     const token = localStorage.getItem("token");
+    setLoading(true);
+
     try {
       const request = {
         currentPassword: formData.currentPassword,
@@ -57,134 +62,147 @@ const UpdatePasswordForm = ({ userId, onSuccess }) => {
       };
       await updatePassword(userId, request, token);
       toastrService.success("Đổi mật khẩu thành công!");
+
+      // Reset form
+      setFormData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+      setErrors({});
+
       onSuccess?.();
     } catch (error) {
       toastrService.error(
         error.response?.data?.message || "Đổi mật khẩu thất bại!"
       );
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <Card className="mt-4 shadow-lg">
-      <CardBody className="space-y-4">
-        <Typography variant="h5" color="blue-gray">
-          THAY ĐỔI MẬT KHẨU
-        </Typography>
+    <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+      <h2 className="text-xl font-bold text-gray-900 mb-6">
+        Thay đổi mật khẩu
+      </h2>
 
+      <form onSubmit={handleSubmit} className="space-y-6">
         {/* Mật khẩu hiện tại */}
-        <div>
+        <div className="space-y-2">
+          <Label htmlFor="currentPassword">
+            Mật khẩu hiện tại <span className="text-red-500">*</span>
+          </Label>
           <div className="relative">
             <Input
-              label="Mật khẩu hiện tại"
+              id="currentPassword"
               name="currentPassword"
               type={showCurrent ? "text" : "password"}
-              color="blue"
               value={formData.currentPassword}
               onChange={handleChange}
-              className="w-full placeholder:opacity-100 pr-10"
+              error={errors.currentPassword}
+              placeholder="Nhập mật khẩu hiện tại"
+              className="pr-10"
             />
             <button
               type="button"
               onClick={() => setShowCurrent((prev) => !prev)}
-              className="!absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer z-10"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
             >
               {showCurrent ? (
-                <EyeSlashIcon className="h-5 w-5 text-blue-gray-500" />
+                <EyeOff className="h-4 w-4" />
               ) : (
-                <EyeIcon className="h-5 w-5 text-blue-gray-500" />
+                <Eye className="h-4 w-4" />
               )}
             </button>
           </div>
           {errors.currentPassword && (
-            <Typography variant="small" color="red" className="mt-1">
-              {errors.currentPassword}
-            </Typography>
+            <p className="text-sm text-red-500">{errors.currentPassword}</p>
           )}
         </div>
 
         {/* Mật khẩu mới */}
-        <div>
+        <div className="space-y-2">
+          <Label htmlFor="newPassword">
+            Mật khẩu mới <span className="text-red-500">*</span>
+          </Label>
           <div className="relative">
             <Input
-              label="Mật khẩu mới"
+              id="newPassword"
               name="newPassword"
               type={showNew ? "text" : "password"}
-              color="blue"
               value={formData.newPassword}
               onChange={handleChange}
-              className="w-full placeholder:opacity-100 pr-10"
+              error={errors.newPassword}
+              placeholder="Nhập mật khẩu mới (tối thiểu 8 ký tự)"
+              className="pr-10"
             />
             <button
               type="button"
               onClick={() => setShowNew((prev) => !prev)}
-              className="!absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer z-10"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
             >
               {showNew ? (
-                <EyeSlashIcon className="h-5 w-5 text-blue-gray-500" />
+                <EyeOff className="h-4 w-4" />
               ) : (
-                <EyeIcon className="h-5 w-5 text-blue-gray-500" />
+                <Eye className="h-4 w-4" />
               )}
             </button>
           </div>
           {errors.newPassword && (
-            <Typography variant="small" color="red" className="mt-1">
-              {errors.newPassword}
-            </Typography>
+            <p className="text-sm text-red-500">{errors.newPassword}</p>
           )}
         </div>
 
         {/* Xác nhận mật khẩu mới */}
-        <div>
+        <div className="space-y-2">
+          <Label htmlFor="confirmPassword">
+            Xác nhận mật khẩu mới <span className="text-red-500">*</span>
+          </Label>
           <div className="relative">
             <Input
-              label="Xác nhận mật khẩu mới"
+              id="confirmPassword"
               name="confirmPassword"
               type={showConfirm ? "text" : "password"}
-              color="blue"
               value={formData.confirmPassword}
               onChange={handleChange}
-              className="w-full placeholder:opacity-100 pr-10"
+              error={errors.confirmPassword}
+              placeholder="Nhập lại mật khẩu mới"
+              className="pr-10"
             />
             <button
               type="button"
               onClick={() => setShowConfirm((prev) => !prev)}
-              className="!absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer z-10"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
             >
               {showConfirm ? (
-                <EyeSlashIcon className="h-5 w-5 text-blue-gray-500" />
+                <EyeOff className="h-4 w-4" />
               ) : (
-                <EyeIcon className="h-5 w-5 text-blue-gray-500" />
+                <Eye className="h-4 w-4" />
               )}
             </button>
           </div>
           {errors.confirmPassword && (
-            <Typography variant="small" color="red" className="mt-1">
-              {errors.confirmPassword}
-            </Typography>
+            <p className="text-sm text-red-500">{errors.confirmPassword}</p>
           )}
         </div>
 
-        <div className="mt-4 flex justify-end gap-3">
-          <MTButton
+        {/* Buttons */}
+        <div className="flex justify-end gap-3 pt-4">
+          <Button
             type="button"
-            variant="outlined"
-            color="blue-gray"
+            variant="outline"
             onClick={onSuccess}
+            disabled={loading}
           >
             Hủy
-          </MTButton>
-          <MTButton
-            type="button"
-            variant="filled"
-            color="blue"
-            onClick={handleSubmit}
-          >
-            Cập nhật mật khẩu
-          </MTButton>
+          </Button>
+          <Button type="submit" disabled={loading}>
+            {loading ? "Đang cập nhật..." : "Cập nhật mật khẩu"}
+          </Button>
         </div>
-      </CardBody>
-    </Card>
+      </form>
+    </div>
   );
 };
 

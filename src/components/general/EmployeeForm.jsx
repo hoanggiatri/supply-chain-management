@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Input, Select, Option, Typography } from "@material-tailwind/react";
 import { getAllDepartmentsInCompany } from "@/services/general/DepartmentService";
 import toastrService from "@/services/toastrService";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const EmployeeForm = ({
   employee,
   onChange,
   errors = {},
-  readOnlyFields,
+  readOnlyFields = {},
   mode,
 }) => {
   const [departments, setDepartments] = useState([]);
@@ -41,273 +43,256 @@ const EmployeeForm = ({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* Bộ phận */}
-      <div>
+      <div className="space-y-2">
+        <Label htmlFor="departmentId">Bộ phận <span className="text-red-500">*</span></Label>
         <Select
-          label="Bộ phận"
-          color="blue"
           value={employee.departmentId || ""}
-          onChange={(val) => handleSelectChange("departmentId", val)}
-          readOnly={isFieldReadOnly("departmentId")}
-          className="w-full placeholder:opacity-100"
+          onValueChange={(val) => handleSelectChange("departmentId", val)}
+          disabled={isFieldReadOnly("departmentId")}
         >
-          {departments.map((dept) => (
-            <Option key={dept.id} value={dept.id}>
-              {dept.departmentCode} - {dept.departmentName}
-            </Option>
-          ))}
+          <SelectTrigger className={errors.departmentId ? "border-red-500" : ""}>
+            <SelectValue placeholder="Chọn bộ phận" />
+          </SelectTrigger>
+          <SelectContent>
+            {departments.map((dept) => (
+              <SelectItem key={dept.id} value={dept.id}>
+                {dept.departmentCode} - {dept.departmentName}
+              </SelectItem>
+            ))}
+          </SelectContent>
         </Select>
         {errors.departmentId && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.departmentId}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.departmentId}</p>
         )}
       </div>
 
       {/* Chức vụ */}
-      <div>
+      <div className="space-y-2">
+        <Label htmlFor="position">Chức vụ</Label>
         <Select
-          label="Chức vụ"
           value={employee.position || ""}
-          onChange={(val) => handleSelectChange("position", val)}
-          readOnly={isFieldReadOnly("position")}
-          color="blue"
-          className="w-full placeholder:opacity-100"
+          onValueChange={(val) => handleSelectChange("position", val)}
+          disabled={isFieldReadOnly("position")}
         >
-          <Option value="Quản lý">Quản lý</Option>
-          <Option value="Nhân viên">Nhân viên</Option>
+          <SelectTrigger className={errors.position ? "border-red-500" : ""}>
+            <SelectValue placeholder="Chọn chức vụ" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Quản lý">Quản lý</SelectItem>
+            <SelectItem value="Nhân viên">Nhân viên</SelectItem>
+          </SelectContent>
         </Select>
         {errors.position && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.position}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.position}</p>
         )}
       </div>
 
       {/* Mã nhân viên */}
-      <div>
+      <div className="space-y-2">
+        <Label htmlFor="employeeCode">Mã nhân viên <span className="text-red-500">*</span></Label>
         <Input
-          label="Mã nhân viên"
+          id="employeeCode"
           name="employeeCode"
-          color="blue"
           value={employee.employeeCode || ""}
           onChange={onChange}
-          className="w-full placeholder:opacity-100"
           readOnly={isFieldReadOnly("employeeCode")}
           disabled={isFieldReadOnly("employeeCode")}
-          required
+          className={errors.employeeCode ? "border-red-500" : ""}
         />
         {errors.employeeCode && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.employeeCode}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.employeeCode}</p>
         )}
       </div>
 
       {/* Họ và tên */}
-      <div>
+      <div className="space-y-2">
+        <Label htmlFor="employeeName">Họ và tên <span className="text-red-500">*</span></Label>
         <Input
-          label="Họ và tên"
+          id="employeeName"
           name="employeeName"
           value={employee.employeeName || ""}
           onChange={onChange}
-          className="w-full placeholder:opacity-100"
           readOnly={isFieldReadOnly("employeeName")}
-          color="blue"
-          required
+          className={errors.employeeName ? "border-red-500" : ""}
         />
         {errors.employeeName && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.employeeName}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.employeeName}</p>
         )}
       </div>
 
       {/* Ngày sinh */}
-      <div>
+      <div className="space-y-2">
+        <Label htmlFor="dateOfBirth">Ngày sinh</Label>
         <Input
-          label="Ngày sinh"
+          id="dateOfBirth"
           name="dateOfBirth"
           type="date"
           value={employee.dateOfBirth || ""}
           onChange={onChange}
-          className="w-full placeholder:opacity-100"
           readOnly={isFieldReadOnly("dateOfBirth")}
-          color="blue"
         />
       </div>
 
       {/* Giới tính */}
-      <div>
+      <div className="space-y-2">
+        <Label htmlFor="gender">Giới tính</Label>
         <Select
-          label="Giới tính"
           value={employee.gender || ""}
-          onChange={(val) => handleSelectChange("gender", val)}
-          readOnly={isFieldReadOnly("gender")}
-          color="blue"
-          className="w-full placeholder:opacity-100"
+          onValueChange={(val) => handleSelectChange("gender", val)}
+          disabled={isFieldReadOnly("gender")}
         >
-          <Option value="male">Nam</Option>
-          <Option value="female">Nữ</Option>
-          <Option value="other">Khác</Option>
+          <SelectTrigger className={errors.gender ? "border-red-500" : ""}>
+            <SelectValue placeholder="Chọn giới tính" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="male">Nam</SelectItem>
+            <SelectItem value="female">Nữ</SelectItem>
+            <SelectItem value="other">Khác</SelectItem>
+          </SelectContent>
         </Select>
         {errors.gender && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.gender}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.gender}</p>
         )}
       </div>
 
       {/* Địa chỉ */}
-      <div>
+      <div className="space-y-2">
+        <Label htmlFor="address">Địa chỉ</Label>
         <Input
-          label="Địa chỉ"
+          id="address"
           name="address"
           value={employee.address || ""}
           onChange={onChange}
-          className="w-full placeholder:opacity-100"
           readOnly={isFieldReadOnly("address")}
-          color="blue"
+          className={errors.address ? "border-red-500" : ""}
         />
         {errors.address && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.address}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.address}</p>
         )}
       </div>
 
       {/* Ngày bắt đầu làm */}
-      <div>
+      <div className="space-y-2">
+        <Label htmlFor="startDate">Ngày bắt đầu làm</Label>
         <Input
-          label="Ngày bắt đầu làm"
+          id="startDate"
           name="startDate"
           type="date"
           value={employee.startDate || ""}
           onChange={onChange}
-          className="w-full placeholder:opacity-100"
           readOnly={isFieldReadOnly("startDate")}
-          color="blue"
         />
       </div>
 
       {/* Số điện thoại */}
-      <div>
+      <div className="space-y-2">
+        <Label htmlFor="phoneNumber">Số điện thoại <span className="text-red-500">*</span></Label>
         <Input
-          label="Số điện thoại"
+          id="phoneNumber"
           name="phoneNumber"
           value={employee.phoneNumber || ""}
           onChange={onChange}
-          className="w-full placeholder:opacity-100"
           readOnly={isFieldReadOnly("phoneNumber")}
-          color="blue"
-          required
+          className={errors.phoneNumber ? "border-red-500" : ""}
         />
         {errors.phoneNumber && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.phoneNumber}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.phoneNumber}</p>
         )}
       </div>
 
       {/* Email */}
-      <div>
+      <div className="space-y-2">
+        <Label htmlFor="email">Email <span className="text-red-500">*</span></Label>
         <Input
-          label="Email"
+          id="email"
           name="email"
           type="email"
           value={employee.email || ""}
           onChange={onChange}
-          className="w-full placeholder:opacity-100"
           readOnly={isFieldReadOnly("email")}
-          color="blue"
-          required
+          className={errors.email ? "border-red-500" : ""}
         />
         {errors.email && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.email}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.email}</p>
         )}
       </div>
 
       {mode === "create" && (
         <>
           {/* Tên đăng nhập */}
-          <div>
+          <div className="space-y-2">
+            <Label htmlFor="username">Tên đăng nhập <span className="text-red-500">*</span></Label>
             <Input
-              label="Tên đăng nhập"
+              id="username"
               name="username"
               value={employee.username || ""}
               onChange={onChange}
-              className="w-full placeholder:opacity-100"
               readOnly={isFieldReadOnly("username")}
-              color="blue"
-              required
+              className={errors.username ? "border-red-500" : ""}
             />
             {errors.username && (
-              <Typography variant="small" color="red" className="mt-1">
-                {errors.username}
-              </Typography>
+              <p className="text-sm text-red-500">{errors.username}</p>
             )}
           </div>
 
           {/* Mật khẩu */}
-          <div>
+          <div className="space-y-2">
+            <Label htmlFor="password">Mật khẩu <span className="text-red-500">*</span></Label>
             <Input
-              label="Mật khẩu"
+              id="password"
               name="password"
               type="password"
               value={employee.password || ""}
               onChange={onChange}
-              className="w-full placeholder:opacity-100"
               readOnly={isFieldReadOnly("password")}
-              color="blue"
-              required
+              className={errors.password ? "border-red-500" : ""}
             />
             {errors.password && (
-              <Typography variant="small" color="red" className="mt-1">
-                {errors.password}
-              </Typography>
+              <p className="text-sm text-red-500">{errors.password}</p>
             )}
           </div>
 
           {/* Vai trò */}
-          <div>
+          <div className="space-y-2">
+            <Label htmlFor="role">Vai trò</Label>
             <Select
-              label="Vai trò"
               value={employee.role || ""}
-              onChange={(val) => handleSelectChange("role", val)}
-              readOnly={isFieldReadOnly("role")}
-              color="blue"
-              className="w-full placeholder:opacity-100"
+              onValueChange={(val) => handleSelectChange("role", val)}
+              disabled={isFieldReadOnly("role")}
             >
-              <Option value="s_admin">Super Admin</Option>
-              <Option value="c_admin">Company Admin</Option>
-              <Option value="user">User</Option>
+              <SelectTrigger className={errors.role ? "border-red-500" : ""}>
+                <SelectValue placeholder="Chọn vai trò" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="s_admin">Super Admin</SelectItem>
+                <SelectItem value="c_admin">Company Admin</SelectItem>
+                <SelectItem value="user">User</SelectItem>
+              </SelectContent>
             </Select>
             {errors.role && (
-              <Typography variant="small" color="red" className="mt-1">
-                {errors.role}
-              </Typography>
+              <p className="text-sm text-red-500">{errors.role}</p>
             )}
           </div>
 
           {/* Trạng thái */}
-          <div>
+          <div className="space-y-2">
+            <Label htmlFor="status">Trạng thái</Label>
             <Select
-              label="Trạng thái"
               value={employee.status || ""}
-              onChange={(val) => handleSelectChange("status", val)}
-              readOnly={isFieldReadOnly("status")}
-              color="blue"
-              className="w-full placeholder:opacity-100"
+              onValueChange={(val) => handleSelectChange("status", val)}
+              disabled={isFieldReadOnly("status")}
             >
-              <Option value="active">Đang hoạt động</Option>
-              <Option value="inactive">Không hoạt động</Option>
-              <Option value="resigned">Đã nghỉ</Option>
+              <SelectTrigger className={errors.status ? "border-red-500" : ""}>
+                <SelectValue placeholder="Chọn trạng thái" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="active">Đang hoạt động</SelectItem>
+                <SelectItem value="inactive">Không hoạt động</SelectItem>
+                <SelectItem value="resigned">Đã nghỉ</SelectItem>
+              </SelectContent>
             </Select>
             {errors.status && (
-              <Typography variant="small" color="red" className="mt-1">
-                {errors.status}
-              </Typography>
+              <p className="text-sm text-red-500">{errors.status}</p>
             )}
           </div>
         </>

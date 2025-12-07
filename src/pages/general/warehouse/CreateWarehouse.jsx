@@ -1,12 +1,10 @@
 import React, { useState } from "react";
-import { Container, Typography, Grid, Paper } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { createWarehouse } from "@/services/general/WarehouseService";
 import WarehouseForm from "@components/general/WarehouseForm";
 import toastrService from "@/services/toastrService";
-import { Button } from "@material-tailwind/react";
-import { getButtonProps } from "@/utils/buttonStyles";
-import BackButton from "@components/common/BackButton";
+import { Button } from "@/components/ui/button";
+import FormPageLayout from "@/components/layout/FormPageLayout";
 
 const CreateWarehouse = () => {
   const navigate = useNavigate();
@@ -14,7 +12,6 @@ const CreateWarehouse = () => {
   const companyId = localStorage.getItem("companyId");
 
   const [warehouse, setWarehouse] = useState({
-    // companyId,
     warehouseName: "",
     description: "",
     maxCapacity: 0,
@@ -69,44 +66,28 @@ const CreateWarehouse = () => {
   };
 
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <div className="flex items-center justify-between mb-4">
-          <Typography className="page-title" variant="h4">
-            THÊM MỚI KHO HÀNG
-          </Typography>
-          <BackButton to="/warehouses" label="Quay lại danh sách" />
-        </div>
+    <FormPageLayout
+      breadcrumbItems={[
+        { label: "Danh sách kho", path: "/warehouses" },
+        { label: "Thêm mới" },
+      ]}
+      backLink="/warehouses"
+      backLabel="Quay lại danh sách"
+    >
+      <WarehouseForm
+        warehouse={warehouse}
+        onChange={handleChange}
+        errors={errors}
+        readOnlyFields={{}}
+      />
 
-        <WarehouseForm
-          warehouse={warehouse}
-          onChange={handleChange}
-          errors={errors}
-          readOnlyFields={{}}
-        />
-
-        <Grid container spacing={2} justifyContent="flex-end" mt={2}>
-          <Grid item>
-            <Button
-              type="button"
-              {...getButtonProps("primary")}
-              onClick={handleSubmit}
-            >
-              Lưu
-            </Button>
-          </Grid>
-          <Grid item>
-            <Button
-              type="button"
-              {...getButtonProps("outlinedSecondary")}
-              onClick={() => navigate("/warehouses")}
-            >
-              Hủy
-            </Button>
-          </Grid>
-        </Grid>
-      </Paper>
-    </Container>
+      <div className="flex justify-end gap-4 mt-8">
+        <Button variant="outline" onClick={() => navigate("/warehouses")}>
+          Hủy
+        </Button>
+        <Button onClick={handleSubmit}>Lưu</Button>
+      </div>
+    </FormPageLayout>
   );
 };
 

@@ -1,12 +1,10 @@
 import React, { useState } from "react";
-import { Container, Typography, Grid, Paper } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { createPlant } from "@/services/general/ManufacturePlantService";
 import PlantForm from "@components/general/PlantForm";
 import toastrService from "@/services/toastrService";
-import { Button } from "@material-tailwind/react";
-import { getButtonProps } from "@/utils/buttonStyles";
-import BackButton from "@components/common/BackButton";
+import { Button } from "@/components/ui/button";
+import FormPageLayout from "@/components/layout/FormPageLayout";
 
 const CreatePlant = () => {
   const navigate = useNavigate();
@@ -51,44 +49,28 @@ const CreatePlant = () => {
   };
 
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <div className="flex items-center justify-between mb-4">
-          <Typography className="page-title" variant="h4">
-            THÊM MỚI XƯỞNG
-          </Typography>
-          <BackButton to="/plants" label="Quay lại danh sách" />
-        </div>
+    <FormPageLayout
+      breadcrumbItems={[
+        { label: "Danh sách xưởng", path: "/plants" },
+        { label: "Thêm mới" },
+      ]}
+      backLink="/plants"
+      backLabel="Quay lại danh sách"
+    >
+      <PlantForm
+        plant={plant}
+        onChange={handleChange}
+        errors={errors}
+        readOnlyFields={{}}
+      />
 
-        <PlantForm
-          plant={plant}
-          onChange={handleChange}
-          errors={errors}
-          readOnlyFields={{ plantCode: true }}
-        />
-
-        <Grid container spacing={2} justifyContent="flex-end" mt={2}>
-          <Grid item>
-            <Button
-              type="button"
-              {...getButtonProps("primary")}
-              onClick={handleSubmit}
-            >
-              Lưu
-            </Button>
-          </Grid>
-          <Grid item>
-            <Button
-              type="button"
-              {...getButtonProps("outlinedSecondary")}
-              onClick={() => navigate("/plants")}
-            >
-              Hủy
-            </Button>
-          </Grid>
-        </Grid>
-      </Paper>
-    </Container>
+      <div className="flex justify-end gap-4 mt-8">
+        <Button variant="outline" onClick={() => navigate("/plants")}>
+          Hủy
+        </Button>
+        <Button onClick={handleSubmit}>Lưu</Button>
+      </div>
+    </FormPageLayout>
   );
 };
 

@@ -1,11 +1,10 @@
 import React, { useState } from "react";
-import { Button, Card, CardBody, Typography } from "@material-tailwind/react";
 import { useNavigate } from "react-router-dom";
 import { createEmployee } from "@/services/general/EmployeeService";
 import EmployeeForm from "@components/general/EmployeeForm";
 import toastrService from "@/services/toastrService";
-import { getButtonProps } from "@/utils/buttonStyles";
-import BackButton from "@components/common/BackButton";
+import FormPageLayout from "@/components/layout/FormPageLayout";
+import { Button } from "@/components/ui/button";
 
 const CreateEmployee = () => {
   const navigate = useNavigate();
@@ -94,43 +93,29 @@ const CreateEmployee = () => {
   };
 
   return (
-    <div className="p-6">
-      <Card className="shadow-lg max-w-5xl mx-auto">
-        <CardBody>
-          <div className="flex items-center justify-between mb-6">
-            <Typography variant="h4" color="blue-gray" className="font-bold">
-              THÊM MỚI NHÂN VIÊN
-            </Typography>
-            <BackButton to="/employees" label="Quay lại danh sách" />
-          </div>
+    <FormPageLayout
+      breadcrumbItems={[
+        { label: "Danh sách nhân viên", path: "/employees" },
+        { label: "Thêm mới" },
+      ]}
+      backLink="/employees"
+      backLabel="Quay lại danh sách"
+    >
+      <EmployeeForm
+        employee={formData}
+        onChange={handleChange}
+        errors={errors}
+        readOnlyFields={{}}
+        mode="create"
+      />
 
-          <EmployeeForm
-            employee={formData}
-            onChange={handleChange}
-            errors={errors}
-            readOnlyFields={{}}
-            mode="create"
-          />
-
-          <div className="mt-6 flex justify-end gap-3">
-            <Button
-              type="button"
-              {...getButtonProps("primary")}
-              onClick={handleSubmit}
-            >
-              Thêm
-            </Button>
-            <Button
-              type="button"
-              {...getButtonProps("outlinedSecondary")}
-              onClick={handleCancel}
-            >
-              Hủy
-            </Button>
-          </div>
-        </CardBody>
-      </Card>
-    </div>
+      <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-100">
+        <Button variant="outline" onClick={handleCancel}>
+          Hủy
+        </Button>
+        <Button onClick={handleSubmit}>Thêm mới</Button>
+      </div>
+    </FormPageLayout>
   );
 };
 

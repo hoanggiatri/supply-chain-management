@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { Container, Typography, Grid, Paper } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { createItem } from "@/services/general/ItemService";
+import { createItem, updateItemImage } from "@/services/general/ItemService";
 import ItemForm from "@components/general/ItemForm";
+import ImageUpload from "@/components/common/ImageUpload";
+import FormPageLayout from "@/components/layout/FormPageLayout";
 import toastrService from "@/services/toastrService";
-import { Button } from "@material-tailwind/react";
-import { getButtonProps } from "@/utils/buttonStyles";
-import BackButton from "@components/common/BackButton";
+import { Button } from "@/components/ui/button";
+import { FileSpreadsheet, Save, X } from "lucide-react";
 
 const CreateItem = () => {
   const navigate = useNavigate();
@@ -23,6 +23,7 @@ const CreateItem = () => {
     isSellable: true,
     uom: "",
     technicalSpecifications: "",
+    description: "",
     importPrice: 0,
     exportPrice: 0,
   });
@@ -84,20 +85,26 @@ const CreateItem = () => {
     }
 
     try {
-      let payload = formData;
+      // 1. Create Item (JSON)
+      const payload = {
+        ...formData,
+        // Ensure numbers are numbers
+        importPrice: Number(formData.importPrice) || 0,
+        exportPrice: Number(formData.exportPrice) || 0,
+      };
 
-      // Nếu có chọn ảnh thì dùng FormData để gửi kèm file
-      if (imageFile) {
-        const formDataToSend = new FormData();
-        Object.entries(formData).forEach(([key, value]) => {
-          // Tránh undefined/null bị chuyển thành "undefined"/"null"
-          formDataToSend.append(key, value ?? "");
-        });
-        formDataToSend.append("file", imageFile);
-        payload = formDataToSend;
+      const newItem = await createItem(companyId, payload, token);
+
+      // 2. Upload Image (if selected)
+      if (imageFile && newItem?.itemId) {
+        try {
+          await updateItemImage(newItem.itemId, imageFile, token);
+        } catch (imageError) {
+          console.error("Failed to upload image:", imageError);
+          toastrService.warning("Tạo hàng hóa thành công nhưng lỗi tải ảnh!");
+        }
       }
 
-      await createItem(companyId, payload, token);
       toastrService.success("Thêm hàng hóa thành công!");
       navigate("/items");
     } catch (error) {
@@ -115,84 +122,71 @@ const CreateItem = () => {
     navigate("/create-item-from-excel");
   };
 
+  const breadcrumbs = (
+    <>
+      <span className="cursor-pointer hover:text-blue-600" onClick={() => navigate("/items")}>Danh sách</span>
+      <span>/</span>
+      <span className="text-gray-900 font-medium">Thêm mới hàng hóa</span>
+    </>
+  );
+
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <div className="flex items-center justify-between mb-4">
-          <Typography className="page-title" variant="h4">
-            THÊM MỚI HÀNG HÓA
-          </Typography>
-          <BackButton to="/items" label="Quay lại danh sách" />
+    <FormPageLayout breadcrumbs={breadcrumbs} backLink="/items">
+      <div className="flex flex-col md:flex-row gap-8">
+        {/* Left Column: Image Upload */}
+        <div className="w-full md:w-1/3 flex flex-col gap-4">
+          <ImageUpload
+            previewUrl={imagePreview}
+            onFileChange={handleImageChange}
+            inputId="item-image-input"
+          >
+            <div className="text-center mt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleNavigateToExcelPage}
+                className="w-full gap-2 text-green-600 border-green-200 hover:bg-green-50 hover:text-green-700 hover:border-green-300"
+              >
+                <FileSpreadsheet className="w-4 h-4" />
+                Nhập từ Excel
+              </Button>
+            </div>
+          </ImageUpload>
         </div>
 
-        <div className="flex flex-col md:flex-row items-center gap-6 mb-6">
-          <img
-            src={
-              imagePreview ||
-              "https://cdn-icons-png.freepik.com/512/2774/2774806.png"
-            }
-            alt="Item"
-            className="w-32 h-32 object-cover rounded-lg shadow-md"
+        {/* Right Column: Form */}
+        <div className="w-full md:w-2/3 flex flex-col">
+          <ItemForm
+            item={formData}
+            onChange={handleChange}
+            errors={errors}
+            hiddenFields={{ itemCode: true }}
           />
-          <div className="flex flex-col gap-2 w-full md:w-auto">
-            <Button
-              {...getButtonProps("outlinedSecondary")}
-              type="button"
-              className="w-full md:w-auto"
-              onClick={() =>
-                document.getElementById("item-image-input")?.click()
-              }
-            >
-              Chọn ảnh
-            </Button>
-            <input
-              id="item-image-input"
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="hidden"
-            />
-          </div>
-        </div>
 
-        <ItemForm
-          item={formData}
-          onChange={handleChange}
-          errors={errors}
-          readOnlyFields={{ itemCode: true }}
-        />
-
-        <Grid container spacing={2} mt={3} justifyContent="flex-end">
-          <Grid item>
+          {/* Actions */}
+          <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-100">
             <Button
               type="button"
-              {...getButtonProps("success")}
-              onClick={handleNavigateToExcelPage}
-            >
-              Nhập từ Excel
-            </Button>
-          </Grid>
-          <Grid item>
-            <Button
-              type="button"
-              {...getButtonProps("primary")}
-              onClick={handleSubmit}
-            >
-              Thêm
-            </Button>
-          </Grid>
-          <Grid item>
-            <Button
-              type="button"
-              {...getButtonProps("outlinedSecondary")}
+              variant="secondary"
               onClick={handleCancel}
+              className="gap-2"
             >
+              <X className="w-4 h-4" />
               Hủy
             </Button>
-          </Grid>
-        </Grid>
-      </Paper>
-    </Container>
+            <Button
+              type="button"
+              variant="default"
+              onClick={handleSubmit}
+              className="gap-2 bg-blue-600 hover:bg-blue-700 min-w-[120px]"
+            >
+              <Save className="w-4 h-4" />
+              Thêm
+            </Button>
+          </div>
+        </div>
+      </div>
+    </FormPageLayout>
   );
 };
 

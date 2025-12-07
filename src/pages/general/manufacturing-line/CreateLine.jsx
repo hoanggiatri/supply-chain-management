@@ -1,12 +1,10 @@
 import React, { useState } from "react";
-import { Container, Typography, Grid, Paper } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { createLine } from "@/services/general/ManufactureLineService";
 import LineForm from "@components/general/LineForm";
 import toastrService from "@/services/toastrService";
-import { Button } from "@material-tailwind/react";
-import { getButtonProps } from "@/utils/buttonStyles";
-import BackButton from "@components/common/BackButton";
+import FormPageLayout from "@/components/layout/FormPageLayout";
+import { Button } from "@/components/ui/button";
 
 const CreateLine = () => {
   const navigate = useNavigate();
@@ -68,45 +66,29 @@ const CreateLine = () => {
   };
 
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <div className="flex items-center justify-between mb-4">
-          <Typography className="page-title" variant="h4">
-            THÊM MỚI DÂY CHUYỀN
-          </Typography>
-          <BackButton to="/lines" label="Quay lại danh sách" />
-        </div>
+    <FormPageLayout
+      breadcrumbItems={[
+        { label: "Danh sách dây chuyền", path: "/lines" },
+        { label: "Thêm mới" },
+      ]}
+      backLink="/lines"
+      backLabel="Quay lại danh sách"
+    >
+      <LineForm
+        line={line}
+        onChange={handleChange}
+        errors={errors}
+        readOnlyFields={{}}
+        requireLineCode={false}
+      />
 
-        <LineForm
-          line={line}
-          onChange={handleChange}
-          errors={errors}
-          readOnlyFields={{}}
-          requireLineCode={false}
-        />
-
-        <Grid container spacing={2} justifyContent="flex-end" mt={2}>
-          <Grid item>
-            <Button
-              type="button"
-              {...getButtonProps("primary")}
-              onClick={handleSubmit}
-            >
-              Lưu
-            </Button>
-          </Grid>
-          <Grid item>
-            <Button
-              type="button"
-              {...getButtonProps("outlinedSecondary")}
-              onClick={() => navigate("/lines")}
-            >
-              Hủy
-            </Button>
-          </Grid>
-        </Grid>
-      </Paper>
-    </Container>
+      <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-100">
+        <Button variant="outline" onClick={() => navigate("/lines")}>
+          Hủy
+        </Button>
+        <Button onClick={handleSubmit}>Lưu</Button>
+      </div>
+    </FormPageLayout>
   );
 };
 
