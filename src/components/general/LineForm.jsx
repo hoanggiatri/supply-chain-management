@@ -3,7 +3,13 @@ import { getAllPlantsInCompany } from "@/services/general/ManufacturePlantServic
 import toastrService from "@/services/toastrService";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
 const LineForm = ({
@@ -35,7 +41,7 @@ const LineForm = ({
       } catch (error) {
         toastrService.error(
           error.response?.data?.message ||
-          "Có lỗi khi lấy danh sách xưởng sản xuất!"
+            "Có lỗi khi lấy danh sách xưởng sản xuất!"
         );
       }
     };
@@ -46,7 +52,9 @@ const LineForm = ({
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* Xưởng sản xuất */}
       <div className="space-y-2">
-        <Label htmlFor="plantId">Xưởng sản xuất <span className="text-red-500">*</span></Label>
+        <Label htmlFor="plantId">
+          Xưởng sản xuất <span className="text-red-500">*</span>
+        </Label>
         <Select
           value={line.plantId || ""}
           onValueChange={(val) => handleSelectChange("plantId", val)}
@@ -70,7 +78,10 @@ const LineForm = ({
 
       {/* Mã dây chuyền */}
       <div className="space-y-2">
-        <Label htmlFor="lineCode">Mã dây chuyền {requireLineCode && <span className="text-red-500">*</span>}</Label>
+        <Label htmlFor="lineCode">
+          Mã dây chuyền{" "}
+          {requireLineCode && <span className="text-red-500">*</span>}
+        </Label>
         <Input
           id="lineCode"
           name="lineCode"
@@ -79,6 +90,7 @@ const LineForm = ({
           readOnly={isFieldReadOnly("lineCode")}
           disabled={isFieldReadOnly("lineCode")}
           className={errors.lineCode ? "border-red-500" : ""}
+          placeholder="Nhập mã dây chuyền"
         />
         {errors.lineCode && (
           <p className="text-sm text-red-500">{errors.lineCode}</p>
@@ -87,7 +99,9 @@ const LineForm = ({
 
       {/* Tên dây chuyền */}
       <div className="space-y-2">
-        <Label htmlFor="lineName">Tên dây chuyền <span className="text-red-500">*</span></Label>
+        <Label htmlFor="lineName">
+          Tên dây chuyền <span className="text-red-500">*</span>
+        </Label>
         <Input
           id="lineName"
           name="lineName"
@@ -95,6 +109,7 @@ const LineForm = ({
           onChange={onChange}
           readOnly={isFieldReadOnly("lineName")}
           className={errors.lineName ? "border-red-500" : ""}
+          placeholder="Nhập tên dây chuyền"
         />
         {errors.lineName && (
           <p className="text-sm text-red-500">{errors.lineName}</p>
@@ -112,6 +127,7 @@ const LineForm = ({
           onChange={onChange}
           readOnly={isFieldReadOnly("capacity")}
           className={errors.capacity ? "border-red-500" : ""}
+          placeholder="Nhập công suất"
         />
         {errors.capacity && (
           <p className="text-sm text-red-500">{errors.capacity}</p>
@@ -128,6 +144,7 @@ const LineForm = ({
           onChange={onChange}
           readOnly={isFieldReadOnly("description")}
           className={errors.description ? "border-red-500" : ""}
+          placeholder="Nhập mô tả"
         />
         {errors.description && (
           <p className="text-sm text-red-500">{errors.description}</p>

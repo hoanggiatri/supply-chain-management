@@ -5,6 +5,7 @@ import LineForm from "@components/general/LineForm";
 import toastrService from "@/services/toastrService";
 import FormPageLayout from "@/components/layout/FormPageLayout";
 import { Button } from "@/components/ui/button";
+import { Save, X } from "lucide-react";
 
 const CreateLine = () => {
   const navigate = useNavigate();
@@ -83,10 +84,21 @@ const CreateLine = () => {
       />
 
       <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-100">
-        <Button variant="outline" onClick={() => navigate("/lines")}>
+        <Button
+          variant="outline"
+          onClick={() => navigate("/lines")}
+          className="gap-2"
+        >
+          <X className="w-4 h-4" />
           Hủy
         </Button>
-        <Button onClick={handleSubmit}>Lưu</Button>
+        <Button
+          onClick={handleSubmit}
+          className="bg-blue-600 hover:bg-blue-700 gap-2 min-w-[120px]"
+        >
+          <Save className="w-4 h-4" />
+          Lưu
+        </Button>
       </div>
     </FormPageLayout>
   );

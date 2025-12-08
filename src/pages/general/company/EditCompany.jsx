@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import FormPageLayout from "@/components/layout/FormPageLayout";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ImageUpload } from "@/components/common/ImageUpload";
+import { Save, X } from "lucide-react";
 
 const EditCompany = () => {
   const [company, setCompany] = useState(null);

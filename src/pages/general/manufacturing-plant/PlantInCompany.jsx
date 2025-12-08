@@ -11,6 +11,8 @@ import ListPageLayout from "@/components/layout/ListPageLayout";
 import QuickViewModal from "@/components/common/QuickViewModal";
 import PlantForm from "@/components/general/PlantForm";
 import { PencilIcon } from "@heroicons/react/24/outline";
+import { Button } from "@/components/ui/button";
+import { Edit2, X, Save } from "lucide-react";
 
 const PlantInCompany = () => {
   const [plants, setPlants] = useState([]);
@@ -153,18 +155,21 @@ const PlantInCompany = () => {
                   )}
                 </div>
                 <div className="flex gap-3 pt-4 border-t">
-                  <button
+                  <Button
                     onClick={() => setEditMode(true)}
-                    className="flex-1 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                    className="flex-1 bg-green-600 hover:bg-green-700 gap-2"
                   >
+                    <Edit2 className="w-4 h-4" />
                     Chỉnh sửa
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="outline"
                     onClick={() => setModalOpen(false)}
-                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
+                    className="gap-2"
                   >
+                    <X className="w-4 h-4" />
                     Đóng
-                  </button>
+                  </Button>
                 </div>
               </>
             ) : (
@@ -182,7 +187,7 @@ const PlantInCompany = () => {
                   readOnlyFields={{ plantCode: true }}
                 />
                 <div className="flex gap-3 pt-4 border-t">
-                  <button
+                  <Button
                     onClick={async () => {
                       setSaving(true);
                       try {
@@ -212,21 +217,24 @@ const PlantInCompany = () => {
                       }
                     }}
                     disabled={saving}
-                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 gap-2"
                   >
+                    <Save className="w-4 h-4" />
                     {saving ? "Đang lưu..." : "Lưu"}
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="outline"
                     onClick={() => {
                       setEditMode(false);
                       setFormData(selectedPlant);
                       setErrors({});
                     }}
                     disabled={saving}
-                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors disabled:opacity-50"
+                    className="gap-2"
                   >
+                    <X className="w-4 h-4" />
                     Hủy
-                  </button>
+                  </Button>
                 </div>
               </>
             )}

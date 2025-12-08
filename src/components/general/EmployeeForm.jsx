@@ -3,7 +3,13 @@ import { getAllDepartmentsInCompany } from "@/services/general/DepartmentService
 import toastrService from "@/services/toastrService";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const EmployeeForm = ({
   employee,
@@ -44,13 +50,17 @@ const EmployeeForm = ({
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* Bộ phận */}
       <div className="space-y-2">
-        <Label htmlFor="departmentId">Bộ phận <span className="text-red-500">*</span></Label>
+        <Label htmlFor="departmentId">
+          Bộ phận <span className="text-red-500">*</span>
+        </Label>
         <Select
           value={employee.departmentId || ""}
           onValueChange={(val) => handleSelectChange("departmentId", val)}
           disabled={isFieldReadOnly("departmentId")}
         >
-          <SelectTrigger className={errors.departmentId ? "border-red-500" : ""}>
+          <SelectTrigger
+            className={errors.departmentId ? "border-red-500" : ""}
+          >
             <SelectValue placeholder="Chọn bộ phận" />
           </SelectTrigger>
           <SelectContent>
@@ -89,7 +99,9 @@ const EmployeeForm = ({
 
       {/* Mã nhân viên */}
       <div className="space-y-2">
-        <Label htmlFor="employeeCode">Mã nhân viên <span className="text-red-500">*</span></Label>
+        <Label htmlFor="employeeCode">
+          Mã nhân viên <span className="text-red-500">*</span>
+        </Label>
         <Input
           id="employeeCode"
           name="employeeCode"
@@ -98,6 +110,7 @@ const EmployeeForm = ({
           readOnly={isFieldReadOnly("employeeCode")}
           disabled={isFieldReadOnly("employeeCode")}
           className={errors.employeeCode ? "border-red-500" : ""}
+          placeholder="Nhập mã nhân viên"
         />
         {errors.employeeCode && (
           <p className="text-sm text-red-500">{errors.employeeCode}</p>
@@ -106,7 +119,9 @@ const EmployeeForm = ({
 
       {/* Họ và tên */}
       <div className="space-y-2">
-        <Label htmlFor="employeeName">Họ và tên <span className="text-red-500">*</span></Label>
+        <Label htmlFor="employeeName">
+          Họ và tên <span className="text-red-500">*</span>
+        </Label>
         <Input
           id="employeeName"
           name="employeeName"
@@ -114,6 +129,7 @@ const EmployeeForm = ({
           onChange={onChange}
           readOnly={isFieldReadOnly("employeeName")}
           className={errors.employeeName ? "border-red-500" : ""}
+          placeholder="Nhập họ và tên"
         />
         {errors.employeeName && (
           <p className="text-sm text-red-500">{errors.employeeName}</p>
@@ -165,6 +181,7 @@ const EmployeeForm = ({
           onChange={onChange}
           readOnly={isFieldReadOnly("address")}
           className={errors.address ? "border-red-500" : ""}
+          placeholder="Nhập địa chỉ"
         />
         {errors.address && (
           <p className="text-sm text-red-500">{errors.address}</p>
@@ -186,7 +203,9 @@ const EmployeeForm = ({
 
       {/* Số điện thoại */}
       <div className="space-y-2">
-        <Label htmlFor="phoneNumber">Số điện thoại <span className="text-red-500">*</span></Label>
+        <Label htmlFor="phoneNumber">
+          Số điện thoại <span className="text-red-500">*</span>
+        </Label>
         <Input
           id="phoneNumber"
           name="phoneNumber"
@@ -194,6 +213,7 @@ const EmployeeForm = ({
           onChange={onChange}
           readOnly={isFieldReadOnly("phoneNumber")}
           className={errors.phoneNumber ? "border-red-500" : ""}
+          placeholder="Nhập số điện thoại"
         />
         {errors.phoneNumber && (
           <p className="text-sm text-red-500">{errors.phoneNumber}</p>
@@ -202,7 +222,9 @@ const EmployeeForm = ({
 
       {/* Email */}
       <div className="space-y-2">
-        <Label htmlFor="email">Email <span className="text-red-500">*</span></Label>
+        <Label htmlFor="email">
+          Email <span className="text-red-500">*</span>
+        </Label>
         <Input
           id="email"
           name="email"
@@ -211,17 +233,18 @@ const EmployeeForm = ({
           onChange={onChange}
           readOnly={isFieldReadOnly("email")}
           className={errors.email ? "border-red-500" : ""}
+          placeholder="Nhập email"
         />
-        {errors.email && (
-          <p className="text-sm text-red-500">{errors.email}</p>
-        )}
+        {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
       </div>
 
       {mode === "create" && (
         <>
           {/* Tên đăng nhập */}
           <div className="space-y-2">
-            <Label htmlFor="username">Tên đăng nhập <span className="text-red-500">*</span></Label>
+            <Label htmlFor="username">
+              Tên đăng nhập <span className="text-red-500">*</span>
+            </Label>
             <Input
               id="username"
               name="username"
@@ -229,6 +252,7 @@ const EmployeeForm = ({
               onChange={onChange}
               readOnly={isFieldReadOnly("username")}
               className={errors.username ? "border-red-500" : ""}
+              placeholder="Nhập tên đăng nhập"
             />
             {errors.username && (
               <p className="text-sm text-red-500">{errors.username}</p>
@@ -237,7 +261,9 @@ const EmployeeForm = ({
 
           {/* Mật khẩu */}
           <div className="space-y-2">
-            <Label htmlFor="password">Mật khẩu <span className="text-red-500">*</span></Label>
+            <Label htmlFor="password">
+              Mật khẩu <span className="text-red-500">*</span>
+            </Label>
             <Input
               id="password"
               name="password"
@@ -246,6 +272,7 @@ const EmployeeForm = ({
               onChange={onChange}
               readOnly={isFieldReadOnly("password")}
               className={errors.password ? "border-red-500" : ""}
+              placeholder="Nhập mật khẩu"
             />
             {errors.password && (
               <p className="text-sm text-red-500">{errors.password}</p>

@@ -107,16 +107,16 @@ const WarehouseDetail = () => {
           <div className="p-6">
             <div className="flex flex-col md:flex-row gap-8">
               {/* Left Column: Icon */}
-              <div className="w-full md:w-2/5 flex flex-col gap-4">
-                <div className="w-32 h-32 bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg flex items-center justify-center shadow-sm">
-                  <BuildingStorefrontIcon className="w-16 h-16 text-orange-600" />
+              <div className="w-full md:w-1/4 flex flex-col gap-4">
+                <div className="aspect-square bg-gradient-to-br from-orange-100 to-orange-50 rounded-lg flex items-center justify-center shadow-sm border border-orange-200">
+                  <BuildingStorefrontIcon className="w-20 h-20 text-orange-600" />
                 </div>
               </div>
 
               {/* Right Column: Info */}
-              <div className="w-full md:w-3/5 flex flex-col">
+              <div className="w-full md:w-3/4 flex flex-col">
                 {/* Title Section */}
-                <div className="mb-6">
+                <div className="mb-4">
                   <h1 className="text-2xl font-semibold text-gray-900 mb-2">
                     {warehouse.warehouseName}
                   </h1>
@@ -131,12 +131,9 @@ const WarehouseDetail = () => {
                   </div>
                 </div>
 
-                {/* Info Section */}
-                <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                  <h2 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                    🏭 Thông tin kho
-                  </h2>
-                  <div className="space-y-1">
+                {/* Info Card - Merged */}
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-lg p-6 mb-6 border border-gray-200">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-1">
                     <InfoRow
                       label="Mã kho"
                       value={warehouse.warehouseCode}
@@ -145,25 +142,18 @@ const WarehouseDetail = () => {
                     <InfoRow label="Tên kho" value={warehouse.warehouseName} />
                     <InfoRow label="Loại kho" value={warehouse.warehouseType} />
                     <InfoRow
-                      label="Mô tả"
-                      value={warehouse.description || "Chưa có mô tả"}
-                    />
-                  </div>
-                </div>
-
-                {/* Capacity Section */}
-                <div className="bg-gray-50 rounded-lg p-4 mb-6">
-                  <h2 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                    📦 Thông số kho
-                  </h2>
-                  <div className="space-y-3">
-                    <InfoRow
                       label="Sức chứa tối đa"
                       value={`${warehouse.maxCapacity} m³`}
                     />
-                    <div>
+                    <div className="col-span-1 lg:col-span-2">
+                      <InfoRow
+                        label="Mô tả"
+                        value={warehouse.description || "Chưa có mô tả"}
+                      />
+                    </div>
+                    <div className="col-span-1 lg:col-span-2 mt-2">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm text-gray-500">
+                        <span className="text-gray-500 text-sm">
                           Đang sử dụng
                         </span>
                         <span className="text-sm font-medium text-gray-900">
@@ -181,11 +171,11 @@ const WarehouseDetail = () => {
                 </div>
 
                 {/* Actions */}
-                <div className="flex gap-4 mt-auto">
+                <div className="flex gap-4">
                   <EditButton
                     onClick={() => navigate(`/warehouse/${warehouseId}/edit`)}
                     label="Sửa kho"
-                    className="flex-1 h-12 text-base"
+                    className="w-full h-12 text-base"
                   />
                 </div>
               </div>

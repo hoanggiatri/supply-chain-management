@@ -20,6 +20,7 @@ const PlantForm = ({ plant, onChange, errors = {}, readOnlyFields = {} }) => {
           readOnly={isFieldReadOnly("plantCode")}
           disabled={isFieldReadOnly("plantCode")}
           className={errors.plantCode ? "border-red-500" : ""}
+          placeholder="Nhập mã xưởng"
         />
         {errors.plantCode && (
           <p className="text-sm text-red-500">{errors.plantCode}</p>
@@ -37,6 +38,7 @@ const PlantForm = ({ plant, onChange, errors = {}, readOnlyFields = {} }) => {
           onChange={onChange}
           readOnly={isFieldReadOnly("plantName")}
           className={errors.plantName ? "border-red-500" : ""}
+          placeholder="Nhập tên xưởng"
         />
         {errors.plantName && (
           <p className="text-sm text-red-500">{errors.plantName}</p>
@@ -53,6 +55,7 @@ const PlantForm = ({ plant, onChange, errors = {}, readOnlyFields = {} }) => {
           readOnly={isFieldReadOnly("description")}
           className={errors.description ? "border-red-500" : ""}
           rows={3}
+          placeholder="Nhập mô tả"
         />
         {errors.description && (
           <p className="text-sm text-red-500">{errors.description}</p>

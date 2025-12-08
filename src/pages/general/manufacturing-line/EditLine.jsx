@@ -9,6 +9,7 @@ import toastrService from "@/services/toastrService";
 import FormPageLayout from "@/components/layout/FormPageLayout";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Save, X } from "lucide-react";
 import { WrenchScrewdriverIcon } from "@heroicons/react/24/solid";
 
 const EditLine = () => {
@@ -128,35 +129,31 @@ const EditLine = () => {
       backLink="/lines"
       backLabel="Quay lại danh sách"
     >
-      <div className="flex flex-col md:flex-row gap-8">
-        {/* Left Column: Icon Placeholder */}
-        <div className="w-full md:w-1/3 flex flex-col gap-4">
-          <div className="w-32 h-32 bg-gradient-to-br from-cyan-100 to-cyan-200 rounded-lg flex items-center justify-center shadow-sm">
-            <WrenchScrewdriverIcon className="w-16 h-16 text-cyan-600" />
-          </div>
-          <div className="text-sm text-gray-500">
-            Icon đại diện cho dây chuyền
-          </div>
-        </div>
+      <LineForm
+        line={editedLine}
+        onChange={handleChange}
+        errors={errors}
+        readOnlyFields={readOnlyFields}
+      />
 
-        {/* Right Column: Form */}
-        <div className="w-full md:w-2/3 flex flex-col">
-          <LineForm
-            line={editedLine}
-            onChange={handleChange}
-            errors={errors}
-            readOnlyFields={readOnlyFields}
-          />
-
-          <div className="mt-6 flex justify-end gap-2 pt-6 border-t border-gray-100">
-            <Button type="button" variant="outline" onClick={handleCancel}>
-              Hủy
-            </Button>
-            <Button type="button" onClick={handleSave}>
-              Lưu
-            </Button>
-          </div>
-        </div>
+      <div className="mt-8 flex justify-end gap-4 pt-6 border-t border-gray-100">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleCancel}
+          className="gap-2"
+        >
+          <X className="w-4 h-4" />
+          Hủy
+        </Button>
+        <Button
+          type="button"
+          onClick={handleSave}
+          className="bg-blue-600 hover:bg-blue-700 gap-2 min-w-[120px]"
+        >
+          <Save className="w-4 h-4" />
+          Lưu
+        </Button>
       </div>
     </FormPageLayout>
   );

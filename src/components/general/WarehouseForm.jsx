@@ -1,7 +1,14 @@
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const WarehouseForm = ({ warehouse, onChange, errors, readOnlyFields }) => {
   const isFieldReadOnly = (field) => readOnlyFields[field] ?? false;
@@ -19,7 +26,9 @@ const WarehouseForm = ({ warehouse, onChange, errors, readOnlyFields }) => {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* Tên kho */}
       <div className="space-y-2">
-        <Label htmlFor="warehouseName">Tên kho <span className="text-red-500">*</span></Label>
+        <Label htmlFor="warehouseName">
+          Tên kho <span className="text-red-500">*</span>
+        </Label>
         <Input
           id="warehouseName"
           name="warehouseName"
@@ -27,6 +36,7 @@ const WarehouseForm = ({ warehouse, onChange, errors, readOnlyFields }) => {
           onChange={onChange}
           readOnly={isFieldReadOnly("warehouseName")}
           className={errors.warehouseName ? "border-red-500" : ""}
+          placeholder="Nhập tên kho"
         />
         {errors.warehouseName && (
           <p className="text-sm text-red-500">{errors.warehouseName}</p>
@@ -44,6 +54,7 @@ const WarehouseForm = ({ warehouse, onChange, errors, readOnlyFields }) => {
           onChange={onChange}
           readOnly={isFieldReadOnly("maxCapacity")}
           className={errors.maxCapacity ? "border-red-500" : ""}
+          placeholder="Nhập sức chứa tối đa"
         />
         {errors.maxCapacity && (
           <p className="text-sm text-red-500">{errors.maxCapacity}</p>
@@ -58,7 +69,9 @@ const WarehouseForm = ({ warehouse, onChange, errors, readOnlyFields }) => {
           onValueChange={(val) => handleSelectChange("warehouseType", val)}
           disabled={isFieldReadOnly("warehouseType")}
         >
-          <SelectTrigger className={errors.warehouseType ? "border-red-500" : ""}>
+          <SelectTrigger
+            className={errors.warehouseType ? "border-red-500" : ""}
+          >
             <SelectValue placeholder="Chọn loại kho" />
           </SelectTrigger>
           <SelectContent>
@@ -77,13 +90,15 @@ const WarehouseForm = ({ warehouse, onChange, errors, readOnlyFields }) => {
       {/* Mô tả */}
       <div className="md:col-span-2 space-y-2">
         <Label htmlFor="description">Mô tả</Label>
-        <Input
+        <Textarea
           id="description"
           name="description"
           value={warehouse.description || ""}
           onChange={onChange}
           readOnly={isFieldReadOnly("description")}
           className={errors.description ? "border-red-500" : ""}
+          placeholder="Nhập mô tả"
+          rows={3}
         />
         {errors.description && (
           <p className="text-sm text-red-500">{errors.description}</p>

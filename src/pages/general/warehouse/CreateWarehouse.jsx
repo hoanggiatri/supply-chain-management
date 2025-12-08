@@ -5,6 +5,7 @@ import WarehouseForm from "@components/general/WarehouseForm";
 import toastrService from "@/services/toastrService";
 import { Button } from "@/components/ui/button";
 import FormPageLayout from "@/components/layout/FormPageLayout";
+import { Save, X } from "lucide-react";
 
 const CreateWarehouse = () => {
   const navigate = useNavigate();
@@ -81,11 +82,26 @@ const CreateWarehouse = () => {
         readOnlyFields={{}}
       />
 
-      <div className="flex justify-end gap-4 mt-8">
-        <Button variant="outline" onClick={() => navigate("/warehouses")}>
+      {/* Actions */}
+      <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-100">
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => navigate("/warehouses")}
+          className="gap-2"
+        >
+          <X className="w-4 h-4" />
           Hủy
         </Button>
-        <Button onClick={handleSubmit}>Lưu</Button>
+        <Button
+          type="button"
+          variant="default"
+          onClick={handleSubmit}
+          className="gap-2 bg-blue-600 hover:bg-blue-700 min-w-[120px]"
+        >
+          <Save className="w-4 h-4" />
+          Lưu
+        </Button>
       </div>
     </FormPageLayout>
   );

@@ -81,16 +81,16 @@ const PlantDetail = () => {
           <div className="p-6">
             <div className="flex flex-col md:flex-row gap-8">
               {/* Left Column: Icon */}
-              <div className="w-full md:w-2/5 flex flex-col gap-4">
-                <div className="w-32 h-32 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg flex items-center justify-center shadow-sm">
-                  <BuildingOfficeIcon className="w-16 h-16 text-purple-600" />
+              <div className="w-full md:w-1/4 flex flex-col gap-4">
+                <div className="aspect-square bg-gradient-to-br from-purple-100 to-purple-50 rounded-lg flex items-center justify-center shadow-sm border border-purple-200">
+                  <BuildingOfficeIcon className="w-20 h-20 text-purple-600" />
                 </div>
               </div>
 
               {/* Right Column: Info */}
-              <div className="w-full md:w-3/5 flex flex-col">
+              <div className="w-full md:w-3/4 flex flex-col">
                 {/* Title Section */}
-                <div className="mb-6">
+                <div className="mb-4">
                   <h1 className="text-2xl font-semibold text-gray-900 mb-2">
                     {plant.plantName}
                   </h1>
@@ -101,49 +101,49 @@ const PlantDetail = () => {
                   </div>
                 </div>
 
-                {/* Info Section */}
-                <div className="bg-gray-50 rounded-lg p-4 mb-6">
-                  <h2 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                    🏭 Thông tin xưởng
-                  </h2>
-                  <div className="space-y-1">
+                {/* Info Card - Merged */}
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-lg p-6 mb-6 border border-gray-200">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-1">
                     <InfoRow
                       label="Mã xưởng"
                       value={plant.plantCode}
                       className="font-medium"
                     />
                     <InfoRow label="Tên xưởng" value={plant.plantName} />
-                    <InfoRow
-                      label="Mô tả"
-                      value={plant.description || "Chưa có mô tả"}
-                    />
-                  </div>
-                </div>
-
-                {/* Statistics Section */}
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
-                    <div className="text-2xl font-bold text-blue-600">
-                      {plant.lineCount || 0}
+                    <div className="col-span-1 lg:col-span-2">
+                      <InfoRow
+                        label="Mô tả"
+                        value={plant.description || "Chưa có mô tả"}
+                      />
                     </div>
-                    <div className="text-sm text-gray-600 mt-1">Dây chuyền</div>
-                  </div>
-                  <div className="bg-green-50 rounded-lg p-4 border border-green-100">
-                    <div className="text-2xl font-bold text-green-600">
-                      {plant.activeLineCount || 0}
-                    </div>
-                    <div className="text-sm text-gray-600 mt-1">
-                      Đang hoạt động
+                    {/* Statistics */}
+                    <div className="col-span-1 lg:col-span-2 mt-4 grid grid-cols-2 gap-4">
+                      <div className="bg-white rounded-lg p-4 border border-blue-200 shadow-sm">
+                        <div className="text-2xl font-bold text-blue-600">
+                          {plant.lineCount || 0}
+                        </div>
+                        <div className="text-sm text-gray-600 mt-1">
+                          Dây chuyền
+                        </div>
+                      </div>
+                      <div className="bg-white rounded-lg p-4 border border-green-200 shadow-sm">
+                        <div className="text-2xl font-bold text-green-600">
+                          {plant.activeLineCount || 0}
+                        </div>
+                        <div className="text-sm text-gray-600 mt-1">
+                          Đang hoạt động
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Actions */}
-                <div className="flex gap-4 mt-auto">
+                <div className="flex gap-4">
                   <EditButton
                     onClick={() => navigate(`/plant/${plantId}/edit`)}
                     label="Sửa xưởng"
-                    className="flex-1 h-12 text-base"
+                    className="w-full h-12 text-base"
                   />
                 </div>
               </div>
