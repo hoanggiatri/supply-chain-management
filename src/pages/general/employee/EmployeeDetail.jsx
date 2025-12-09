@@ -38,7 +38,6 @@ const EmployeeDetail = () => {
         setLoading(false);
       }
     };
-
     fetchEmployee();
   }, [employeeId]);
 
@@ -46,7 +45,7 @@ const EmployeeDetail = () => {
     const token = localStorage.getItem("token");
     try {
       await deleteEmployee(employeeId, token);
-      toastrService.success("Xóa nhân viên và tài khoản liên quan thành công!");
+      toastrService.success("Xóa nhân viên & tài khoản liên quan thành công!");
       navigate("/employees");
     } catch (error) {
       toastrService.error(
@@ -56,7 +55,7 @@ const EmployeeDetail = () => {
   };
 
   const InfoRow = ({ label, value, className = "" }) => (
-    <div className="flex items-start py-2.5">
+    <div className="flex items-start py-2">
       <span className="text-gray-600 w-36 flex-shrink-0 text-sm font-medium">
         {label}:
       </span>
@@ -67,53 +66,39 @@ const EmployeeDetail = () => {
   );
 
   const StatusBadge = ({ status }) => {
-    const statusConfig = {
-      active: {
-        label: "Đang hoạt động",
-        className: "bg-green-100 text-green-700 border-green-200",
-      },
-      inactive: {
-        label: "Ngừng hoạt động",
-        className: "bg-amber-100 text-amber-700 border-amber-200",
-      },
-      resigned: {
-        label: "Đã nghỉ",
-        className: "bg-red-100 text-red-700 border-red-200",
-      },
-    };
-    const config = statusConfig[status] || statusConfig.active;
+    const config = {
+      active: "bg-green-50 text-green-700 border-green-200",
+      inactive: "bg-amber-50 text-amber-700 border-amber-200",
+      resigned: "bg-red-50 text-red-700 border-red-200",
+    }[status];
 
     return (
       <span
-        className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium border ${config.className}`}
+        className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium border ${config}`}
       >
-        {config.label}
+        {
+          {
+            active: "Đang hoạt động",
+            inactive: "Ngừng hoạt động",
+            resigned: "Đã nghỉ",
+          }[status]
+        }
       </span>
     );
   };
 
   const GenderBadge = ({ gender }) => {
-    const genderConfig = {
-      male: {
-        label: "Nam",
-        className: "bg-blue-100 text-blue-700 border-blue-200",
-      },
-      female: {
-        label: "Nữ",
-        className: "bg-pink-100 text-pink-700 border-pink-200",
-      },
-      other: {
-        label: "Khác",
-        className: "bg-gray-100 text-gray-700 border-gray-200",
-      },
-    };
-    const config = genderConfig[gender] || genderConfig.other;
+    const config = {
+      male: "bg-blue-50 text-blue-700 border-blue-200",
+      female: "bg-pink-50 text-pink-700 border-pink-200",
+      other: "bg-gray-50 text-gray-700 border-gray-200",
+    }[gender];
 
     return (
       <span
-        className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium border ${config.className}`}
+        className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium border ${config}`}
       >
-        {config.label}
+        {{ male: "Nam", female: "Nữ", other: "Khác" }[gender]}
       </span>
     );
   };
@@ -121,13 +106,11 @@ const EmployeeDetail = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-sm shadow-sm border border-gray-100 overflow-hidden">
-            <div className="p-6">
-              <Skeleton className="h-40 w-40 rounded-full mb-4" />
-              <Skeleton className="h-8 w-1/3 mb-4" />
-              <Skeleton className="h-[400px] w-full" />
-            </div>
+        <div className="max-w-5xl mx-auto px-4">
+          <div className="bg-white rounded-lg shadow-sm border p-6">
+            <Skeleton className="h-40 w-40 rounded-full mb-4" />
+            <Skeleton className="h-8 w-1/3 mb-4" />
+            <Skeleton className="h-[400px] w-full" />
           </div>
         </div>
       </div>
@@ -138,11 +121,11 @@ const EmployeeDetail = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-sm shadow-sm border border-gray-100 overflow-hidden">
-          {/* Header / Breadcrumb */}
-          <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white">
-            <div className="flex items-center gap-2 text-sm text-gray-500">
+      <div className="max-w-5xl mx-auto px-4">
+        <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+          {/* Header */}
+          <div className="px-6 py-4 border-b flex items-center justify-between bg-white">
+            <div className="text-sm text-gray-500 flex items-center gap-1">
               <span
                 className="cursor-pointer hover:text-blue-600"
                 onClick={() => navigate("/employees")}
@@ -157,11 +140,12 @@ const EmployeeDetail = () => {
             <BackButton to="/employees" label="Trở lại" />
           </div>
 
+          {/* Body */}
           <div className="p-6">
-            <div className="flex flex-col md:flex-row gap-4">
-              {/* Left Column: Avatar */}
-              <div className="w-full md:w-1/4 flex flex-col items-center md:items-start">
-                <div className="w-40 h-40 rounded-lg overflow-hidden border-2 border-gray-200 bg-white shadow-lg hover:shadow-xl transition-all">
+            <div className="flex flex-col md:flex-row gap-6">
+              {/* Avatar */}
+              <div className="w-full md:w-1/4 flex justify-center md:justify-start">
+                <div className="w-40 h-40 rounded-xl overflow-hidden border bg-white shadow hover:shadow-lg transition-all">
                   <img
                     src={
                       employee.avatar ||
@@ -173,20 +157,20 @@ const EmployeeDetail = () => {
                 </div>
               </div>
 
-              {/* Right Column: Info */}
+              {/* Info */}
               <div className="w-full md:w-3/4 flex flex-col">
-                {/* Title Section */}
+                {/* Header Info */}
                 <div className="mb-6">
-                  <div className="mb-2">
-                    <span className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors">
-                      {employee.employeeCode}
-                    </span>
+                  <div className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 mb-2">
+                    {employee.employeeCode}
                   </div>
-                  <h1 className="text-3xl font-bold text-gray-900 mb-3">
+
+                  <h1 className="text-3xl font-bold text-gray-900">
                     {employee.employeeName}
                   </h1>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition-colors">
+
+                  <div className="flex items-center gap-2 mt-3 flex-wrap">
+                    <span className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200">
                       {employee.position || "Chưa cập nhật"}
                     </span>
                     <StatusBadge status={employee.status} />
@@ -194,21 +178,16 @@ const EmployeeDetail = () => {
                   </div>
                 </div>
 
-                {/* Info Section - Card duy nhất */}
-                <div className="bg-gradient-to-br from-blue-50 to-white rounded-lg border border-blue-100 p-5 shadow-sm hover:shadow-md transition-shadow mb-6">
-                  <h2 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <span className="text-lg">👤</span>
+                {/* Info Card */}
+                <div className="bg-gray-50 rounded-lg border p-5 shadow-sm mb-6">
+                  <h2 className="text-sm font-semibold text-gray-900 mb-4">
                     THÔNG TIN NHÂN VIÊN
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
                     <InfoRow label="Ngày sinh" value={employee.dateOfBirth} />
                     <InfoRow label="Email" value={employee.email} />
                     <InfoRow label="Điện thoại" value={employee.phoneNumber} />
-                    <InfoRow
-                      label="Bộ phận"
-                      value={employee.departmentName}
-                      className="text-blue-600 hover:underline cursor-pointer font-medium"
-                    />
+                    <InfoRow label="Bộ phận" value={employee.departmentName} />
                     <InfoRow label="Chức vụ" value={employee.position} />
                     <InfoRow label="Ngày bắt đầu" value={employee.startDate} />
                     <div className="md:col-span-2">
@@ -218,21 +197,21 @@ const EmployeeDetail = () => {
                 </div>
 
                 {/* Actions */}
-                <div className="grid grid-cols-2 gap-4 mt-auto">
+                <div className="grid grid-cols-2 gap-4">
                   <EditButton
-                    onClick={() => navigate(`/employee/${employeeId}/edit`)}
                     label="Chỉnh sửa"
-                    className="w-full h-12 text-base font-semibold"
+                    onClick={() => navigate(`/employee/${employeeId}/edit`)}
+                    className="h-12 text-base font-semibold"
                   />
                   <DeleteButton
+                    label="Xóa"
                     onClick={() =>
                       setConfirmDialog({
                         open: true,
                         onConfirm: handleDelete,
                       })
                     }
-                    label="Xóa"
-                    className="w-full h-12 text-base font-semibold"
+                    className="h-12 text-base font-semibold"
                   />
                 </div>
               </div>
@@ -241,6 +220,7 @@ const EmployeeDetail = () => {
         </div>
       </div>
 
+      {/* Confirm Dialog */}
       <ConfirmDialog
         open={confirmDialog.open}
         onClose={() => setConfirmDialog({ open: false, onConfirm: null })}

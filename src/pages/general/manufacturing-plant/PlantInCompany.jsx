@@ -12,7 +12,8 @@ import QuickViewModal from "@/components/common/QuickViewModal";
 import PlantForm from "@/components/general/PlantForm";
 import { PencilIcon } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/button";
-import { Edit2, X, Save } from "lucide-react";
+import { EditButton } from "@/components/common/ActionButtons";
+import { X, Save } from "lucide-react";
 
 const PlantInCompany = () => {
   const [plants, setPlants] = useState([]);
@@ -114,6 +115,12 @@ const PlantInCompany = () => {
             setEditMode(false);
             setModalOpen(true);
           }}
+        exportFileName="Danh_sach_xuong"
+        exportMapper={(row = {}) => ({
+          "Mã xưởng": row.plantCode || "",
+          "Tên xưởng": row.plantName || "",
+          "Mô tả": row.description || "",
+        })}
         />
       </ListPageLayout>
 
@@ -155,13 +162,11 @@ const PlantInCompany = () => {
                   )}
                 </div>
                 <div className="flex gap-3 pt-4 border-t">
-                  <Button
+                  <EditButton
                     onClick={() => setEditMode(true)}
-                    className="flex-1 bg-green-600 hover:bg-green-700 gap-2"
-                  >
-                    <Edit2 className="w-4 h-4" />
-                    Chỉnh sửa
-                  </Button>
+                    label="Chỉnh sửa"
+                    className="flex-1 justify-center"
+                  />
                   <Button
                     variant="outline"
                     onClick={() => setModalOpen(false)}

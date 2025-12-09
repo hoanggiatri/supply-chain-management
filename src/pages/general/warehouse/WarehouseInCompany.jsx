@@ -12,7 +12,8 @@ import QuickViewModal from "@/components/common/QuickViewModal";
 import WarehouseForm from "@/components/general/WarehouseForm";
 import { PencilIcon } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/button";
-import { Edit2, X, Save } from "lucide-react";
+import { EditButton } from "@/components/common/ActionButtons";
+import { X, Save } from "lucide-react";
 
 const WarehouseInCompany = () => {
   const [warehouses, setWarehouses] = useState([]);
@@ -149,6 +150,22 @@ const WarehouseInCompany = () => {
             setEditMode(false);
             setModalOpen(true);
           }}
+        exportFileName="Danh_sach_kho"
+        exportMapper={(row = {}) => ({
+          "Mã kho": row.warehouseCode || "",
+          "Tên kho": row.warehouseName || "",
+          "Mô tả": row.description || "",
+          "Sức chứa tối đa (m³)": row.maxCapacity ?? "",
+          "Loại kho": row.warehouseType || "",
+          "Trạng thái":
+            row.status === "active"
+              ? "Đang hoạt động"
+              : row.status === "inactive"
+              ? "Ngừng hoạt động"
+              : row.status === "closed"
+              ? "Đã đóng"
+              : row.status || "",
+        })}
         />
       </ListPageLayout>
 
@@ -220,13 +237,11 @@ const WarehouseInCompany = () => {
                   )}
                 </div>
                 <div className="flex gap-3 pt-4 border-t">
-                  <Button
+                  <EditButton
                     onClick={() => setEditMode(true)}
-                    className="flex-1 bg-green-600 hover:bg-green-700 gap-2"
-                  >
-                    <Edit2 className="w-4 h-4" />
-                    Chỉnh sửa
-                  </Button>
+                    label="Chỉnh sửa"
+                    className="flex-1 justify-center"
+                  />
                   <Button
                     variant="outline"
                     onClick={() => setModalOpen(false)}

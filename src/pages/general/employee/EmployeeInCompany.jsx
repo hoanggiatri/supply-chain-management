@@ -165,6 +165,25 @@ const EmployeeInCompany = () => {
         data={employees}
         loading={loading}
         onRowClick={(row) => navigate(`/employee/${row.id}`)}
+        exportFileName="Danh_sach_nhan_vien"
+        exportMapper={(row = {}) => ({
+          "Mã nhân viên": row.employeeCode || "",
+          "Tên nhân viên": row.employeeName || "",
+          "Bộ phận": row.departmentName || "",
+          "Chức vụ": row.position || "",
+          "Giới tính": row.gender || "",
+          "Ngày sinh": row.dateOfBirth || "",
+          Email: row.email || "",
+          "Số điện thoại": row.phoneNumber || "",
+          "Trạng thái":
+            row.status === "active"
+              ? "Đang hoạt động"
+              : row.status === "inactive"
+              ? "Ngừng hoạt động"
+              : row.status === "resigned"
+              ? "Đã nghỉ"
+              : row.status || "",
+        })}
       />
     </ListPageLayout>
   );

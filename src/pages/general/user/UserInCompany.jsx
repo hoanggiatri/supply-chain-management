@@ -114,7 +114,32 @@ const UserInCompany = () => {
       title="Danh sách tài khoản"
       description="Quản lý tài khoản người dùng trong hệ thống"
     >
-      <DataTable columns={columns} data={users} loading={loading} />
+      <DataTable
+        columns={columns}
+        data={users}
+        loading={loading}
+        exportFileName="Danh_sach_tai_khoan"
+        exportMapper={(row = {}) => ({
+          "Mã nhân viên": row.employeeCode || "",
+          Email: row.email || "",
+          "Vai trò":
+            row.role === "c_admin"
+              ? "Quản trị công ty"
+              : row.role === "s_admin"
+              ? "Quản trị hệ thống"
+              : row.role === "user"
+              ? "Nhân viên"
+              : row.role || "",
+          "Trạng thái":
+            row.status === "active"
+              ? "Đang hoạt động"
+              : row.status === "inactive"
+              ? "Ngừng hoạt động"
+              : row.status === "resigned"
+              ? "Đã nghỉ"
+              : row.status || "",
+        })}
+      />
     </ListPageLayout>
   );
 };

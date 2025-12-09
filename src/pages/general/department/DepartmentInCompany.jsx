@@ -62,7 +62,16 @@ const DepartmentInCompany = () => {
       title="Quản lý bộ phận"
       description="Danh sách các bộ phận trong công ty"
     >
-      <DataTable columns={columns} data={departments} loading={loading} />
+      <DataTable
+        columns={columns}
+        data={departments}
+        loading={loading}
+        exportFileName="Danh_sach_bo_phan"
+        exportMapper={(row = {}) => ({
+          "Mã bộ phận": row.departmentCode || "",
+          "Tên bộ phận": row.departmentName || "",
+        })}
+      />
     </ListPageLayout>
   );
 };

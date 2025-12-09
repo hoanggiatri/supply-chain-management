@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import EmployeeForm from "@components/general/EmployeeForm";
 import {
   getEmployeeById,
@@ -15,6 +15,8 @@ import { ImageUpload } from "@/components/common/ImageUpload";
 const EditEmployee = () => {
   const { employeeId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const backToProfile = location.state?.from === "my-profile";
   const [employee, setEmployee] = useState(null);
   const [editedEmployee, setEditedEmployee] = useState(null);
   const [errors, setErrors] = useState({});
@@ -83,9 +85,11 @@ const EditEmployee = () => {
     setEditedEmployee((prev) => ({ ...prev, [name]: nextValue }));
   };
 
+  const backLink = backToProfile ? "/my-profile" : "/employees";
+
   const handleCancel = () => {
     setEditedEmployee(employee);
-    navigate(-1);
+    navigate(backLink);
   };
 
   const handleSave = async () => {
@@ -155,7 +159,7 @@ const EditEmployee = () => {
     return (
       <FormPageLayout
         breadcrumbs="Danh sách nhân viên / Chỉnh sửa"
-        backLink="/employees"
+        backLink={backLink}
       >
         <div className="space-y-4">
           <Skeleton className="h-32 w-32 rounded-full" />
@@ -175,11 +179,14 @@ const EditEmployee = () => {
   return (
     <FormPageLayout
       breadcrumbItems={[
-        { label: "Danh sách nhân viên", path: "/employees" },
+        {
+          label: backToProfile ? "Hồ sơ của tôi" : "Danh sách nhân viên",
+          path: backLink,
+        },
         { label: "Chỉnh sửa" },
       ]}
-      backLink="/employees"
-      backLabel="Quay lại danh sách"
+      backLink={backLink}
+      backLabel={backToProfile ? "Về hồ sơ" : "Quay lại danh sách"}
     >
       {/* Title với icon */}
       <div className="mb-6">

@@ -1,13 +1,38 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import EmployeeForm from "@components/general/EmployeeForm";
-import UserForm from "@components/general/UserForm";
 import { getEmployeeById } from "@/services/general/EmployeeService";
 import { getUserByEmployeeId } from "@/services/general/UserService";
 import toastrService from "@/services/toastrService";
 import FormPageLayout from "@/components/layout/FormPageLayout";
 import { Button } from "@/components/ui/button";
+import { EditButton } from "@/components/common/ActionButtons";
 import { Skeleton } from "@/components/ui/skeleton";
+
+const InfoItem = ({ label, value }) => (
+  <div className="flex flex-col gap-1">
+    <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+      {label}
+    </span>
+    <span className="text-base font-semibold text-gray-900">
+      {value || "--"}
+    </span>
+  </div>
+);
+
+const SectionCard = ({ title, children, highlight = false }) => (
+  <div
+    className={`rounded-2xl border ${
+      highlight
+        ? "bg-gray-50 border-gray-200 shadow-sm"
+        : "bg-white border-gray-100 shadow-sm"
+    } p-6`}
+  >
+    {title && (
+      <h3 className="text-lg font-semibold text-gray-900 mb-6">{title}</h3>
+    )}
+    {children}
+  </div>
+);
 
 const MyProfile = () => {
   const [employee, setEmployee] = useState(null);
@@ -17,19 +42,23 @@ const MyProfile = () => {
   const role = localStorage.getItem("role");
   const token = localStorage.getItem("token");
   const employeeId = localStorage.getItem("employeeId");
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const employeeRes = await getEmployeeById(employeeId, token);
+
         if (employeeRes.avatar) {
           employeeRes.avatar = `${employeeRes.avatar}?t=${Date.now()}`;
         }
-        // Xử lý các giá trị null
-        if (!employeeRes.gender) employeeRes.gender = "";
-        if (!employeeRes.address) employeeRes.address = "";
-        if (!employeeRes.phoneNumber) employeeRes.phoneNumber = "";
-        if (!employeeRes.dateOfBirth) employeeRes.dateOfBirth = "";
-        setEmployee(employeeRes);
+
+        setEmployee({
+          ...employeeRes,
+          gender: employeeRes.gender || "",
+          address: employeeRes.address || "",
+          phoneNumber: employeeRes.phoneNumber || "",
+          dateOfBirth: employeeRes.dateOfBirth || "",
+        });
 
         const userRes = await getUserByEmployeeId(employeeId, token);
         setUser(userRes);
@@ -46,83 +75,84 @@ const MyProfile = () => {
   if (!employee || !user) {
     return (
       <FormPageLayout backLink="/" backLabel="Quay lại trang chủ">
-        <div className="space-y-4">
-          <Skeleton className="h-32 w-32 rounded-full" />
-          <Skeleton className="h-8 w-1/3" />
-          <Skeleton className="h-[400px] w-full" />
-        </div>
+        <Skeleton className="h-8 w-1/2" />
+        <Skeleton className="h-[350px] w-full" />
       </FormPageLayout>
     );
   }
 
-  const readOnlyFields = Object.keys(employee).reduce((acc, key) => {
-    acc[key] = true;
-    return acc;
-  }, {});
-
-  const userReadOnlyFields = Object.keys(user).reduce((acc, key) => {
-    acc[key] = true;
-    return acc;
-  }, {});
-
   return (
     <FormPageLayout backLink="/" backLabel="Quay lại trang chủ">
-      <div className="space-y-8">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Thông tin nhân viên
-          </h3>
-
-          <div className="mb-6">
+      <div className="space-y-10 pb-10">
+        {/* HEADER */}
+        <div className="bg-white rounded-2xl border border-gray-100 p-8 flex items-center gap-6 shadow-sm">
+          <div className="w-24 h-24 rounded-full overflow-hidden border shadow-sm">
             <img
-              src={
-                employee.avatar ||
-                "https://img.freepik.com/premium-vector/default-avatar-profile-icon-social-media-user-image-gray-avatar-icon-blank-profile-silhouette-vector-illustration_561158-3383.jpg"
-              }
+              src={employee.avatar || "https://i.ibb.co/MBtjqXQ/no-avatar.png"}
               alt="avatar"
-              className="w-24 h-24 rounded-full object-cover border-2 border-gray-200"
+              className="w-full h-full object-cover"
             />
           </div>
 
-          <EmployeeForm
-            employee={employee}
-            onChange={() => {}}
-            errors={{}}
-            readOnlyFields={readOnlyFields}
-          />
-
-          <div className="mt-4 flex justify-end">
-            <Button
-              type="button"
-              onClick={() => navigate(`/employee/${employee.id}/edit`)}
-            >
-              Sửa thông tin
-            </Button>
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">
+              {employee.fullName}
+            </h2>
+            <p className="text-gray-500 text-sm mt-1">
+              {employee.positionName} — {employee.departmentName}
+            </p>
           </div>
         </div>
 
-        <div className="border-t border-gray-200 pt-8">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Thông tin tài khoản
-          </h3>
+        {/* GRID INFO */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+          <SectionCard title="Thông tin nhân viên" highlight>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <InfoItem label="Họ và tên" value={employee.fullName} />
+              <InfoItem label="Giới tính" value={employee.gender} />
+              <InfoItem label="Ngày sinh" value={employee.dateOfBirth} />
+              <InfoItem label="Số điện thoại" value={employee.phoneNumber} />
+              <InfoItem label="Địa chỉ" value={employee.address} />
+              <InfoItem label="Mã nhân viên" value={employee.employeeCode} />
+              <InfoItem label="Phòng ban" value={employee.departmentName} />
+              <InfoItem label="Chức vụ" value={employee.positionName} />
+            </div>
+          </SectionCard>
 
-          <UserForm
-            user={user}
-            onChange={() => {}}
-            errors={{}}
-            readOnlyFields={userReadOnlyFields}
-            role={role}
-          />
+          <SectionCard title="Thông tin tài khoản" highlight>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <InfoItem label="Tên đăng nhập" value={user.username} />
+              <InfoItem label="Email" value={user.email} />
+              <InfoItem label="Vai trò" value={role} />
+              <InfoItem
+                label="Trạng thái"
+                value={user.active ? "Đang hoạt động" : "Đã khoá"}
+              />
+            </div>
+          </SectionCard>
+        </div>
 
-          <div className="mt-4 flex justify-end">
+        {/* ACTION CARD */}
+        <SectionCard>
+          <div className="flex justify-end gap-3 pt-4">
+            <EditButton
+              onClick={() =>
+                navigate(`/employee/${employee.id}/edit`, {
+                  state: { from: "my-profile" },
+                })
+              }
+              label="Sửa thông tin nhân viên"
+              className="min-w-[180px]"
+            />
+
             <Button
-              type="button"
+              className="bg-indigo-600 text-white hover:bg-indigo-700"
               onClick={() => navigate(`/user/${employeeId}/edit`)}
             >
               Sửa tài khoản
             </Button>
           </div>
-        </div>
+        </SectionCard>
       </div>
     </FormPageLayout>
   );

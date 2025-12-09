@@ -12,7 +12,8 @@ import QuickViewModal from "@/components/common/QuickViewModal";
 import LineForm from "@/components/general/LineForm";
 import { PencilIcon } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/button";
-import { Edit2, X, Save } from "lucide-react";
+import { EditButton } from "@/components/common/ActionButtons";
+import { X, Save } from "lucide-react";
 
 const LineInCompany = () => {
   const [lines, setLines] = useState([]);
@@ -123,6 +124,13 @@ const LineInCompany = () => {
             setModalOpen(true);
           }}
           emptyMessage="Chưa có dây chuyền nào"
+          exportFileName="Danh_sach_day_chuyen"
+          exportMapper={(row = {}) => ({
+            "Mã dây chuyền": row.lineCode || "",
+            "Tên dây chuyền": row.lineName || "",
+            "Tên xưởng": row.plantName || "",
+            "Công suất": row.capacity ? `${row.capacity}/h` : "",
+          })}
         />
       </ListPageLayout>
 
@@ -185,13 +193,11 @@ const LineInCompany = () => {
                   )}
                 </div>
                 <div className="flex gap-3 pt-4 border-t">
-                  <Button
+                  <EditButton
                     onClick={() => setEditMode(true)}
-                    className="flex-1 bg-green-600 hover:bg-green-700 gap-2"
-                  >
-                    <Edit2 className="w-4 h-4" />
-                    Chỉnh sửa
-                  </Button>
+                    label="Chỉnh sửa"
+                    className="flex-1 justify-center"
+                  />
                   <Button
                     variant="outline"
                     onClick={() => setModalOpen(false)}

@@ -87,7 +87,6 @@ const EditUser = () => {
         backLink="/users"
       >
         <div className="space-y-4">
-          <Skeleton className="h-32 w-32 rounded-full" />
           <Skeleton className="h-8 w-1/3" />
           <Skeleton className="h-[300px] w-full" />
         </div>
@@ -103,73 +102,68 @@ const EditUser = () => {
         { label: "Danh sách tài khoản", path: "/users" },
         { label: "Chỉnh sửa" },
       ]}
-      backLink="/users"
-      backLabel="Quay lại danh sách"
+      backLink="/my-profile"
+      backLabel="Trở lại"
     >
-      <div className="flex flex-col md:flex-row gap-8">
-        {/* Left Column: Avatar */}
-        <div className="w-full md:w-1/3 flex flex-col gap-4">
-          <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200 bg-gray-50 shadow-md">
-            <img
-              src={
-                user.employeeAvatar ||
-                "https://img.freepik.com/premium-vector/default-avatar-profile-icon-social-media-user-image-gray-avatar-icon-blank-profile-silhouette-vector-illustration_561158-3383.jpg"
-              }
-              alt="avatar"
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <div className="text-sm text-gray-500">
-            Avatar từ nhân viên liên kết
-          </div>
-        </div>
+      <div className="flex flex-col gap-8">
+        {/* Form Section */}
+        <div className="bg-white border border-gray-100 rounded-lg shadow-sm p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <span>👤</span> Thông tin tài khoản
+          </h2>
 
-        {/* Right Column: Form */}
-        <div className="w-full md:w-2/3 flex flex-col">
           <UserForm
             user={user}
             onChange={handleChange}
             errors={errors}
             role={role}
           />
+        </div>
 
-          <div className="mt-6 flex justify-between items-center pt-6 border-t border-gray-100">
-            {!showPasswordForm ? (
-              <Button
-                type="button"
-                variant="success"
-                onClick={() => setShowPasswordForm(true)}
-              >
-                Thay đổi mật khẩu
-              </Button>
-            ) : (
-              <span />
-            )}
+        {/* Action Bar */}
+        <div className="flex justify-between items-center pt-6 border-t border-gray-100">
+          {!showPasswordForm ? (
+            <Button
+              type="button"
+              variant="secondary"
+              className="bg-indigo-50 text-indigo-600 hover:bg-indigo-100"
+              onClick={() => setShowPasswordForm(true)}
+            >
+              Thay đổi mật khẩu
+            </Button>
+          ) : (
+            <span />
+          )}
 
-            <div className="flex gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => navigate(`/user/${userId}`)}
-              >
-                Hủy
-              </Button>
-              <Button type="button" onClick={handleSave}>
-                Lưu
-              </Button>
-            </div>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate(`/user/${userId}`)}
+            >
+              Hủy
+            </Button>
+
+            <Button
+              type="button"
+              className="font-semibold"
+              onClick={handleSave}
+            >
+              Lưu
+            </Button>
           </div>
         </div>
-      </div>
 
-      {showPasswordForm && (
-        <div className="mt-6">
-          <UpdatePasswordForm
-            userId={userId}
-            onSuccess={() => setShowPasswordForm(false)}
-          />
-        </div>
-      )}
+        {/* Password Form */}
+        {showPasswordForm && (
+          <div className="bg-white border border-gray-100 rounded-lg shadow-sm p-6">
+            <UpdatePasswordForm
+              userId={userId}
+              onSuccess={() => setShowPasswordForm(false)}
+            />
+          </div>
+        )}
+      </div>
     </FormPageLayout>
   );
 };

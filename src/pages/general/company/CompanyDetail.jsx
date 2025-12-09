@@ -37,49 +37,38 @@ const CompanyDetail = () => {
     fetchCompany();
   }, []);
 
-  const InfoRow = ({ label, value, className = "" }) => (
-    <div className="flex items-start py-2.5">
-      <span className="text-gray-600 w-36 flex-shrink-0 text-sm font-medium">
-        {label}:
-      </span>
-      <span className={`text-gray-900 text-sm ${className}`}>
+  const InfoRow = ({ label, value }) => (
+    <div className="flex items-start justify-between py-2 border-b border-gray-100 last:border-none">
+      <span className="text-gray-600 text-sm w-40">{label}</span>
+      <span className="text-gray-900 text-sm text-right flex-1">
         {value || "---"}
       </span>
     </div>
   );
 
   const StatusBadge = ({ status }) => {
-    const statusConfig = {
-      active: {
-        label: "Hoạt động",
-        className: "bg-green-100 text-green-700 border-green-200",
-      },
-      inactive: {
-        label: "Ngưng hoạt động",
-        className: "bg-amber-100 text-amber-700 border-amber-200",
-      },
+    const map = {
+      active: "bg-green-100 text-green-700 border border-green-200",
+      inactive: "bg-amber-100 text-amber-700 border border-amber-200",
     };
-    const config = statusConfig[status] || statusConfig.active;
 
     return (
       <span
-        className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium border ${config.className}`}
+        className={`px-2.5 py-0.5 rounded-md text-xs font-medium ${map[status]}`}
       >
-        {config.label}
+        {status === "active" ? "Hoạt động" : "Ngưng hoạt động"}
       </span>
     );
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-sm shadow-sm border border-gray-100 overflow-hidden">
-            <div className="p-6">
-              <Skeleton className="h-[200px] w-[200px] rounded-lg mb-4" />
-              <Skeleton className="h-8 w-1/3 mb-4" />
-              <Skeleton className="h-[400px] w-full" />
-            </div>
+      <div className="min-h-screen bg-gray-50 py-10">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
+            <Skeleton className="h-[160px] w-[160px] rounded-lg mb-5" />
+            <Skeleton className="h-7 w-1/3 mb-4" />
+            <Skeleton className="h-[300px] w-full" />
           </div>
         </div>
       </div>
@@ -95,24 +84,25 @@ const CompanyDetail = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-sm shadow-sm border border-gray-100 overflow-hidden">
-          {/* Header / Breadcrumb */}
-          <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white">
-            <div className="flex items-center gap-2 text-sm text-gray-500">
-              <span className="text-gray-900 font-medium">
-                Thông tin công ty
-              </span>
-            </div>
+    <div className="min-h-screen bg-gray-50 py-10">
+      <div className="max-w-4xl mx-auto px-4">
+        {/* Main Card */}
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+          {/* Header */}
+          <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-gray-900">
+              Thông tin công ty
+            </h2>
             <BackButton to="/homepage" label="Trang chủ" />
           </div>
 
-          <div className="p-6">
+          {/* Body */}
+          <div className="p-6 space-y-8">
+            {/* Top Section */}
             <div className="flex flex-col md:flex-row gap-6">
-              {/* Left Column: Logo */}
-              <div className="w-full md:w-1/4 flex flex-col items-center md:items-start">
-                <div className="w-[200px] h-[200px] rounded-lg overflow-hidden border-2 border-gray-300 bg-white shadow-lg hover:shadow-xl transition-shadow">
+              {/* Logo */}
+              <div className="flex justify-center md:block">
+                <div className="w-[180px] h-[180px] rounded-xl overflow-hidden border border-gray-200 shadow-sm bg-white">
                   <img
                     src={
                       company.logoUrl ||
@@ -124,60 +114,56 @@ const CompanyDetail = () => {
                 </div>
               </div>
 
-              {/* Right Column: Info */}
-              <div className="w-full md:w-3/4 flex flex-col">
-                {/* Title Section */}
-                <div className="mb-6">
-                  <div className="mb-2">
-                    <span className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors">
-                      {company.companyCode}
-                    </span>
-                  </div>
-                  <h1 className="text-3xl font-bold text-gray-900 mb-3">
-                    {company.companyName}
-                  </h1>
-                  <div className="flex items-center gap-2">
-                    <span className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 transition-colors">
-                      {companyTypeLabels[company.companyType] ||
-                        company.companyType}
-                    </span>
-                    <StatusBadge status={company.status} />
-                  </div>
+              {/* Info */}
+              <div className="flex-1 space-y-3">
+                <div className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
+                  {company.companyCode}
                 </div>
 
-                {/* Info Section - Card duy nhất */}
-                <div className="bg-gradient-to-br from-blue-50 to-white rounded-lg border border-blue-100 p-5 shadow-sm hover:shadow-md transition-shadow mb-6">
-                  <h2 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <span className="text-lg">📋</span>
-                    THÔNG TIN CHI TIẾT
-                  </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
-                    <InfoRow label="Địa chỉ" value={company.address} />
-                    <InfoRow label="Điện thoại" value={company.phoneNumber} />
-                    <InfoRow label="Email" value={company.email} />
-                    <InfoRow label="Mã số thuế" value={company.taxCode} />
-                    <InfoRow
-                      label="Người đại diện"
-                      value={company.representativeName}
-                    />
-                    <InfoRow label="Ngày thành lập" value={company.startDate} />
-                    <InfoRow label="Ngày tham gia" value={company.joinDate} />
-                    {company.websiteAddress && (
-                      <InfoRow label="Website" value={company.websiteAddress} />
-                    )}
-                  </div>
-                </div>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  {company.companyName}
+                </h1>
 
-                {/* Actions */}
-                <div className="mt-auto">
-                  <EditButton
-                    onClick={() => navigate("/company/edit")}
-                    label="Chỉnh sửa thông tin"
-                    className="w-full h-12 text-base font-semibold"
-                  />
+                <div className="flex gap-2">
+                  <span className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
+                    {companyTypeLabels[company.companyType] ||
+                      company.companyType}
+                  </span>
+
+                  <StatusBadge status={company.status} />
                 </div>
               </div>
             </div>
+
+            {/* Info Card */}
+            <div className="bg-gray-50 rounded-xl border border-gray-200 p-5 shadow-sm">
+              <h3 className="text-sm font-semibold text-gray-800 mb-4">
+                THÔNG TIN CHI TIẾT
+              </h3>
+
+              <div className="space-y-2">
+                <InfoRow label="Địa chỉ" value={company.address} />
+                <InfoRow label="Điện thoại" value={company.phoneNumber} />
+                <InfoRow label="Email" value={company.email} />
+                <InfoRow label="Mã số thuế" value={company.taxCode} />
+                <InfoRow
+                  label="Người đại diện"
+                  value={company.representativeName}
+                />
+                <InfoRow label="Ngày thành lập" value={company.startDate} />
+                <InfoRow label="Ngày tham gia" value={company.joinDate} />
+                {company.websiteAddress && (
+                  <InfoRow label="Website" value={company.websiteAddress} />
+                )}
+              </div>
+            </div>
+
+            {/* Edit Button */}
+            <EditButton
+              onClick={() => navigate("/company/edit")}
+              label="Chỉnh sửa thông tin"
+              className="w-full h-12 text-base font-semibold"
+            />
           </div>
         </div>
       </div>

@@ -39,6 +39,17 @@ export default function ItemInCompany() {
         loading={isLoading}
         emptyMessage="Chưa có hàng hóa nào"
         defaultSorting={[{ id: "itemId", desc: true }]}
+        exportFileName="Danh_sach_hang_hoa"
+        exportMapper={(item = {}) => ({
+          "Tên hàng hóa": item.itemName || "",
+          "Loại hàng hóa": item.itemType || "",
+          "Đơn vị tính": item.uom || "",
+          "Giá nhập": item.importPrice ?? "",
+          "Giá xuất": item.exportPrice ?? "",
+          "Thông số kỹ thuật": item.technicalSpecifications || "",
+          "Mô tả": item.description || "",
+          "Hàng bán": item.isSellable ? "Có" : "Không",
+        })}
       />
     </ListPageLayout>
   );
