@@ -1,89 +1,86 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Typography, Button, Card, CardBody } from "@material-tailwind/react";
-import DataTable from "@components/content-components/DataTable";
-import { getAllInventory } from "@/services/inventory/InventoryService";
-import { getAllItemsInCompany } from "@/services/general/ItemService";
-import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
-import SelectAutocomplete from "@components/content-components/SelectAutocomplete";
-import toastrService from "@/services/toastrService";
+import { DataTable } from "@/components/ui/data-table";
+import { useInventoryWithFilters } from "@/hooks/useInventory";
+import { useItems } from "@/hooks/useItems";
+import { useWarehouses } from "@/hooks/useWarehouses";
+import { getInventoryColumns } from "./inventoryColumns";
+import InventoryFilter from "@/components/inventory/InventoryFilter";
+import { AddButton } from "@components/common/ActionButtons";
+import ListPageLayout from "@/components/layout/ListPageLayout";
+import toastService from "@/services/toastService";
 import { getButtonProps } from "@/utils/buttonStyles";
+import SelectAutocomplete from "@components/content-components/SelectAutocomplete";
 
 const Inventory = () => {
-  const [inventories, setInventories] = useState([]);
-  const [items, setItems] = useState([]);
-  const [warehouses, setWarehouses] = useState([]);
   const [selectedItemCode, setSelectedItemCode] = useState("");
   const [selectedWarehouseCode, setSelectedWarehouseCode] = useState("");
-  const [search, setSearch] = useState("");
-  const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState("warehouseCode");
-  const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-
-  const token = localStorage.getItem("token");
-  const companyId = localStorage.getItem("companyId");
+  const [filteredData, setFilteredData] = useState([]);
+  
   const navigate = useNavigate();
+  const companyId = localStorage.getItem("companyId");
 
-  useEffect(() => {
-    const fetchItemsAndWarehouses = async () => {
-      try {
-        const itemsData = await getAllItemsInCompany(companyId, token);
-        const warehousesData = await getAllWarehousesInCompany(
-          companyId,
-          token
-        );
-        setItems(itemsData);
-        setWarehouses(warehousesData);
-      } catch (error) {
-        toastrService.error("Có lỗi khi tải dữ liệu kho và hàng hóa!");
-      }
-    };
-    fetchItemsAndWarehouses();
-  }, [companyId, token]);
+  // Custom hooks for data fetching
+  const { data: inventories = [], isLoading: inventoryLoading, error: inventoryError } = useInventoryWithFilters(companyId);
+  const { data: items = [], isLoading: itemsLoading, error: itemsError } = useItems(companyId);
+  const { data: warehouses = [], isLoading: warehousesLoading, error: warehousesError } = useWarehouses(companyId);
 
-  const handleRequestSort = (property) => {
-    const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(property);
+  // Error handling
+  if (inventoryError) {
+    toastService.error(
+      inventoryError.response?.data?.message ||
+        "Có lỗi khi lấy dữ liệu tồn kho!"
+    );
+  }
+
+  if (itemsError) {
+    toastService.error(
+      itemsError.response?.data?.message ||
+        "Có lỗi khi lấy danh sách hàng hóa!"
+    );
+  }
+
+  if (warehousesError) {
+    toastService.error(
+      warehousesError.response?.data?.message ||
+        "Có lỗi khi lấy danh sách kho!"
+    );
+  }
+
+  const handleFilter = () => {
+    let filtered = inventories;
+    
+    if (selectedItemCode) {
+      filtered = filtered.filter(inv => inv.itemCode === selectedItemCode);
+    }
+    
+    if (selectedWarehouseCode) {
+      filtered = filtered.filter(inv => inv.warehouseCode === selectedWarehouseCode);
+    }
+    
+    setFilteredData(filtered);
   };
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(Number(event.target.value));
-    setPage(1);
-  };
-
-  const handleViewInventory = async () => {
-    try {
-      const itemId = selectedItemCode
-        ? items.find((i) => i.itemCode === selectedItemCode)?.itemId || 0
-        : 0;
-      const warehouseId = selectedWarehouseCode
-        ? warehouses.find((w) => w.warehouseCode === selectedWarehouseCode)
-            ?.warehouseId || 0
-        : 0;
-
-      const data = await getAllInventory(itemId, warehouseId, companyId, token);
-      setInventories(data);
-    } catch (error) {
-      toastrService.error(
-        error.response?.data?.message || "Có lỗi khi lấy tồn kho!"
-      );
+  const handleViewInventory = () => {
+    handleFilter();
+    
+    // Provide feedback to user
+    const filtered = inventories.filter(inv => {
+      const itemMatch = !selectedItemCode || inv.itemCode === selectedItemCode;
+      const warehouseMatch = !selectedWarehouseCode || inv.warehouseCode === selectedWarehouseCode;
+      return itemMatch && warehouseMatch;
+    });
+    
+    if (filtered.length === 0) {
+      toastService.info("Không tìm thấy dữ liệu tồn kho theo bộ lọc");
+    } else {
+      toastService.success(`Tìm thấy ${filtered.length} bản ghi tồn kho`);
     }
   };
 
-  const columns = [
-    { id: "warehouseCode", label: "Mã kho" },
-    { id: "warehouseName", label: "Tên kho" },
-    { id: "itemCode", label: "Mã hàng hóa" },
-    { id: "itemName", label: "Tên hàng hóa" },
-    { id: "quantity", label: "Số lượng" },
-    { id: "onDemandQuantity", label: "Cần dùng" },
-  ];
+  const loading = inventoryLoading || itemsLoading || warehousesLoading;
+  const columns = getInventoryColumns();
 
   return (
     <div className="p-6">
@@ -146,34 +143,20 @@ const Inventory = () => {
           </div>
 
           <DataTable
-            rows={inventories}
             columns={columns}
-            order={order}
-            orderBy={orderBy}
-            onRequestSort={handleRequestSort}
-            page={page}
-            rowsPerPage={rowsPerPage}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            search={search}
+            data={filteredData.length > 0 ? filteredData : inventories}
+            loading={loading}
+            emptyMessage="Chưa có dữ liệu tồn kho"
             height="calc(100vh - 360px)"
-            setSearch={setSearch}
-            renderRow={(inv, index) => {
-              const isLast = index === inventories.length - 1;
-              const classes = isLast
-                ? "p-4"
-                : "p-4 border-b border-blue-gray-50";
-              return (
-                <tr key={`${inv.warehouseCode}-${inv.itemCode}-${index}`}>
-                  <td className={classes}>{inv.warehouseCode}</td>
-                  <td className={classes}>{inv.warehouseName}</td>
-                  <td className={classes}>{inv.itemCode}</td>
-                  <td className={classes}>{inv.itemName}</td>
-                  <td className={classes}>{inv.quantity}</td>
-                  <td className={classes}>{inv.onDemandQuantity}</td>
-                </tr>
-              );
-            }}
+            exportFileName="Ton_kho"
+            exportMapper={(inv = {}) => ({
+              "Mã kho": inv.warehouseCode || "",
+              "Tên kho": inv.warehouseName || "",
+              "Mã hàng hóa": inv.itemCode || "",
+              "Tên hàng hóa": inv.itemName || "",
+              "Số lượng": inv.quantity ?? 0,
+              "Cần dùng": inv.onDemandQuantity ?? 0,
+            })}
           />
         </CardBody>
       </Card>

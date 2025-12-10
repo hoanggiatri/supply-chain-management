@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Typography, Card, CardBody, Button } from "@material-tailwind/react";
-import DataTable from "@components/content-components/DataTable";
-import StatusSummaryCard from "@/components/content-components/StatusSummaryCard";
+import { DataTable } from "@/components/ui/data-table";
+import StatusSummaryCard from "@/components/common/StatusSummaryCard";
 import { getAllTransferTicketsInCompany } from "@/services/inventory/TransferTicketService";
 import { useNavigate } from "react-router-dom";
 import toastrService from "@/services/toastrService";
 import { getButtonProps } from "@/utils/buttonStyles";
+import { createSortableHeader, createStatusBadge } from "@/components/ui/data-table";
 
 const TransferTicketInCompany = () => {
   const [tickets, setTickets] = useState([]);
@@ -56,34 +57,72 @@ const TransferTicketInCompany = () => {
     setPage(1);
   };
 
-  const columns = [
-    { id: "ticketCode", label: "Mã phiếu" },
-    { id: "fromWarehouseCode", label: "Mã kho xuất" },
-    { id: "fromWarehouseName", label: "Tên kho xuất" },
-    { id: "toWarehouseCode", label: "Mã kho nhập" },
-    { id: "toWarehouseName", label: "Tên kho nhập" },
-    { id: "reason", label: "Lý do" },
-    { id: "createdBy", label: "Người tạo" },
-    { id: "createdOn", label: "Ngày tạo" },
-    { id: "lastUpdatedOn", label: "Cập nhật" },
-    { id: "status", label: "Trạng thái" },
+  const getTransferTicketColumns = () => [
+    {
+      accessorKey: "ticketCode",
+      header: createSortableHeader("Mã phiếu"),
+      cell: ({ getValue }) => <span className="font-medium text-blue-600">{getValue() || ""}</span>
+    },
+    {
+      accessorKey: "fromWarehouseCode",
+      header: createSortableHeader("Mã kho xuất"),
+      cell: ({ getValue }) => <span className="font-medium">{getValue() || ""}</span>
+    },
+    {
+      accessorKey: "fromWarehouseName",
+      header: createSortableHeader("Tên kho xuất"),
+      cell: ({ getValue }) => <span>{getValue() || ""}</span>
+    },
+    {
+      accessorKey: "toWarehouseCode",
+      header: createSortableHeader("Mã kho nhập"),
+      cell: ({ getValue }) => <span className="font-medium">{getValue() || ""}</span>
+    },
+    {
+      accessorKey: "toWarehouseName",
+      header: createSortableHeader("Tên kho nhập"),
+      cell: ({ getValue }) => <span>{getValue() || ""}</span>
+    },
+    {
+      accessorKey: "reason",
+      header: createSortableHeader("Lý do"),
+      cell: ({ getValue }) => <span className="truncate max-w-[150px] block" title={getValue()}>{getValue() || ""}</span>
+    },
+    {
+      accessorKey: "createdBy",
+      header: createSortableHeader("Người tạo"),
+      cell: ({ getValue }) => <span>{getValue() || ""}</span>
+    },
+    {
+      accessorKey: "createdOn",
+      header: createSortableHeader("Ngày tạo"),
+      cell: ({ getValue }) => {
+        const value = getValue();
+        return value ? new Date(value).toLocaleString() : "";
+      },
+    },
+    {
+      accessorKey: "lastUpdatedOn",
+      header: createSortableHeader("Cập nhật"),
+      cell: ({ getValue }) => {
+        const value = getValue();
+        return value ? new Date(value).toLocaleString() : "";
+      },
+    },
+    {
+      accessorKey: "status",
+      header: createSortableHeader("Trạng thái"),
+      cell: createStatusBadge({
+        "Chờ xác nhận": "bg-purple-100 text-purple-800",
+        "Chờ xuất kho": "bg-blue-100 text-blue-800",
+        "Chờ nhập kho": "bg-orange-100 text-orange-800",
+        "Đã hoàn thành": "bg-green-100 text-green-800",
+        "Đã hủy": "bg-red-100 text-red-800"
+      })
+    },
   ];
 
-  const statusLabels = {
-    "Chờ xác nhận": "Chờ xác nhận",
-    "Chờ xuất kho": "Chờ xuất kho",
-    "Chờ nhập kho": "Chờ nhập kho",
-    "Đã hoàn thành": "Đã hoàn thành",
-    "Đã hủy": "Đã hủy",
-  };
-
-  const statusColorMap = {
-    "Chờ xác nhận": "purple",
-    "Chờ xuất kho": "blue",
-    "Chờ nhập kho": "amber",
-    "Đã hoàn thành": "green",
-    "Đã hủy": "red",
-  };
+  const columns = getTransferTicketColumns();
 
   return (
     <div className="p-6">
@@ -125,126 +164,24 @@ const TransferTicketInCompany = () => {
           />
 
           <DataTable
-            rows={filteredTickets}
             columns={columns}
-            order={order}
-            orderBy={orderBy}
-            onRequestSort={handleRequestSort}
-            page={page}
-            rowsPerPage={rowsPerPage}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            search={search}
-            setSearch={setSearch}
-            statusColumn="status"
-            statusColors={statusColorMap}
-            renderRow={(ticket, index, page, rowsPerPage, renderStatusCell) => {
-              const isLast = index === filteredTickets.length - 1;
-              const classes = isLast
-                ? "p-4"
-                : "p-4 border-b border-blue-gray-50";
-              return (
-                <tr
-                  key={ticket.ticketCode}
-                  className="hover:bg-blue-gray-50 transition-colors cursor-pointer"
-                  onClick={() =>
-                    navigate(`/transfer-ticket/${ticket.ticketId}`)
-                  }
-                >
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {ticket.ticketCode || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {ticket.fromWarehouseCode || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {ticket.fromWarehouseName || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {ticket.toWarehouseCode || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {ticket.toWarehouseName || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {ticket.reason || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {ticket.createdBy || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {ticket.createdOn
-                        ? new Date(ticket.createdOn).toLocaleString()
-                        : ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {ticket.lastUpdatedOn
-                        ? new Date(ticket.lastUpdatedOn).toLocaleString()
-                        : ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    {renderStatusCell(
-                      statusLabels[ticket.status] || ticket.status || "",
-                      statusColorMap[ticket.status]
-                    )}
-                  </td>
-                </tr>
-              );
-            }}
+            data={filteredTickets}
+            emptyMessage="Chưa có phiếu chuyển kho nào"
+            onRowClick={(ticket) => navigate(`/transfer-ticket/${ticket.ticketId}`)}
+            defaultSorting={[{ id: "createdOn", desc: true }]}
+            exportFileName="Danh_sach_phieu_chuyen_kho"
+            exportMapper={(ticket = {}) => ({
+              "Mã phiếu": ticket.ticketCode || "",
+              "Mã kho xuất": ticket.fromWarehouseCode || "",
+              "Tên kho xuất": ticket.fromWarehouseName || "",
+              "Mã kho nhập": ticket.toWarehouseCode || "",
+              "Tên kho nhập": ticket.toWarehouseName || "",
+              "Lý do": ticket.reason || "",
+              "Người tạo": ticket.createdBy || "",
+              "Ngày tạo": ticket.createdOn ? new Date(ticket.createdOn).toLocaleString() : "",
+              "Cập nhật": ticket.lastUpdatedOn ? new Date(ticket.lastUpdatedOn).toLocaleString() : "",
+              "Trạng thái": ticket.status || "",
+            })}
           />
         </CardBody>
       </Card>

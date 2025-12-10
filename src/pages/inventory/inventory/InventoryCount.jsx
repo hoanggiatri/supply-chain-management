@@ -6,7 +6,7 @@ import {
   Card,
   CardBody,
 } from "@material-tailwind/react";
-import DataTable from "@components/content-components/DataTable";
+import { DataTable } from "@/components/ui/data-table";
 import {
   getAllInventory,
   updateInventory,
@@ -17,6 +17,7 @@ import SelectAutocomplete from "@components/content-components/SelectAutocomplet
 import { useNavigate } from "react-router-dom";
 import toastrService from "@/services/toastrService";
 import { getButtonProps } from "@/utils/buttonStyles";
+import { createSortableHeader } from "@/components/ui/data-table";
 
 const InventoryCount = () => {
   const [inventories, setInventories] = useState([]);
@@ -24,11 +25,7 @@ const InventoryCount = () => {
   const [warehouses, setWarehouses] = useState([]);
   const [selectedItemCode, setSelectedItemCode] = useState("");
   const [selectedWarehouseCode, setSelectedWarehouseCode] = useState("");
-  const [search, setSearch] = useState("");
-  const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState("warehouseCode");
-  const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
@@ -52,6 +49,7 @@ const InventoryCount = () => {
   }, [companyId, token]);
 
   const handleViewInventory = async () => {
+    setLoading(true);
     try {
       const itemId = selectedItemCode
         ? items.find((i) => i.itemCode === selectedItemCode)?.itemId || 0
@@ -73,8 +71,17 @@ const InventoryCount = () => {
       toastrService.error(
         error.response?.data?.message || "Có lỗi khi lấy tồn kho!"
       );
+    } finally {
+      setLoading(false);
     }
   };
+
+  // Auto load all inventory data when items and warehouses are loaded
+  useEffect(() => {
+    if (items.length > 0 && warehouses.length > 0 && inventories.length === 0) {
+      handleViewInventory();
+    }
+  }, [items, warehouses]);
 
   const handleSaveInventory = async (inventory) => {
     try {
@@ -126,17 +133,69 @@ const InventoryCount = () => {
     }
   };
 
-  const columns = [
-    { id: "warehouseCode", label: "Mã kho" },
-    { id: "warehouseName", label: "Tên kho" },
-    { id: "itemCode", label: "Mã hàng hóa" },
-    { id: "itemName", label: "Tên hàng hóa" },
-    { id: "quantity", label: "Số lượng hiện tại" },
-    { id: "actualQuantity", label: "Số lượng thực tế" },
-    { id: "onDemandQuantity", label: "Số lượng cần dùng" },
-    { id: "actualOnDemandQuantity", label: "Số lượng cần dùng thực tế" },
-    { id: "action", label: "Hành động" },
+  const getInventoryCountColumns = () => [
+    {
+      accessorKey: "warehouseCode",
+      header: createSortableHeader("Mã kho"),
+      cell: ({ getValue }) => <span className="font-medium text-blue-600">{getValue() || ""}</span>
+    },
+    {
+      accessorKey: "warehouseName", 
+      header: createSortableHeader("Tên kho"),
+      cell: ({ getValue }) => <span className="font-medium">{getValue() || ""}</span>
+    },
+    {
+      accessorKey: "itemCode",
+      header: createSortableHeader("Mã hàng hóa"),
+      cell: ({ getValue }) => <span className="font-medium">{getValue() || ""}</span>
+    },
+    {
+      accessorKey: "itemName",
+      header: createSortableHeader("Tên hàng hóa"),
+      cell: ({ getValue }) => <span>{getValue() || ""}</span>
+    },
+    {
+      accessorKey: "quantity",
+      header: createSortableHeader("Số lượng"),
+      cell: ({ getValue }) => {
+        const value = getValue();
+        return (
+          <span className="font-semibold text-gray-600">
+            {value ? Number(value).toLocaleString() : "0"}
+          </span>
+        );
+      },
+    },
+    {
+      accessorKey: "actualQuantity",
+      header: createSortableHeader("Số lượng thực tế"),
+      cell: () => null // Will be handled by renderRow
+    },
+    {
+      accessorKey: "onDemandQuantity",
+      header: createSortableHeader("Số lượng cần dùng"),
+      cell: ({ getValue }) => {
+        const value = getValue();
+        return (
+          <span className="font-semibold text-orange-600">
+            {value ? Number(value).toLocaleString() : "0"}
+          </span>
+        );
+      },
+    },
+    {
+      accessorKey: "actualOnDemandQuantity",
+      header: createSortableHeader("Số lượng cần dùng thực tế"),
+      cell: () => null // Will be handled by renderRow
+    },
+    {
+      accessorKey: "action",
+      header: createSortableHeader("Hành động"),
+      cell: () => null // Will be handled by renderRow
+    },
   ];
+
+  const columns = getInventoryCountColumns();
 
   return (
     <div className="p-6">
@@ -199,135 +258,131 @@ const InventoryCount = () => {
           </div>
 
           <DataTable
-            rows={inventories}
             columns={columns}
-            order={order}
-            orderBy={orderBy}
-            onRequestSort={(property) => {
-              const isAsc = orderBy === property && order === "asc";
-              setOrder(isAsc ? "desc" : "asc");
-              setOrderBy(property);
-            }}
-            page={page}
+            data={inventories}
+            loading={loading}
+            emptyMessage="Chưa có dữ liệu tồn kho"
             height="calc(100vh - 450px)"
-            rowsPerPage={rowsPerPage}
-            onPageChange={(_, newPage) => setPage(newPage)}
-            onRowsPerPageChange={(event) => {
-              setRowsPerPage(Number(event.target.value));
-              setPage(1);
-            }}
-            search={search}
-            setSearch={setSearch}
             renderRow={(inventory, index) => {
-              const isLast = index === inventories.length - 1;
-              const classes = isLast
-                ? "p-4"
-                : "p-4 border-b border-blue-gray-50";
+              const hasChanges = 
+                inventory.actualQuantity !== inventory.quantity ||
+                inventory.actualOnDemandQuantity !== inventory.onDemandQuantity;
+              
               return (
-                <tr key={inventory.inventoryId || index}>
-                  <td className={classes}>{inventory.warehouseCode}</td>
-                  <td className={classes}>{inventory.warehouseName}</td>
-                  <td className={classes}>{inventory.itemCode}</td>
-                  <td className={classes}>{inventory.itemName}</td>
-                  <td className={classes}>{inventory.quantity}</td>
-                  <td className={classes}>
-                    <Input
-                      type="number"
-                      color="blue"
-                      size="md"
-                      className="w-full placeholder:opacity-100"
-                      value={
-                        inventory.actualQuantity === null
-                          ? ""
-                          : inventory.actualQuantity
-                      }
-                      onChange={(e) => {
-                        const { value } = e.target;
-                        const newInventories = inventories.map((inv) =>
-                          inv.inventoryId === inventory.inventoryId
-                            ? {
-                                ...inv,
-                                actualQuantity:
-                                  value === ""
-                                    ? null
-                                    : Number.parseFloat(value),
-                              }
-                            : inv
-                        );
-                        setInventories(newInventories);
-                      }}
-                      onBlur={() => {
-                        const newInventories = inventories.map((inv) =>
-                          inv.inventoryId === inventory.inventoryId
-                            ? {
-                                ...inv,
-                                actualQuantity:
-                                  inv.actualQuantity === null
-                                    ? 0
-                                    : inv.actualQuantity,
-                              }
-                            : inv
-                        );
-                        setInventories(newInventories);
-                      }}
-                      min={0}
-                    />
+                <tr key={inventory.inventoryId || index} className="group even:bg-[#F8F9FC] odd:bg-white">
+                  <td className="px-6 py-4 text-sm font-medium text-blue-600">{inventory.warehouseCode}</td>
+                  <td className="px-6 py-4 text-sm font-medium">{inventory.warehouseName}</td>
+                  <td className="px-6 py-4 text-sm font-medium">{inventory.itemCode}</td>
+                  <td className="px-6 py-4 text-sm">{inventory.itemName}</td>
+                  <td className="px-6 py-4 text-sm font-semibold text-gray-600">
+                    {inventory.quantity ? Number(inventory.quantity).toLocaleString() : "0"}
                   </td>
-                  <td className={classes}>{inventory.onDemandQuantity}</td>
-                  <td className={classes}>
-                    <Input
-                      type="number"
-                      color="blue"
-                      size="md"
-                      className="w-full placeholder:opacity-100"
-                      value={
-                        inventory.actualOnDemandQuantity === null
-                          ? ""
-                          : inventory.actualOnDemandQuantity
-                      }
-                      onChange={(e) => {
-                        const { value } = e.target;
-                        const newInventories = inventories.map((inv) =>
-                          inv.inventoryId === inventory.inventoryId
-                            ? {
-                                ...inv,
-                                actualOnDemandQuantity:
-                                  value === ""
-                                    ? null
-                                    : Number.parseFloat(value),
-                              }
-                            : inv
-                        );
-                        setInventories(newInventories);
-                      }}
-                      onBlur={() => {
-                        const newInventories = inventories.map((inv) =>
-                          inv.inventoryId === inventory.inventoryId
-                            ? {
-                                ...inv,
-                                actualOnDemandQuantity:
-                                  inv.actualOnDemandQuantity === null
-                                    ? 0
-                                    : inv.actualOnDemandQuantity,
-                              }
-                            : inv
-                        );
-                        setInventories(newInventories);
-                      }}
-                      min={0}
-                    />
+                  <td className="px-3 py-3 w-40">
+                    <div className="relative">
+                      <div className="flex items-center gap-1">
+                        <div className="relative flex-1 min-w-[80px]">
+                          <input
+                            type="number"
+                            value={inventory.actualQuantity === null ? "" : inventory.actualQuantity}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              const newInventories = inventories.map((inv) =>
+                                inv.inventoryId === inventory.inventoryId
+                                  ? {
+                                      ...inv,
+                                      actualQuantity: value === "" ? null : Number.parseFloat(value),
+                                    }
+                                  : inv
+                              );
+                              setInventories(newInventories);
+                            }}
+                            onBlur={() => {
+                              const newInventories = inventories.map((inv) =>
+                                inv.inventoryId === inventory.inventoryId
+                                  ? {
+                                      ...inv,
+                                      actualQuantity: inv.actualQuantity === null ? 0 : inv.actualQuantity,
+                                    }
+                                  : inv
+                              );
+                              setInventories(newInventories);
+                            }}
+                            min={0}
+                            className="w-full px-2 py-1.5 text-sm font-medium border border-gray-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-200 transition-all duration-200 bg-white hover:bg-blue-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            placeholder="0"
+                          />
+                        </div>
+                        {inventory.actualQuantity !== null && inventory.actualQuantity !== inventory.quantity && (
+                          <span className="text-xs text-blue-600 font-medium whitespace-nowrap">
+                            {inventory.actualQuantity > inventory.quantity ? "+" : ""}
+                            {Number(inventory.actualQuantity - inventory.quantity).toLocaleString()}
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </td>
-                  <td className={classes}>
-                    {(inventory.actualQuantity !== inventory.quantity ||
-                      inventory.actualOnDemandQuantity !==
-                        inventory.onDemandQuantity) && (
+                  <td className="px-6 py-4 text-sm font-semibold text-orange-600">
+                    {inventory.onDemandQuantity ? Number(inventory.onDemandQuantity).toLocaleString() : "0"}
+                  </td>
+                  <td className="px-3 py-3 w-40">
+                    <div className="relative">
+                      <div className="flex items-center gap-1">
+                        <div className="relative flex-1 min-w-[80px]">
+                          <input
+                            type="number"
+                            value={inventory.actualOnDemandQuantity === null ? "" : inventory.actualOnDemandQuantity}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              const newInventories = inventories.map((inv) =>
+                                inv.inventoryId === inventory.inventoryId
+                                  ? {
+                                      ...inv,
+                                      actualOnDemandQuantity: value === "" ? null : Number.parseFloat(value),
+                                    }
+                                  : inv
+                              );
+                              setInventories(newInventories);
+                            }}
+                            onBlur={() => {
+                              const newInventories = inventories.map((inv) =>
+                                inv.inventoryId === inventory.inventoryId
+                                  ? {
+                                      ...inv,
+                                      actualOnDemandQuantity: inv.actualOnDemandQuantity === null ? 0 : inv.actualOnDemandQuantity,
+                                    }
+                                  : inv
+                              );
+                              setInventories(newInventories);
+                            }}
+                            min={0}
+                            className="w-full px-2 py-1.5 text-sm font-medium border border-gray-300 rounded focus:border-orange-500 focus:ring-1 focus:ring-orange-200 transition-all duration-200 bg-white hover:bg-orange-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            placeholder="0"
+                          />
+                        </div>
+                        {inventory.actualOnDemandQuantity !== null && inventory.actualOnDemandQuantity !== inventory.onDemandQuantity && (
+                          <span className="text-xs text-orange-600 font-medium whitespace-nowrap">
+                            {inventory.actualOnDemandQuantity > inventory.onDemandQuantity ? "+" : ""}
+                            {Number(inventory.actualOnDemandQuantity - inventory.onDemandQuantity).toLocaleString()}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-sm">
+                    {hasChanges && (
                       <Button
                         type="button"
-                        {...getButtonProps("success")}
+                        color="green"
                         size="sm"
                         onClick={() => handleSaveInventory(inventory)}
+                        className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 px-4 py-2 rounded-lg"
                       >
-                        Lưu
+                        <span className="flex items-center gap-2">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          Lưu
+                        </span>
                       </Button>
                     )}
                   </td>

@@ -7,7 +7,7 @@ import {
   Card,
   CardBody,
 } from "@material-tailwind/react";
-import DataTable from "@components/content-components/DataTable";
+import { DataTable } from "@/components/ui/data-table";
 import {
   getAllInventory,
   checkInventory,
@@ -27,6 +27,7 @@ import toastrService from "@/services/toastrService";
 import { getButtonProps } from "@/utils/buttonStyles";
 import BackButton from "@/components/common/BackButton";
 import dayjs from "dayjs";
+import { createSortableHeader, createStatusBadge } from "@/components/ui/data-table";
 
 const CheckInventory = () => {
   const [warehouses, setWarehouses] = useState([]);
@@ -37,12 +38,6 @@ const CheckInventory = () => {
   const [inventoryResults, setInventoryResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [quantity, setQuantity] = useState(0);
-
-  const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState("itemCode");
-  const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [search, setSearch] = useState("");
 
   const token = localStorage.getItem("token");
   const companyId = parseInt(localStorage.getItem("companyId"));
@@ -95,21 +90,6 @@ const CheckInventory = () => {
 
   const handleWarehouseChange = (e) => {
     setSelectedWarehouseId(e.target.value);
-  };
-
-  const handleRequestSort = (property) => {
-    const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(property);
-  };
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(Number(event.target.value));
-    setPage(1);
   };
 
   const handleCheckInventory = async () => {
@@ -339,13 +319,72 @@ const CheckInventory = () => {
     }
   };
 
-  const columns = [
-    { id: "itemCode", label: "Mã hàng hóa" },
-    { id: "itemName", label: "Tên hàng hóa" },
-    { id: "quantityNeeded", label: "Số lượng cần" },
-    { id: "available", label: "Tồn kho sẵn có" },
-    { id: "enough", label: "Đủ hàng" },
+  const getCheckInventoryColumns = () => [
+    {
+      accessorKey: "itemCode",
+      header: createSortableHeader("Mã hàng hóa"),
+      cell: ({ getValue }) => <span className="font-medium">{getValue() || ""}</span>
+    },
+    {
+      accessorKey: "itemName",
+      header: createSortableHeader("Tên hàng hóa"),
+      cell: ({ getValue }) => <span>{getValue() || ""}</span>
+    },
+    {
+      accessorKey: "quantityNeeded",
+      header: createSortableHeader("Số lượng cần"),
+      cell: ({ getValue }) => {
+        const value = getValue();
+        return value !== "-" ? (
+          <span className="font-semibold text-blue-600">
+            {Number(value).toLocaleString()}
+          </span>
+        ) : (
+          <span className="text-gray-400">-</span>
+        );
+      },
+    },
+    {
+      accessorKey: "available",
+      header: createSortableHeader("Tồn kho sẵn có"),
+      cell: ({ getValue }) => {
+        const value = getValue();
+        return value !== "-" ? (
+          <span className="font-semibold text-green-600">
+            {Number(value).toLocaleString()}
+          </span>
+        ) : (
+          <span className="text-gray-400">-</span>
+        );
+      },
+    },
+    {
+      accessorKey: "enough",
+      header: createSortableHeader("Đủ hàng"),
+      cell: ({ getValue }) => {
+        const status = getValue();
+        const statusColors = {
+          "Đủ": "bg-green-100 text-green-800",
+          "Không đủ": "bg-red-100 text-red-800",
+          "Không có tồn kho": "bg-orange-100 text-orange-800"
+        };
+        
+        const statusLabels = {
+          "Đủ": "✔️ Đủ",
+          "Không đủ": "❌ Không đủ",
+          "Không có tồn kho": "⚠️ Không có tồn kho"
+        };
+        
+        return (
+          <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-medium ${statusColors[status] || "bg-gray-100 text-gray-700"}`}>
+            {statusLabels[status] || status}
+          </span>
+        );
+      },
+    },
   ];
+
+  const columns = getCheckInventoryColumns();
 
   return (
     <div className="page-container">
@@ -415,44 +454,36 @@ const CheckInventory = () => {
       </Card>
 
       <DataTable
-        rows={inventoryResults}
         columns={columns}
-        order={order}
-        orderBy={orderBy}
-        onRequestSort={handleRequestSort}
-        page={page}
-        rowsPerPage={rowsPerPage}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-        search={search}
-        setSearch={setSearch}
+        data={inventoryResults}
+        loading={loading}
+        emptyMessage="Chưa có dữ liệu kiểm tra tồn kho"
         height="calc(100vh - 500px)"
         renderRow={(row, index) => {
           const key = `${row.itemId || row.supplierItemId}-${index}`;
-          const isLast = index === inventoryResults.length - 1;
-          const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
-          const statusLabel =
-            {
-              Đủ: "✔️ Đủ",
-              "Không đủ": "❌ Không đủ",
-              "Không có tồn kho": "⚠️ Không có tồn kho",
-            }[row.enough] || "⏳";
-
+          const statusLabels = {
+            "Đủ": "✔️ Đủ",
+            "Không đủ": "❌ Không đủ",
+            "Không có tồn kho": "⚠️ Không có tồn kho"
+          };
+          
           return (
-            <tr key={key}>
-              <td className={classes}>
+            <tr key={key} className="group even:bg-[#F8F9FC] odd:bg-white">
+              <td className="px-6 py-4 text-sm font-medium">
                 {type === "po" ? row.supplierItemCode : row.itemCode}
               </td>
-              <td className={classes}>
+              <td className="px-6 py-4 text-sm">
                 {type === "po" ? row.supplierItemName : row.itemName}
               </td>
-              <td className={classes}>
-                {row.enough === "Không có tồn kho" ? "-" : row.quantityNeeded}
+              <td className="px-6 py-4 text-sm font-semibold text-blue-600">
+                {row.enough === "Không có tồn kho" ? "-" : Number(row.quantityNeeded).toLocaleString()}
               </td>
-              <td className={classes}>
-                {row.enough === "Không có tồn kho" ? "-" : row.available}
+              <td className="px-6 py-4 text-sm font-semibold text-green-600">
+                {row.enough === "Không có tồn kho" ? "-" : Number(row.available).toLocaleString()}
               </td>
-              <td className={classes}>{statusLabel}</td>
+              <td className="px-6 py-4 text-sm">
+                {statusLabels[row.enough] || row.enough}
+              </td>
             </tr>
           );
         }}
