@@ -1,17 +1,21 @@
+import MarketplaceLayout from "@layouts/MarketplaceLayout";
 import NavBarLayout from "@layouts/NavBarLayout";
 import SideBarLayoutMT from "@layouts/SideBarLayoutMT";
-import MarketplaceLayout from "@layouts/MarketplaceLayout";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+
+// Marketplace V2 (New redesigned version)
+import { MarketplaceV2Layout } from "@/modules/marketplace-v2";
+import marketplaceV2Routes from "@/modules/marketplace-v2/routes";
 
 import adminRoutes from "./modules/adminRoutes";
 import deliveryRoutes from "./modules/deliveryRoutes";
 import generalRoutes from "./modules/generalRoutes";
 import inventoryRoutes from "./modules/inventoryRoutes";
 import manufacturingRoutes from "./modules/manufacturingRoutes";
+import marketplaceRoutes from "./modules/marketplaceRoutes";
 import publicRoutes from "./modules/publicRoutes";
 import purchasingRoutes from "./modules/purchasingRoutes";
 import salesRoutes from "./modules/salesRoutes";
-import marketplaceRoutes from "./modules/marketplaceRoutes";
 
 const renderRoutes = (routes) =>
   routes.map(({ path, element }) => (
@@ -40,7 +44,12 @@ function AppRoutes() {
           {renderRoutes(adminRoutes)}
         </Route>
 
-        {/* Marketplace routes (for user role with Mua hàng/Bán hàng department) */}
+        {/* Marketplace V2 routes (New redesigned version) */}
+        <Route element={<MarketplaceV2Layout />}>
+          {renderRoutes(marketplaceV2Routes)}
+        </Route>
+
+        {/* Marketplace routes (Legacy - for user role with Mua hàng/Bán hàng department) */}
         <Route element={<MarketplaceLayout />}>
           {renderRoutes(marketplaceRoutes)}
         </Route>
@@ -55,3 +64,4 @@ function AppRoutes() {
 }
 
 export default AppRoutes;
+

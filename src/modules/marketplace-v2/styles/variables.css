@@ -1,0 +1,172 @@
+/* ==========================================================================
+   Marketplace V2 - Design System Variables
+   ========================================================================== */
+
+:root {
+  /* ========== Color Palette - Light Mode ========== */
+  --mp-primary-50: #eff6ff;
+  --mp-primary-100: #dbeafe;
+  --mp-primary-200: #bfdbfe;
+  --mp-primary-300: #93c5fd;
+  --mp-primary-400: #60a5fa;
+  --mp-primary-500: #3b82f6;
+  --mp-primary-600: #2563eb;
+  --mp-primary-700: #1d4ed8;
+  --mp-primary-800: #1e40af;
+  --mp-primary-900: #1e3a8a;
+
+  --mp-secondary-50: #eef2ff;
+  --mp-secondary-100: #e0e7ff;
+  --mp-secondary-200: #c7d2fe;
+  --mp-secondary-300: #a5b4fc;
+  --mp-secondary-400: #818cf8;
+  --mp-secondary-500: #6366f1;
+  --mp-secondary-600: #4f46e5;
+  --mp-secondary-700: #4338ca;
+  --mp-secondary-800: #3730a3;
+  --mp-secondary-900: #312e81;
+
+  /* Status Colors */
+  --mp-success-50: #f0fdf4;
+  --mp-success-500: #22c55e;
+  --mp-success-600: #16a34a;
+
+  --mp-warning-50: #fffbeb;
+  --mp-warning-500: #f59e0b;
+  --mp-warning-600: #d97706;
+
+  --mp-error-50: #fef2f2;
+  --mp-error-500: #ef4444;
+  --mp-error-600: #dc2626;
+
+  --mp-info-50: #eff6ff;
+  --mp-info-500: #3b82f6;
+  --mp-info-600: #2563eb;
+
+  /* ========== Theme Colors (Light Mode Default) ========== */
+  --mp-bg-primary: #f8fafc;
+  --mp-bg-secondary: #f1f5f9;
+  --mp-bg-tertiary: #e2e8f0;
+  --mp-bg-gradient-from: #f0f7ff;
+  --mp-bg-gradient-to: #f5f0ff;
+  
+  --mp-surface: #ffffff;
+  --mp-surface-hover: #f8fafc;
+  --mp-surface-active: #f1f5f9;
+  
+  --mp-text-primary: #0f172a;
+  --mp-text-secondary: #475569;
+  --mp-text-tertiary: #94a3b8;
+  --mp-text-inverse: #ffffff;
+  
+  --mp-border-light: #e2e8f0;
+  --mp-border-default: #cbd5e1;
+  --mp-border-dark: #94a3b8;
+
+  /* ========== Glass Morphism ========== */
+  --mp-glass-bg: rgba(255, 255, 255, 0.8);
+  --mp-glass-bg-hover: rgba(255, 255, 255, 0.9);
+  --mp-glass-border: rgba(255, 255, 255, 0.5);
+  --mp-glass-blur: 12px;
+  --mp-glass-blur-heavy: 20px;
+
+  /* ========== Shadows ========== */
+  --mp-shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --mp-shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  --mp-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --mp-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --mp-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  --mp-shadow-glow: 0 0 20px rgba(59, 130, 246, 0.3);
+  --mp-shadow-glow-success: 0 0 20px rgba(34, 197, 94, 0.3);
+  --mp-shadow-glow-warning: 0 0 20px rgba(245, 158, 11, 0.3);
+  --mp-shadow-glow-error: 0 0 20px rgba(239, 68, 68, 0.3);
+
+  /* ========== Typography ========== */
+  --mp-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --mp-font-size-xs: 0.75rem;
+  --mp-font-size-sm: 0.875rem;
+  --mp-font-size-base: 1rem;
+  --mp-font-size-lg: 1.125rem;
+  --mp-font-size-xl: 1.25rem;
+  --mp-font-size-2xl: 1.5rem;
+  --mp-font-size-3xl: 1.875rem;
+  --mp-font-size-4xl: 2.25rem;
+
+  /* ========== Spacing ========== */
+  --mp-spacing-1: 0.25rem;
+  --mp-spacing-2: 0.5rem;
+  --mp-spacing-3: 0.75rem;
+  --mp-spacing-4: 1rem;
+  --mp-spacing-5: 1.25rem;
+  --mp-spacing-6: 1.5rem;
+  --mp-spacing-8: 2rem;
+  --mp-spacing-10: 2.5rem;
+  --mp-spacing-12: 3rem;
+  --mp-spacing-16: 4rem;
+
+  /* ========== Border Radius ========== */
+  --mp-radius-sm: 0.375rem;
+  --mp-radius-md: 0.5rem;
+  --mp-radius-lg: 0.75rem;
+  --mp-radius-xl: 1rem;
+  --mp-radius-2xl: 1.5rem;
+  --mp-radius-full: 9999px;
+
+  /* ========== Transitions ========== */
+  --mp-transition-fast: 150ms ease;
+  --mp-transition-normal: 200ms ease;
+  --mp-transition-slow: 300ms ease-in-out;
+  --mp-transition-theme: 200ms ease;
+
+  /* ========== Z-Index Scale ========== */
+  --mp-z-dropdown: 100;
+  --mp-z-sticky: 200;
+  --mp-z-modal-backdrop: 300;
+  --mp-z-modal: 400;
+  --mp-z-tooltip: 500;
+  --mp-z-toast: 600;
+
+  /* ========== Layout ========== */
+  --mp-header-height: 64px;
+  --mp-sidebar-width: 280px;
+  --mp-sidebar-collapsed-width: 72px;
+  --mp-bottom-nav-height: 64px;
+}
+
+/* ========== Dark Mode ========== */
+[data-theme="dark"] {
+  --mp-bg-primary: #0f172a;
+  --mp-bg-secondary: #1e293b;
+  --mp-bg-tertiary: #334155;
+  --mp-bg-gradient-from: #0f172a;
+  --mp-bg-gradient-to: #1e1b4b;
+  
+  --mp-surface: #1e293b;
+  --mp-surface-hover: #334155;
+  --mp-surface-active: #475569;
+  
+  --mp-text-primary: #f8fafc;
+  --mp-text-secondary: #cbd5e1;
+  --mp-text-tertiary: #64748b;
+  --mp-text-inverse: #0f172a;
+  
+  --mp-border-light: #334155;
+  --mp-border-default: #475569;
+  --mp-border-dark: #64748b;
+
+  /* Dark Glass Morphism */
+  --mp-glass-bg: rgba(30, 41, 59, 0.85);
+  --mp-glass-bg-hover: rgba(30, 41, 59, 0.95);
+  --mp-glass-border: rgba(71, 85, 105, 0.5);
+
+  /* Adjusted Shadows for Dark Mode */
+  --mp-shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --mp-shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px -1px rgba(0, 0, 0, 0.3);
+  --mp-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  --mp-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+  --mp-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+  --mp-shadow-glow: 0 0 25px rgba(96, 165, 250, 0.4);
+  --mp-shadow-glow-success: 0 0 25px rgba(74, 222, 128, 0.4);
+  --mp-shadow-glow-warning: 0 0 25px rgba(251, 191, 36, 0.4);
+  --mp-shadow-glow-error: 0 0 25px rgba(248, 113, 113, 0.4);
+}

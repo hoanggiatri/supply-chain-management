@@ -1,0 +1,446 @@
+/* ==========================================================================
+   Marketplace V2 - Main Stylesheet
+   Import all style modules
+   ========================================================================== */
+
+@import './variables.css';
+@import './animations.css';
+@import './glass.css';
+
+/* ========== Base Styles ========== */
+
+.mp-v2-root {
+  font-family: var(--mp-font-family);
+  color: var(--mp-text-primary);
+  background: linear-gradient(135deg, var(--mp-bg-gradient-from), var(--mp-bg-gradient-to));
+  min-height: 100vh;
+  transition: background var(--mp-transition-theme), color var(--mp-transition-theme);
+}
+
+/* ========== Typography ========== */
+
+.mp-heading-1 {
+  font-size: var(--mp-font-size-4xl);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--mp-text-primary);
+}
+
+.mp-heading-2 {
+  font-size: var(--mp-font-size-3xl);
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--mp-text-primary);
+}
+
+.mp-heading-3 {
+  font-size: var(--mp-font-size-2xl);
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--mp-text-primary);
+}
+
+.mp-heading-4 {
+  font-size: var(--mp-font-size-xl);
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--mp-text-primary);
+}
+
+.mp-text-body {
+  font-size: var(--mp-font-size-base);
+  line-height: 1.6;
+  color: var(--mp-text-secondary);
+}
+
+.mp-text-small {
+  font-size: var(--mp-font-size-sm);
+  line-height: 1.5;
+  color: var(--mp-text-secondary);
+}
+
+.mp-text-muted {
+  color: var(--mp-text-tertiary);
+}
+
+/* ========== Layout Utilities ========== */
+
+.mp-container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 var(--mp-spacing-4);
+}
+
+@media (min-width: 640px) {
+  .mp-container {
+    padding: 0 var(--mp-spacing-6);
+  }
+}
+
+@media (min-width: 1024px) {
+  .mp-container {
+    padding: 0 var(--mp-spacing-8);
+  }
+}
+
+/* ========== Status Badges ========== */
+
+.mp-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--mp-spacing-1) var(--mp-spacing-3);
+  border-radius: var(--mp-radius-full);
+  font-size: var(--mp-font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.mp-badge-draft {
+  background: var(--mp-bg-tertiary);
+  color: var(--mp-text-secondary);
+}
+
+.mp-badge-pending {
+  background: var(--mp-warning-50);
+  color: var(--mp-warning-600);
+}
+
+.mp-badge-confirmed {
+  background: var(--mp-info-50);
+  color: var(--mp-info-600);
+}
+
+.mp-badge-processing {
+  background: var(--mp-secondary-100);
+  color: var(--mp-secondary-700);
+}
+
+.mp-badge-completed {
+  background: var(--mp-success-50);
+  color: var(--mp-success-600);
+}
+
+.mp-badge-cancelled {
+  background: var(--mp-error-50);
+  color: var(--mp-error-600);
+}
+
+/* ========== RFQ/Quotation Status Badges (Vietnamese) ========== */
+
+/* Chưa báo giá - Amber/Yellow */
+.mp-badge-chua-bao-gia {
+  background: #fef3c7;
+  color: #d97706;
+}
+[data-theme="dark"] .mp-badge-chua-bao-gia {
+  background: rgba(217, 119, 6, 0.2);
+  color: #fbbf24;
+}
+
+/* Đã báo giá - Blue */
+.mp-badge-da-bao-gia {
+  background: #dbeafe;
+  color: #2563eb;
+}
+[data-theme="dark"] .mp-badge-da-bao-gia {
+  background: rgba(37, 99, 235, 0.2);
+  color: #60a5fa;
+}
+
+/* Đã chấp nhận - Emerald/Green */
+.mp-badge-da-chap-nhan {
+  background: #d1fae5;
+  color: #059669;
+}
+[data-theme="dark"] .mp-badge-da-chap-nhan {
+  background: rgba(5, 150, 105, 0.2);
+  color: #34d399;
+}
+
+/* Đã từ chối - Red */
+.mp-badge-da-tu-choi {
+  background: #fee2e2;
+  color: #dc2626;
+}
+[data-theme="dark"] .mp-badge-da-tu-choi {
+  background: rgba(220, 38, 38, 0.2);
+  color: #f87171;
+}
+
+/* Quá hạn báo giá - Orange */
+.mp-badge-qua-han {
+  background: #ffedd5;
+  color: #ea580c;
+}
+[data-theme="dark"] .mp-badge-qua-han {
+  background: rgba(234, 88, 12, 0.2);
+  color: #fb923c;
+}
+
+/* Đã hủy - Gray */
+.mp-badge-da-huy {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+[data-theme="dark"] .mp-badge-da-huy {
+  background: rgba(107, 114, 128, 0.2);
+  color: #9ca3af;
+}
+
+/* ========== Cards ========== */
+
+.mp-card {
+  background: var(--mp-surface);
+  border: 1px solid var(--mp-border-light);
+  border-radius: var(--mp-radius-xl);
+  padding: var(--mp-spacing-6);
+  box-shadow: var(--mp-shadow-sm);
+  transition: all var(--mp-transition-normal);
+}
+
+.mp-card:hover {
+  box-shadow: var(--mp-shadow-md);
+}
+
+.mp-card-interactive {
+  cursor: pointer;
+}
+
+.mp-card-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--mp-shadow-lg);
+}
+
+/* Elegant Card - Minimalist Modern Style */
+.mp-card-elegant {
+  background: var(--mp-surface);
+  border: 1px solid transparent;
+  border-radius: 16px;
+  padding: var(--mp-spacing-5);
+  box-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    0 4px 12px rgba(0, 0, 0, 0.03);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mp-card-elegant:hover {
+  transform: translateY(-4px);
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.08),
+    0 4px 12px rgba(0, 0, 0, 0.04);
+  border-color: rgba(37, 99, 235, 0.12);
+}
+
+[data-theme="dark"] .mp-card-elegant {
+  box-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.2),
+    0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="dark"] .mp-card-elegant:hover {
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.3),
+    0 4px 12px rgba(0, 0, 0, 0.2);
+  border-color: rgba(96, 165, 250, 0.2);
+}
+
+/* ========== Buttons ========== */
+
+.mp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--mp-spacing-2);
+  padding: var(--mp-spacing-3) var(--mp-spacing-5);
+  border-radius: var(--mp-radius-md);
+  font-size: var(--mp-font-size-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  outline: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.mp-btn-primary {
+  background: var(--mp-primary-600);
+  color: white;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+}
+
+.mp-btn-primary:hover {
+  background: var(--mp-primary-700);
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.35);
+  transform: translateY(-1px);
+}
+
+.mp-btn-primary:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+}
+
+.mp-btn-secondary {
+  background: var(--mp-surface);
+  color: var(--mp-text-primary);
+  border: 1px solid var(--mp-border-default);
+}
+
+.mp-btn-secondary:hover {
+  background: var(--mp-surface-hover);
+  border-color: var(--mp-border-dark);
+  transform: translateY(-1px);
+}
+
+.mp-btn-secondary:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.mp-btn-ghost {
+  background: transparent;
+  color: var(--mp-text-secondary);
+}
+
+.mp-btn-ghost:hover {
+  background: var(--mp-surface-hover);
+  color: var(--mp-text-primary);
+}
+
+.mp-btn-icon {
+  padding: var(--mp-spacing-2);
+  width: 40px;
+  height: 40px;
+}
+
+/* Refined Button - Premium Minimalist Style */
+.mp-btn-refined {
+  background: var(--mp-primary-600);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+  transition: all 0.2s ease;
+}
+
+.mp-btn-refined:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35);
+}
+
+.mp-btn-refined:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Icon bounce effect */
+.mp-btn:hover svg,
+.mp-btn-refined:hover svg {
+  animation: mp-icon-subtle-bounce 0.4s ease;
+}
+
+@keyframes mp-icon-subtle-bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* ========== Form Elements ========== */
+
+.mp-input {
+  width: 100%;
+  padding: var(--mp-spacing-3) var(--mp-spacing-4);
+  background: var(--mp-surface);
+  border: 1px solid var(--mp-border-default);
+  border-radius: var(--mp-radius-md);
+  font-size: var(--mp-font-size-base);
+  color: var(--mp-text-primary);
+  transition: all var(--mp-transition-normal);
+}
+
+.mp-input:focus {
+  outline: none;
+  border-color: var(--mp-primary-500);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.mp-input::placeholder {
+  color: var(--mp-text-tertiary);
+}
+
+.mp-input-error {
+  border-color: var(--mp-error-500);
+}
+
+.mp-input-error:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+/* ========== Scrollbar Styling ========== */
+
+.mp-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.mp-scrollbar::-webkit-scrollbar-track {
+  background: var(--mp-bg-secondary);
+  border-radius: var(--mp-radius-full);
+}
+
+.mp-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--mp-border-default);
+  border-radius: var(--mp-radius-full);
+}
+
+.mp-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--mp-border-dark);
+}
+
+/* ========== Hide Scrollbar but keep functionality ========== */
+
+.mp-scrollbar-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.mp-scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+/* ========== Responsive Breakpoint Utilities ========== */
+
+/* Mobile only */
+@media (max-width: 639px) {
+  .mp-hide-mobile {
+    display: none !important;
+  }
+
+  .mp-show-mobile {
+    display: block !important;
+  }
+}
+
+/* Tablet and up */
+@media (min-width: 640px) {
+  .mp-show-mobile {
+    display: none !important;
+  }
+}
+
+/* Desktop only */
+@media (min-width: 1024px) {
+  .mp-hide-desktop {
+    display: none !important;
+  }
+
+  .mp-show-desktop {
+    display: block !important;
+  }
+}
+
+@media (max-width: 1023px) {
+  .mp-show-desktop {
+    display: none !important;
+  }
+}

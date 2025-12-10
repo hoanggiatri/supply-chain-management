@@ -1,0 +1,177 @@
+/* ==========================================================================
+   Marketplace V2 - Glass Morphism Utilities
+   ========================================================================== */
+
+/* ========== Base Glass Effect ========== */
+
+.mp-glass {
+  background: var(--mp-glass-bg);
+  backdrop-filter: blur(var(--mp-glass-blur));
+  -webkit-backdrop-filter: blur(var(--mp-glass-blur));
+  border: 1px solid var(--mp-glass-border);
+}
+
+.mp-glass-heavy {
+  background: var(--mp-glass-bg);
+  backdrop-filter: blur(var(--mp-glass-blur-heavy));
+  -webkit-backdrop-filter: blur(var(--mp-glass-blur-heavy));
+  border: 1px solid var(--mp-glass-border);
+}
+
+.mp-glass:hover {
+  background: var(--mp-glass-bg-hover);
+}
+
+/* ========== Glass Card ========== */
+
+.mp-glass-card {
+  background: var(--mp-glass-bg);
+  backdrop-filter: blur(var(--mp-glass-blur));
+  -webkit-backdrop-filter: blur(var(--mp-glass-blur));
+  border: 1px solid var(--mp-glass-border);
+  border-radius: var(--mp-radius-xl);
+  box-shadow: var(--mp-shadow-md);
+  transition: transform var(--mp-transition-normal),
+    box-shadow var(--mp-transition-normal),
+    background var(--mp-transition-normal);
+}
+
+.mp-glass-card:hover {
+  background: var(--mp-glass-bg-hover);
+  box-shadow: var(--mp-shadow-lg);
+  transform: translateY(-2px);
+}
+
+/* ========== Glass Surface ========== */
+
+.mp-glass-surface {
+  background: var(--mp-surface);
+  border: 1px solid var(--mp-border-light);
+  border-radius: var(--mp-radius-lg);
+  box-shadow: var(--mp-shadow-sm);
+}
+
+/* ========== Glass Header ========== */
+
+.mp-glass-header {
+  background: var(--mp-glass-bg);
+  backdrop-filter: blur(var(--mp-glass-blur-heavy));
+  -webkit-backdrop-filter: blur(var(--mp-glass-blur-heavy));
+  border-bottom: 1px solid var(--mp-glass-border);
+  box-shadow: var(--mp-shadow-sm);
+}
+
+/* ========== Glass Sidebar ========== */
+
+.mp-glass-sidebar {
+  background: var(--mp-glass-bg);
+  backdrop-filter: blur(var(--mp-glass-blur));
+  -webkit-backdrop-filter: blur(var(--mp-glass-blur));
+  border-right: 1px solid var(--mp-glass-border);
+}
+
+/* ========== Glass Modal ========== */
+
+.mp-glass-modal-backdrop {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.mp-glass-modal {
+  background: var(--mp-surface);
+  border: 1px solid var(--mp-border-light);
+  border-radius: var(--mp-radius-2xl);
+  box-shadow: var(--mp-shadow-xl);
+}
+
+/* ========== Glass Dropdown ========== */
+
+.mp-glass-dropdown {
+  background: var(--mp-glass-bg);
+  backdrop-filter: blur(var(--mp-glass-blur));
+  -webkit-backdrop-filter: blur(var(--mp-glass-blur));
+  border: 1px solid var(--mp-glass-border);
+  border-radius: var(--mp-radius-lg);
+  box-shadow: var(--mp-shadow-lg);
+}
+
+/* ========== Glass Button ========== */
+
+.mp-glass-button {
+  background: var(--mp-glass-bg);
+  backdrop-filter: blur(var(--mp-glass-blur));
+  -webkit-backdrop-filter: blur(var(--mp-glass-blur));
+  border: 1px solid var(--mp-glass-border);
+  border-radius: var(--mp-radius-md);
+  padding: var(--mp-spacing-2) var(--mp-spacing-4);
+  cursor: pointer;
+  transition: all var(--mp-transition-normal);
+}
+
+.mp-glass-button:hover {
+  background: var(--mp-glass-bg-hover);
+  box-shadow: var(--mp-shadow-md);
+}
+
+/* ========== Glass Input ========== */
+
+.mp-glass-input {
+  background: var(--mp-glass-bg);
+  backdrop-filter: blur(var(--mp-glass-blur));
+  -webkit-backdrop-filter: blur(var(--mp-glass-blur));
+  border: 1px solid var(--mp-border-default);
+  border-radius: var(--mp-radius-md);
+  padding: var(--mp-spacing-3) var(--mp-spacing-4);
+  color: var(--mp-text-primary);
+  transition: all var(--mp-transition-normal);
+}
+
+.mp-glass-input:focus {
+  outline: none;
+  border-color: var(--mp-primary-500);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.mp-glass-input::placeholder {
+  color: var(--mp-text-tertiary);
+}
+
+/* ========== Glass Pill/Badge ========== */
+
+.mp-glass-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--mp-spacing-1) var(--mp-spacing-3);
+  background: var(--mp-glass-bg);
+  backdrop-filter: blur(var(--mp-glass-blur));
+  -webkit-backdrop-filter: blur(var(--mp-glass-blur));
+  border: 1px solid var(--mp-glass-border);
+  border-radius: var(--mp-radius-full);
+  font-size: var(--mp-font-size-sm);
+  font-weight: 500;
+}
+
+/* ========== Frosted Overlay ========== */
+
+.mp-frosted-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* ========== Dark Mode Adjustments ========== */
+
+[data-theme="dark"] .mp-glass {
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .mp-glass-card {
+  box-shadow: var(--mp-shadow-md), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .mp-glass-header {
+  box-shadow: var(--mp-shadow-sm), inset 0 -1px 0 0 rgba(255, 255, 255, 0.05);
+}
