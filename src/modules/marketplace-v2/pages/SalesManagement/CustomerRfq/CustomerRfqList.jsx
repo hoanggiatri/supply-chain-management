@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import {
+  FileText,
   Grid3X3,
   Kanban,
   RefreshCw,
@@ -7,16 +8,15 @@ import {
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { OrderCard } from '../../../../components/cards';
-import { OrderCardSkeleton } from '../../../../components/ui';
-import { useDebounce } from '../../../../hooks';
-import { useQuotationsInRequestCompany } from '../../../../hooks/useApi';
+import { OrderCard } from '../../../components/cards';
+import { OrderCardSkeleton } from '../../../components/ui';
+import { useDebounce } from '../../../hooks';
+import { useRfqsInRequestedCompany } from '../../../hooks/useApi';
 
-// Quotation chỉ có 3 trạng thái (uppercase từ API)
+// RFQ Statuses (lowercase from API)
 const statusGroups = [
-  { key: 'Đã báo giá', label: 'Đã báo giá', color: 'bg-blue-500' },
-  { key: 'Đã chấp nhận', label: 'Đã chấp nhận', color: 'bg-emerald-500' },
-  { key: 'Đã từ chối', label: 'Đã từ chối', color: 'bg-red-500' },
+  { key: 'chưa báo giá', label: 'Chưa báo giá', color: 'bg-amber-500' },
+  { key: 'đã báo giá', label: 'Đã báo giá', color: 'bg-blue-500' },
 ];
 
 const statusFilters = [
@@ -25,45 +25,51 @@ const statusFilters = [
 ];
 
 // Map API data
-const mapQuotationData = (item) => {
-  const itemCount = item.quotationDetails?.length || 0;
+const mapRfqData = (item) => {
+  const itemCount = item.rfqDetails?.length || 0;
+  
+  // Calculate total amount if prices exist in details (usually RFQ doesn't have prices yet, but structure allows it)
+  const totalAmount = item.rfqDetails?.reduce((sum, detail) => {
+    return sum + ((detail.supplierItemPrice || 0) * (detail.quantity || 0));
+  }, 0) || 0;
 
   return {
-    id: item.quotationId,
-    code: item.quotationCode,
-    companyName: item.companyName || 'N/A', // NCC gửi báo giá
-    status: item.status,
+    id: item.rfqId,
+    code: item.rfqCode,
+    // For Customer RFQ list (Supplier View):
+    // So we display item.companyName as the customer name
+    companyName: item.companyName || 'N/A', 
+    status: item.status?.toLowerCase(), // Normalize to lowercase for OrderCard mapping
     itemCount: itemCount,
-    totalAmount: item.totalAmount || 0,
+    totalAmount: totalAmount,
     createdAt: item.createdOn,
-    rfqCode: item.rfqCode,
-    rfqId: item.rfqId,
-    type: 'quotation'
+    needByDate: item.needByDate,
+    type: 'rfq'
   };
 };
 
 /**
- * Quotation List Page (Báo giá từ NCC) - Layout giống Orders/index.jsx
- * 3 trạng thái: Đã báo giá, Đã chấp nhận, Đã từ chối
+ * Customer RFQ List Page (Sales Department)
+ * Displays RFQs sent TO my company from other companies
  */
-const QuotationList = () => {
+const CustomerRfqList = () => {
   const navigate = useNavigate();
-  const [viewMode, setViewMode] = useState('grid');
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'kanban'
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
   const debouncedSearch = useDebounce(searchQuery, 300);
 
-  // Fetch quotations
-  const { data: rawData = [], isLoading, isError, refetch } = useQuotationsInRequestCompany();
+  // Fetch RFQs requested to my company
+  const { data: rawData = [], isLoading, isError, refetch } = useRfqsInRequestedCompany();
 
-  // Filter and map data - chỉ lấy 3 trạng thái
-  const quotations = useMemo(() => {
-    const validStatuses = ['Đã báo giá', 'Đã chấp nhận', 'Đã từ chối'];
-    
-    let filtered = rawData
-      .filter(item => validStatuses.includes(item.status))
-      .map(item => mapQuotationData(item));
+  // Filter and map data
+  const rfqs = useMemo(() => {
+    // strict filtering for allowed statuses
+    const allowedStatuses = ['chưa báo giá', 'đã báo giá'];
+    let filtered = Array.isArray(rawData) 
+      ? rawData.map(item => mapRfqData(item)).filter(item => allowedStatuses.includes(item.status.toLowerCase()))
+      : [];
 
     // Apply status filter
     if (statusFilter !== 'all') {
@@ -75,28 +81,32 @@ const QuotationList = () => {
       const query = debouncedSearch.toLowerCase();
       filtered = filtered.filter(item =>
         item.code?.toLowerCase().includes(query) ||
-        item.companyName?.toLowerCase().includes(query) ||
-        item.rfqCode?.toLowerCase().includes(query)
+        item.companyName?.toLowerCase().includes(query)
       );
     }
 
     return filtered;
   }, [rawData, statusFilter, debouncedSearch]);
 
-  // Group orders by status for Kanban view
-  const quotationsByStatus = useMemo(() => {
+  // Group by status for Kanban view
+  const rfqsByStatus = useMemo(() => {
     const groups = {};
     statusGroups.forEach(g => groups[g.key] = []);
-    quotations.forEach(q => {
-      if (groups[q.status]) {
-        groups[q.status].push(q);
+    rfqs.forEach(r => {
+      // Handle case sensitivity if needed, but assuming exact match based on API
+      if (groups[r.status]) {
+        groups[r.status].push(r);
+      } else {
+        // Fallback for unexpected statuses
+        if (!groups['other']) groups['other'] = [];
+        groups['other'].push(r);
       }
     });
     return groups;
-  }, [quotations]);
+  }, [rfqs]);
 
-  const handleQuotationClick = (quotation) => {
-    navigate(`/marketplace-v2/quotation/${quotation.id}`);
+  const handleRfqClick = (rfq) => {
+    navigate(`/marketplace-v2/supplier-rfq/${rfq.id}`);
   };
 
   return (
@@ -112,13 +122,13 @@ const QuotationList = () => {
             className="text-2xl lg:text-3xl font-bold"
             style={{ color: 'var(--mp-text-primary)' }}
           >
-            Báo giá từ NCC
+            Yêu cầu báo giá từ khách hàng
           </h1>
           <p
             className="mt-1"
             style={{ color: 'var(--mp-text-secondary)' }}
           >
-            {isLoading ? 'Đang tải...' : `${quotations.length} kết quả`}
+            {isLoading ? 'Đang tải...' : `${rfqs.length} yêu cầu`}
           </p>
         </div>
 
@@ -153,7 +163,7 @@ const QuotationList = () => {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Tìm theo mã báo giá, tên NCC..."
+            placeholder="Tìm theo mã RFQ, tên khách hàng..."
             className="w-full mp-input pl-11"
           />
         </div>
@@ -226,19 +236,25 @@ const QuotationList = () => {
                 Array.from({ length: 8 }).map((_, i) => (
                   <OrderCardSkeleton key={i} />
                 ))
-              ) : quotations.length > 0 ? (
-                quotations.map((quotation, index) => (
+              ) : rfqs.length > 0 ? (
+                rfqs.map((rfq, index) => (
                   <OrderCard
-                    key={quotation.id}
-                    order={quotation}
-                    onClick={() => handleQuotationClick(quotation)}
+                    key={rfq.id}
+                    order={rfq}
+                    onClick={() => handleRfqClick(rfq)}
                     index={index}
                   />
                 ))
               ) : (
                 <div className="col-span-full mp-glass-card p-12 text-center">
-                  <p style={{ color: 'var(--mp-text-secondary)' }}>
-                    Chưa có báo giá từ nhà cung cấp
+                  <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
+                    <FileText size={32} className="text-gray-400" />
+                  </div>
+                  <p className="text-lg font-medium" style={{ color: 'var(--mp-text-primary)' }}>
+                    Chưa có yêu cầu báo giá
+                  </p>
+                  <p className="text-sm mt-1" style={{ color: 'var(--mp-text-secondary)' }}>
+                    Danh sách yêu cầu từ khách hàng sẽ xuất hiện ở đây
                   </p>
                 </div>
               )}
@@ -264,7 +280,7 @@ const QuotationList = () => {
                       </span>
                     </div>
                     <span className="text-sm" style={{ color: 'var(--mp-text-tertiary)' }}>
-                      {quotationsByStatus[statusGroup.key]?.length || 0}
+                      {rfqsByStatus[statusGroup.key]?.length || 0}
                     </span>
                   </div>
                   <div className="space-y-3">
@@ -273,11 +289,11 @@ const QuotationList = () => {
                         <OrderCardSkeleton key={i} />
                       ))
                     ) : (
-                      quotationsByStatus[statusGroup.key]?.map((quotation, index) => (
+                      rfqsByStatus[statusGroup.key]?.map((rfq, index) => (
                         <OrderCard
-                          key={quotation.id}
-                          order={quotation}
-                          onClick={() => handleQuotationClick(quotation)}
+                          key={rfq.id}
+                          order={rfq}
+                          onClick={() => handleRfqClick(rfq)}
                           index={index}
                           compact
                         />
@@ -294,4 +310,4 @@ const QuotationList = () => {
   );
 };
 
-export default QuotationList;
+export default CustomerRfqList;

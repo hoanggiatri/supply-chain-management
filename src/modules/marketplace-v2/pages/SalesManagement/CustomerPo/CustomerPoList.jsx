@@ -7,16 +7,15 @@ import {
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { OrderCard } from '../../../../components/cards';
-import { OrderCardSkeleton } from '../../../../components/ui';
-import { useDebounce } from '../../../../hooks';
-import { useQuotationsInRequestCompany } from '../../../../hooks/useApi';
+import { OrderCard } from '../../../components/cards';
+import { OrderCardSkeleton } from '../../../components/ui';
+import { useDebounce } from '../../../hooks';
+import { usePosInSupplierCompany } from '../../../hooks/useApi';
 
-// Quotation chỉ có 3 trạng thái (uppercase từ API)
+// PO Statuses - Legacy only shows these 2 statuses
 const statusGroups = [
-  { key: 'Đã báo giá', label: 'Đã báo giá', color: 'bg-blue-500' },
-  { key: 'Đã chấp nhận', label: 'Đã chấp nhận', color: 'bg-emerald-500' },
-  { key: 'Đã từ chối', label: 'Đã từ chối', color: 'bg-red-500' },
+  { key: 'Chờ xác nhận', label: 'Chờ xác nhận', color: 'bg-amber-500' },
+  { key: 'Đã xác nhận', label: 'Đã xác nhận', color: 'bg-emerald-500' },
 ];
 
 const statusFilters = [
@@ -25,28 +24,29 @@ const statusFilters = [
 ];
 
 // Map API data
-const mapQuotationData = (item) => {
-  const itemCount = item.quotationDetails?.length || 0;
+const mapPoData = (item) => {
+  const itemCount = item.purchaseOrderDetails?.length || item.poDetails?.length || 0;
 
   return {
-    id: item.quotationId,
-    code: item.quotationCode,
-    companyName: item.companyName || 'N/A', // NCC gửi báo giá
+    id: item.poId,
+    code: item.poCode,
+    companyName: item.companyName || 'Khách hàng', // Buyer
+    companyCode: item.companyCode,
+    quotationCode: item.quotationCode,
+    paymentMethod: item.paymentMethod,
     status: item.status,
     itemCount: itemCount,
     totalAmount: item.totalAmount || 0,
     createdAt: item.createdOn,
-    rfqCode: item.rfqCode,
-    rfqId: item.rfqId,
-    type: 'quotation'
+    type: 'po'
   };
 };
 
 /**
- * Quotation List Page (Báo giá từ NCC) - Layout giống Orders/index.jsx
- * 3 trạng thái: Đã báo giá, Đã chấp nhận, Đã từ chối
+ * Customer PO List Page (Sales Department)
+ * Displays POs received from customers
  */
-const QuotationList = () => {
+const CustomerPoList = () => {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState('grid');
   const [searchQuery, setSearchQuery] = useState('');
@@ -54,16 +54,20 @@ const QuotationList = () => {
 
   const debouncedSearch = useDebounce(searchQuery, 300);
 
-  // Fetch quotations
-  const { data: rawData = [], isLoading, isError, refetch } = useQuotationsInRequestCompany();
+  // Fetch POs in supplier company (POs sent to me)
+  const { data: rawData = [], isLoading, isError, refetch } = usePosInSupplierCompany();
 
-  // Filter and map data - chỉ lấy 3 trạng thái
-  const quotations = useMemo(() => {
-    const validStatuses = ['Đã báo giá', 'Đã chấp nhận', 'Đã từ chối'];
+  // Filter and map data - Legacy filters to only show 'Chờ xác nhận' and 'Đã xác nhận'
+  const pos = useMemo(() => {
+    let filtered = Array.isArray(rawData) ? rawData : [];
     
-    let filtered = rawData
-      .filter(item => validStatuses.includes(item.status))
-      .map(item => mapQuotationData(item));
+    // Filter to only show pending and confirmed statuses (like legacy)
+    filtered = filtered.filter(item => 
+      item.status === 'Chờ xác nhận' || item.status === 'Đã xác nhận'
+    );
+    
+    // Map data
+    filtered = filtered.map(item => mapPoData(item));
 
     // Apply status filter
     if (statusFilter !== 'all') {
@@ -76,27 +80,30 @@ const QuotationList = () => {
       filtered = filtered.filter(item =>
         item.code?.toLowerCase().includes(query) ||
         item.companyName?.toLowerCase().includes(query) ||
-        item.rfqCode?.toLowerCase().includes(query)
+        item.quotationCode?.toLowerCase().includes(query)
       );
     }
 
     return filtered;
   }, [rawData, statusFilter, debouncedSearch]);
 
-  // Group orders by status for Kanban view
-  const quotationsByStatus = useMemo(() => {
+  // Group by status for Kanban view
+  const posByStatus = useMemo(() => {
     const groups = {};
     statusGroups.forEach(g => groups[g.key] = []);
-    quotations.forEach(q => {
-      if (groups[q.status]) {
-        groups[q.status].push(q);
+    pos.forEach(p => {
+      if (groups[p.status]) {
+        groups[p.status].push(p);
+      } else {
+        if (!groups['other']) groups['other'] = [];
+        groups['other'].push(p);
       }
     });
     return groups;
-  }, [quotations]);
+  }, [pos]);
 
-  const handleQuotationClick = (quotation) => {
-    navigate(`/marketplace-v2/quotation/${quotation.id}`);
+  const handlePoClick = (po) => {
+    navigate(`/marketplace-v2/customer-po/${po.id}`);
   };
 
   return (
@@ -112,13 +119,13 @@ const QuotationList = () => {
             className="text-2xl lg:text-3xl font-bold"
             style={{ color: 'var(--mp-text-primary)' }}
           >
-            Báo giá từ NCC
+            Đơn hàng từ khách (PO)
           </h1>
           <p
             className="mt-1"
             style={{ color: 'var(--mp-text-secondary)' }}
           >
-            {isLoading ? 'Đang tải...' : `${quotations.length} kết quả`}
+            {isLoading ? 'Đang tải...' : `${pos.length} đơn hàng`}
           </p>
         </div>
 
@@ -153,7 +160,7 @@ const QuotationList = () => {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Tìm theo mã báo giá, tên NCC..."
+            placeholder="Tìm theo mã PO, tên khách hàng..."
             className="w-full mp-input pl-11"
           />
         </div>
@@ -201,7 +208,7 @@ const QuotationList = () => {
       {/* Error State */}
       {isError && (
         <div className="mp-glass-card p-8 text-center">
-          <p className="text-red-500 mb-4">Có lỗi xảy ra khi tải dữ liệu</p>
+          <p className="text-red-500 mb-4">Có lỗi xảy ra khi tải dữ liệu. (Có thể API chưa hỗ trợ)</p>
           <button
             onClick={() => refetch()}
             className="mp-btn mp-btn-primary"
@@ -226,19 +233,19 @@ const QuotationList = () => {
                 Array.from({ length: 8 }).map((_, i) => (
                   <OrderCardSkeleton key={i} />
                 ))
-              ) : quotations.length > 0 ? (
-                quotations.map((quotation, index) => (
+              ) : pos.length > 0 ? (
+                pos.map((po, index) => (
                   <OrderCard
-                    key={quotation.id}
-                    order={quotation}
-                    onClick={() => handleQuotationClick(quotation)}
+                    key={po.id}
+                    order={po}
+                    onClick={() => handlePoClick(po)}
                     index={index}
                   />
                 ))
               ) : (
                 <div className="col-span-full mp-glass-card p-12 text-center">
                   <p style={{ color: 'var(--mp-text-secondary)' }}>
-                    Chưa có báo giá từ nhà cung cấp
+                    Chưa có đơn hàng nào từ khách
                   </p>
                 </div>
               )}
@@ -264,7 +271,7 @@ const QuotationList = () => {
                       </span>
                     </div>
                     <span className="text-sm" style={{ color: 'var(--mp-text-tertiary)' }}>
-                      {quotationsByStatus[statusGroup.key]?.length || 0}
+                      {posByStatus[statusGroup.key]?.length || 0}
                     </span>
                   </div>
                   <div className="space-y-3">
@@ -273,11 +280,11 @@ const QuotationList = () => {
                         <OrderCardSkeleton key={i} />
                       ))
                     ) : (
-                      quotationsByStatus[statusGroup.key]?.map((quotation, index) => (
+                      posByStatus[statusGroup.key]?.map((po, index) => (
                         <OrderCard
-                          key={quotation.id}
-                          order={quotation}
-                          onClick={() => handleQuotationClick(quotation)}
+                          key={po.id}
+                          order={po}
+                          onClick={() => handlePoClick(po)}
                           index={index}
                           compact
                         />
@@ -294,4 +301,4 @@ const QuotationList = () => {
   );
 };
 
-export default QuotationList;
+export default CustomerPoList;

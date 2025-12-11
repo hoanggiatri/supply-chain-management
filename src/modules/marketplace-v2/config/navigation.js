@@ -34,8 +34,8 @@ export const PURCHASING_MENU = [
 export const SALES_MENU = [
   { path: '/marketplace-v2/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/marketplace-v2/supplier-rfqs', label: 'RFQ từ khách hàng', icon: FileText },
-  { path: '/marketplace-v2/quotations', label: 'Báo giá đã gửi', icon: DollarSign },
-  { path: '/marketplace-v2/supplier-pos', label: 'PO từ khách hàng', icon: ShoppingCart },
+  { path: '/marketplace-v2/sent-quotations', label: 'Báo giá đã gửi', icon: DollarSign },
+  { path: '/marketplace-v2/customer-pos', label: 'PO từ khách hàng', icon: ShoppingCart },
   { path: '/marketplace-v2/sos', label: 'Đơn bán hàng (SO)', icon: Package },
   { path: '/marketplace-v2/sales-report', label: 'Báo cáo bán hàng', icon: TrendingUp },
 ];

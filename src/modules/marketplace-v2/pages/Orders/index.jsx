@@ -1,10 +1,10 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-    Grid3X3,
-    Kanban,
-    Plus,
-    RefreshCw,
-    Search
+  Grid3X3,
+  Kanban,
+  Plus,
+  RefreshCw,
+  Search
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -12,13 +12,13 @@ import { OrderCard } from '../../components/cards';
 import { OrderCardSkeleton } from '../../components/ui';
 import { useDebounce, useWindowSize } from '../../hooks';
 import {
-    usePosInCompany,
-    usePosInSupplierCompany,
-    useQuotationsInCompany,
-    useQuotationsInRequestCompany,
-    useRfqsInCompany,
-    useRfqsInRequestedCompany,
-    useSosInCompany
+  usePosInCompany,
+  usePosInSupplierCompany,
+  useQuotationsInCompany,
+  useQuotationsInRequestCompany,
+  useRfqsInCompany,
+  useRfqsInRequestedCompany,
+  useSosInCompany
 } from '../../hooks/useApi';
 
 // Status configuration for RFQ (6 statuses)
@@ -93,7 +93,10 @@ const mapOrderData = (item, type) => {
  */
 const OrderList = ({ title = 'Đơn hàng', type = 'po' }) => {
   const navigate = useNavigate();
-  const { isDesktop } = useWindowSize();
+  // const { isDesktop } = useWindowSize(); // Unused
+  useWindowSize(); // Keep hook if it has side effects, or remove if not needed. 
+  // checking hook implementation: usually useWindowSize just returns size. 
+  // Safest is to just remove the destructuring.
   const [viewMode, setViewMode] = useState('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');

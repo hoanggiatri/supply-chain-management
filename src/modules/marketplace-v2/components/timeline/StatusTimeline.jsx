@@ -39,6 +39,14 @@ const poStatusSteps = [
   { key: 'Đã hủy', label: 'Đã hủy', icon: XCircle, order: 0 }, // Can happen anytime
 ];
 
+// SO specific statuses (4 trạng thái - Vietnamese từ API)
+const soStatusSteps = [
+  { key: 'Chờ xuất kho', label: 'Chờ xuất kho', icon: Package, order: 1 },
+  { key: 'Chờ vận chuyển', label: 'Chờ vận chuyển', icon: Clock, order: 2 },
+  { key: 'Đang vận chuyển', label: 'Đang vận chuyển', icon: Truck, order: 3 },
+  { key: 'Đã hoàn thành', label: 'Đã hoàn thành', icon: CheckCircle, order: 4 },
+];
+
 // Get status steps by type
 const getStatusSteps = (type) => {
   switch (type) {
@@ -48,6 +56,8 @@ const getStatusSteps = (type) => {
       return quotationStatusSteps;
     case 'po':
       return poStatusSteps;
+    case 'so':
+      return soStatusSteps;
     default:
       return orderStatusSteps;
   }
@@ -112,6 +122,17 @@ const getDisplaySteps = (type, currentStatus, isCancelled) => {
       ];
     }
 
+    return mainFlow;
+  }
+
+  if (type === 'so') {
+    // SO flow: Chờ xuất kho → Chờ vận chuyển → Đang vận chuyển → Đã hoàn thành
+    const mainFlow = [
+      allSteps.find(s => s.key === 'Chờ xuất kho'),
+      allSteps.find(s => s.key === 'Chờ vận chuyển'),
+      allSteps.find(s => s.key === 'Đang vận chuyển'),
+      allSteps.find(s => s.key === 'Đã hoàn thành'),
+    ];
     return mainFlow;
   }
   

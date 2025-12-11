@@ -1,9 +1,9 @@
 import { motion } from 'framer-motion';
 import {
-  Building2,
-  Calendar,
-  ChevronRight,
-  Package
+    Building2,
+    Calendar,
+    ChevronRight,
+    Package
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -34,6 +34,9 @@ const statusConfig = {
   'Đang vận chuyển': { label: 'Đang vận chuyển', colorClass: 'mp-badge-da-bao-gia' },
   'Chờ nhập kho': { label: 'Chờ nhập kho', colorClass: 'mp-badge-qua-han' },
   'Đã hoàn thành': { label: 'Đã hoàn thành', colorClass: 'mp-badge-da-chap-nhan' },
+  // Vietnamese statuses (for SO - from API)
+  'Chờ xuất kho': { label: 'Chờ xuất kho', colorClass: 'mp-badge-qua-han' },
+  'Chờ vận chuyển': { label: 'Chờ vận chuyển', colorClass: 'mp-badge-chua-bao-gia' },
 };
 
 const formatCurrency = (amount) => {

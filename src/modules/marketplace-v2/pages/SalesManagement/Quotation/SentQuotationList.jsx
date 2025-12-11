@@ -1,22 +1,22 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  Grid3X3,
-  Kanban,
-  RefreshCw,
-  Search
+    Grid3X3,
+    Kanban,
+    RefreshCw,
+    Search
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { OrderCard } from '../../../../components/cards';
-import { OrderCardSkeleton } from '../../../../components/ui';
-import { useDebounce } from '../../../../hooks';
-import { useQuotationsInRequestCompany } from '../../../../hooks/useApi';
+import { OrderCard } from '../../../components/cards';
+import { OrderCardSkeleton } from '../../../components/ui';
+import { useDebounce } from '../../../hooks';
+import { useQuotationsInCompany } from '../../../hooks/useApi';
 
-// Quotation chỉ có 3 trạng thái (uppercase từ API)
+// Quotation Statuses (Uppercase)
 const statusGroups = [
-  { key: 'Đã báo giá', label: 'Đã báo giá', color: 'bg-blue-500' },
+  { key: 'Đã báo giá', label: 'Chờ phản hồi', color: 'bg-amber-500' },
   { key: 'Đã chấp nhận', label: 'Đã chấp nhận', color: 'bg-emerald-500' },
-  { key: 'Đã từ chối', label: 'Đã từ chối', color: 'bg-red-500' },
+  { key: 'Đã từ chối', label: 'Bị từ chối', color: 'bg-red-500' },
 ];
 
 const statusFilters = [
@@ -31,22 +31,23 @@ const mapQuotationData = (item) => {
   return {
     id: item.quotationId,
     code: item.quotationCode,
-    companyName: item.companyName || 'N/A', // NCC gửi báo giá
+    companyName: item.requestCompanyName || 'Khách hàng', // Customer who requested
+    companyCode: item.requestCompanyCode,
     status: item.status,
     itemCount: itemCount,
     totalAmount: item.totalAmount || 0,
     createdAt: item.createdOn,
+    createdBy: item.createdBy,
     rfqCode: item.rfqCode,
-    rfqId: item.rfqId,
     type: 'quotation'
   };
 };
 
 /**
- * Quotation List Page (Báo giá từ NCC) - Layout giống Orders/index.jsx
- * 3 trạng thái: Đã báo giá, Đã chấp nhận, Đã từ chối
+ * Sent Quotation List Page (Sales Department)
+ * Displays quotations sent BY my company
  */
-const QuotationList = () => {
+const SentQuotationList = () => {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState('grid');
   const [searchQuery, setSearchQuery] = useState('');
@@ -54,16 +55,12 @@ const QuotationList = () => {
 
   const debouncedSearch = useDebounce(searchQuery, 300);
 
-  // Fetch quotations
-  const { data: rawData = [], isLoading, isError, refetch } = useQuotationsInRequestCompany();
+  // Fetch quotations sent by my company
+  const { data: rawData = [], isLoading, isError, refetch } = useQuotationsInCompany();
 
-  // Filter and map data - chỉ lấy 3 trạng thái
+  // Filter and map data
   const quotations = useMemo(() => {
-    const validStatuses = ['Đã báo giá', 'Đã chấp nhận', 'Đã từ chối'];
-    
-    let filtered = rawData
-      .filter(item => validStatuses.includes(item.status))
-      .map(item => mapQuotationData(item));
+    let filtered = Array.isArray(rawData) ? rawData.map(item => mapQuotationData(item)) : [];
 
     // Apply status filter
     if (statusFilter !== 'all') {
@@ -83,20 +80,23 @@ const QuotationList = () => {
     return filtered;
   }, [rawData, statusFilter, debouncedSearch]);
 
-  // Group orders by status for Kanban view
+  // Group by status for Kanban view
   const quotationsByStatus = useMemo(() => {
     const groups = {};
     statusGroups.forEach(g => groups[g.key] = []);
     quotations.forEach(q => {
       if (groups[q.status]) {
         groups[q.status].push(q);
+      } else {
+        if (!groups['other']) groups['other'] = [];
+        groups['other'].push(q);
       }
     });
     return groups;
   }, [quotations]);
 
   const handleQuotationClick = (quotation) => {
-    navigate(`/marketplace-v2/quotation/${quotation.id}`);
+    navigate(`/marketplace-v2/sent-quotation/${quotation.id}`);
   };
 
   return (
@@ -112,13 +112,13 @@ const QuotationList = () => {
             className="text-2xl lg:text-3xl font-bold"
             style={{ color: 'var(--mp-text-primary)' }}
           >
-            Báo giá từ NCC
+            Báo giá đã gửi
           </h1>
           <p
             className="mt-1"
             style={{ color: 'var(--mp-text-secondary)' }}
           >
-            {isLoading ? 'Đang tải...' : `${quotations.length} kết quả`}
+            {isLoading ? 'Đang tải...' : `${quotations.length} báo giá`}
           </p>
         </div>
 
@@ -153,7 +153,7 @@ const QuotationList = () => {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Tìm theo mã báo giá, tên NCC..."
+            placeholder="Tìm theo mã báo giá, tên khách hàng..."
             className="w-full mp-input pl-11"
           />
         </div>
@@ -238,7 +238,7 @@ const QuotationList = () => {
               ) : (
                 <div className="col-span-full mp-glass-card p-12 text-center">
                   <p style={{ color: 'var(--mp-text-secondary)' }}>
-                    Chưa có báo giá từ nhà cung cấp
+                    Chưa có báo giá nào được gửi
                   </p>
                 </div>
               )}
@@ -294,4 +294,4 @@ const QuotationList = () => {
   );
 };
 
-export default QuotationList;
+export default SentQuotationList;
