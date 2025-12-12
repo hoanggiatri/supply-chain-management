@@ -39,6 +39,9 @@ const InventoryList = lazy(() => import('../pages/Warehouse/Inventory/InventoryL
 const AddInventory = lazy(() => import('../pages/Warehouse/Inventory/AddInventory'));
 const TransferTicketDetail = lazy(() => import('../pages/Warehouse/Tickets/TransferTicketDetail'));
 const CreateTransferTicket = lazy(() => import('../pages/Warehouse/Tickets/CreateTransferTicket'));
+const DeliveryList = lazy(() => import('../pages/Warehouse/Delivery/DeliveryList'));
+const DeliveryDetail = lazy(() => import('../pages/Warehouse/Delivery/DeliveryDetail'));
+const MyProfile = lazy(() => import('../pages/Profile/MyProfile'));
 
 // Loading fallback component
 const PageLoader = () => (
@@ -62,6 +65,18 @@ const withSuspense = (Component) => (props) => (
  * All routes are protected and require 'user' role with Mua hàng/Bán hàng department
  */
 const marketplaceV2Routes = [
+  // My Profile
+  {
+    path: '/marketplace-v2/my-profile',
+    element: (
+      <PrivateRoute
+        element={withSuspense(MyProfile)()}
+        allowedRoles={['user']}
+        allowedDepartments={['Mua hàng', 'Bán hàng', 'Kho']}
+      />
+    ),
+  },
+
   // Dashboard
   {
     path: '/marketplace-v2/dashboard',
@@ -428,6 +443,30 @@ const marketplaceV2Routes = [
     element: (
       <PrivateRoute
         element={withSuspense(AddInventory)()}
+        allowedRoles={['user']}
+        allowedDepartments={['Kho']}
+      />
+    ),
+  },
+
+  // Delivery List
+  {
+    path: '/marketplace-v2/warehouse/delivery',
+    element: (
+      <PrivateRoute
+        element={withSuspense(DeliveryList)()}
+        allowedRoles={['user']}
+        allowedDepartments={['Kho']}
+      />
+    ),
+  },
+
+  // Delivery Detail
+  {
+    path: '/marketplace-v2/warehouse/delivery/:doId',
+    element: (
+      <PrivateRoute
+        element={withSuspense(DeliveryDetail)()}
         allowedRoles={['user']}
         allowedDepartments={['Kho']}
       />

@@ -8,7 +8,8 @@ import {
   LayoutDashboard,
   Package,
   ShoppingCart,
-  TrendingUp
+  TrendingUp,
+  Truck
 } from 'lucide-react';
 
 /**
@@ -44,7 +45,9 @@ export const WAREHOUSE_MENU = [
   { path: '/marketplace-v2/warehouse', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/marketplace-v2/warehouse/inventory', label: 'Tồn kho', icon: Box },
   { path: '/marketplace-v2/warehouse/management', label: 'Quản lý kho', icon: Building2 },
+  { path: '/marketplace-v2/warehouse/delivery', label: 'Vận chuyển', icon: Truck },
   { path: '/marketplace-v2/warehouse/tickets?tab=issue', label: 'Phiếu xuất kho', icon: ArrowUpCircle },
   { path: '/marketplace-v2/warehouse/tickets?tab=receive', label: 'Phiếu nhập kho', icon: ArrowDownCircle },
   { path: '/marketplace-v2/warehouse/tickets?tab=transfer', label: 'Phiếu chuyển kho', icon: Package },
 ];
+

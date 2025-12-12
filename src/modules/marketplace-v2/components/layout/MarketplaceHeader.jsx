@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronDown, Menu } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { PURCHASING_MENU, SALES_MENU, WAREHOUSE_MENU } from '../../config/navigation';
 import NotificationBell from '../ui/NotificationBell';
@@ -69,6 +69,45 @@ const NavDropdown = ({ label, items, icon: Icon }) => {
 const MarketplaceHeader = ({ onMenuClick, user }) => {
   const navigate = useNavigate();
 
+  // Determine which menus to show based on user's department/role
+  const visibleMenus = useMemo(() => {
+    const department = user?.departmentName?.toLowerCase() || '';
+    const role = user?.roleName?.toLowerCase() || '';
+    
+    // Admin sees all menus
+    if (role === 'admin' || department === 'admin') {
+      return [
+        { label: 'Kho', items: WAREHOUSE_MENU },
+        { label: 'Mua hàng', items: PURCHASING_MENU },
+        { label: 'Bán hàng', items: SALES_MENU },
+      ];
+    }
+
+    const menus = [];
+
+    // Department-based menu visibility
+    if (department.includes('kho') || department.includes('warehouse')) {
+      menus.push({ label: 'Kho', items: WAREHOUSE_MENU });
+    }
+    if (department.includes('mua') || department.includes('bán')) {
+      menus.push({ label: 'Mua hàng', items: PURCHASING_MENU });
+    }
+    if (department.includes('bán') || department.includes('mua')) {
+      menus.push({ label: 'Bán hàng', items: SALES_MENU });
+    }
+
+    // If no department matches, show all menus (fallback for development/testing)
+    if (menus.length === 0) {
+      return [
+        { label: 'Kho', items: WAREHOUSE_MENU },
+        { label: 'Mua hàng', items: PURCHASING_MENU },
+        { label: 'Bán hàng', items: SALES_MENU },
+      ];
+    }
+
+    return menus;
+  }, [user?.departmentName, user?.roleName]);
+
   return (
     <header
       className="fixed top-0 left-0 right-0 mp-glass-header flex items-center justify-between px-4 lg:px-6"
@@ -120,10 +159,10 @@ const MarketplaceHeader = ({ onMenuClick, user }) => {
 
           <div className="w-px h-6 bg-gray-200 dark:bg-gray-700 mx-1" />
 
-          {/* Mega Menus */}
-          <NavDropdown label="Kho" items={WAREHOUSE_MENU} />
-          <NavDropdown label="Mua hàng" items={PURCHASING_MENU} />
-          <NavDropdown label="Bán hàng" items={SALES_MENU} />
+          {/* Dynamic Menus based on department */}
+          {visibleMenus.map((menu) => (
+            <NavDropdown key={menu.label} label={menu.label} items={menu.items} />
+          ))}
         </nav>
       </div>
 
@@ -164,3 +203,4 @@ const MarketplaceHeader = ({ onMenuClick, user }) => {
 };
 
 export default MarketplaceHeader;
+

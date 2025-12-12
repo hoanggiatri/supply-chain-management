@@ -1,3 +1,5 @@
+import * as DoProcessService from '@/services/delivery/DoProcessService';
+import * as DoService from '@/services/delivery/DoService';
 import * as CompanyService from '@/services/general/CompanyService';
 import * as ItemService from '@/services/general/ItemService';
 import * as ProductService from '@/services/general/ProductService';
@@ -778,6 +780,86 @@ export const useUpdateTransferTicket = () => {
       queryClient.invalidateQueries({ queryKey: ['transferTicket'] });
       queryClient.invalidateQueries({ queryKey: ['issueTickets'] });
       queryClient.invalidateQueries({ queryKey: ['receiveTickets'] });
+    },
+  });
+};
+
+// ============ Delivery Order Hooks ============
+
+/**
+ * Get all delivery orders in company
+ */
+export const useDeliveryOrdersInCompany = (options = {}) => {
+  const { companyId, token } = getAuthData();
+
+  return useQuery({
+    queryKey: ['deliveryOrders', 'company', companyId],
+    queryFn: () => DoService.getAllDeliveryOrdersInCompany(companyId, token),
+    enabled: !!companyId && !!token,
+    staleTime: 30 * 1000,
+    ...options,
+  });
+};
+
+/**
+ * Get delivery order by ID
+ */
+export const useDeliveryOrderById = (doId, options = {}) => {
+  const { token } = getAuthData();
+
+  return useQuery({
+    queryKey: ['deliveryOrder', doId],
+    queryFn: () => DoService.getDeliveryOrderById(doId, token),
+    enabled: !!doId && !!token,
+    staleTime: 0,
+    ...options,
+  });
+};
+
+/**
+ * Update delivery order
+ */
+export const useUpdateDeliveryOrder = () => {
+  const queryClient = useQueryClient();
+  const { token } = getAuthData();
+
+  return useMutation({
+    mutationFn: ({ doId, request }) => DoService.updateDeliveryOrder(doId, request, token),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['deliveryOrders'] });
+      queryClient.invalidateQueries({ queryKey: ['deliveryOrder'] });
+    },
+  });
+};
+
+// ============ Delivery Process Hooks ============
+
+/**
+ * Get all delivery processes for a DO
+ */
+export const useDeliveryProcesses = (doId, options = {}) => {
+  const { token } = getAuthData();
+
+  return useQuery({
+    queryKey: ['deliveryProcesses', doId],
+    queryFn: () => DoProcessService.getAllDeliveryProcesses(doId, token),
+    enabled: !!doId && !!token,
+    staleTime: 0,
+    ...options,
+  });
+};
+
+/**
+ * Create delivery process (add stop)
+ */
+export const useCreateDeliveryProcess = () => {
+  const queryClient = useQueryClient();
+  const { token } = getAuthData();
+
+  return useMutation({
+    mutationFn: (request) => DoProcessService.createDeliveryProcess(request, token),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['deliveryProcesses', variables.doId] });
     },
   });
 };

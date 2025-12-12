@@ -43,14 +43,28 @@ const MarketplaceV2Layout = () => {
   const { isDesktop } = useWindowSize();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Get user from localStorage
+  // Get user from localStorage - LoginForm stores individual keys
   const [user, setUser] = useState(null);
 
   useEffect(() => {
     try {
+      // Try to get from 'user' object first (if stored as JSON)
       const storedUser = localStorage.getItem('user');
       if (storedUser) {
         setUser(JSON.parse(storedUser));
+      } else {
+        // Fallback: Construct user object from individual localStorage items
+        const departmentName = localStorage.getItem('departmentName');
+        const employeeName = localStorage.getItem('employeeName');
+        const role = localStorage.getItem('role');
+        
+        if (departmentName || employeeName) {
+          setUser({
+            fullName: employeeName || 'User',
+            departmentName: departmentName || '',
+            roleName: role || 'user'
+          });
+        }
       }
     } catch (e) {
       console.error('Error parsing user from localStorage:', e);
@@ -58,7 +72,7 @@ const MarketplaceV2Layout = () => {
   }, []);
 
   // Determine department from user for Quick Actions (FAB)
-  const department = user?.departmentName || 'Mua hàng';
+  const department = user?.departmentName || localStorage.getItem('departmentName') || 'Mua hàng';
 
   const handleCreateClick = () => {
     if (department === 'Mua hàng') {

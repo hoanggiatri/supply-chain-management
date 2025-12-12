@@ -5,12 +5,12 @@ import { getEmployeeById } from "@/services/general/EmployeeService";
 import { getButtonProps } from "@/utils/buttonStyles";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
 import {
-  Alert,
-  Button,
-  Card,
-  CardBody,
-  Input,
-  Typography,
+    Alert,
+    Button,
+    Card,
+    CardBody,
+    Input,
+    Typography,
 } from "@material-tailwind/react";
 import { setupTokenExpirationCheck } from "@utils/tokenUtils";
 import { useState } from "react";
@@ -80,12 +80,22 @@ const LoginForm = () => {
       setupTokenExpirationCheck(navigate);
 
       // Điều hướng theo vai trò và bộ phận
-      if (
-        role === "user" &&
-        (departmentName === "Mua hàng" || departmentName === "Bán hàng")
-      ) {
-        navigate("/marketplace/dashboard");
+      if (role === "user") {
+        const dept = departmentName?.toLowerCase() || '';
+        
+        // Route to marketplace-v2 based on department
+        if (dept.includes('kho') || dept.includes('warehouse')) {
+          navigate("/marketplace-v2/warehouse");
+        } else if (dept.includes('mua') || dept.includes('purchasing') || dept.includes('procurement')) {
+          navigate("/marketplace-v2/dashboard");
+        } else if (dept.includes('bán') || dept.includes('ban') || dept.includes('sales')) {
+          navigate("/marketplace-v2/dashboard");
+        } else {
+          // Default fallback for user role
+          navigate("/marketplace-v2/dashboard");
+        }
       } else {
+        // Admin or other roles go to homepage
         navigate("/homepage");
       }
     } catch (error) {
