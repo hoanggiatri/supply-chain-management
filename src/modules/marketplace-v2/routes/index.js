@@ -27,6 +27,19 @@ const SoList = lazy(() => import('../pages/SalesManagement/So/SoList'));
 const SoDetail = lazy(() => import('../pages/SalesManagement/So/SoDetail'));
 const CreateSo = lazy(() => import('../pages/SalesManagement/So/CreateSo'));
 
+// Warehouse Pages
+const WarehouseDashboard = lazy(() => import('../pages/Warehouse/Dashboard/WarehouseDashboard'));
+const TicketList = lazy(() => import('../pages/Warehouse/Tickets/TicketList'));
+const IssueTicketDetail = lazy(() => import('../pages/Warehouse/Tickets/IssueTicketDetail'));
+const ReceiveTicketDetail = lazy(() => import('../pages/Warehouse/Tickets/ReceiveTicketDetail'));
+const WarehouseList = lazy(() => import('../pages/Warehouse/Management/WarehouseList'));
+const CreateWarehouse = lazy(() => import('../pages/Warehouse/Management/CreateWarehouse'));
+const EditWarehouse = lazy(() => import('../pages/Warehouse/Management/EditWarehouse'));
+const InventoryList = lazy(() => import('../pages/Warehouse/Inventory/InventoryList'));
+const AddInventory = lazy(() => import('../pages/Warehouse/Inventory/AddInventory'));
+const TransferTicketDetail = lazy(() => import('../pages/Warehouse/Tickets/TransferTicketDetail'));
+const CreateTransferTicket = lazy(() => import('../pages/Warehouse/Tickets/CreateTransferTicket'));
+
 // Loading fallback component
 const PageLoader = () => (
   <div className="min-h-[60vh] flex items-center justify-center">
@@ -362,7 +375,136 @@ const marketplaceV2Routes = [
       />
     ),
   },
+
+  // ============ Warehouse Routes ============
+
+  // Warehouse Dashboard
+  {
+    path: '/marketplace-v2/warehouse',
+    element: (
+      <PrivateRoute
+        element={withSuspense(WarehouseDashboard)()}
+        allowedRoles={['user']}
+        allowedDepartments={['Kho']}
+      />
+    ),
+  },
+
+  // Warehouse Management
+  {
+    path: '/marketplace-v2/warehouse/management',
+    element: (
+      <PrivateRoute
+        element={withSuspense(WarehouseList)()}
+        allowedRoles={['user']}
+        allowedDepartments={['Kho']}
+      />
+    ),
+  },
+  {
+    path: '/marketplace-v2/warehouse/management/create',
+    element: (
+      <PrivateRoute
+        element={withSuspense(CreateWarehouse)()}
+        allowedRoles={['user']}
+        allowedDepartments={['Kho']}
+      />
+    ),
+  },
+  {
+    path: '/marketplace-v2/warehouse/management/edit/:id',
+    element: (
+      <PrivateRoute
+        element={withSuspense(EditWarehouse)()}
+        allowedRoles={['user']}
+        allowedDepartments={['Kho']}
+      />
+    ),
+  },
+
+  // Inventory Add
+  {
+    path: '/marketplace-v2/warehouse/inventory/add',
+    element: (
+      <PrivateRoute
+        element={withSuspense(AddInventory)()}
+        allowedRoles={['user']}
+        allowedDepartments={['Kho']}
+      />
+    ),
+  },
+
+  // Ticket List
+  {
+    path: '/marketplace-v2/warehouse/tickets',
+    element: (
+      <PrivateRoute
+        element={withSuspense(TicketList)()}
+        allowedRoles={['user']}
+        allowedDepartments={['Kho']}
+      />
+    ),
+  },
+
+  // Issue Ticket Detail
+  {
+    path: '/marketplace-v2/warehouse/issue-ticket/:id',
+    element: (
+      <PrivateRoute
+        element={withSuspense(IssueTicketDetail)()}
+        allowedRoles={['user']}
+        allowedDepartments={['Kho']}
+      />
+    ),
+  },
+
+  // Receive Ticket Detail
+  {
+    path: '/marketplace-v2/warehouse/receive-ticket/:id',
+    element: (
+      <PrivateRoute
+        element={withSuspense(ReceiveTicketDetail)()}
+        allowedRoles={['user']}
+        allowedDepartments={['Kho']}
+      />
+    ),
+  },
+
+  // Inventory List
+  {
+    path: '/marketplace-v2/warehouse/inventory',
+    element: (
+      <PrivateRoute
+        element={withSuspense(InventoryList)()}
+        allowedRoles={['user']}
+        allowedDepartments={['Kho']}
+      />
+    ),
+  },
+
+  // Transfer Ticket Detail
+  {
+    path: '/marketplace-v2/warehouse/transfer-ticket/:id',
+    element: (
+      <PrivateRoute
+        element={withSuspense(TransferTicketDetail)()}
+        allowedRoles={['user']}
+        allowedDepartments={['Kho']}
+      />
+    ),
+  },
+
+  // Create Transfer Ticket
+  {
+    path: '/marketplace-v2/warehouse/create-transfer',
+    element: (
+      <PrivateRoute
+        element={withSuspense(CreateTransferTicket)()}
+        allowedRoles={['user']}
+        allowedDepartments={['Kho']}
+      />
+    ),
+  },
 ];
 
 export default marketplaceV2Routes;
-

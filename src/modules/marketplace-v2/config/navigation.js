@@ -39,3 +39,12 @@ export const SALES_MENU = [
   { path: '/marketplace-v2/sos', label: 'Đơn bán hàng (SO)', icon: Package },
   { path: '/marketplace-v2/sales-report', label: 'Báo cáo bán hàng', icon: TrendingUp },
 ];
+
+export const WAREHOUSE_MENU = [
+  { path: '/marketplace-v2/warehouse', label: 'Dashboard', icon: LayoutDashboard },
+  { path: '/marketplace-v2/warehouse/inventory', label: 'Tồn kho', icon: Box },
+  { path: '/marketplace-v2/warehouse/management', label: 'Quản lý kho', icon: Building2 },
+  { path: '/marketplace-v2/warehouse/tickets?tab=issue', label: 'Phiếu xuất kho', icon: ArrowUpCircle },
+  { path: '/marketplace-v2/warehouse/tickets?tab=receive', label: 'Phiếu nhập kho', icon: ArrowDownCircle },
+  { path: '/marketplace-v2/warehouse/tickets?tab=transfer', label: 'Phiếu chuyển kho', icon: Package },
+];

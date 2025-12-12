@@ -2,6 +2,10 @@ import * as CompanyService from '@/services/general/CompanyService';
 import * as ItemService from '@/services/general/ItemService';
 import * as ProductService from '@/services/general/ProductService';
 import * as WarehouseService from '@/services/general/WarehouseService';
+import * as InventoryService from '@/services/inventory/InventoryService';
+import * as IssueTicketService from '@/services/inventory/IssueTicketService';
+import * as ReceiveTicketService from '@/services/inventory/ReceiveTicketService';
+import * as TransferTicketService from '@/services/inventory/TransferTicketService';
 import * as PoService from '@/services/purchasing/PoService';
 import * as RfqService from '@/services/purchasing/RfqService';
 import * as QuotationService from '@/services/sale/QuotationService';
@@ -477,5 +481,303 @@ export const useWarehousesInCompany = (options = {}) => {
     enabled: !!companyId && !!token,
     staleTime: 5 * 60 * 1000,
     ...options,
+  });
+};
+
+/**
+ * Get warehouse by ID
+ */
+export const useWarehouseById = (warehouseId, options = {}) => {
+  const { token } = getAuthData();
+
+  return useQuery({
+    queryKey: ['warehouse', warehouseId],
+    queryFn: () => WarehouseService.getWarehouseById(warehouseId, token),
+    enabled: !!warehouseId && !!token,
+    staleTime: 0,
+    ...options,
+  });
+};
+
+/**
+ * Create warehouse
+ */
+export const useCreateWarehouse = () => {
+  const queryClient = useQueryClient();
+  const { companyId, token } = getAuthData();
+
+  return useMutation({
+    mutationFn: (warehouseData) => WarehouseService.createWarehouse(companyId, warehouseData, token),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['warehouses'] });
+    },
+  });
+};
+
+/**
+ * Update warehouse
+ */
+export const useUpdateWarehouse = () => {
+  const queryClient = useQueryClient();
+  const { token } = getAuthData();
+
+  return useMutation({
+    mutationFn: ({ warehouseId, data }) => WarehouseService.updateWarehouse(warehouseId, data, token),
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['warehouses'] });
+      queryClient.invalidateQueries({ queryKey: ['warehouse', variables.warehouseId] });
+    },
+  });
+};
+
+// ============ Inventory Hooks ============
+
+/**
+ * Get all inventory in company
+ */
+export const useInventoryInCompany = (options = {}) => {
+  const { companyId, token } = getAuthData();
+
+  return useQuery({
+    queryKey: ['inventory', 'company', companyId],
+    queryFn: () => InventoryService.getAllInventory(0, 0, companyId, token),
+    enabled: !!companyId && !!token,
+    staleTime: 30 * 1000, // 30 seconds
+    ...options,
+  });
+};
+
+/**
+ * Get all items in company
+ */
+export const useItemsInCompany = (options = {}) => {
+  const { companyId, token } = getAuthData();
+
+  return useQuery({
+    queryKey: ['items', 'company', companyId],
+    queryFn: () => ItemService.getAllItemsInCompany(companyId, token),
+    enabled: !!companyId && !!token,
+    staleTime: 5 * 60 * 1000,
+    ...options,
+  });
+};
+
+/**
+ * Update inventory (edit quantity)
+ */
+export const useUpdateInventory = () => {
+  const queryClient = useQueryClient();
+  const { token } = getAuthData();
+
+  return useMutation({
+    mutationFn: ({ inventoryId, data }) => InventoryService.updateInventory(inventoryId, data, token),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['inventory'] });
+    },
+  });
+};
+export const useCreateInventory = () => {
+  const queryClient = useQueryClient();
+  const { token } = getAuthData();
+
+  return useMutation({
+    mutationFn: (data) => InventoryService.createInventory(data, token),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['inventory'] });
+    },
+  });
+};
+
+/**
+ * Get all issue tickets in company
+ */
+export const useIssueTicketsInCompany = (options = {}) => {
+  const { companyId, token } = getAuthData();
+
+  return useQuery({
+    queryKey: ['issueTickets', 'company', companyId],
+    queryFn: () => IssueTicketService.getAllIssueTicketsInCompany(companyId, token),
+    enabled: !!companyId && !!token,
+    staleTime: 0,
+    cacheTime: 0,
+    ...options,
+  });
+};
+
+/**
+ * Get issue ticket by ID
+ */
+export const useIssueTicketById = (ticketId, options = {}) => {
+  const { token } = getAuthData();
+
+  return useQuery({
+    queryKey: ['issueTicket', ticketId],
+    queryFn: () => IssueTicketService.getIssueTicketById(ticketId, token),
+    enabled: !!ticketId && !!token,
+    staleTime: 0,
+    ...options,
+  });
+};
+
+/**
+ * Update issue ticket status
+ */
+export const useUpdateIssueTicketStatus = () => {
+  const queryClient = useQueryClient();
+  const { token } = getAuthData();
+
+  return useMutation({
+    mutationFn: ({ ticketId, request }) => IssueTicketService.updateIssueTicketStatus(ticketId, request, token),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['issueTickets'] });
+      queryClient.invalidateQueries({ queryKey: ['issueTicket'] });
+      queryClient.invalidateQueries({ queryKey: ['inventory'] });
+    },
+  });
+};
+
+/**
+ * Get monthly issue report
+ */
+export const useMonthlyIssueReport = (issueType = 'Tất cả', warehouseId = 0, options = {}) => {
+  const { companyId, token } = getAuthData();
+
+  return useQuery({
+    queryKey: ['issueReport', 'monthly', companyId, issueType, warehouseId],
+    queryFn: () => IssueTicketService.getMonthlyIssueReport(companyId, issueType, warehouseId, token),
+    enabled: !!companyId && !!token,
+    staleTime: 5 * 60 * 1000,
+    ...options,
+  });
+};
+
+// ============ Receive Ticket Hooks ============
+
+/**
+ * Get all receive tickets in company
+ */
+export const useReceiveTicketsInCompany = (options = {}) => {
+  const { companyId, token } = getAuthData();
+
+  return useQuery({
+    queryKey: ['receiveTickets', 'company', companyId],
+    queryFn: () => ReceiveTicketService.getAllReceiveTicketsInCompany(companyId, token),
+    enabled: !!companyId && !!token,
+    staleTime: 0,
+    cacheTime: 0,
+    ...options,
+  });
+};
+
+/**
+ * Get receive ticket by ID
+ */
+export const useReceiveTicketById = (ticketId, options = {}) => {
+  const { token } = getAuthData();
+
+  return useQuery({
+    queryKey: ['receiveTicket', ticketId],
+    queryFn: () => ReceiveTicketService.getReceiveTicketById(ticketId, token),
+    enabled: !!ticketId && !!token,
+    staleTime: 0,
+    ...options,
+  });
+};
+
+/**
+ * Update receive ticket
+ */
+export const useUpdateReceiveTicket = () => {
+  const queryClient = useQueryClient();
+  const { token } = getAuthData();
+
+  return useMutation({
+    mutationFn: ({ ticketId, request }) => ReceiveTicketService.updateReceiveTicket(ticketId, request, token),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['receiveTickets'] });
+      queryClient.invalidateQueries({ queryKey: ['receiveTicket'] });
+      queryClient.invalidateQueries({ queryKey: ['inventory'] });
+    },
+  });
+};
+
+/**
+ * Get monthly receive report
+ */
+export const useMonthlyReceiveReport = (receiveType = 'Tất cả', warehouseId = 0, options = {}) => {
+  const { companyId, token } = getAuthData();
+
+  return useQuery({
+    queryKey: ['receiveReport', 'monthly', companyId, receiveType, warehouseId],
+    queryFn: () => ReceiveTicketService.getMonthlyReceiveReport(companyId, receiveType, warehouseId, token),
+    enabled: !!companyId && !!token,
+    staleTime: 5 * 60 * 1000,
+    ...options,
+  });
+};
+
+// ============ Transfer Ticket Hooks ============
+
+/**
+ * Get all transfer tickets in company
+ */
+export const useTransferTicketsInCompany = (options = {}) => {
+  const { companyId, token } = getAuthData();
+
+  return useQuery({
+    queryKey: ['transferTickets', 'company', companyId],
+    queryFn: () => TransferTicketService.getAllTransferTicketsInCompany(companyId, token),
+    enabled: !!companyId && !!token,
+    staleTime: 0,
+    cacheTime: 0,
+    ...options,
+  });
+};
+
+/**
+ * Get transfer ticket by ID
+ */
+export const useTransferTicketById = (ticketId, options = {}) => {
+  const { token } = getAuthData();
+
+  return useQuery({
+    queryKey: ['transferTicket', ticketId],
+    queryFn: () => TransferTicketService.getTransferTicketById(ticketId, token),
+    enabled: !!ticketId && !!token,
+    staleTime: 0,
+    ...options,
+  });
+};
+
+/**
+ * Create transfer ticket
+ */
+export const useCreateTransferTicket = () => {
+  const queryClient = useQueryClient();
+  const { token } = getAuthData();
+
+  return useMutation({
+    mutationFn: (request) => TransferTicketService.createTransferTicket(request, token),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['transferTickets'] });
+    },
+  });
+};
+
+/**
+ * Update transfer ticket
+ */
+export const useUpdateTransferTicket = () => {
+  const queryClient = useQueryClient();
+  const { token } = getAuthData();
+
+  return useMutation({
+    mutationFn: ({ ticketId, request }) => TransferTicketService.updateTransferTicket(ticketId, request, token),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['transferTickets'] });
+      queryClient.invalidateQueries({ queryKey: ['transferTicket'] });
+      queryClient.invalidateQueries({ queryKey: ['issueTickets'] });
+      queryClient.invalidateQueries({ queryKey: ['receiveTickets'] });
+    },
   });
 };

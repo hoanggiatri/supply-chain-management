@@ -1,14 +1,20 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronDown, Menu, Search, X } from 'lucide-react';
+import { ChevronDown, Menu } from 'lucide-react';
 import { useState } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { INVENTORY_MENU, PURCHASING_MENU, SALES_MENU } from '../../config/navigation';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { PURCHASING_MENU, SALES_MENU, WAREHOUSE_MENU } from '../../config/navigation';
 import NotificationBell from '../ui/NotificationBell';
 import ThemeToggle from '../ui/ThemeToggle';
 
 // Dropdown Component for Desktop
 const NavDropdown = ({ label, items, icon: Icon }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation();
+
+  const isActiveLink = (path) => {
+    // Exact match for pathname + search query
+    return (location.pathname + location.search) === path;
+  };
 
   return (
     <div 
@@ -36,22 +42,23 @@ const NavDropdown = ({ label, items, icon: Icon }) => {
             className="absolute top-full left-0 mt-1 w-64 p-2 rounded-xl mp-glass-card shadow-xl border border-white/20 dark:border-white/10"
             style={{ zIndex: 'var(--mp-z-dropdown)' }}
           >
-            {items.map((item) => (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                className={({ isActive }) =>
-                  `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 ${
-                    isActive
+            {items.map((item) => {
+              const active = isActiveLink(item.path);
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 ${
+                    active
                       ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium'
                       : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5'
-                  }`
-                }
-              >
-                <item.icon size={18} />
-                {item.label}
-              </NavLink>
-            ))}
+                  }`}
+                >
+                  <item.icon size={18} />
+                  {item.label}
+                </Link>
+              );
+            })}
           </motion.div>
         )}
       </AnimatePresence>
@@ -61,17 +68,6 @@ const NavDropdown = ({ label, items, icon: Icon }) => {
 
 const MarketplaceHeader = ({ onMenuClick, user }) => {
   const navigate = useNavigate();
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/marketplace-v2/search?q=${encodeURIComponent(searchQuery)}`);
-      setIsSearchOpen(false);
-      setSearchQuery('');
-    }
-  };
 
   return (
     <header
@@ -125,7 +121,7 @@ const MarketplaceHeader = ({ onMenuClick, user }) => {
           <div className="w-px h-6 bg-gray-200 dark:bg-gray-700 mx-1" />
 
           {/* Mega Menus */}
-          <NavDropdown label="Kho" items={INVENTORY_MENU} />
+          <NavDropdown label="Kho" items={WAREHOUSE_MENU} />
           <NavDropdown label="Mua hàng" items={PURCHASING_MENU} />
           <NavDropdown label="Bán hàng" items={SALES_MENU} />
         </nav>
@@ -133,38 +129,7 @@ const MarketplaceHeader = ({ onMenuClick, user }) => {
 
       {/* Right Actions */}
       <div className="flex items-center gap-4">
-        {/* Desktop Search */}
-        <div className="hidden lg:block relative w-64 xl:w-80">
-          <form onSubmit={handleSearch}>
-            <Search
-              size={16}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-            />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Tìm kiếm..."
-              className="w-full bg-black/5 dark:bg-white/5 border border-transparent focus:bg-white dark:focus:bg-black/40 focus:border-blue-500 rounded-lg pl-9 pr-4 py-2 text-sm transition-all outline-none"
-            />
-          </form>
-        </div>
-
         <div className="flex items-center gap-2">
-          {/* Mobile Search Toggle */}
-          <motion.button
-            onClick={() => setIsSearchOpen(!isSearchOpen)}
-            className="mp-glass-button mp-btn-icon lg:hidden"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            {isSearchOpen ? (
-              <X size={20} style={{ color: 'var(--mp-text-secondary)' }} />
-            ) : (
-              <Search size={20} style={{ color: 'var(--mp-text-secondary)' }} />
-            )}
-          </motion.button>
-
           <ThemeToggle />
           <NotificationBell />
 
@@ -194,33 +159,6 @@ const MarketplaceHeader = ({ onMenuClick, user }) => {
           </motion.button>
         </div>
       </div>
-
-      {/* Mobile Search Overlay */}
-      {isSearchOpen && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          className="absolute top-full left-0 right-0 p-4 mp-glass-header border-t lg:hidden"
-          style={{ borderColor: 'var(--mp-border-light)' }}
-        >
-          <form onSubmit={handleSearch} className="relative">
-            <Search
-              size={18}
-              className="absolute left-4 top-1/2 -translate-y-1/2"
-              style={{ color: 'var(--mp-text-tertiary)' }}
-            />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Tìm kiếm..."
-              className="w-full mp-glass-input pl-11 pr-4"
-              autoFocus
-            />
-          </form>
-        </motion.div>
-      )}
     </header>
   );
 };
