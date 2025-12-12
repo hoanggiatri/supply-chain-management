@@ -17,8 +17,15 @@ const PrivateRoute = ({ element, allowedRoles, allowedDepartments }) => {
       setRedirectPath("/unauthorized");
     } else if (
       allowedDepartments &&
-      !allowedDepartments.includes(departmentName)
+      // c_admin có quyền truy cập tất cả departments
+      role !== "c_admin" &&
+      !allowedDepartments.includes(departmentName?.trim())
     ) {
+      console.log("Department check failed:", {
+        departmentName: departmentName?.trim(),
+        allowedDepartments,
+        role,
+      });
       toastrService.error("Bạn không có quyền truy cập vào trang này!");
       setRedirectPath("/unauthorized");
     }

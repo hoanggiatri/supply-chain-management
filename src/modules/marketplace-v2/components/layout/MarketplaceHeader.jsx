@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronDown, Menu } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { PURCHASING_MENU, SALES_MENU, WAREHOUSE_MENU } from '../../config/navigation';
+import { MANUFACTURING_MENU, PURCHASING_MENU, SALES_MENU, WAREHOUSE_MENU } from '../../config/navigation';
 import NotificationBell from '../ui/NotificationBell';
 import ThemeToggle from '../ui/ThemeToggle';
 
@@ -80,6 +80,7 @@ const MarketplaceHeader = ({ onMenuClick, user }) => {
         { label: 'Kho', items: WAREHOUSE_MENU },
         { label: 'Mua hàng', items: PURCHASING_MENU },
         { label: 'Bán hàng', items: SALES_MENU },
+        { label: 'Sản xuất', items: MANUFACTURING_MENU },
       ];
     }
 
@@ -95,6 +96,10 @@ const MarketplaceHeader = ({ onMenuClick, user }) => {
     if (department.includes('bán') || department.includes('mua')) {
       menus.push({ label: 'Bán hàng', items: SALES_MENU });
     }
+    // Manufacturing for relevant departments
+    if (department.includes('sản') || department.includes('kho')) {
+      menus.push({ label: 'Sản xuất', items: MANUFACTURING_MENU });
+    }
 
     // If no department matches, show all menus (fallback for development/testing)
     if (menus.length === 0) {
@@ -102,6 +107,7 @@ const MarketplaceHeader = ({ onMenuClick, user }) => {
         { label: 'Kho', items: WAREHOUSE_MENU },
         { label: 'Mua hàng', items: PURCHASING_MENU },
         { label: 'Bán hàng', items: SALES_MENU },
+        { label: 'Sản xuất', items: MANUFACTURING_MENU },
       ];
     }
 

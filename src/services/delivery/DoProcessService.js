@@ -13,3 +13,8 @@ export const getAllDeliveryProcesses = async (doId, token) => {
   const res = await axios.get(`${BASE_URL}/delivery-process/${doId}`, axiosAuth(token));
   return res.data;
 };
+
+export const updateDeliveryProcess = async (processId, request, token) => {
+  const res = await axios.put(`${BASE_URL}/delivery-process/${processId}`, request, axiosAuth(token));
+  return res.data;
+};

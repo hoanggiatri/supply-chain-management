@@ -1,13 +1,13 @@
 import { motion } from 'framer-motion';
 import {
-  ArrowLeft,
-  Building2,
-  Calendar,
-  Check,
-  CreditCard,
-  FileText,
-  MapPin,
-  Package
+    ArrowLeft,
+    Building2,
+    Calendar,
+    Check,
+    CreditCard,
+    FileText,
+    MapPin,
+    Package
 } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -40,9 +40,9 @@ const CustomerPoDetail = () => {
   const { data: po, isLoading, refetch } = usePoById(id);
   const updateStatusMutation = useUpdatePoStatus();
 
-  // Navigate to check inventory page - like legacy SupplierPoDetail
+  // Navigate to check inventory page - marketplace-v2 version
   const handleConfirmPo = () => {
-    navigate(`/check-inventory/po/${po.poId}`);
+    navigate(`/marketplace-v2/check-inventory/po/${po.poId}`);
   };
 
   const handleRejectPo = async () => {

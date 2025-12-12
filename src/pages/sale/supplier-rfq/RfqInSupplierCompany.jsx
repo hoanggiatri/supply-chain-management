@@ -24,7 +24,7 @@ const RfqInSupplierCompany = () => {
       try {
         const data = await getAllRfqsInRequestedCompany(companyId, token);
         const filteredData = data.filter(
-          (rfq) => rfq.status === "Chưa báo giá"
+          (rfq) => rfq.status === "Chưa báo giá" || rfq.status === "Đã báo giá"
         );
         setRfqs(filteredData);
       } catch (error) {

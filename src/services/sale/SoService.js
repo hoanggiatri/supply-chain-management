@@ -25,7 +25,7 @@ export const getAllSosInCompany = async (companyId, token) => {
 };
 
 export const updateSoStatus = async (soId, status, token) => {
-  const res = await axios.put(`${BASE_URL}/sales-orders/${soId}`, { status }, axiosAuth(token));
+  const res = await axios.put(`${BASE_URL}/sales-orders/${soId}/status`, { status }, axiosAuth(token));
   return res.data;
 };
 

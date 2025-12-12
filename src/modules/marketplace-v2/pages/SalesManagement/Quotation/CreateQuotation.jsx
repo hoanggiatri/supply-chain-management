@@ -135,7 +135,7 @@ const CreateQuotation = () => {
       toast.success('Gửi báo giá thành công!');
 
       setTimeout(() => {
-        navigate('/marketplace-v2/sales/customer-rfqs');
+        navigate('/marketplace-v2/supplier-rfqs');
       }, 2000);
 
     } catch (error) {

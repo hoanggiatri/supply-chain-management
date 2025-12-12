@@ -1,19 +1,19 @@
-import React, { useEffect, useState } from "react";
-import {
-  Container,
-  Paper,
-  Typography,
-  TableRow,
-  TableCell,
-  Button,
-  Box,
-} from "@mui/material";
-import { useParams, useNavigate } from "react-router-dom";
 import DataTable from "@/components/content-components/DataTable";
-import { getRfqById } from "@/services/purchasing/RfqService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import SupplierRfqForm from "@/components/purchasing/SupplierRfqForm";
+import { getRfqById } from "@/services/purchasing/RfqService";
 import toastrService from "@/services/toastrService";
+import {
+  Box,
+  Button,
+  Container,
+  Paper,
+  TableCell,
+  TableRow,
+  Typography,
+} from "@mui/material";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 const SupplierRfqDetail = () => {
   const { rfqId } = useParams();
@@ -78,7 +78,6 @@ const SupplierRfqDetail = () => {
         <Typography className="page-title" variant="h4">
           THÔNG TIN YÊU CẦU BÁO GIÁ
         </Typography>
-
         {rfq.status === "Chưa báo giá" && (
           <Box mt={3} mb={3} display="flex" justifyContent="flex-end" gap={2}>
             <Button
@@ -90,13 +89,10 @@ const SupplierRfqDetail = () => {
             </Button>
           </Box>
         )}
-
         <SupplierRfqForm rfq={rfq} />
-
         <Typography variant="h5" mt={3} mb={3}>
           DANH SÁCH HÀNG HÓA YÊU CẦU BÁO GIÁ:
         </Typography>
-
         <DataTable
           rows={paginatedDetails}
           columns={columns}

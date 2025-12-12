@@ -4,6 +4,7 @@ import {
   Box,
   Building2,
   DollarSign,
+  Factory,
   FileText,
   LayoutDashboard,
   Package,
@@ -49,5 +50,10 @@ export const WAREHOUSE_MENU = [
   { path: '/marketplace-v2/warehouse/tickets?tab=issue', label: 'Phiếu xuất kho', icon: ArrowUpCircle },
   { path: '/marketplace-v2/warehouse/tickets?tab=receive', label: 'Phiếu nhập kho', icon: ArrowDownCircle },
   { path: '/marketplace-v2/warehouse/tickets?tab=transfer', label: 'Phiếu chuyển kho', icon: Package },
+];
+
+export const MANUFACTURING_MENU = [
+  { path: '/marketplace-v2/mos', label: 'Công lệnh sản xuất (MO)', icon: Factory },
+  { path: '/marketplace-v2/boms', label: 'Định mức NVL (BOM)', icon: Package },
 ];
 

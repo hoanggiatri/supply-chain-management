@@ -43,6 +43,19 @@ const DeliveryList = lazy(() => import('../pages/Warehouse/Delivery/DeliveryList
 const DeliveryDetail = lazy(() => import('../pages/Warehouse/Delivery/DeliveryDetail'));
 const MyProfile = lazy(() => import('../pages/Profile/MyProfile'));
 
+// Manufacturing Pages
+const BomList = lazy(() => import('../pages/Manufacturing/Bom/BomList'));
+const BomDetail = lazy(() => import('../pages/Manufacturing/Bom/BomDetail'));
+const CreateBom = lazy(() => import('../pages/Manufacturing/Bom/CreateBom'));
+const EditBom = lazy(() => import('../pages/Manufacturing/Bom/EditBom'));
+const MoList = lazy(() => import('../pages/Manufacturing/Mo/MoList'));
+const CreateMo = lazy(() => import('../pages/Manufacturing/Mo/CreateMo'));
+const MoDetail = lazy(() => import('../pages/Manufacturing/Mo/MoDetail'));
+const EditMo = lazy(() => import('../pages/Manufacturing/Mo/EditMo'));
+
+// Check Inventory
+const CheckInventory = lazy(() => import('../pages/Warehouse/Inventory/CheckInventory'));
+
 // Loading fallback component
 const PageLoader = () => (
   <div className="min-h-[60vh] flex items-center justify-center">
@@ -541,6 +554,116 @@ const marketplaceV2Routes = [
         element={withSuspense(CreateTransferTicket)()}
         allowedRoles={['user']}
         allowedDepartments={['Kho']}
+      />
+    ),
+  },
+
+  // ============ Manufacturing Routes ============
+
+  // BOM List
+  {
+    path: '/marketplace-v2/boms',
+    element: (
+      <PrivateRoute
+        element={withSuspense(BomList)()}
+        allowedRoles={['user']}
+        allowedDepartments={['Mua hàng', 'Bán hàng', 'Kho']}
+      />
+    ),
+  },
+
+  // BOM Detail
+  {
+    path: '/marketplace-v2/bom/:itemId',
+    element: (
+      <PrivateRoute
+        element={withSuspense(BomDetail)()}
+        allowedRoles={['user']}
+        allowedDepartments={['Mua hàng', 'Bán hàng', 'Kho']}
+      />
+    ),
+  },
+
+  // Create BOM
+  {
+    path: '/marketplace-v2/bom/create',
+    element: (
+      <PrivateRoute
+        element={withSuspense(CreateBom)()}
+        allowedRoles={['user']}
+        allowedDepartments={['Mua hàng', 'Bán hàng', 'Kho']}
+      />
+    ),
+  },
+
+  // Edit BOM
+  {
+    path: '/marketplace-v2/bom/:itemId/edit',
+    element: (
+      <PrivateRoute
+        element={withSuspense(EditBom)()}
+        allowedRoles={['user']}
+        allowedDepartments={['Mua hàng', 'Bán hàng', 'Kho']}
+      />
+    ),
+  },
+
+  // MO List
+  {
+    path: '/marketplace-v2/mos',
+    element: (
+      <PrivateRoute
+        element={withSuspense(MoList)()}
+        allowedRoles={['user']}
+        allowedDepartments={['Mua hàng', 'Bán hàng', 'Kho']}
+      />
+    ),
+  },
+
+  // Create MO
+  {
+    path: '/marketplace-v2/mo/create',
+    element: (
+      <PrivateRoute
+        element={withSuspense(CreateMo)()}
+        allowedRoles={['user']}
+        allowedDepartments={['Mua hàng', 'Bán hàng', 'Kho']}
+      />
+    ),
+  },
+
+  // Check Inventory (supports: mo, tt, po)
+  {
+    path: '/marketplace-v2/check-inventory/:type/:id',
+    element: (
+      <PrivateRoute
+        element={withSuspense(CheckInventory)()}
+        allowedRoles={['user']}
+        allowedDepartments={['Mua hàng', 'Bán hàng', 'Kho']}
+      />
+    ),
+  },
+
+  // MO Detail
+  {
+    path: '/marketplace-v2/mo/:moId',
+    element: (
+      <PrivateRoute
+        element={withSuspense(MoDetail)()}
+        allowedRoles={['user']}
+        allowedDepartments={['Mua hàng', 'Bán hàng', 'Kho']}
+      />
+    ),
+  },
+
+  // Edit MO
+  {
+    path: '/marketplace-v2/mo/:moId/edit',
+    element: (
+      <PrivateRoute
+        element={withSuspense(EditMo)()}
+        allowedRoles={['user']}
+        allowedDepartments={['Mua hàng', 'Bán hàng', 'Kho']}
       />
     ),
   },

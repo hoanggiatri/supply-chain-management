@@ -2,12 +2,17 @@ import * as DoProcessService from '@/services/delivery/DoProcessService';
 import * as DoService from '@/services/delivery/DoService';
 import * as CompanyService from '@/services/general/CompanyService';
 import * as ItemService from '@/services/general/ItemService';
+import * as ManufactureLineService from '@/services/general/ManufactureLineService';
 import * as ProductService from '@/services/general/ProductService';
 import * as WarehouseService from '@/services/general/WarehouseService';
 import * as InventoryService from '@/services/inventory/InventoryService';
 import * as IssueTicketService from '@/services/inventory/IssueTicketService';
 import * as ReceiveTicketService from '@/services/inventory/ReceiveTicketService';
 import * as TransferTicketService from '@/services/inventory/TransferTicketService';
+import * as BomService from '@/services/manufacturing/BomService';
+import * as MoService from '@/services/manufacturing/MoService';
+import * as ProcessService from '@/services/manufacturing/ProcessService';
+import * as StageService from '@/services/manufacturing/StageService';
 import * as PoService from '@/services/purchasing/PoService';
 import * as RfqService from '@/services/purchasing/RfqService';
 import * as QuotationService from '@/services/sale/QuotationService';
@@ -863,3 +868,364 @@ export const useCreateDeliveryProcess = () => {
     },
   });
 };
+
+// ============ Manufacturing - BOM Hooks ============
+
+
+/**
+ * Get all BOMs in company
+ */
+export const useBomsInCompany = (options = {}) => {
+  const { companyId, token } = getAuthData();
+
+  return useQuery({
+    queryKey: ['boms', 'company', companyId],
+    queryFn: () => BomService.getAllBomsInCompany(companyId, token),
+    enabled: !!companyId && !!token,
+    staleTime: 30 * 1000,
+    ...options,
+  });
+};
+
+/**
+ * Get BOM by Item ID
+ */
+export const useBomByItemId = (itemId, options = {}) => {
+  const { token } = getAuthData();
+
+  return useQuery({
+    queryKey: ['bom', 'item', itemId],
+    queryFn: () => BomService.getBomByItemId(itemId, token),
+    enabled: !!itemId && !!token,
+    staleTime: 60 * 1000,
+    ...options,
+  });
+};
+
+/**
+ * Create BOM mutation
+ */
+export const useCreateBom = () => {
+  const queryClient = useQueryClient();
+  const { token } = getAuthData();
+
+  return useMutation({
+    mutationFn: (bomData) => BomService.createBom(bomData, token),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['boms'] });
+    },
+  });
+};
+
+/**
+ * Update BOM mutation
+ */
+export const useUpdateBom = () => {
+  const queryClient = useQueryClient();
+  const { token } = getAuthData();
+
+  return useMutation({
+    mutationFn: ({ bomId, data }) => BomService.updateBom(bomId, data, token),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['boms'] });
+      queryClient.invalidateQueries({ queryKey: ['bom', 'item', variables.itemId] });
+    },
+  });
+};
+
+/**
+ * Delete BOM mutation
+ */
+export const useDeleteBom = () => {
+  const queryClient = useQueryClient();
+  const { token } = getAuthData();
+
+  return useMutation({
+    mutationFn: (bomId) => BomService.deleteBom(bomId, token),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['boms'] });
+    },
+  });
+};
+
+// ============ Manufacturing - Stage Hooks ============
+
+/**
+ * Get all Stages in company
+ */
+export const useStagesInCompany = (options = {}) => {
+  const { companyId, token } = getAuthData();
+
+  return useQuery({
+    queryKey: ['stages', 'company', companyId],
+    queryFn: () => StageService.getAllStagesInCompany(companyId, token),
+    enabled: !!companyId && !!token,
+    staleTime: 30 * 1000,
+    ...options,
+  });
+};
+
+/**
+ * Get Stage by ID
+ */
+export const useStageById = (stageId, options = {}) => {
+  const { token } = getAuthData();
+
+  return useQuery({
+    queryKey: ['stage', stageId],
+    queryFn: () => StageService.getStageById(stageId, token),
+    enabled: !!stageId && !!token,
+    staleTime: 60 * 1000,
+    ...options,
+  });
+};
+
+/**
+ * Create Stage mutation
+ */
+export const useCreateStage = () => {
+  const queryClient = useQueryClient();
+  const { token } = getAuthData();
+
+  return useMutation({
+    mutationFn: (stageData) => StageService.createStage(stageData, token),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['stages'] });
+    },
+  });
+};
+
+/**
+ * Update Stage mutation
+ */
+export const useUpdateStage = () => {
+  const queryClient = useQueryClient();
+  const { token } = getAuthData();
+
+  return useMutation({
+    mutationFn: ({ stageId, data }) => StageService.updateStage(stageId, data, token),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['stages'] });
+      queryClient.invalidateQueries({ queryKey: ['stage', variables.stageId] });
+    },
+  });
+};
+
+/**
+ * Delete Stage mutation
+ */
+export const useDeleteStage = () => {
+  const queryClient = useQueryClient();
+  const { token } = getAuthData();
+
+  return useMutation({
+    mutationFn: (stageId) => StageService.deleteStage(stageId, token),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['stages'] });
+    },
+  });
+};
+
+// ============ Manufacturing - MO Hooks ============
+
+/**
+ * Get all MOs in company
+ */
+export const useMosInCompany = (options = {}) => {
+  const { companyId, token } = getAuthData();
+
+  return useQuery({
+    queryKey: ['mos', 'company', companyId],
+    queryFn: () => MoService.getAllMosInCompany(companyId, token),
+    enabled: !!companyId && !!token,
+    staleTime: 30 * 1000,
+    ...options,
+  });
+};
+
+/**
+ * Get MO by ID
+ */
+export const useMoById = (moId, options = {}) => {
+  const { token } = getAuthData();
+
+  return useQuery({
+    queryKey: ['mo', moId],
+    queryFn: () => MoService.getMoById(moId, token),
+    enabled: !!moId && !!token,
+    staleTime: 0,
+    ...options,
+  });
+};
+
+/**
+ * Create MO mutation
+ */
+export const useCreateMo = () => {
+  const queryClient = useQueryClient();
+  const { token } = getAuthData();
+
+  return useMutation({
+    mutationFn: (moData) => MoService.createMo(moData, token),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['mos'] });
+    },
+  });
+};
+
+/**
+ * Update MO mutation
+ */
+export const useUpdateMo = () => {
+  const queryClient = useQueryClient();
+  const { token } = getAuthData();
+
+  return useMutation({
+    mutationFn: ({ moId, data }) => MoService.updateMo(moId, data, token),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['mos'] });
+      queryClient.invalidateQueries({ queryKey: ['mo', variables.moId] });
+    },
+  });
+};
+
+/**
+ * Complete MO mutation (generates products with QR codes)
+ */
+export const useCompleteMo = () => {
+  const queryClient = useQueryClient();
+  const { token } = getAuthData();
+
+  return useMutation({
+    mutationFn: ({ moId, completedQuantity }) => MoService.completeMo(moId, completedQuantity, token),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['mos'] });
+      queryClient.invalidateQueries({ queryKey: ['mo', variables.moId] });
+    },
+  });
+};
+
+/**
+ * Get manufacture report
+ */
+export const useManufactureReport = (request, options = {}) => {
+  const { companyId, token } = getAuthData();
+
+  return useQuery({
+    queryKey: ['manufacture-report', companyId, request?.startTime, request?.endTime, request?.type],
+    queryFn: () => MoService.getManufactureReport(request, companyId, token),
+    enabled: !!companyId && !!token,
+    staleTime: 5 * 60 * 1000,
+    ...options,
+  });
+};
+
+/**
+ * Get monthly manufacture report
+ */
+export const useMonthlyManufactureReport = (type = 'Tất cả', options = {}) => {
+  const { companyId, token } = getAuthData();
+
+  return useQuery({
+    queryKey: ['manufacture-report', 'monthly', companyId, type],
+    queryFn: () => MoService.getMonthlyManufactureReport(companyId, type, token),
+    enabled: !!companyId && !!token,
+    staleTime: 5 * 60 * 1000,
+    ...options,
+  });
+};
+
+// ============ Manufacturing - Process Hooks ============
+
+/**
+ * Get all processes in MO
+ */
+export const useProcessesInMo = (moId, options = {}) => {
+  const { token } = getAuthData();
+
+  return useQuery({
+    queryKey: ['processes', 'mo', moId],
+    queryFn: () => ProcessService.getAllProcessesInMo(moId, token),
+    enabled: !!moId && !!token,
+    staleTime: 0,
+    ...options,
+  });
+};
+
+/**
+ * Update process mutation
+ */
+export const useUpdateProcess = () => {
+  const queryClient = useQueryClient();
+  const { token } = getAuthData();
+
+  return useMutation({
+    mutationFn: ({ processId, data }) => ProcessService.updateProcess(processId, data, token),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['processes'] });
+      queryClient.invalidateQueries({ queryKey: ['mo', variables.data?.moId] });
+    },
+  });
+};
+
+// ============ Manufacturing Line Hooks ============
+
+/**
+ * Get all manufacture lines in company
+ */
+export const useManufactureLinesInCompany = (options = {}) => {
+  const { companyId, token } = getAuthData();
+
+  return useQuery({
+    queryKey: ['manufactureLines', 'company', companyId],
+    queryFn: () => ManufactureLineService.getAllLinesInCompany(companyId, token),
+    enabled: !!companyId && !!token,
+    staleTime: 5 * 60 * 1000,
+    ...options,
+  });
+};
+
+// ============ Inventory Check Hooks ============
+
+/**
+ * Check if inventory is sufficient for an item in a warehouse
+ */
+export const useCheckInventory = () => {
+  const { token } = getAuthData();
+
+  return useMutation({
+    mutationFn: ({ itemId, warehouseId, amount }) =>
+      InventoryService.checkInventory(itemId, warehouseId, amount, token),
+  });
+};
+
+/**
+ * Get all inventory for an item in a warehouse
+ */
+export const useInventoryByItemAndWarehouse = (itemId, warehouseId, options = {}) => {
+  const { companyId, token } = getAuthData();
+
+  return useQuery({
+    queryKey: ['inventory', itemId, warehouseId, companyId],
+    queryFn: () => InventoryService.getAllInventory(itemId, warehouseId, companyId, token),
+    enabled: !!itemId && !!warehouseId && !!companyId && !!token,
+    staleTime: 0, // Always fresh for inventory checks
+    ...options,
+  });
+};
+
+/**
+ * Increase onDemand quantity (reserve inventory)
+ */
+export const useIncreaseOnDemand = () => {
+  const queryClient = useQueryClient();
+  const { token } = getAuthData();
+
+  return useMutation({
+    mutationFn: (request) => InventoryService.increaseOnDemand(request, token),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['inventory'] });
+    },
+  });
+};
+
