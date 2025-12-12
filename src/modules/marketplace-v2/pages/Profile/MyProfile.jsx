@@ -1,16 +1,16 @@
 import { getUserByEmployeeId, updatePassword, updateUser } from '@/services/general/UserService';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-    Building2,
-    Camera,
-    Edit3,
-    Key,
-    LogOut,
-    Mail,
-    Save,
-    Shield,
-    User,
-    X
+  Building2,
+  Camera,
+  Edit3,
+  Key,
+  LogOut,
+  Mail,
+  Save,
+  Shield,
+  User,
+  X
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -59,7 +59,7 @@ const MyProfile = () => {
         setUser(data);
         setEditForm({
           email: data.email || '',
-          userName: data.userName || ''
+          username: data.username || ''
         });
       } catch (error) {
         toast.error(error.response?.data?.message || 'Không thể tải thông tin người dùng');
@@ -243,7 +243,7 @@ const MyProfile = () => {
                 background: 'linear-gradient(135deg, var(--mp-primary-500), var(--mp-secondary-500))'
               }}
             >
-              {user?.employeeName?.charAt(0) || user?.userName?.charAt(0) || 'U'}
+              {user?.employeeName?.charAt(0) || user?.username?.charAt(0) || 'U'}
             </div>
             <button className="absolute bottom-0 right-0 p-2 bg-white dark:bg-gray-800 rounded-full shadow-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
               <Camera size={16} className="text-gray-500" />
@@ -251,15 +251,15 @@ const MyProfile = () => {
           </div>
           <div className="text-center sm:text-left">
             <h2 className="text-xl font-bold" style={{ color: 'var(--mp-text-primary)' }}>
-              {user?.employeeName || user?.userName || 'Người dùng'}
+              {localStorage.getItem('employeeName') || 'Người dùng'}
             </h2>
             <p className="text-sm flex items-center justify-center sm:justify-start gap-2 mt-1" style={{ color: 'var(--mp-text-secondary)' }}>
               <Shield size={14} />
-              {user?.roleName || localStorage.getItem('role') || 'User'}
+              {localStorage.getItem('role') || 'User'}
             </p>
             <p className="text-sm flex items-center justify-center sm:justify-start gap-2 mt-1" style={{ color: 'var(--mp-text-tertiary)' }}>
               <Building2 size={14} />
-              {user?.departmentName || localStorage.getItem('departmentName') || 'N/A'}
+              {localStorage.getItem('departmentName') || 'N/A'}
             </p>
           </div>
         </div>
@@ -305,12 +305,12 @@ const MyProfile = () => {
               {isEditing ? (
                 <input
                   type="text"
-                  value={editForm.userName || ''}
-                  onChange={(e) => setEditForm(prev => ({ ...prev, userName: e.target.value }))}
+                  value={editForm.username || ''}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, username: e.target.value }))}
                   className="mp-input w-full"
                 />
               ) : (
-                <p className="font-medium" style={{ color: 'var(--mp-text-primary)' }}>{user?.userName || 'N/A'}</p>
+                <p className="font-medium" style={{ color: 'var(--mp-text-primary)' }}>{user?.username || 'N/A'}</p>
               )}
             </div>
 
