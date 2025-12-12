@@ -1,18 +1,18 @@
 import confetti from 'canvas-confetti';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  AlertCircle,
-  ArrowLeft,
-  ArrowRight,
-  Building2,
-  Check,
-  FileText,
-  Loader2,
-  Package,
-  Search
+    AlertCircle,
+    ArrowLeft,
+    ArrowRight,
+    Building2,
+    Check,
+    FileText,
+    Loader2,
+    Package,
+    Search
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import StepProgress from '../../components/forms/StepProgress';
 import { useDebounce } from '../../hooks';
 import { useCompanies, useCreateQuotation, useCreateRfq, useItemsByCompany, useProducts } from '../../hooks/useApi';
@@ -34,6 +34,11 @@ const slideVariants = {
  */
 const CreateFormWizard = ({ type = 'rfq' }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Get pre-selected supplier from navigation state (when coming from supplier page)
+  const preSelectedSupplierId = location.state?.supplierId?.toString() || '';
+  
   const [currentStep, setCurrentStep] = useState(0);
   const [direction, setDirection] = useState(0);
   const [errors, setErrors] = useState({});
@@ -119,9 +124,9 @@ const CreateFormWizard = ({ type = 'rfq' }) => {
     }));
   }, [productsData]);
 
-  // Form data
+  // Form data - initialize with pre-selected supplier if available
   const [formData, setFormData] = useState({
-    requestedCompanyId: '',
+    requestedCompanyId: preSelectedSupplierId,
     notes: '',
     expectedDate: '',
     items: [], // Each item will have: { itemId, itemName, supplierItemId, supplierItemName, quantity, note }

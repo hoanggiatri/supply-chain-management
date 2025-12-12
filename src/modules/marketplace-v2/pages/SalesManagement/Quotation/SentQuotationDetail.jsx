@@ -212,7 +212,7 @@ const SentQuotationDetail = () => {
               </h2>
               {quotation.rfqId && (
                 <button
-                  onClick={() => navigate(`/marketplace-v2/customer-rfq/${quotation.rfqId}`)}
+                  onClick={() => navigate(`/marketplace-v2/supplier-rfq/${quotation.rfqId}`)}
                   className="mp-btn mp-btn-secondary text-sm py-1"
                 >
                   <FileText size={16} />
