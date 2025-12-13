@@ -9,7 +9,7 @@ import {
     RefreshCw,
     Search
 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { forwardRef, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useDebounce } from '../../../hooks';
 import {
@@ -47,7 +47,7 @@ const tabs = [
 ];
 
 // Ticket Card Component
-const TicketCard = ({ ticket, type, onClick }) => {
+const TicketCard = forwardRef(({ ticket, type, onClick }, ref) => {
   const typeConfig = {
     issue: { icon: ArrowUpFromLine, color: '#ef4444', detailPath: 'issue-ticket' },
     receive: { icon: ArrowDownToLine, color: '#22c55e', detailPath: 'receive-ticket' },
@@ -72,6 +72,7 @@ const TicketCard = ({ ticket, type, onClick }) => {
 
   return (
     <motion.div
+      ref={ref}
       layout
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -136,7 +137,9 @@ const TicketCard = ({ ticket, type, onClick }) => {
       )}
     </motion.div>
   );
-};
+});
+
+TicketCard.displayName = 'TicketCard';
 
 // Loading Skeleton
 const TicketSkeleton = () => (
@@ -192,7 +195,8 @@ const TicketList = () => {
 
   // Filter tickets
   const filteredTickets = useMemo(() => {
-    let result = currentTickets;
+    // Ensure currentTickets is always an array
+    let result = Array.isArray(currentTickets) ? currentTickets : [];
 
     // Status filter
     if (statusFilter !== 'all') {
@@ -217,9 +221,10 @@ const TicketList = () => {
 
   // Status counts for filter badges
   const statusCounts = useMemo(() => {
-    const counts = { all: currentTickets.length };
+    const tickets = Array.isArray(currentTickets) ? currentTickets : [];
+    const counts = { all: tickets.length };
     statusGroups.forEach(s => {
-      counts[s.key] = currentTickets.filter(t => t.status === s.key).length;
+      counts[s.key] = tickets.filter(t => t.status === s.key).length;
     });
     return counts;
   }, [currentTickets, statusGroups]);

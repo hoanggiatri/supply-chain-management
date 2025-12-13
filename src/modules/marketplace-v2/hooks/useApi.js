@@ -1229,3 +1229,34 @@ export const useIncreaseOnDemand = () => {
   });
 };
 
+// ============ Additional Stage Hooks ============
+
+/**
+ * Get stage by item ID
+ */
+export const useStageByItemId = (itemId, options = {}) => {
+  const { token } = getAuthData();
+
+  return useQuery({
+    queryKey: ['stage', 'item', itemId],
+    queryFn: () => StageService.getStageByItemId(itemId, token),
+    enabled: !!itemId && !!token,
+    staleTime: 60 * 1000,
+    ...options,
+  });
+};
+
+/**
+ * Check if item has existing stage
+ */
+export const useCheckItemHasStage = (itemId, options = {}) => {
+  const { token } = getAuthData();
+
+  return useQuery({
+    queryKey: ['stage', 'check', itemId],
+    queryFn: () => StageService.checkIsItemCreatedStage(itemId, token),
+    enabled: !!itemId && !!token,
+    staleTime: 0,
+    ...options,
+  });
+};

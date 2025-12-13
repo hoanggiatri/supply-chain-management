@@ -1,17 +1,17 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-    AlertCircle,
-    Calendar,
-    Clock,
-    Factory,
-    Filter,
-    Grid3X3,
-    Kanban,
-    List,
-    Loader2,
-    Package,
-    Plus,
-    Search
+  AlertCircle,
+  Calendar,
+  Clock,
+  Factory,
+  Filter,
+  Grid3X3,
+  Kanban,
+  List,
+  Loader2,
+  Package,
+  Plus,
+  Search
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -95,7 +95,7 @@ const KanbanColumn = ({ title, status, mos, onMoClick }) => {
         </div>
       </div>
       
-      <div className="space-y-3 min-h-[200px]">
+      <div className="space-y-3 max-h-[calc(100vh-400px)] overflow-y-auto pr-1">
         <AnimatePresence>
           {columnMos.map(mo => (
             <MoCard key={mo.moId} mo={mo} onClick={() => onMoClick(mo.moId)} />
@@ -334,9 +334,9 @@ const MoList = () => {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="overflow-x-auto pb-4"
+          className="overflow-x-auto pb-4 max-h-[calc(100vh-380px)]"
         >
-          <div className="flex gap-4 min-w-max">
+          <div className="flex gap-4 min-w-max h-full">
             {kanbanStatuses.map(status => (
               <KanbanColumn
                 key={status}
@@ -352,7 +352,7 @@ const MoList = () => {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[calc(100vh-380px)] overflow-y-auto pr-1"
         >
           <AnimatePresence>
             {mos.map((mo, index) => (
@@ -408,7 +408,7 @@ const MoList = () => {
           animate={{ opacity: 1 }}
           className="mp-glass-card overflow-hidden"
         >
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto max-h-[calc(100vh-380px)] overflow-y-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b" style={{ borderColor: 'var(--mp-border-light)', backgroundColor: 'var(--mp-bg-secondary)' }}>

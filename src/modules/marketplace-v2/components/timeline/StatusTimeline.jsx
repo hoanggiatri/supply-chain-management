@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Check, CheckCircle, Clock, FileText, Package, Truck, XCircle } from 'lucide-react';
+import { ArrowDownToLine, ArrowUpFromLine, Check, CheckCircle, Clock, FileText, Package, Truck, XCircle } from 'lucide-react';
 
 // Default order statuses (for PO/SO)
 const orderStatusSteps = [
@@ -47,6 +47,29 @@ const soStatusSteps = [
   { key: 'Đã hoàn thành', label: 'Đã hoàn thành', icon: CheckCircle, order: 4 },
 ];
 
+// Issue Ticket statuses (Phiếu xuất kho)
+const issueTicketStatusSteps = [
+  { key: 'Chờ xác nhận', label: 'Chờ xác nhận', icon: Clock, order: 1 },
+  { key: 'Chờ xuất kho', label: 'Chờ xuất kho', icon: ArrowUpFromLine, order: 2 },
+  { key: 'Đã hoàn thành', label: 'Đã hoàn thành', icon: CheckCircle, order: 3 },
+];
+
+// Receive Ticket statuses (Phiếu nhập kho)
+const receiveTicketStatusSteps = [
+  { key: 'Chờ xác nhận', label: 'Chờ xác nhận', icon: Clock, order: 1 },
+  { key: 'Chờ nhập kho', label: 'Chờ nhập kho', icon: ArrowDownToLine, order: 2 },
+  { key: 'Đã hoàn thành', label: 'Đã hoàn thành', icon: CheckCircle, order: 3 },
+];
+
+// Transfer Ticket statuses (Phiếu chuyển kho)
+const transferTicketStatusSteps = [
+  { key: 'Chờ xác nhận', label: 'Chờ xác nhận', icon: Clock, order: 1 },
+  { key: 'Chờ xuất kho', label: 'Chờ xuất kho', icon: ArrowUpFromLine, order: 2 },
+  { key: 'Chờ nhập kho', label: 'Chờ nhập kho', icon: ArrowDownToLine, order: 3 },
+  { key: 'Đã hoàn thành', label: 'Đã hoàn thành', icon: CheckCircle, order: 4 },
+  { key: 'Đã hủy', label: 'Đã hủy', icon: XCircle, order: 0 },
+];
+
 // Get status steps by type
 const getStatusSteps = (type) => {
   switch (type) {
@@ -58,6 +81,12 @@ const getStatusSteps = (type) => {
       return poStatusSteps;
     case 'so':
       return soStatusSteps;
+    case 'issueTicket':
+      return issueTicketStatusSteps;
+    case 'receiveTicket':
+      return receiveTicketStatusSteps;
+    case 'transferTicket':
+      return transferTicketStatusSteps;
     default:
       return orderStatusSteps;
   }
@@ -131,6 +160,44 @@ const getDisplaySteps = (type, currentStatus, isCancelled) => {
       allSteps.find(s => s.key === 'Chờ xuất kho'),
       allSteps.find(s => s.key === 'Chờ vận chuyển'),
       allSteps.find(s => s.key === 'Đang vận chuyển'),
+      allSteps.find(s => s.key === 'Đã hoàn thành'),
+    ];
+    return mainFlow;
+  }
+
+  if (type === 'issueTicket') {
+    // Issue Ticket flow: Chờ xác nhận → Chờ xuất kho → Đã hoàn thành
+    const mainFlow = [
+      allSteps.find(s => s.key === 'Chờ xác nhận'),
+      allSteps.find(s => s.key === 'Chờ xuất kho'),
+      allSteps.find(s => s.key === 'Đã hoàn thành'),
+    ];
+    return mainFlow;
+  }
+
+  if (type === 'receiveTicket') {
+    // Receive Ticket flow: Chờ xác nhận → Chờ nhập kho → Đã hoàn thành
+    const mainFlow = [
+      allSteps.find(s => s.key === 'Chờ xác nhận'),
+      allSteps.find(s => s.key === 'Chờ nhập kho'),
+      allSteps.find(s => s.key === 'Đã hoàn thành'),
+    ];
+    return mainFlow;
+  }
+
+  if (type === 'transferTicket') {
+    // Transfer Ticket flow: Chờ xác nhận → Chờ xuất kho → Chờ nhập kho → Đã hoàn thành
+    // Or: Chờ xác nhận → Đã hủy
+    if (currentStatus === 'Đã hủy') {
+      return [
+        allSteps.find(s => s.key === 'Chờ xác nhận'),
+        allSteps.find(s => s.key === 'Đã hủy'),
+      ];
+    }
+    const mainFlow = [
+      allSteps.find(s => s.key === 'Chờ xác nhận'),
+      allSteps.find(s => s.key === 'Chờ xuất kho'),
+      allSteps.find(s => s.key === 'Chờ nhập kho'),
       allSteps.find(s => s.key === 'Đã hoàn thành'),
     ];
     return mainFlow;

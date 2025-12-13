@@ -3,18 +3,23 @@
    Import all style modules
    ========================================================================== */
 
-@import './variables.css';
-@import './animations.css';
-@import './glass.css';
+@import "./variables.css";
+@import "./animations.css";
+@import "./glass.css";
 
 /* ========== Base Styles ========== */
 
 .mp-v2-root {
   font-family: var(--mp-font-family);
   color: var(--mp-text-primary);
-  background: linear-gradient(135deg, var(--mp-bg-gradient-from), var(--mp-bg-gradient-to));
+  background: linear-gradient(
+    135deg,
+    var(--mp-bg-gradient-from),
+    var(--mp-bg-gradient-to)
+  );
   min-height: 100vh;
-  transition: background var(--mp-transition-theme), color var(--mp-transition-theme);
+  transition: background var(--mp-transition-theme),
+    color var(--mp-transition-theme);
 }
 
 /* ========== Typography ========== */
@@ -219,30 +224,22 @@
   border: 1px solid transparent;
   border-radius: 16px;
   padding: var(--mp-spacing-5);
-  box-shadow: 
-    0 1px 3px rgba(0, 0, 0, 0.04),
-    0 4px 12px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .mp-card-elegant:hover {
   transform: translateY(-4px);
-  box-shadow: 
-    0 12px 40px rgba(0, 0, 0, 0.08),
-    0 4px 12px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.04);
   border-color: rgba(37, 99, 235, 0.12);
 }
 
 [data-theme="dark"] .mp-card-elegant {
-  box-shadow: 
-    0 1px 3px rgba(0, 0, 0, 0.2),
-    0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 [data-theme="dark"] .mp-card-elegant:hover {
-  box-shadow: 
-    0 12px 40px rgba(0, 0, 0, 0.3),
-    0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2);
   border-color: rgba(96, 165, 250, 0.2);
 }
 
@@ -341,8 +338,13 @@
 }
 
 @keyframes mp-icon-subtle-bounce {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
 }
 
 /* ========== Form Elements ========== */
@@ -378,6 +380,46 @@
 
 /* ========== Scrollbar Styling ========== */
 
+/* Global scrollbar for marketplace-v2 */
+.mp-v2-root *::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.mp-v2-root *::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+}
+
+.mp-v2-root *::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.4);
+  border-radius: 10px;
+  transition: background 0.2s ease;
+}
+
+.mp-v2-root *::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.7);
+}
+
+[data-theme="dark"] .mp-v2-root *::-webkit-scrollbar-thumb {
+  background: rgba(75, 85, 99, 0.5);
+}
+
+[data-theme="dark"] .mp-v2-root *::-webkit-scrollbar-thumb:hover {
+  background: rgba(107, 114, 128, 0.7);
+}
+
+/* Firefox scrollbar */
+.mp-v2-root * {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.4) transparent;
+}
+
+[data-theme="dark"] .mp-v2-root * {
+  scrollbar-color: rgba(75, 85, 99, 0.5) transparent;
+}
+
+/* Explicit scrollbar class */
 .mp-scrollbar::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -395,6 +437,25 @@
 
 .mp-scrollbar::-webkit-scrollbar-thumb:hover {
   background: var(--mp-border-dark);
+}
+
+/* Thin scrollbar variant */
+.mp-scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.mp-scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.mp-scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.3);
+  border-radius: 10px;
+}
+
+.mp-scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.6);
 }
 
 /* ========== Hide Scrollbar but keep functionality ========== */

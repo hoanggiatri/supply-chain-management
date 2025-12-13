@@ -53,6 +53,12 @@ const CreateMo = lazy(() => import('../pages/Manufacturing/Mo/CreateMo'));
 const MoDetail = lazy(() => import('../pages/Manufacturing/Mo/MoDetail'));
 const EditMo = lazy(() => import('../pages/Manufacturing/Mo/EditMo'));
 
+// Stage Pages
+const StageList = lazy(() => import('../pages/Manufacturing/Stage/StageList'));
+const StageDetail = lazy(() => import('../pages/Manufacturing/Stage/StageDetail'));
+const CreateStage = lazy(() => import('../pages/Manufacturing/Stage/CreateStage'));
+const EditStage = lazy(() => import('../pages/Manufacturing/Stage/EditStage'));
+
 // Check Inventory
 const CheckInventory = lazy(() => import('../pages/Warehouse/Inventory/CheckInventory'));
 
@@ -662,6 +668,56 @@ const marketplaceV2Routes = [
     element: (
       <PrivateRoute
         element={withSuspense(EditMo)()}
+        allowedRoles={['user']}
+        allowedDepartments={['Mua hàng', 'Bán hàng', 'Kho']}
+      />
+    ),
+  },
+
+  // ============ Stage (Manufacturing Process) Routes ============
+
+  // Stage List
+  {
+    path: '/marketplace-v2/stages',
+    element: (
+      <PrivateRoute
+        element={withSuspense(StageList)()}
+        allowedRoles={['user']}
+        allowedDepartments={['Mua hàng', 'Bán hàng', 'Kho']}
+      />
+    ),
+  },
+
+  // Create Stage
+  {
+    path: '/marketplace-v2/stage/create',
+    element: (
+      <PrivateRoute
+        element={withSuspense(CreateStage)()}
+        allowedRoles={['user']}
+        allowedDepartments={['Mua hàng', 'Bán hàng', 'Kho']}
+      />
+    ),
+  },
+
+  // Stage Detail
+  {
+    path: '/marketplace-v2/stage/:stageId',
+    element: (
+      <PrivateRoute
+        element={withSuspense(StageDetail)()}
+        allowedRoles={['user']}
+        allowedDepartments={['Mua hàng', 'Bán hàng', 'Kho']}
+      />
+    ),
+  },
+
+  // Edit Stage
+  {
+    path: '/marketplace-v2/stage/:stageId/edit',
+    element: (
+      <PrivateRoute
+        element={withSuspense(EditStage)()}
         allowedRoles={['user']}
         allowedDepartments={['Mua hàng', 'Bán hàng', 'Kho']}
       />

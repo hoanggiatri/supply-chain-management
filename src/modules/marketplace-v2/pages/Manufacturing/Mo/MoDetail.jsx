@@ -98,7 +98,7 @@ const MoDetail = () => {
         const allTickets = await ReceiveTicketService.getAllReceiveTicketsInCompany(companyId, token);
         const existingTicket = allTickets.find(
           t => t.receiveType === 'Sản xuất' && 
-               t.referenceId === parseInt(moId) &&
+               t.referenceCode === mo.moCode &&
                (t.status === 'Chờ xác nhận' || t.status === 'Chờ nhập kho')
         );
         
@@ -246,7 +246,6 @@ const MoDetail = () => {
         reason: 'Nhập kho sau sản xuất',
         receiveType: 'Sản xuất',
         referenceCode: mo.moCode,
-        referenceId: parseInt(moId),
         status: 'Chờ xác nhận',
         receiveDate: new Date().toISOString(),
         createdBy: employeeName

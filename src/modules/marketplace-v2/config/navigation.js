@@ -55,5 +55,6 @@ export const WAREHOUSE_MENU = [
 export const MANUFACTURING_MENU = [
   { path: '/marketplace-v2/mos', label: 'Công lệnh sản xuất (MO)', icon: Factory },
   { path: '/marketplace-v2/boms', label: 'Định mức NVL (BOM)', icon: Package },
+  { path: '/marketplace-v2/stages', label: 'Quy trình sản xuất', icon: Box },
 ];
 
