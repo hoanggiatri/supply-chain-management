@@ -1,26 +1,78 @@
 import { motion } from 'framer-motion';
 import {
-  FileText,
-  LayoutDashboard,
-  Plus,
-  ShoppingCart,
-  User
+    Box,
+    Factory,
+    FileText,
+    LayoutDashboard,
+    Plus,
+    ShoppingCart,
+    User
 } from 'lucide-react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { useMemo } from 'react';
+import { NavLink } from 'react-router-dom';
 
-const bottomNavItems = [
-  { path: '/marketplace-v2/dashboard', label: 'Tổng quan', icon: LayoutDashboard },
-  { path: '/marketplace-v2/rfqs', label: 'RFQ', icon: FileText },
-  { path: '/marketplace-v2/create', label: 'Tạo mới', icon: Plus, isAction: true },
-  { path: '/marketplace-v2/pos', label: 'Đơn hàng', icon: ShoppingCart },
-  { path: '/marketplace-v2/my-profile', label: 'Tài khoản', icon: User },
-];
+// Department constants
+const DEPT_ADMIN = 'Quản trị';
+const DEPT_SALES = 'Mua, Bán hàng';
+const DEPT_WAREHOUSE = 'Kho, Sản xuất, Vận chuyển';
 
 /**
  * Bottom navigation bar for mobile view
+ * Shows different nav items based on user's department
  */
-const BottomNav = ({ onCreateClick }) => {
-  const navigate = useNavigate();
+const BottomNav = ({ onCreateClick, user }) => {
+  // Get nav items based on department
+  const navItems = useMemo(() => {
+    const department = user?.departmentName?.trim() || '';
+    const role = user?.roleName?.toLowerCase() || '';
+
+    // Base items that appear for everyone
+    const baseItems = [
+      { path: '/marketplace-v2/my-profile', label: 'Tài khoản', icon: User },
+    ];
+
+    // Admin or Quản trị - show all
+    if (role === 'admin' || role === 'c_admin' || department === DEPT_ADMIN) {
+      return [
+        { path: '/marketplace-v2/dashboard', label: 'Tổng quan', icon: LayoutDashboard },
+        { path: '/marketplace-v2/rfqs', label: 'RFQ', icon: FileText },
+        { path: '/marketplace-v2/create', label: 'Tạo mới', icon: Plus, isAction: true },
+        { path: '/marketplace-v2/pos', label: 'Đơn hàng', icon: ShoppingCart },
+        ...baseItems,
+      ];
+    }
+
+    // Mua, Bán hàng department
+    if (department === DEPT_SALES) {
+      return [
+        { path: '/marketplace-v2/dashboard', label: 'Tổng quan', icon: LayoutDashboard },
+        { path: '/marketplace-v2/rfqs', label: 'RFQ', icon: FileText },
+        { path: '/marketplace-v2/create', label: 'Tạo mới', icon: Plus, isAction: true },
+        { path: '/marketplace-v2/pos', label: 'Đơn hàng', icon: ShoppingCart },
+        ...baseItems,
+      ];
+    }
+
+    // Kho, Sản xuất, Vận chuyển department
+    if (department === DEPT_WAREHOUSE) {
+      return [
+        { path: '/marketplace-v2/warehouse', label: 'Kho', icon: Box },
+        { path: '/marketplace-v2/mos', label: 'Sản xuất', icon: Factory },
+        { path: '/marketplace-v2/create', label: 'Tạo mới', icon: Plus, isAction: true },
+        { path: '/marketplace-v2/warehouse/tickets?tab=issue', label: 'Phiếu', icon: FileText },
+        ...baseItems,
+      ];
+    }
+
+    // Fallback - show all for development
+    return [
+      { path: '/marketplace-v2/dashboard', label: 'Tổng quan', icon: LayoutDashboard },
+      { path: '/marketplace-v2/rfqs', label: 'RFQ', icon: FileText },
+      { path: '/marketplace-v2/create', label: 'Tạo mới', icon: Plus, isAction: true },
+      { path: '/marketplace-v2/pos', label: 'Đơn hàng', icon: ShoppingCart },
+      ...baseItems,
+    ];
+  }, [user?.departmentName, user?.roleName]);
 
   return (
     <motion.nav
@@ -34,7 +86,7 @@ const BottomNav = ({ onCreateClick }) => {
       }}
     >
       <div className="h-full flex items-center justify-around px-2">
-        {bottomNavItems.map((item) => {
+        {navItems.map((item) => {
           // Center floating action button
           if (item.isAction) {
             return (

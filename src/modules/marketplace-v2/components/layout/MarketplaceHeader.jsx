@@ -66,52 +66,67 @@ const NavDropdown = ({ label, items, icon: Icon }) => {
   );
 };
 
+// Department constants
+const DEPT_ADMIN = 'Quản trị';
+const DEPT_SALES = 'Mua, Bán hàng';
+const DEPT_WAREHOUSE = 'Kho, Sản xuất, Vận chuyển';
+
 const MarketplaceHeader = ({ onMenuClick, user }) => {
   const navigate = useNavigate();
 
   // Determine which menus to show based on user's department/role
   const visibleMenus = useMemo(() => {
-    const department = user?.departmentName?.toLowerCase() || '';
+    const department = user?.departmentName?.trim() || '';
     const role = user?.roleName?.toLowerCase() || '';
     
-    // Admin sees all menus
-    if (role === 'admin' || department === 'admin') {
+    // Admin or "Quản trị" sees all menus
+    if (role === 'admin' || role === 'c_admin' || department === DEPT_ADMIN) {
       return [
-        { label: 'Kho', items: WAREHOUSE_MENU },
         { label: 'Mua hàng', items: PURCHASING_MENU },
         { label: 'Bán hàng', items: SALES_MENU },
+        { label: 'Kho', items: WAREHOUSE_MENU },
         { label: 'Sản xuất', items: MANUFACTURING_MENU },
       ];
     }
 
     const menus = [];
 
-    // Department-based menu visibility
-    if (department.includes('kho') || department.includes('warehouse')) {
-      menus.push({ label: 'Kho', items: WAREHOUSE_MENU });
-    }
-    if (department.includes('mua') || department.includes('bán')) {
+    // "Mua, Bán hàng" department - Purchase and Sales menus
+    if (department === DEPT_SALES) {
       menus.push({ label: 'Mua hàng', items: PURCHASING_MENU });
-    }
-    if (department.includes('bán') || department.includes('mua')) {
       menus.push({ label: 'Bán hàng', items: SALES_MENU });
     }
-    // Manufacturing for relevant departments
-    if (department.includes('sản') || department.includes('kho')) {
+
+    // "Kho, Sản xuất, Vận chuyển" department - Warehouse and Manufacturing menus
+    if (department === DEPT_WAREHOUSE) {
+      menus.push({ label: 'Kho', items: WAREHOUSE_MENU });
       menus.push({ label: 'Sản xuất', items: MANUFACTURING_MENU });
     }
 
     // If no department matches, show all menus (fallback for development/testing)
     if (menus.length === 0) {
       return [
-        { label: 'Kho', items: WAREHOUSE_MENU },
         { label: 'Mua hàng', items: PURCHASING_MENU },
         { label: 'Bán hàng', items: SALES_MENU },
+        { label: 'Kho', items: WAREHOUSE_MENU },
         { label: 'Sản xuất', items: MANUFACTURING_MENU },
       ];
     }
 
     return menus;
+  }, [user?.departmentName, user?.roleName]);
+
+  // Dashboard path based on department
+  const dashboardPath = useMemo(() => {
+    const department = user?.departmentName?.trim() || '';
+    const role = user?.roleName?.toLowerCase() || '';
+
+    // Warehouse department goes to warehouse dashboard
+    if (department === DEPT_WAREHOUSE) {
+      return '/marketplace-v2/warehouse';
+    }
+    // Admin and Sales go to main dashboard
+    return '/marketplace-v2/dashboard';
   }, [user?.departmentName, user?.roleName]);
 
   return (
@@ -134,7 +149,7 @@ const MarketplaceHeader = ({ onMenuClick, user }) => {
             <Menu size={22} style={{ color: 'var(--mp-text-secondary)' }} />
           </motion.button>
 
-          <Link to="/marketplace-v2/dashboard" className="flex items-center gap-2">
+          <Link to={dashboardPath} className="flex items-center gap-2">
             <motion.div
               whileHover={{ rotate: 5 }}
               className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/20"
@@ -153,7 +168,7 @@ const MarketplaceHeader = ({ onMenuClick, user }) => {
         <nav className="hidden lg:flex items-center gap-2">
           {/* Dashboard Link - Direct */}
           <NavLink
-             to="/marketplace-v2/dashboard"
+             to={dashboardPath}
              className={({ isActive }) =>
                `px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                  isActive ? 'text-blue-600 dark:text-blue-400 bg-black/5 dark:bg-white/10' : 'text-gray-600 dark:text-gray-300 hover:bg-black/5 dark:hover:bg-white/5'

@@ -1,16 +1,21 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { BottomNav } from '../components/layout';
 import MarketplaceHeader from '../components/layout/MarketplaceHeader';
 import FloatingOrbs from '../components/ui/FloatingOrbs';
-import { INVENTORY_MENU, PURCHASING_MENU, SALES_MENU } from '../config/navigation';
+import { MANUFACTURING_MENU, PURCHASING_MENU, SALES_MENU, WAREHOUSE_MENU } from '../config/navigation';
 import { NotificationProvider } from '../context/NotificationContext';
 import { ThemeProvider } from '../context/ThemeContext';
 import { useWindowSize } from '../hooks';
 import '../styles/index.css';
+
+// Department constants
+const DEPT_ADMIN = 'Quản trị';
+const DEPT_SALES = 'Mua, Bán hàng';
+const DEPT_WAREHOUSE = 'Kho, Sản xuất, Vận chuyển';
 
 // Mobile Menu Item Component
 const MobileMenuItem = ({ item, onClick }) => (
@@ -71,14 +76,61 @@ const MarketplaceV2Layout = () => {
     }
   }, []);
 
-  // Determine department from user for Quick Actions (FAB)
-  const department = user?.departmentName || localStorage.getItem('departmentName') || 'Mua hàng';
+  // Determine which menu sections to show in mobile drawer based on department
+  const mobileMenuSections = useMemo(() => {
+    const department = user?.departmentName?.trim() || '';
+    const role = user?.roleName?.toLowerCase() || '';
+
+    // Admin or Quản trị sees all menus
+    if (role === 'admin' || role === 'c_admin' || department === DEPT_ADMIN) {
+      return [
+        { title: 'Mua hàng', items: PURCHASING_MENU },
+        { title: 'Bán hàng', items: SALES_MENU },
+        { title: 'Kho', items: WAREHOUSE_MENU },
+        { title: 'Sản xuất', items: MANUFACTURING_MENU },
+      ];
+    }
+
+    // Mua, Bán hàng department
+    if (department === DEPT_SALES) {
+      return [
+        { title: 'Mua hàng', items: PURCHASING_MENU },
+        { title: 'Bán hàng', items: SALES_MENU },
+      ];
+    }
+
+    // Kho, Sản xuất, Vận chuyển department
+    if (department === DEPT_WAREHOUSE) {
+      return [
+        { title: 'Kho', items: WAREHOUSE_MENU },
+        { title: 'Sản xuất', items: MANUFACTURING_MENU },
+      ];
+    }
+
+    // Fallback - show all
+    return [
+      { title: 'Mua hàng', items: PURCHASING_MENU },
+      { title: 'Bán hàng', items: SALES_MENU },
+      { title: 'Kho', items: WAREHOUSE_MENU },
+      { title: 'Sản xuất', items: MANUFACTURING_MENU },
+    ];
+  }, [user?.departmentName, user?.roleName]);
+
+  // Determine department for Quick Actions (FAB)
+  const department = user?.departmentName?.trim() || localStorage.getItem('departmentName') || '';
 
   const handleCreateClick = () => {
-    if (department === 'Mua hàng') {
+    // Mua, Bán hàng - create RFQ
+    if (department === DEPT_SALES) {
       navigate('/marketplace-v2/create-rfq');
-    } else {
-      navigate('/marketplace-v2/create-quotation');
+    } 
+    // Kho, Sản xuất - create MO
+    else if (department === DEPT_WAREHOUSE) {
+      navigate('/marketplace-v2/mo/create');
+    }
+    // Default/Admin - create RFQ
+    else {
+      navigate('/marketplace-v2/create-rfq');
     }
   };
 
@@ -127,21 +179,14 @@ const MarketplaceV2Layout = () => {
                   </div>
                   
                   <div className="p-4">
-                    <MobileMenuSection 
-                      title="Kho & Vận hành" 
-                      items={INVENTORY_MENU} 
-                      onItemClick={() => setIsMobileMenuOpen(false)} 
-                    />
-                    <MobileMenuSection 
-                      title="Mua hàng" 
-                      items={PURCHASING_MENU} 
-                      onItemClick={() => setIsMobileMenuOpen(false)} 
-                    />
-                    <MobileMenuSection 
-                      title="Bán hàng" 
-                      items={SALES_MENU} 
-                      onItemClick={() => setIsMobileMenuOpen(false)} 
-                    />
+                    {mobileMenuSections.map((section) => (
+                      <MobileMenuSection 
+                        key={section.title}
+                        title={section.title}
+                        items={section.items}
+                        onItemClick={() => setIsMobileMenuOpen(false)} 
+                      />
+                    ))}
                   </div>
                 </motion.div>
               </>
@@ -175,7 +220,7 @@ const MarketplaceV2Layout = () => {
 
           {/* Bottom Navigation (Mobile) */}
           {!isDesktop && (
-            <BottomNav onCreateClick={handleCreateClick} />
+            <BottomNav onCreateClick={handleCreateClick} user={user} />
           )}
         </div>
       </NotificationProvider>

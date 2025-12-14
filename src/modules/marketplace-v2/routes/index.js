@@ -80,30 +80,48 @@ const withSuspense = (Component) => (props) => (
 );
 
 /**
+ * Department Constants
+ * - Quản trị: Full access to all features
+ * - Mua, Bán hàng: Purchase and Sales management (RFQ, Quotation, PO, SO)
+ * - Kho, Sản xuất, Vận chuyển: Warehouse, Manufacturing, Delivery
+ */
+const DEPT_ADMIN = 'Quản trị';
+const DEPT_SALES = 'Mua, Bán hàng';
+const DEPT_WAREHOUSE = 'Kho, Sản xuất, Vận chuyển';
+
+// All departments (commonly used for shared pages)
+const ALL_DEPARTMENTS = [DEPT_ADMIN, DEPT_SALES, DEPT_WAREHOUSE];
+
+/**
  * Marketplace V2 Routes Configuration
- * All routes are protected and require 'user' role with Mua hàng/Bán hàng department
+ * Routes are protected by role and department
  */
 const marketplaceV2Routes = [
-  // My Profile
+  // ============ Common Routes (All Departments) ============
+
+  // My Profile - All departments
   {
     path: '/marketplace-v2/my-profile',
     element: (
       <PrivateRoute
         element={withSuspense(MyProfile)()}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng', 'Kho']}
+        allowedDepartments={ALL_DEPARTMENTS}
       />
     ),
   },
 
-  // Dashboard
+  // ============ Purchase & Sales Routes ============
+  // Department: "Mua, Bán hàng" and "Quản trị"
+
+  // Dashboard (Mua, Bán hàng)
   {
     path: '/marketplace-v2/dashboard',
     element: (
       <PrivateRoute
         element={withSuspense(Dashboard)()}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_SALES]}
       />
     ),
   },
@@ -115,7 +133,7 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(Suppliers)()}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_SALES]}
       />
     ),
   },
@@ -127,7 +145,7 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(SupplierDetail)()}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_SALES]}
       />
     ),
   },
@@ -139,7 +157,7 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(Report)({ type: 'purchase' })}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_SALES]}
       />
     ),
   },
@@ -151,7 +169,7 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(Report)({ type: 'sales' })}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_SALES]}
       />
     ),
   },
@@ -163,7 +181,7 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(CreateFormWizard)({ type: 'rfq' })}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_SALES]}
       />
     ),
   },
@@ -175,93 +193,91 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(CreateFormWizard)({ type: 'quotation' })}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_SALES]}
       />
     ),
   },
 
-
-
-  // Order Detail - RFQ (uses dedicated RfqDetail component)
+  // RFQ Detail
   {
     path: '/marketplace-v2/rfq/:id',
     element: (
       <PrivateRoute
         element={withSuspense(RfqDetail)()}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_SALES]}
       />
     ),
   },
 
-  // Order Detail - Quotation (uses dedicated QuotationDetail component)
+  // Quotation Detail
   {
     path: '/marketplace-v2/quotation/:id',
     element: (
       <PrivateRoute
         element={withSuspense(QuotationDetail)()}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_SALES]}
       />
     ),
   },
 
-  // Sales Orders - Sales
+  // Sales Orders List
   {
     path: '/marketplace-v2/sos',
     element: (
       <PrivateRoute
         element={withSuspense(SoList)()}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_SALES]}
       />
     ),
   },
 
-  // Sales Order Detail - Sales
+  // Sales Order Detail
   {
     path: '/marketplace-v2/so/:id',
     element: (
       <PrivateRoute
         element={withSuspense(SoDetail)()}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_SALES]}
       />
     ),
   },
 
-  // RFQ List - Purchasing (uses dedicated RfqList component)
+  // RFQ List - Purchasing
   {
     path: '/marketplace-v2/rfqs',
     element: (
       <PrivateRoute
         element={withSuspense(RfqList)()}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_SALES]}
       />
     ),
   },
 
-  // Quotations received - Purchasing (uses dedicated QuotationList component)
+  // Quotations received - Purchasing
   {
     path: '/marketplace-v2/customer-quotations',
     element: (
       <PrivateRoute
         element={withSuspense(QuotationList)()}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_SALES]}
       />
     ),
   },
 
-  // PO List - Purchasing (uses dedicated PoList component)
+  // PO List - Purchasing
   {
     path: '/marketplace-v2/pos',
     element: (
       <PrivateRoute
         element={withSuspense(PoList)()}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_SALES]}
       />
     ),
   },
@@ -273,7 +289,7 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(PoDetail)()}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_SALES]}
       />
     ),
   },
@@ -285,7 +301,7 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(CreatePo)()}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_SALES]}
       />
     ),
   },
@@ -297,7 +313,7 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(CustomerRfqList)()}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_SALES]}
       />
     ),
   },
@@ -309,7 +325,7 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(CustomerRfqDetail)()}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_SALES]}
       />
     ),
   },
@@ -321,7 +337,7 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(CreateQuotation)()}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_SALES]}
       />
     ),
   },
@@ -333,7 +349,7 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(SentQuotationList)()}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_SALES]}
       />
     ),
   },
@@ -345,7 +361,7 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(SentQuotationDetail)()}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_SALES]}
       />
     ),
   },
@@ -357,7 +373,7 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(CustomerPoList)()}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_SALES]}
       />
     ),
   },
@@ -369,31 +385,7 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(CustomerPoDetail)()}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng']}
-      />
-    ),
-  },
-
-  // Sales Orders - Sales
-  {
-    path: '/marketplace-v2/sos',
-    element: (
-      <PrivateRoute
-        element={withSuspense(SoList)()}
-        allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng']}
-      />
-    ),
-  },
-
-  // Sales Order Detail - Sales
-  {
-    path: '/marketplace-v2/so/:id',
-    element: (
-      <PrivateRoute
-        element={withSuspense(SoDetail)()}
-        allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_SALES]}
       />
     ),
   },
@@ -405,12 +397,13 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(CreateSo)()}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_SALES]}
       />
     ),
   },
 
-  // ============ Warehouse Routes ============
+  // ============ Warehouse, Manufacturing, Delivery Routes ============
+  // Department: "Kho, Sản xuất, Vận chuyển" and "Quản trị"
 
   // Warehouse Dashboard
   {
@@ -419,7 +412,7 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(WarehouseDashboard)()}
         allowedRoles={['user']}
-        allowedDepartments={['Kho']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_WAREHOUSE]}
       />
     ),
   },
@@ -431,7 +424,7 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(WarehouseList)()}
         allowedRoles={['user']}
-        allowedDepartments={['Kho']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_WAREHOUSE]}
       />
     ),
   },
@@ -441,7 +434,7 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(CreateWarehouse)()}
         allowedRoles={['user']}
-        allowedDepartments={['Kho']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_WAREHOUSE]}
       />
     ),
   },
@@ -451,7 +444,7 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(EditWarehouse)()}
         allowedRoles={['user']}
-        allowedDepartments={['Kho']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_WAREHOUSE]}
       />
     ),
   },
@@ -463,7 +456,7 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(AddInventory)()}
         allowedRoles={['user']}
-        allowedDepartments={['Kho']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_WAREHOUSE]}
       />
     ),
   },
@@ -475,7 +468,7 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(DeliveryList)()}
         allowedRoles={['user']}
-        allowedDepartments={['Kho']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_WAREHOUSE]}
       />
     ),
   },
@@ -487,7 +480,7 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(DeliveryDetail)()}
         allowedRoles={['user']}
-        allowedDepartments={['Kho']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_WAREHOUSE]}
       />
     ),
   },
@@ -499,7 +492,7 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(TicketList)()}
         allowedRoles={['user']}
-        allowedDepartments={['Kho']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_WAREHOUSE]}
       />
     ),
   },
@@ -511,7 +504,7 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(IssueTicketDetail)()}
         allowedRoles={['user']}
-        allowedDepartments={['Kho']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_WAREHOUSE]}
       />
     ),
   },
@@ -523,7 +516,7 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(ReceiveTicketDetail)()}
         allowedRoles={['user']}
-        allowedDepartments={['Kho']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_WAREHOUSE]}
       />
     ),
   },
@@ -535,7 +528,7 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(InventoryList)()}
         allowedRoles={['user']}
-        allowedDepartments={['Kho']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_WAREHOUSE]}
       />
     ),
   },
@@ -547,7 +540,7 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(TransferTicketDetail)()}
         allowedRoles={['user']}
-        allowedDepartments={['Kho']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_WAREHOUSE]}
       />
     ),
   },
@@ -559,12 +552,13 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(CreateTransferTicket)()}
         allowedRoles={['user']}
-        allowedDepartments={['Kho']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_WAREHOUSE]}
       />
     ),
   },
 
   // ============ Manufacturing Routes ============
+  // Department: "Kho, Sản xuất, Vận chuyển" and "Quản trị"
 
   // BOM List
   {
@@ -573,7 +567,7 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(BomList)()}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng', 'Kho']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_WAREHOUSE]}
       />
     ),
   },
@@ -585,7 +579,7 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(BomDetail)()}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng', 'Kho']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_WAREHOUSE]}
       />
     ),
   },
@@ -597,7 +591,7 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(CreateBom)()}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng', 'Kho']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_WAREHOUSE]}
       />
     ),
   },
@@ -609,7 +603,7 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(EditBom)()}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng', 'Kho']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_WAREHOUSE]}
       />
     ),
   },
@@ -621,7 +615,7 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(MoList)()}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng', 'Kho']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_WAREHOUSE]}
       />
     ),
   },
@@ -633,19 +627,19 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(CreateMo)()}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng', 'Kho']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_WAREHOUSE]}
       />
     ),
   },
 
-  // Check Inventory (supports: mo, tt, po)
+  // Check Inventory (supports: mo, tt, po) - Shared between departments
   {
     path: '/marketplace-v2/check-inventory/:type/:id',
     element: (
       <PrivateRoute
         element={withSuspense(CheckInventory)()}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng', 'Kho']}
+        allowedDepartments={ALL_DEPARTMENTS}
       />
     ),
   },
@@ -657,7 +651,7 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(MoDetail)()}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng', 'Kho']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_WAREHOUSE]}
       />
     ),
   },
@@ -669,12 +663,13 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(EditMo)()}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng', 'Kho']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_WAREHOUSE]}
       />
     ),
   },
 
   // ============ Stage (Manufacturing Process) Routes ============
+  // Department: "Kho, Sản xuất, Vận chuyển" and "Quản trị"
 
   // Stage List
   {
@@ -683,7 +678,7 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(StageList)()}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng', 'Kho']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_WAREHOUSE]}
       />
     ),
   },
@@ -695,7 +690,7 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(CreateStage)()}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng', 'Kho']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_WAREHOUSE]}
       />
     ),
   },
@@ -707,7 +702,7 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(StageDetail)()}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng', 'Kho']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_WAREHOUSE]}
       />
     ),
   },
@@ -719,7 +714,7 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(EditStage)()}
         allowedRoles={['user']}
-        allowedDepartments={['Mua hàng', 'Bán hàng', 'Kho']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_WAREHOUSE]}
       />
     ),
   },
