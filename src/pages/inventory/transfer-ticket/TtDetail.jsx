@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from "react";
-import { Typography, Card, CardBody, Button } from "@material-tailwind/react";
-import { useParams, useNavigate } from "react-router-dom";
-import DataTable from "@/components/content-components/DataTable";
-import TtForm from "@/components/inventory/TtForm";
-import LoadingPaper from "@/components/content-components/LoadingPaper";
 import BackButton from "@/components/common/BackButton";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
-import { getButtonProps } from "@/utils/buttonStyles";
+import DataTable from "@/components/content-components/DataTable";
+import LoadingPaper from "@/components/content-components/LoadingPaper";
+import TtForm from "@/components/inventory/TtForm";
 import {
   getTransferTicketById,
   updateTransferTicket,
 } from "@/services/inventory/TransferTicketService";
 import toastrService from "@/services/toastrService";
+import { getButtonProps } from "@/utils/buttonStyles";
+import { Button, Card, CardBody, Typography } from "@material-tailwind/react";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 const TtDetail = () => {
   const { ticketId } = useParams();
@@ -112,20 +112,31 @@ const TtDetail = () => {
 
   const handleCancel = async () => {
     try {
+      // Only send allowed fields - API rejects read-only properties
       const request = {
-        ...ticket,
-        status: "Đã hủy",
+        companyId: parseInt(ticket.companyId),
+        status: 'Đã hủy',
+        reason: ticket.reason,
+        fromWarehouseId: parseInt(ticket.fromWarehouseId),
+        toWarehouseId: parseInt(ticket.toWarehouseId),
+        createdBy: ticket.createdBy,
+        // Clean transferTicketDetails - remove read-only fields
+        transferTicketDetails: (ticket.transferTicketDetails || []).map(d => ({
+          itemId: parseInt(d.itemId),
+          quantity: parseFloat(d.quantity),
+          note: d.note || ''
+        }))
       };
       await updateTransferTicket(ticketId, request, token);
-      toastrService.success("Đã hủy phiếu chuyển kho!");
+      toastrService.success('Đã hủy phiếu chuyển kho!');
 
       setTicket((prev) => ({
         ...prev,
-        status: "Đã hủy",
+        status: 'Đã hủy',
       }));
     } catch (error) {
       toastrService.error(
-        error.response?.data?.message || "Có lỗi khi hủy phiếu chuyển kho!"
+        error.response?.data?.message || 'Có lỗi khi hủy phiếu chuyển kho!'
       );
     }
   };
