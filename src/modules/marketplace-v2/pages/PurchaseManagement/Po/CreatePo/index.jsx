@@ -122,23 +122,13 @@ const CreatePo = () => {
         status: 'Chờ xác nhận'
       };
       
-      await createPoMutation.mutateAsync(request).then(response => {
-        console.log(response);
-        if(response.statusCode === 200){
-          toast.success('Tạo đơn mua hàng thành công!');
-          navigate('/marketplace-v2/pos');
-        }
-        else{
-          toast.error(response.message);
-        }
-      });
+      await createPoMutation.mutateAsync(request);
+      // Nếu đến được đây nghĩa là thành công (2xx response)
+      toast.success('Tạo đơn mua hàng thành công!');
+      navigate('/marketplace-v2/pos');
     } catch (error) {
       console.error('Error creating PO:', error);
-      if (error.response?.status === 400 && error.response?.data?.message === "Đơn mua hàng cho báo giá này đã tồn tại!") {
-        toast.error("Đơn mua hàng cho báo giá này đã tồn tại!");
-      } else {
-        toast.error("Tạo đơn mua hàng thất bại. Vui lòng thử lại!");
-      }
+      toast.error(error.response?.data?.message || "Tạo đơn mua hàng thất bại. Vui lòng thử lại!");
     }
     setConfirmModal({ open: false });
   };

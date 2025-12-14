@@ -1,26 +1,44 @@
 import * as InventoryService from '@/services/inventory/InventoryService';
 import * as IssueTicketService from '@/services/inventory/IssueTicketService';
+import dayjs from 'dayjs';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-    AlertTriangle,
-    ArrowLeft,
-    Check,
-    CheckCircle,
-    Loader2,
-    Package,
-    Search,
-    Warehouse,
-    XCircle
+  AlertTriangle,
+  ArrowLeft,
+  Check,
+  CheckCircle,
+  Loader2,
+  Package,
+  Search,
+  Warehouse,
+  XCircle
 } from 'lucide-react';
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import {
-    useCheckInventory,
-    useIncreaseOnDemand,
-    usePoById,
-    useWarehousesInCompany
+  useBomByItemId,
+  useIncreaseOnDemand,
+  useMoById,
+  usePoById,
+  useTransferTicketById,
+  useUpdateMo,
+  useUpdateTransferTicket,
+  useWarehousesInCompany
 } from '../../../hooks/useApi';
+
+// Helper để lấy auth data
+const getAuthData = () => {
+  try {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const token = localStorage.getItem('token');
+    const companyId = localStorage.getItem('companyId') || user?.companyId || user?.company?.id || null;
+    const employeeName = localStorage.getItem('employeeName') || user?.employeeName || '';
+    return { user, token, companyId, employeeName };
+  } catch {
+    return { user: null, token: null, companyId: null, employeeName: '' };
+  }
+};
 
 const statusConfig = {
   'Đủ': { color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400', icon: CheckCircle },
@@ -30,8 +48,17 @@ const statusConfig = {
 
 /**
  * Check Inventory Page
- * Validates inventory before confirming PO and creating SO
- * Supports types: mo, tt, po
+ * Validates inventory before confirming MO, TT or PO
+ * 
+ * Logic:
+ * - MO (Manufacturing Order): Lấy BOM details, tính quantityNeeded = BOM quantity * MO quantity
+ * - TT (Transfer Ticket): Lấy transfer ticket details, quantityNeeded = detail quantity
+ * - PO (Purchase Order): Lấy PO details, quantityNeeded = detail quantity
+ * 
+ * After confirm:
+ * - MO: Update MO status -> Create Issue Ticket -> Increase onDemand
+ * - TT: Update TT status -> Create Issue Ticket -> Increase onDemand
+ * - PO: Only save warehouseId and navigate to create SO
  */
 const CheckInventory = () => {
   const navigate = useNavigate();
@@ -42,35 +69,68 @@ const CheckInventory = () => {
   const [isChecking, setIsChecking] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
 
-  // Fetch data
+  // Fetch warehouses
   const { data: warehouses, isLoading: warehousesLoading } = useWarehousesInCompany();
-  const { data: po, isLoading: poLoading } = usePoById(id, { enabled: type === 'po' });
   
-  // Mutations
-  const checkInventoryMutation = useCheckInventory();
-  const increaseOnDemandMutation = useIncreaseOnDemand();
+  // Fetch data based on type
+  const { data: po, isLoading: poLoading } = usePoById(id, { enabled: type === 'po' });
+  const { data: mo, isLoading: moLoading } = useMoById(id, { enabled: type === 'mo' });
+  const { data: tt, isLoading: ttLoading } = useTransferTicketById(id, { enabled: type === 'tt' });
+  
+  // Fetch BOM for MO
+  const { data: bom, isLoading: bomLoading } = useBomByItemId(mo?.itemId, { 
+    enabled: type === 'mo' && !!mo?.itemId 
+  });
 
-  // Get auth data
-  const getAuthData = useCallback(() => {
-    return {
-      token: localStorage.getItem('token'),
-      companyId: parseInt(localStorage.getItem('companyId')),
-      employeeName: localStorage.getItem('employeeName')
-    };
-  }, []);
+  // Mutations
+  const updateMoMutation = useUpdateMo();
+  const updateTtMutation = useUpdateTransferTicket();
+  const increaseOnDemandMutation = useIncreaseOnDemand();
 
   // Items to check based on type
   const itemsToCheck = useMemo(() => {
     if (type === 'po' && po?.purchaseOrderDetails) {
       return po.purchaseOrderDetails.map(d => ({
         itemId: d.supplierItemId,
+        itemCode: d.itemCode || d.supplierItemCode,
+        itemName: d.itemName || d.supplierItemName,
+        quantity: d.quantity
+      }));
+    }
+    
+    if (type === 'mo' && bom?.bomDetails && mo) {
+      return bom.bomDetails.map(d => ({
+        itemId: d.itemId,
+        itemCode: d.itemCode,
+        itemName: d.itemName,
+        quantity: d.quantity * mo.quantity // BOM quantity * MO quantity
+      }));
+    }
+    
+    if (type === 'tt' && tt?.transferTicketDetails) {
+      return tt.transferTicketDetails.map(d => ({
+        itemId: d.itemId,
         itemCode: d.itemCode,
         itemName: d.itemName,
         quantity: d.quantity
       }));
     }
+    
     return [];
-  }, [type, po]);
+  }, [type, po, mo, bom, tt]);
+
+  // For TT, auto-select fromWarehouseId
+  useMemo(() => {
+    if (type === 'tt' && tt?.fromWarehouseId && !selectedWarehouseId) {
+      setSelectedWarehouseId(String(tt.fromWarehouseId));
+    }
+  }, [type, tt, selectedWarehouseId]);
+
+  // Convert date to ISO string
+  const toISO8601String = (dateString) => {
+    if (!dateString) return null;
+    return dayjs(dateString).toISOString();
+  };
 
   // Handle inventory check
   const handleCheckInventory = async () => {
@@ -145,7 +205,7 @@ const CheckInventory = () => {
     }
   };
 
-  // Handle confirm - reserve inventory and navigate to create SO
+  // Handle confirm
   const handleConfirm = async () => {
     if (inventoryResults.length === 0) {
       toast.warning('Vui lòng kiểm tra tồn kho trước!');
@@ -159,39 +219,105 @@ const CheckInventory = () => {
     }
 
     setIsConfirming(true);
-
+    
     try {
       const { token, companyId, employeeName } = getAuthData();
 
-      if (type === 'po') {
-        // Save selected warehouse for SO creation
-        localStorage.setItem('poWarehouseId', selectedWarehouseId);
+      // === MO: Update status, create issue ticket, increase onDemand ===
+      if (type === 'mo' && mo) {
+        // Update MO status to "Chờ sản xuất"
+        await updateMoMutation.mutateAsync({
+          moId: id,
+          data: {
+            itemId: Number(mo.itemId),
+            lineId: Number(mo.lineId),
+            type: mo.type,
+            quantity: mo.quantity,
+            estimatedStartTime: toISO8601String(mo.estimatedStartTime),
+            estimatedEndTime: toISO8601String(mo.estimatedEndTime),
+            status: 'Chờ sản xuất'
+          }
+        });
 
-        // Create issue ticket
+        // Create Issue Ticket
         const issueTicketRequest = {
-          companyId,
+          companyId: parseInt(companyId),
           warehouseId: parseInt(selectedWarehouseId),
-          reason: 'Xuất kho để bán hàng',
-          issueType: 'Bán hàng',
-          referenceCode: po.poCode,
+          reason: 'Xuất kho để sản xuất',
+          issueType: 'Sản xuất',
+          referenceCode: mo.moCode,
           status: 'Chờ xác nhận',
           createdBy: employeeName,
-          issueDate: new Date().toISOString(),
+          issueDate: new Date().toISOString()
         };
-
         await IssueTicketService.createIssueTicket(issueTicketRequest, token);
 
-        // Increase onDemand for all items
+        // Increase onDemand for each item
         await Promise.all(
-          inventoryResults.map(r => 
-            InventoryService.increaseOnDemand({
-              warehouseId: parseInt(selectedWarehouseId),
-              itemId: parseInt(r.itemId),
-              onDemandQuantity: r.quantityNeeded,
-            }, token)
+          inventoryResults.map(r =>
+            increaseOnDemandMutation.mutateAsync({
+              warehouseId: selectedWarehouseId,
+              itemId: r.itemId,
+              onDemandQuantity: r.quantityNeeded
+            })
           )
         );
 
+        toast.success('Đã xác nhận công lệnh sản xuất!');
+        navigate(-1);
+      }
+
+      // === TT: Update status, create issue ticket, increase onDemand ===
+      if (type === 'tt' && tt) {
+        // Update Transfer Ticket status
+        await updateTtMutation.mutateAsync({
+          ticketId: id,
+          request: {
+            companyId: parseInt(companyId),
+            status: 'Chờ xuất kho',
+            reason: tt?.reason,
+            fromWarehouseId: parseInt(tt?.fromWarehouseId),
+            toWarehouseId: parseInt(tt?.toWarehouseId),
+            createdBy: employeeName,
+            transferTicketDetails: (tt?.transferTicketDetails || []).map(d => ({
+              itemId: parseInt(d.itemId),
+              quantity: parseFloat(d.quantity),
+              note: d.note
+            }))
+          }
+        });
+
+        // Create Issue Ticket
+        const issueTicketRequest = {
+          companyId: parseInt(companyId),
+          warehouseId: parseInt(selectedWarehouseId),
+          reason: 'Xuất kho để chuyển kho',
+          issueType: 'Chuyển kho',
+          referenceCode: tt.ticketCode,
+          status: 'Chờ xác nhận',
+          createdBy: employeeName,
+          issueDate: new Date().toISOString()
+        };
+        await IssueTicketService.createIssueTicket(issueTicketRequest, token);
+
+        // Increase onDemand for each item
+        await Promise.all(
+          inventoryResults.map(r =>
+            increaseOnDemandMutation.mutateAsync({
+              warehouseId: selectedWarehouseId,
+              itemId: r.itemId,
+              onDemandQuantity: r.quantityNeeded
+            })
+          )
+        );
+
+        toast.success('Đã xác nhận phiếu chuyển kho!');
+        navigate(-1);
+      }
+
+      // === PO: Only save warehouse and navigate to create SO ===
+      if (type === 'po') {
+        localStorage.setItem('poWarehouseId', selectedWarehouseId);
         toast.success('Đã xác nhận tồn kho! Chuyển đến tạo đơn bán hàng...');
         navigate(`/marketplace-v2/create-so/${id}`);
       }
@@ -204,7 +330,24 @@ const CheckInventory = () => {
   };
 
   const allEnough = inventoryResults.length > 0 && inventoryResults.every(r => r.enough === 'Đủ');
-  const isLoading = warehousesLoading || poLoading;
+  const isLoading = warehousesLoading || poLoading || moLoading || ttLoading || bomLoading;
+  const isWarehouseFixed = type === 'tt'; // TT uses fromWarehouseId, cannot change
+
+  // Get title based on type
+  const getTitle = () => {
+    if (type === 'mo') return `Công lệnh: ${mo?.moCode || id}`;
+    if (type === 'tt') return `Phiếu chuyển: ${tt?.ticketCode || id}`;
+    if (type === 'po') return `Đơn hàng: ${po?.poCode || id}`;
+    return `Mã: ${id}`;
+  };
+
+  // Get confirm button label
+  const getConfirmLabel = () => {
+    if (type === 'mo') return 'Xác nhận MO';
+    if (type === 'tt') return 'Xác nhận Chuyển kho';
+    if (type === 'po') return 'Xác nhận & Tạo SO';
+    return 'Xác nhận';
+  };
 
   if (isLoading) {
     return (
@@ -236,7 +379,7 @@ const CheckInventory = () => {
             Kiểm tra tồn kho
           </h1>
           <p className="text-sm mt-1" style={{ color: 'var(--mp-text-secondary)' }}>
-            {type === 'po' ? `Đơn hàng: ${po?.poCode}` : `Mã: ${id}`}
+            {getTitle()}
           </p>
         </div>
       </motion.div>
@@ -252,23 +395,32 @@ const CheckInventory = () => {
           <div className="flex-1">
             <label className="block text-sm font-medium mb-2" style={{ color: 'var(--mp-text-secondary)' }}>
               <Warehouse size={16} className="inline mr-2" />
-              Chọn kho xuất
+              {isWarehouseFixed ? 'Kho xuất (từ phiếu chuyển)' : 'Chọn kho xuất'}
             </label>
-            <select
-              value={selectedWarehouseId}
-              onChange={(e) => {
-                setSelectedWarehouseId(e.target.value);
-                setInventoryResults([]);
-              }}
-              className="mp-input w-full"
-            >
-              <option value="">-- Chọn kho --</option>
-              {(warehouses || []).map(wh => (
-                <option key={wh.warehouseId} value={wh.warehouseId}>
-                  {wh.warehouseCode} - {wh.warehouseName}
-                </option>
-              ))}
-            </select>
+            {isWarehouseFixed ? (
+              // Show fixed warehouse for TT
+              <div className="mp-input w-full" style={{ backgroundColor: 'var(--mp-bg-secondary)' }}>
+                {warehouses?.find(w => String(w.warehouseId) === selectedWarehouseId)
+                  ? `${warehouses.find(w => String(w.warehouseId) === selectedWarehouseId)?.warehouseCode} - ${warehouses.find(w => String(w.warehouseId) === selectedWarehouseId)?.warehouseName}`
+                  : 'Đang tải...'}
+              </div>
+            ) : (
+              <select
+                value={selectedWarehouseId}
+                onChange={(e) => {
+                  setSelectedWarehouseId(e.target.value);
+                  setInventoryResults([]);
+                }}
+                className="mp-input w-full"
+              >
+                <option value="">-- Chọn kho --</option>
+                {(warehouses || []).map(wh => (
+                  <option key={wh.warehouseId} value={wh.warehouseId}>
+                    {wh.warehouseCode} - {wh.warehouseName}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
           <motion.button
             whileHover={{ scale: 1.02 }}
@@ -392,12 +544,12 @@ const CheckInventory = () => {
             {isConfirming ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
-                Đang xác nhận...
+                Đang xử lý...
               </>
             ) : (
               <>
                 <Check size={18} />
-                Xác nhận & Tạo SO
+                {getConfirmLabel()}
               </>
             )}
           </motion.button>
