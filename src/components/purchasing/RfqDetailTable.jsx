@@ -1,19 +1,10 @@
-import React, { useEffect, useState } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-  IconButton,
-  Button,
-} from "@mui/material";
-import { Delete } from "@mui/icons-material";
-import SelectAutocomplete from "@components/content-components/SelectAutocomplete";
+import { Button } from "@/components/ui/button";
+import { Combobox } from "@/components/ui/combobox";
+import { Input } from "@/components/ui/input";
 import { getAllItemsInCompany } from "@/services/general/ItemService";
 import toastrService from "@/services/toastrService";
+import { Plus, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const RfqDetailTable = ({
   rfqDetails,
@@ -30,7 +21,6 @@ const RfqDetailTable = ({
     const fetchMyItems = async () => {
       try {
         const data = await getAllItemsInCompany(companyId, token);
-        console.log("data", data);
         setMyItems(data);
       } catch (err) {
         toastrService.error("Lỗi khi tải danh sách hàng hóa công ty mình.");
@@ -87,132 +77,139 @@ const RfqDetailTable = ({
   };
 
   const itemOptions = myItems.map((item) => ({
-    value: item.itemId,
+    value: String(item.itemId),
     label: item.itemCode + " - " + item.itemName,
   }));
 
   const supplierItemOptions = supplierItems.map((item) => ({
-    value: item.itemId,
+    value: String(item.itemId),
     label: item.itemCode + " - " + item.itemName,
   }));
 
-  return (
-    <>
-      <TableContainer>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Mã hàng hóa</TableCell>
-              <TableCell>Mã hàng hóa NCC</TableCell>
-              <TableCell>Số lượng</TableCell>
-              <TableCell>Ghi chú</TableCell>
-              <TableCell />
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rfqDetails.map((detail, index) => (
-              <TableRow key={index}>
-                <TableCell sx={{ width: 400 }}>
-                  <SelectAutocomplete
-                    options={itemOptions}
-                    value={detail.itemId}
-                    onChange={(selected) => {
-                      handleDetailChange(
-                        index,
-                        "itemId",
-                        selected?.value || ""
-                      );
-                    }}
-                    placeholder="Chọn hàng hóa"
-                    error={
-                      !!errors?.find(
-                        (err) => err.index === index && err.field === "itemId"
-                      )
-                    }
-                    helperText={
-                      errors?.find(
-                        (err) => err.index === index && err.field === "itemId"
-                      )?.message
-                    }
-                  />
-                </TableCell>
-                <TableCell sx={{ width: 400 }}>
-                  <SelectAutocomplete
-                    options={supplierItemOptions}
-                    value={detail.supplierItemId}
-                    onChange={(selected) => {
-                      handleDetailChange(
-                        index,
-                        "supplierItemId",
-                        selected?.value || ""
-                      );
-                    }}
-                    placeholder="Chọn hàng hóa NCC"
-                    error={
-                      !!errors?.find(
-                        (err) =>
-                          err.index === index && err.field === "supplierItemId"
-                      )
-                    }
-                    helperText={
-                      errors?.find(
-                        (err) =>
-                          err.index === index && err.field === "supplierItemId"
-                      )?.message
-                    }
-                    disabled={!requestedCompanyId}
-                  />
-                </TableCell>
-                <TableCell sx={{ width: 100 }}>
-                  <TextField
-                    type="number"
-                    size="small"
-                    value={detail.quantity}
-                    onChange={(e) =>
-                      handleDetailChange(
-                        index,
-                        "quantity",
-                        e.target.value,
-                        "number"
-                      )
-                    }
-                    error={
-                      !!errors?.find(
-                        (err) => err.index === index && err.field === "quantity"
-                      )
-                    }
-                    helperText={
-                      errors?.find(
-                        (err) => err.index === index && err.field === "quantity"
-                      )?.message
-                    }
-                    inputProps={{ min: 0 }}
-                  />
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    size="small"
-                    value={detail.note}
-                    onChange={(e) =>
-                      handleDetailChange(index, "note", e.target.value)
-                    }
-                  />
-                </TableCell>
-                <TableCell>
-                  <IconButton onClick={() => handleDeleteRow(index)}>
-                    <Delete />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+  const getError = (index, field) => {
+    return errors?.find((err) => err.index === index && err.field === field);
+  };
 
-      <Button color="default" sx={{ m: 0.5 }} onClick={handleAddRow}>
-        Thêm hàng
-      </Button>
-    </>
+  return (
+    <div>
+      {/* Table Header */}
+      <div className="hidden md:grid grid-cols-12 gap-2 px-2 py-3 bg-gray-50 border-b font-medium text-sm text-gray-700">
+        <div className="col-span-4">Hàng hóa của mình</div>
+        <div className="col-span-4">Hàng hóa NCC</div>
+        <div className="col-span-2">Số lượng</div>
+        <div className="col-span-1">Ghi chú</div>
+        <div className="col-span-1"></div>
+      </div>
+
+      {/* Table Body */}
+      <div className="divide-y">
+        {rfqDetails.map((detail, index) => (
+          <div
+            key={index}
+            className="grid grid-cols-1 md:grid-cols-12 gap-2 p-2 hover:bg-gray-50"
+          >
+            {/* Hàng hóa của mình */}
+            <div className="col-span-1 md:col-span-4">
+              <span className="md:hidden text-xs text-gray-500 mb-1 block">Hàng hóa của mình</span>
+              <Combobox
+                options={itemOptions}
+                value={String(detail.itemId || "")}
+                onValueChange={(val) =>
+                  handleDetailChange(index, "itemId", val)
+                }
+                placeholder="Chọn hàng hóa"
+                searchPlaceholder="Tìm hàng hóa..."
+                emptyText="Không tìm thấy"
+                className={getError(index, "itemId") ? "border-red-500" : ""}
+              />
+              {getError(index, "itemId") && (
+                <p className="text-xs text-red-500 mt-1">
+                  {getError(index, "itemId").message}
+                </p>
+              )}
+            </div>
+
+            {/* Hàng hóa NCC */}
+            <div className="col-span-1 md:col-span-4">
+              <span className="md:hidden text-xs text-gray-500 mb-1 block">Hàng hóa NCC</span>
+              <Combobox
+                options={supplierItemOptions}
+                value={String(detail.supplierItemId || "")}
+                onValueChange={(val) =>
+                  handleDetailChange(index, "supplierItemId", val)
+                }
+                placeholder="Chọn hàng hóa NCC"
+                searchPlaceholder="Tìm hàng hóa NCC..."
+                emptyText="Không tìm thấy"
+                disabled={!requestedCompanyId}
+                className={getError(index, "supplierItemId") ? "border-red-500" : ""}
+              />
+              {getError(index, "supplierItemId") && (
+                <p className="text-xs text-red-500 mt-1">
+                  {getError(index, "supplierItemId").message}
+                </p>
+              )}
+            </div>
+
+            {/* Số lượng */}
+            <div className="col-span-1 md:col-span-2">
+              <span className="md:hidden text-xs text-gray-500 mb-1 block">Số lượng</span>
+              <Input
+                type="number"
+                value={detail.quantity}
+                onChange={(e) =>
+                  handleDetailChange(index, "quantity", e.target.value, "number")
+                }
+                min={0}
+                error={!!getError(index, "quantity")}
+              />
+              {getError(index, "quantity") && (
+                <p className="text-xs text-red-500 mt-1">
+                  {getError(index, "quantity").message}
+                </p>
+              )}
+            </div>
+
+            {/* Ghi chú */}
+            <div className="col-span-1 md:col-span-1">
+              <span className="md:hidden text-xs text-gray-500 mb-1 block">Ghi chú</span>
+              <Input
+                value={detail.note || ""}
+                onChange={(e) =>
+                  handleDetailChange(index, "note", e.target.value)
+                }
+              />
+            </div>
+
+            {/* Actions */}
+            <div className="col-span-1 md:col-span-1 flex items-center justify-end md:justify-center">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => handleDeleteRow(index)}
+                className="text-red-500 hover:text-red-700 hover:bg-red-50"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Add Button */}
+      <div className="mt-4">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleAddRow}
+          className="gap-2"
+        >
+          <Plus className="h-4 w-4" />
+          Thêm hàng
+        </Button>
+      </div>
+    </div>
   );
 };
 

@@ -1,17 +1,19 @@
-import React, { useState, useEffect } from "react";
+import { Combobox } from "@/components/ui/combobox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
-  Grid,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-} from "@mui/material";
-import SelectAutocomplete from "../content-components/SelectAutocomplete";
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
 import toastrService from "@/services/toastrService";
+import dayjs from "dayjs";
+import { useEffect, useState } from "react";
 
-const PoForm = ({ quotation, po = {}, setPo, errors, readOnlyFields }) => {
+const PoForm = ({ quotation, po = {}, setPo, errors = {}, readOnlyFields }) => {
   const [warehouses, setWarehouses] = useState([]);
   const token = localStorage.getItem("token");
   const companyId = localStorage.getItem("companyId");
@@ -40,9 +42,9 @@ const PoForm = ({ quotation, po = {}, setPo, errors, readOnlyFields }) => {
     setPo((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleWarehouseChange = (selected) => {
+  const handleWarehouseChange = (value) => {
     const selectedWarehouse = warehouses.find(
-      (warehouse) => warehouse.warehouseId === selected?.value
+      (warehouse) => String(warehouse.warehouseId) === String(value)
     );
     setPo((prev) => ({
       ...prev,
@@ -52,133 +54,159 @@ const PoForm = ({ quotation, po = {}, setPo, errors, readOnlyFields }) => {
     }));
   };
 
-  const formatDateTimeLocal = (isoString) => {
+  const formatDateTime = (isoString) => {
     if (!isoString) return "";
-    const date = new Date(isoString);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
+    return dayjs(isoString).format("DD/MM/YYYY HH:mm");
   };
 
+  const warehouseOptions = warehouses.map((wh) => ({
+    label: wh.warehouseCode + " - " + wh.warehouseName,
+    value: String(wh.warehouseId),
+  }));
+
   return (
-    <Grid container spacing={2} mt={1}>
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
-          label="Mã đơn mua hàng"
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Mã đơn mua hàng */}
+      <div className="space-y-2">
+        <Label>Mã đơn mua hàng</Label>
+        <Input
           value={po?.poCode || ""}
           placeholder="Mã đơn mua hàng được tạo tự động"
-          InputProps={{ readOnly: true }}
+          readOnly
+          className="bg-gray-50"
         />
-      </Grid>
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
-          label="Mã báo giá"
+      {/* Mã báo giá */}
+      <div className="space-y-2">
+        <Label>Mã báo giá</Label>
+        <Input
           value={quotation?.quotationCode || ""}
-          InputProps={{ readOnly: true }}
+          readOnly
+          className="bg-gray-50"
         />
-      </Grid>
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
-          label="Mã công ty cung cấp"
+      {/* Mã công ty cung cấp */}
+      <div className="space-y-2">
+        <Label>Mã công ty cung cấp</Label>
+        <Input
           value={quotation?.companyCode || ""}
-          InputProps={{ readOnly: true }}
+          readOnly
+          className="bg-gray-50"
         />
-      </Grid>
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
-          label="Tên công ty cung cấp"
+      {/* Tên công ty cung cấp */}
+      <div className="space-y-2">
+        <Label>Tên công ty cung cấp</Label>
+        <Input
           value={quotation?.companyName || ""}
-          InputProps={{ readOnly: true }}
+          readOnly
+          className="bg-gray-50"
         />
-      </Grid>
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
-          type="datetime-local"
-          label="Ngày đặt hàng"
-          value={formatDateTimeLocal(po?.createdOn || new Date().toISOString())}
-          InputLabelProps={{ shrink: true }}
-          name="createdOn"
-          InputProps={{ readOnly: true }}
+      {/* Ngày đặt hàng */}
+      <div className="space-y-2">
+        <Label>Ngày đặt hàng</Label>
+        <Input
+          value={formatDateTime(po?.createdOn || new Date().toISOString())}
+          readOnly
+          className="bg-gray-50"
         />
-      </Grid>
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <FormControl
-          fullWidth
-          required
-          error={!!errors.paymentMethod}
-          helperText={errors.paymentMethod}
-        >
-          <InputLabel>Phương thức thanh toán</InputLabel>
-          <Select
-            name="paymentMethod"
+      {/* Phương thức thanh toán */}
+      <div className="space-y-2">
+        <Label>
+          Phương thức thanh toán <span className="text-red-500">*</span>
+        </Label>
+        {isFieldReadOnly("paymentMethod") ? (
+          <Input
             value={po?.paymentMethod || ""}
-            label="Phương thức thanh toán"
-            onChange={handleChange}
-            disabled={isFieldReadOnly("paymentMethod")}
+            readOnly
+            className="bg-gray-50"
+          />
+        ) : (
+          <Select
+            value={po?.paymentMethod || ""}
+            onValueChange={(val) =>
+              setPo((prev) => ({ ...prev, paymentMethod: val }))
+            }
           >
-            <MenuItem value="Ghi công nợ">Ghi công nợ</MenuItem>
-            <MenuItem value="Chuyển khoản">Chuyển khoản</MenuItem>
-            <MenuItem value="Tiền mặt">Tiền mặt</MenuItem>
+            <SelectTrigger className={errors.paymentMethod ? "border-red-500" : ""}>
+              <SelectValue placeholder="Chọn phương thức" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Ghi công nợ">Ghi công nợ</SelectItem>
+              <SelectItem value="Chuyển khoản">Chuyển khoản</SelectItem>
+              <SelectItem value="Tiền mặt">Tiền mặt</SelectItem>
+            </SelectContent>
           </Select>
-        </FormControl>
-      </Grid>
+        )}
+        {errors.paymentMethod && (
+          <p className="text-sm text-red-500">{errors.paymentMethod}</p>
+        )}
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <SelectAutocomplete
-          options={warehouses.map((wh) => ({
-            label: wh.warehouseCode + " - " + wh.warehouseName,
-            value: wh.warehouseId,
-          }))}
-          value={po?.receiveWarehouseId}
-          onChange={handleWarehouseChange}
-          placeholder="Chọn kho *"
-          error={errors.receiveWarehouseId}
-          helperText={errors.receiveWarehouseId}
-          size="small"
-          disabled={isFieldReadOnly("receiveWarehouseId")}
-        />
-      </Grid>
+      {/* Kho nhận hàng */}
+      <div className="space-y-2">
+        <Label>
+          Kho nhận hàng <span className="text-red-500">*</span>
+        </Label>
+        {isFieldReadOnly("receiveWarehouseId") ? (
+          <Input
+            value={
+              po?.receiveWarehouseCode
+                ? `${po.receiveWarehouseCode} - ${po.receiveWarehouseName}`
+                : ""
+            }
+            readOnly
+            className="bg-gray-50"
+          />
+        ) : (
+          <Combobox
+            options={warehouseOptions}
+            value={String(po?.receiveWarehouseId || "")}
+            onValueChange={handleWarehouseChange}
+            placeholder="Chọn kho"
+            searchPlaceholder="Tìm kho..."
+            emptyText="Không tìm thấy kho"
+            className={errors.receiveWarehouseId ? "border-red-500" : ""}
+          />
+        )}
+        {errors.receiveWarehouseId && (
+          <p className="text-sm text-red-500">{errors.receiveWarehouseId}</p>
+        )}
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
-          label="Địa chỉ giao hàng"
+      {/* Địa chỉ giao hàng */}
+      <div className="space-y-2">
+        <Label>Địa chỉ giao hàng</Label>
+        <Input
           name="deliveryToAddress"
           value={po?.deliveryToAddress || ""}
           onChange={handleChange}
+          readOnly={isFieldReadOnly("deliveryToAddress")}
+          className={isFieldReadOnly("deliveryToAddress") ? "bg-gray-50" : ""}
           error={!!errors.deliveryToAddress}
-          helperText={errors.deliveryToAddress}
-          InputProps={{ readOnly: isFieldReadOnly("deliveryToAddress") }}
         />
-      </Grid>
+        {errors.deliveryToAddress && (
+          <p className="text-sm text-red-500">{errors.deliveryToAddress}</p>
+        )}
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <FormControl fullWidth>
-          <InputLabel>Trạng thái</InputLabel>
-          <Select name="status" value={po?.status} label="Trạng thái" readOnly>
-            <MenuItem value="Chờ xác nhận">Chờ xác nhận</MenuItem>
-            <MenuItem value="Đã xác nhận">Đã xác nhận</MenuItem>
-            <MenuItem value="Đang vận chuyển">Đang vận chuyển</MenuItem>
-            <MenuItem value="Chờ nhập kho">Chờ nhập kho</MenuItem>
-            <MenuItem value="Đã hoàn thành">Đã hoàn thành</MenuItem>
-            <MenuItem value="Đã hủy">Đã hủy</MenuItem>
-          </Select>
-        </FormControl>
-      </Grid>
-    </Grid>
+      {/* Trạng thái */}
+      <div className="space-y-2">
+        <Label>Trạng thái</Label>
+        <Input
+          value={po?.status || ""}
+          readOnly
+          className="bg-gray-50"
+        />
+      </div>
+    </div>
   );
 };
 

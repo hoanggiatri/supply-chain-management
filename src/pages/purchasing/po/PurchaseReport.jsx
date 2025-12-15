@@ -1,26 +1,22 @@
-import { useEffect, useState } from "react";
-import {
-  Box,
-  Container,
-  FormControl,
-  Grid,
-  InputLabel,
-  MenuItem,
-  Paper,
-  Select,
-  TableCell,
-  TableRow,
-  TextField,
-  Typography,
-} from "@mui/material";
-import DataTable from "@/components/content-components/DataTable";
-import MonthlyBarChart from "@/components/content-components/MonthlyBarChart";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
+import MonthlyBarChart from "@/components/content-components/MonthlyBarChart";
+import ListPageLayout from "@/components/layout/ListPageLayout";
+import { DataTable, createSortableHeader } from "@/components/ui/data-table";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
-  getMonthlyPurchaseReport,
-  getPurchaseReport,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import {
+    getMonthlyPurchaseReport,
+    getPurchaseReport,
 } from "@/services/purchasing/PoService";
 import dayjs from "dayjs";
+import { useEffect, useState } from "react";
 
 const PurchaseReport = () => {
   const token = localStorage.getItem("token");
@@ -28,12 +24,7 @@ const PurchaseReport = () => {
   const [monthlyData, setMonthlyData] = useState([]);
   const [tableData, setTableData] = useState([]);
   const [chartMetric, setChartMetric] = useState("totalQuantity");
-
-  const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState("itemCode");
-  const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const getStartOfMonth = () => {
     const now = new Date();
@@ -70,50 +61,52 @@ const PurchaseReport = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const monthly = await getMonthlyPurchaseReport(companyId, token);
-      const detail = await getPurchaseReport(
-        {
-          startDate: toLocalDateTimeString(startDate),
-          endDate: toLocalDateTimeString(getEndOfDay(endDate)),
-        },
-        companyId,
-        token
-      );
+      setLoading(true);
+      try {
+        const monthly = await getMonthlyPurchaseReport(companyId, token);
+        const detail = await getPurchaseReport(
+          {
+            startDate: toLocalDateTimeString(startDate),
+            endDate: toLocalDateTimeString(getEndOfDay(endDate)),
+          },
+          companyId,
+          token
+        );
 
-      setMonthlyData(monthly);
-      setTableData(detail);
-      console.log(detail);
+        setMonthlyData(monthly);
+        setTableData(detail);
+      } catch (error) {
+        console.error("Error fetching purchase report:", error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchData();
   }, [companyId, token, startDate, endDate]);
 
   const columns = [
-    { id: "itemCode", label: "Mã hàng hóa" },
-    { id: "itemName", label: "Tên hàng hóa" },
-    { id: "totalQuantity", label: "Tổng số lượng mua" },
+    {
+      accessorKey: "itemCode",
+      header: createSortableHeader("Mã hàng hóa"),
+      cell: ({ getValue }) => {
+        const code = getValue();
+        return (
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+            {code}
+          </span>
+        );
+      },
+    },
+    {
+      accessorKey: "itemName",
+      header: createSortableHeader("Tên hàng hóa"),
+    },
+    {
+      accessorKey: "totalQuantity",
+      header: createSortableHeader("Tổng số lượng mua"),
+    },
   ];
-
-  const filteredItems = tableData.filter(
-    (item) =>
-      (item.itemCode?.toLowerCase().includes(search.toLowerCase()) ?? false) ||
-      (item.itemName?.toLowerCase().includes(search.toLowerCase()) ?? false)
-  );
-
-  const handleRequestSort = (event, property) => {
-    const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(property);
-  };
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
 
   const metricLabels = {
     totalQuantity: { label: "Tổng số lượng hàng hóa", color: "#05518B" },
@@ -121,88 +114,77 @@ const PurchaseReport = () => {
     totalAmount: { label: "Tổng giá trị đơn hàng", color: "#389E0D" },
   };
 
-  if (monthlyData.length === 0 && tableData.length === 0) {
+  if (monthlyData.length === 0 && tableData.length === 0 && loading) {
     return <LoadingPaper title="BÁO CÁO MUA HÀNG" />;
   }
 
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
-          BÁO CÁO MUA HÀNG
-        </Typography>
-        <Grid container spacing={2} mb={2}>
-          <Grid item xs={6} md={3}>
-            <TextField
-              fullWidth
-              label="Từ ngày"
-              type="date"
-              value={formatDateLocal(startDate)}
-              onChange={(e) => setStartDate(new Date(e.target.value))}
-              InputLabelProps={{ shrink: true }}
-            />
-          </Grid>
-          <Grid item xs={6} md={3}>
-            <TextField
-              fullWidth
-              label="Đến ngày"
-              type="date"
-              value={formatDateLocal(endDate)}
-              onChange={(e) => setEndDate(new Date(e.target.value))}
-              InputLabelProps={{ shrink: true }}
-            />
-          </Grid>
-          <Grid item xs={12} md={3} ml="auto">
-            <FormControl fullWidth>
-              <InputLabel>Loại biểu đồ</InputLabel>
-              <Select
-                value={chartMetric}
-                label="Loại biểu đồ"
-                onChange={(e) => setChartMetric(e.target.value)}
-              >
-                {Object.entries(metricLabels).map(([key, val]) => (
-                  <MenuItem key={key} value={key}>
-                    {val.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-        </Grid>
-
-        <Box display="flex" justifyContent="center">
-          <MonthlyBarChart
-            data={monthlyData}
-            metric={chartMetric}
-            label={metricLabels[chartMetric].label}
-            color={metricLabels[chartMetric].color}
+    <ListPageLayout
+      breadcrumbs="Báo cáo"
+      title="Báo cáo mua hàng"
+    >
+      {/* Filters */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="space-y-2">
+          <Label>Từ ngày</Label>
+          <Input
+            type="date"
+            value={formatDateLocal(startDate)}
+            onChange={(e) => setStartDate(new Date(e.target.value))}
           />
-        </Box>
-
-        <Box mt={4}>
-          <DataTable
-            rows={filteredItems}
-            columns={columns}
-            order={order}
-            orderBy={orderBy}
-            onRequestSort={handleRequestSort}
-            page={page}
-            rowsPerPage={rowsPerPage}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            search={search}
-            setSearch={setSearch}
-            renderRow={(item) => (
-              <TableRow key={item.itemId} hover>
-                <TableCell>{item.itemCode}</TableCell>
-                <TableCell>{item.itemName}</TableCell>
-                <TableCell>{item.totalQuantity}</TableCell>
-              </TableRow>
-            )}
+        </div>
+        <div className="space-y-2">
+          <Label>Đến ngày</Label>
+          <Input
+            type="date"
+            value={formatDateLocal(endDate)}
+            onChange={(e) => setEndDate(new Date(e.target.value))}
           />
-        </Box>
-      </Paper>
-    </Container>
+        </div>
+        <div />
+        <div className="space-y-2">
+          <Label>Loại biểu đồ</Label>
+          <Select
+            value={chartMetric}
+            onValueChange={(value) => setChartMetric(value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Chọn loại biểu đồ" />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.entries(metricLabels).map(([key, val]) => (
+                <SelectItem key={key} value={key}>
+                  {val.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* Chart */}
+      <div className="flex justify-center mb-8">
+        <MonthlyBarChart
+          data={monthlyData}
+          metric={chartMetric}
+          label={metricLabels[chartMetric].label}
+          color={metricLabels[chartMetric].color}
+        />
+      </div>
+
+      {/* Table */}
+      <DataTable
+        columns={columns}
+        data={tableData}
+        loading={loading}
+        exportFileName="Bao_cao_mua_hang"
+        exportMapper={(row = {}) => ({
+          "Mã hàng hóa": row.itemCode || "",
+          "Tên hàng hóa": row.itemName || "",
+          "Tổng số lượng mua": row.totalQuantity || 0,
+        })}
+      />
+    </ListPageLayout>
   );
 };
 

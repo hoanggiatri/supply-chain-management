@@ -1,17 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import {
-  Card,
-  CardBody,
-  CardFooter,
-  Input,
-  Typography,
-  Button,
-} from "@material-tailwind/react";
-import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import ListPageLayout from "@/components/layout/ListPageLayout";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { getAllCompanies } from "@/services/general/CompanyService";
 import toastrService from "@/services/toastrService";
-import { getButtonProps } from "@/utils/buttonStyles";
+import { Building2, ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const PAGE_SIZE = 12;
 
@@ -28,7 +22,6 @@ const SupplierSearch = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Kiểm tra xem đang ở marketplace context hay không
   const isMarketplaceContext = location.pathname.startsWith("/marketplace/");
 
   const fetchSuppliers = async (pageToLoad = 1) => {
@@ -136,144 +129,119 @@ const SupplierSearch = () => {
   };
 
   return (
-    <div className="p-6">
-      <Card className="shadow-lg">
-        <CardBody>
-          <div className="flex flex-col gap-4 mb-6 md:flex-row md:items-center md:justify-between">
-            <div>
-              <Typography variant="h4" color="blue-gray" className="font-bold">
-                TÌM KIẾM NHÀ CUNG CẤP
-              </Typography>
-              <Typography
-                variant="small"
-                color="gray"
-                className="mt-1 font-normal"
+    <ListPageLayout
+      breadcrumbs="Nhà cung cấp"
+      title="Tìm kiếm nhà cung cấp"
+    >
+      {/* Search */}
+      <div className="flex flex-col gap-4 mb-6 md:flex-row md:items-center md:justify-between">
+        <p className="text-sm text-gray-500">
+          Tìm kiếm và chọn nhà cung cấp từ danh sách các công ty trong hệ thống.
+        </p>
+        <div className="relative w-full md:w-80">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Input
+            placeholder="Tìm kiếm nhà cung cấp..."
+            className="pl-10"
+            value={searchSupplier}
+            onChange={handleSearch}
+          />
+        </div>
+      </div>
+
+      {/* Content */}
+      {loading ? (
+        <p className="text-center text-gray-500 py-8">
+          Đang tải danh sách nhà cung cấp...
+        </p>
+      ) : filteredSuppliers.length === 0 ? (
+        <p className="text-center text-gray-500 py-8">
+          Không tìm thấy nhà cung cấp nào.
+        </p>
+      ) : (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {filteredSuppliers.map((supplier) => {
+            const logoUrl = supplier.logoUrl || supplier.logo;
+            const mainIndustry =
+              supplier.mainIndustry || "Chưa cập nhật ngành nghề";
+
+            return (
+              <button
+                key={supplier.id}
+                type="button"
+                onClick={() => {
+                  const supplierPath = isMarketplaceContext
+                    ? `/marketplace/supplier/${supplier.id}`
+                    : `/supplier/${supplier.id}`;
+                  navigate(supplierPath);
+                }}
+                className="text-left w-full"
               >
-                Tìm kiếm và chọn nhà cung cấp từ danh sách các công ty trong hệ
-                thống.
-              </Typography>
-            </div>
-            <div className="w-full md:w-80">
-              <Input
-                color="blue"
-                size="lg"
-                label="Tìm kiếm nhà cung cấp"
-                className="w-full placeholder:opacity-100"
-                value={searchSupplier}
-                onChange={handleSearch}
-                icon={
-                  <MagnifyingGlassIcon className="h-5 w-5 text-blue-gray-400" />
-                }
-              />
-            </div>
-          </div>
+                <div className="h-full p-4 border border-gray-200 rounded-lg bg-white cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-blue-200">
+                  <div className="flex items-center gap-4">
+                    {/* Logo / Avatar */}
+                    <div className="h-16 w-16 rounded-full bg-gray-50 flex items-center justify-center overflow-hidden border border-gray-100 shadow-sm flex-shrink-0">
+                      {logoUrl ? (
+                        <img
+                          src={logoUrl}
+                          alt={supplier.companyName}
+                          className="h-full w-full object-cover"
+                          loading="lazy"
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                          }}
+                        />
+                      ) : (
+                        <Building2 className="h-6 w-6 text-blue-600" />
+                      )}
+                    </div>
 
-          {loading ? (
-            <Typography color="gray" className="text-center">
-              Đang tải danh sách nhà cung cấp...
-            </Typography>
-          ) : filteredSuppliers.length === 0 ? (
-            <Typography color="gray" className="text-center">
-              Không tìm thấy nhà cung cấp nào.
-            </Typography>
-          ) : (
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {filteredSuppliers.map((supplier) => {
-                const logoUrl = supplier.logoUrl || supplier.logo;
-                const mainIndustry =
-                  supplier.mainIndustry || "Chưa cập nhật ngành nghề";
+                    {/* Company name + main industry */}
+                    <div className="space-y-1 min-w-0">
+                      <h3 className="font-semibold text-gray-900 line-clamp-2">
+                        {supplier.companyName}
+                      </h3>
+                      <p className="text-sm text-gray-500 line-clamp-1">
+                        {mainIndustry}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      )}
 
-                return (
-                  <button
-                    key={supplier.id}
-                    type="button"
-                    onClick={() => {
-                      const supplierPath = isMarketplaceContext
-                        ? `/marketplace/supplier/${supplier.id}`
-                        : `/supplier/${supplier.id}`;
-                      navigate(supplierPath);
-                    }}
-                    className="text-left"
-                  >
-                    <Card className="h-full cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-                      <CardBody>
-                        <div className="flex items-center gap-4">
-                          {/* Logo / Avatar */}
-                          <div className="h-16 w-16 rounded-full bg-blue-gray-50 flex items-center justify-center overflow-hidden border border-blue-gray-100 shadow-sm">
-                            {logoUrl ? (
-                              <img
-                                src={logoUrl}
-                                alt={supplier.companyName}
-                                className="h-full w-full object-cover"
-                                loading="lazy"
-                                onError={(e) => {
-                                  // Fallback to initials if logo lỗi
-                                  e.currentTarget.style.display = "none";
-                                }}
-                              />
-                            ) : (
-                              <Typography
-                                variant="h6"
-                                className="font-bold text-blue-600"
-                              >
-                                {getInitials(supplier.companyName)}
-                              </Typography>
-                            )}
-                          </div>
-
-                          {/* Company name + main industry */}
-                          <div className="space-y-1">
-                            <Typography
-                              variant="h6"
-                              color="blue-gray"
-                              className="font-semibold line-clamp-2"
-                            >
-                              {supplier.companyName}
-                            </Typography>
-                            <Typography
-                              variant="small"
-                              className="text-blue-gray-500 line-clamp-1"
-                            >
-                              {mainIndustry}
-                            </Typography>
-                          </div>
-                        </div>
-                      </CardBody>
-                    </Card>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </CardBody>
-
-        <CardFooter className="flex items-center justify-between border-t border-blue-gray-50 px-6 py-4">
-          <Typography variant="small" color="blue-gray" className="font-normal">
-            Trang {page}
-          </Typography>
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              {...getButtonProps("outlinedSecondary")}
-              size="sm"
-              disabled={page === 1}
-              onClick={handlePrevious}
-            >
-              Trang trước
-            </Button>
-            <Button
-              type="button"
-              {...getButtonProps("outlinedSecondary")}
-              size="sm"
-              disabled={!hasMore}
-              onClick={handleNext}
-            >
-              Trang sau
-            </Button>
-          </div>
-        </CardFooter>
-      </Card>
-    </div>
+      {/* Pagination */}
+      <div className="flex items-center justify-between border-t border-gray-200 px-2 py-4 mt-6">
+        <p className="text-sm text-gray-500">
+          Trang {page}
+        </p>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={page === 1}
+            onClick={handlePrevious}
+            className="gap-1"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Trang trước
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={!hasMore}
+            onClick={handleNext}
+            className="gap-1"
+          >
+            Trang sau
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    </ListPageLayout>
   );
 };
 

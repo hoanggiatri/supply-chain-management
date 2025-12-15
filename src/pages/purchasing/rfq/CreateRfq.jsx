@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from "react";
-import { Card, CardBody, Typography, Button } from "@material-tailwind/react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { createRfq } from "@/services/purchasing/RfqService";
-import RfqForm from "@/components/purchasing/RfqForm";
+import FormPageLayout from "@/components/layout/FormPageLayout";
 import RfqDetailTable from "@/components/purchasing/RfqDetailTable";
-import dayjs from "dayjs";
+import RfqForm from "@/components/purchasing/RfqForm";
+import { Button } from "@/components/ui/button";
 import { getCompanyById } from "@/services/general/CompanyService";
+import { createRfq } from "@/services/purchasing/RfqService";
 import toastrService from "@/services/toastrService";
+import dayjs from "dayjs";
+import { Save, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const CreateRfq = () => {
   const navigate = useNavigate();
@@ -108,7 +110,6 @@ const CreateRfq = () => {
     }
 
     try {
-      // Only send allowed fields, exclude read-only and computed fields
       const request = {
         companyId: Number(rfq.companyId),
         requestedCompanyId: Number(rfq.requestedCompanyId),
@@ -132,56 +133,55 @@ const CreateRfq = () => {
     }
   };
 
-  const handleCancel = () => {
-    navigate(-1);
-  };
-
   return (
-    <div className="mx-auto max-w-6xl p-4 sm:p-6">
-      <Card className="shadow-lg">
-        <CardBody>
-          <Typography
-            variant="h4"
-            color="blue-gray"
-            className="mb-6 font-bold uppercase"
-          >
-            TẠO YÊU CẦU BÁO GIÁ (RFQ)
-          </Typography>
+    <FormPageLayout
+      breadcrumbItems={[
+        { label: "Danh sách yêu cầu báo giá", path: "/rfqs" },
+        { label: "Tạo mới" },
+      ]}
+      backLink="/rfqs"
+      backLabel="Quay lại danh sách"
+    >
+      <RfqForm
+        rfq={rfq}
+        onChange={handleChange}
+        setRfq={setRfq}
+        errors={errors}
+        readOnlyFields={readOnlyFields}
+      />
 
-          <RfqForm
-            rfq={rfq}
-            onChange={handleChange}
-            setRfq={setRfq}
-            errors={errors}
-            readOnlyFields={readOnlyFields}
-          />
+      <h2 className="text-lg font-semibold text-gray-900 mt-8 mb-4">
+        Danh sách hàng hóa yêu cầu báo giá
+      </h2>
 
-          <Typography
-            variant="h5"
-            color="blue-gray"
-            className="mt-8 mb-4 font-semibold"
-          >
-            DANH SÁCH HÀNG HÓA YÊU CẦU BÁO GIÁ
-          </Typography>
+      <RfqDetailTable
+        rfqDetails={details}
+        setRfqDetails={setDetails}
+        requestedCompanyId={rfq.requestedCompanyId}
+        errors={errors.rfqDetailErrors}
+      />
 
-          <RfqDetailTable
-            rfqDetails={details}
-            setRfqDetails={setDetails}
-            requestedCompanyId={rfq.requestedCompanyId}
-            errors={errors.rfqDetailErrors}
-          />
-
-          <div className="mt-8 flex justify-end gap-3">
-            <Button color="blue" onClick={handleSubmit}>
-              Gửi yêu cầu
-            </Button>
-            <Button variant="outlined" color="blue-gray" onClick={handleCancel}>
-              Hủy
-            </Button>
-          </div>
-        </CardBody>
-      </Card>
-    </div>
+      <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-100">
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => navigate(-1)}
+          className="gap-2"
+        >
+          <X className="w-4 h-4" />
+          Hủy
+        </Button>
+        <Button
+          type="button"
+          variant="default"
+          onClick={handleSubmit}
+          className="gap-2 bg-blue-600 hover:bg-blue-700 min-w-[120px]"
+        >
+          <Save className="w-4 h-4" />
+          Gửi yêu cầu
+        </Button>
+      </div>
+    </FormPageLayout>
   );
 };
 

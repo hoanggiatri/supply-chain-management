@@ -1,15 +1,10 @@
-import React, { useEffect, useState } from "react";
-import {
-  Grid,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-} from "@mui/material";
-import SelectAutocomplete from "@components/content-components/SelectAutocomplete";
+import { Combobox } from "@/components/ui/combobox";
+import { DateTimePicker } from "@/components/ui/date-time-picker";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { getAllCompanies } from "@/services/general/CompanyService";
 import toastrService from "@/services/toastrService";
+import { useEffect, useState } from "react";
 
 const RfqForm = ({ rfq, onChange, errors = {}, readOnlyFields, setRfq }) => {
   const [companies, setCompanies] = useState([]);
@@ -40,10 +35,10 @@ const RfqForm = ({ rfq, onChange, errors = {}, readOnlyFields, setRfq }) => {
     fetchCompanies();
   }, [token, companyId]);
 
-  const handleCompanyChange = (selected) => {
+  const handleCompanyChange = (value) => {
     const selectedCompany = companies.find(
       (company) =>
-        Number(company.companyId || company.id) === Number(selected?.value)
+        String(company.companyId || company.id) === String(value)
     );
     setRfq((prev) => ({
       ...prev,
@@ -54,84 +49,100 @@ const RfqForm = ({ rfq, onChange, errors = {}, readOnlyFields, setRfq }) => {
     }));
   };
 
-  const formatDateTimeLocal = (isoString) => {
-    if (!isoString) return "";
-    const date = new Date(isoString);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  const companyOptions = filteredCompanies.map((c) => ({
+    label: c.companyCode + " - " + c.companyName,
+    value: String(c.companyId || c.id),
+  }));
+
+  const statusLabels = {
+    "Chưa báo giá": "Chưa báo giá",
+    "Đã báo giá": "Đã báo giá",
+    "Đã hủy": "Đã hủy",
+    "Đã từ chối": "Đã từ chối",
+    "Đã chấp nhận": "Đã chấp nhận",
+    "Quá hạn báo giá": "Quá hạn báo giá",
   };
 
   return (
-    <Grid container spacing={2}>
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
-          label="Mã yêu cầu"
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Mã yêu cầu */}
+      <div className="space-y-2">
+        <Label>Mã yêu cầu</Label>
+        <Input
           name="rfqCode"
-          value={rfq.rfqCode}
-          onChange={onChange}
+          value={rfq.rfqCode || ""}
           placeholder="Mã yêu cầu được tạo tự động"
-          required
-          inputProps={{ readOnly: isFieldReadOnly("rfqCode") }}
-        />
-      </Grid>
-
-      <Grid item xs={12} sm={6}>
-        <SelectAutocomplete
-          options={filteredCompanies.map((c) => ({
-            label: c.companyCode + " - " + c.companyName,
-            value: c.companyId || c.id,
-          }))}
-          value={rfq.requestedCompanyId}
-          onChange={handleCompanyChange}
-          placeholder="Chọn công ty yêu cầu"
-          error={errors.requestedCompanyId}
-          helperText={errors.requestedCompanyId}
-          size="small"
-          disabled={isFieldReadOnly("requestedCompanyId")}
-        />
-      </Grid>
-
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
-          type="datetime-local"
-          label="Hạn báo giá"
-          name="needByDate"
-          value={formatDateTimeLocal(rfq.needByDate) || ""}
+          readOnly={isFieldReadOnly("rfqCode")}
+          className={isFieldReadOnly("rfqCode") ? "bg-gray-50" : ""}
           onChange={onChange}
-          error={!!errors.needByDate}
-          helperText={errors.needByDate}
-          InputLabelProps={{ shrink: true }}
-          required
-          InputProps={{ readOnly: isFieldReadOnly("needByDate") }}
         />
-      </Grid>
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <FormControl fullWidth error={!!errors.status} required>
-          <InputLabel>Trạng thái</InputLabel>
-          <Select
-            name="status"
-            value={rfq.status || ""}
-            label="Trạng thái"
-            onChange={onChange}
-            inputProps={{ readOnly: isFieldReadOnly("status") }}
-          >
-            <MenuItem value="Chưa báo giá">Chưa báo giá</MenuItem>
-            <MenuItem value="Đã báo giá">Đã báo giá</MenuItem>
-            <MenuItem value="Đã hủy">Đã hủy</MenuItem>
-            <MenuItem value="Đã từ chối">Đã từ chối</MenuItem>
-            <MenuItem value="Đã chấp nhận">Đã chấp nhận</MenuItem>
-            <MenuItem value="Quá hạn báo giá">Quá hạn báo giá</MenuItem>
-          </Select>
-        </FormControl>
-      </Grid>
-    </Grid>
+      {/* Công ty cung cấp */}
+      <div className="space-y-2">
+        <Label>
+          Công ty cung cấp <span className="text-red-500">*</span>
+        </Label>
+        {isFieldReadOnly("requestedCompanyId") ? (
+          <Input
+            value={
+              rfq.requestedCompanyCode
+                ? `${rfq.requestedCompanyCode} - ${rfq.requestedCompanyName}`
+                : ""
+            }
+            readOnly
+            className="bg-gray-50"
+          />
+        ) : (
+          <Combobox
+            options={companyOptions}
+            value={String(rfq.requestedCompanyId || "")}
+            onValueChange={handleCompanyChange}
+            placeholder="Chọn công ty cung cấp"
+            searchPlaceholder="Tìm công ty..."
+            emptyText="Không tìm thấy công ty"
+            className={errors.requestedCompanyId ? "border-red-500" : ""}
+          />
+        )}
+        {errors.requestedCompanyId && (
+          <p className="text-sm text-red-500">{errors.requestedCompanyId}</p>
+        )}
+      </div>
+
+      {/* Hạn báo giá */}
+      <div className="space-y-2">
+        <Label>
+          Hạn báo giá <span className="text-red-500">*</span>
+        </Label>
+        {isFieldReadOnly("needByDate") ? (
+          <Input
+            value={rfq.needByDate ? new Date(rfq.needByDate).toLocaleString("vi-VN") : ""}
+            readOnly
+            className="bg-gray-50"
+          />
+        ) : (
+          <DateTimePicker
+            value={rfq.needByDate || ""}
+            onChange={(value) => setRfq((prev) => ({ ...prev, needByDate: value }))}
+            placeholder="Chọn ngày giờ"
+            error={!!errors.needByDate}
+          />
+        )}
+        {errors.needByDate && (
+          <p className="text-sm text-red-500">{errors.needByDate}</p>
+        )}
+      </div>
+
+      {/* Trạng thái */}
+      <div className="space-y-2">
+        <Label>Trạng thái</Label>
+        <Input
+          value={statusLabels[rfq.status] || rfq.status || ""}
+          readOnly
+          className="bg-gray-50"
+        />
+      </div>
+    </div>
   );
 };
 
