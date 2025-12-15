@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Button, Card, CardBody, Typography } from "@material-tailwind/react";
-import { createMo } from "@/services/manufacturing/MoService";
+import FormPageLayout from "@/components/layout/FormPageLayout";
+import MoForm from "@/components/manufacturing/MoForm";
+import { Button } from "@/components/ui/button";
 import { getAllItemsInCompany } from "@/services/general/ItemService";
 import { getAllLinesInCompany } from "@/services/general/ManufactureLineService";
-import MoForm from "@/components/manufacturing/MoForm";
-import dayjs from "dayjs";
+import { createMo } from "@/services/manufacturing/MoService";
 import toastrService from "@/services/toastrService";
-import BackButton from "@/components/common/BackButton";
-import { getButtonProps } from "@/utils/buttonStyles";
+import dayjs from "dayjs";
+import { Save, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const CreateMo = () => {
   const navigate = useNavigate();
@@ -134,45 +134,45 @@ const CreateMo = () => {
   };
 
   return (
-    <div className="p-6">
-      <Card className="shadow-lg max-w-5xl mx-auto">
-        <CardBody>
-          <div className="flex items-center justify-between mb-6">
-            <Typography variant="h4" color="blue-gray" className="font-bold">
-              THÊM MỚI CÔNG LỆNH SẢN XUẤT
-            </Typography>
-            <BackButton to="/mos" label="Quay lại danh sách" />
-          </div>
+    <FormPageLayout
+      breadcrumbItems={[
+        { label: "Danh sách công lệnh", path: "/mos" },
+        { label: "Thêm mới" },
+      ]}
+      backLink="/mos"
+      backLabel="Quay lại danh sách"
+    >
+      <MoForm
+        mo={mo}
+        onChange={handleChange}
+        errors={errors}
+        readOnlyFields={{ moCode: true, status: true }}
+        setMo={setMo}
+        items={items}
+        lines={lines}
+      />
 
-          <MoForm
-            mo={mo}
-            onChange={handleChange}
-            errors={errors}
-            readOnlyFields={{ moCode: true, status: true }}
-            setMo={setMo}
-            items={items}
-            lines={lines}
-          />
-
-          <div className="mt-6 flex justify-end gap-3">
-            <Button
-              type="button"
-              {...getButtonProps("primary")}
-              onClick={handleSubmit}
-            >
-              Thêm
-            </Button>
-            <Button
-              type="button"
-              {...getButtonProps("outlinedSecondary")}
-              onClick={() => navigate("/mos")}
-            >
-              Hủy
-            </Button>
-          </div>
-        </CardBody>
-      </Card>
-    </div>
+      <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-100">
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => navigate("/mos")}
+          className="gap-2"
+        >
+          <X className="w-4 h-4" />
+          Hủy
+        </Button>
+        <Button
+          type="button"
+          variant="default"
+          onClick={handleSubmit}
+          className="gap-2 bg-blue-600 hover:bg-blue-700 min-w-[120px]"
+        >
+          <Save className="w-4 h-4" />
+          Thêm
+        </Button>
+      </div>
+    </FormPageLayout>
   );
 };
 

@@ -1,5 +1,5 @@
-import React from "react";
-import { Input } from "@material-tailwind/react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const RtForm = ({ ticket }) => {
   const formatDateTimeLocal = (isoString) => {
@@ -14,64 +14,95 @@ const RtForm = ({ ticket }) => {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <Input
-        label="Mã phiếu"
-        value={ticket.ticketCode || ""}
-        readOnly
-        color="blue"
-        className="w-full placeholder:opacity-100"
-      />
-      <Input
-        label="Mã tham chiếu"
-        value={ticket.referenceCode || ""}
-        readOnly
-        color="blue"
-        className="w-full placeholder:opacity-100"
-      />
-      <Input
-        label="Mã kho"
-        value={ticket.warehouseCode || ""}
-        readOnly
-        color="blue"
-        className="w-full placeholder:opacity-100"
-      />
-      <Input
-        label="Tên kho"
-        value={ticket.warehouseName || ""}
-        readOnly
-        color="blue"
-        className="w-full placeholder:opacity-100"
-      />
-      <Input
-        label="Ngày nhập kho"
-        type="datetime-local"
-        value={formatDateTimeLocal(ticket.receiveDate)}
-        readOnly
-        color="blue"
-        className="w-full placeholder:opacity-100"
-      />
-      <Input
-        label="Lý do"
-        value={ticket.reason || ""}
-        readOnly
-        color="blue"
-        className="w-full placeholder:opacity-100"
-      />
-      <Input
-        label="Loại nhập kho"
-        value={ticket.receiveType || ""}
-        readOnly
-        color="blue"
-        className="w-full placeholder:opacity-100"
-      />
-      <Input
-        label="Trạng thái"
-        value={ticket.status || ""}
-        readOnly
-        color="blue"
-        className="w-full placeholder:opacity-100"
-      />
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Mã phiếu */}
+      <div className="space-y-2">
+        <Label htmlFor="ticketCode">Mã phiếu</Label>
+        <Input
+          id="ticketCode"
+          value={ticket.ticketCode || ""}
+          readOnly
+          disabled
+        />
+      </div>
+
+      {/* Mã tham chiếu */}
+      <div className="space-y-2">
+        <Label htmlFor="referenceCode">Mã tham chiếu</Label>
+        <Input
+          id="referenceCode"
+          value={ticket.referenceCode || ""}
+          readOnly
+          disabled
+        />
+      </div>
+
+      {/* Mã kho */}
+      <div className="space-y-2">
+        <Label htmlFor="warehouseCode">Mã kho</Label>
+        <Input
+          id="warehouseCode"
+          value={ticket.warehouseCode || ""}
+          readOnly
+          disabled
+        />
+      </div>
+
+      {/* Tên kho */}
+      <div className="space-y-2">
+        <Label htmlFor="warehouseName">Tên kho</Label>
+        <Input
+          id="warehouseName"
+          value={ticket.warehouseName || ""}
+          readOnly
+          disabled
+        />
+      </div>
+
+      {/* Ngày nhập kho */}
+      <div className="space-y-2">
+        <Label htmlFor="receiveDate">Ngày nhập kho</Label>
+        <Input
+          id="receiveDate"
+          type="datetime-local"
+          value={formatDateTimeLocal(ticket.receiveDate)}
+          readOnly
+          disabled
+        />
+      </div>
+
+      {/* Lý do */}
+      <div className="space-y-2">
+        <Label htmlFor="reason">Lý do</Label>
+        <Input
+          id="reason"
+          value={ticket.reason || ""}
+          readOnly
+          disabled
+        />
+      </div>
+
+      {/* Loại nhập kho */}
+      <div className="space-y-2">
+        <Label htmlFor="receiveType">Loại nhập kho</Label>
+        <Input
+          id="receiveType"
+          value={ticket.receiveType || ""}
+          readOnly
+          disabled
+        />
+      </div>
+
+      {/* Trạng thái */}
+      <div className="space-y-2">
+        <Label htmlFor="status">Trạng thái</Label>
+        <Input
+          id="status"
+          value={ticket.status || ""}
+          readOnly
+          disabled
+        />
+      </div>
     </div>
   );
 };

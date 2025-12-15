@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { Grid, TextField } from "@mui/material";
-import SelectAutocomplete from "../content-components/SelectAutocomplete";
+import { Combobox } from "@/components/ui/combobox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { getAllItemsInCompany } from "@/services/general/ItemService";
 import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
 import toastrService from "@/services/toastrService";
+import { useEffect, useState } from "react";
 
 const InventoryForm = ({ inventory, onChange, setInventory, errors }) => {
   const [items, setItems] = useState([]);
@@ -55,9 +56,13 @@ const InventoryForm = ({ inventory, onChange, setInventory, errors }) => {
   };
 
   return (
-    <Grid container spacing={2} mt={2}>
-      <Grid item xs={12} sm={6}>
-        <SelectAutocomplete
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+      {/* Kho */}
+      <div className="space-y-2">
+        <Label htmlFor="warehouseId">
+          Kho <span className="text-red-500">*</span>
+        </Label>
+        <Combobox
           options={warehouses.map((wh) => ({
             label: wh.warehouseCode + " - " + wh.warehouseName,
             value: wh.warehouseId,
@@ -65,14 +70,17 @@ const InventoryForm = ({ inventory, onChange, setInventory, errors }) => {
           value={inventory.warehouseId}
           onChange={handleWarehouseChange}
           placeholder="Chọn kho"
-          error={errors.warehouseId}
+          error={!!errors.warehouseId}
           helperText={errors.warehouseId}
-          size="small"
         />
-      </Grid>
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <SelectAutocomplete
+      {/* Hàng hóa */}
+      <div className="space-y-2">
+        <Label htmlFor="itemId">
+          Hàng hóa <span className="text-red-500">*</span>
+        </Label>
+        <Combobox
           options={items.map((item) => ({
             label: item.itemCode + " - " + item.itemName,
             value: item.itemId,
@@ -80,40 +88,49 @@ const InventoryForm = ({ inventory, onChange, setInventory, errors }) => {
           value={inventory.itemId}
           onChange={handleItemChange}
           placeholder="Chọn hàng hóa"
-          error={errors.itemId}
+          error={!!errors.itemId}
           helperText={errors.itemId}
-          size="small"
         />
-      </Grid>
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
-          type="number"
+      {/* Số lượng tồn kho */}
+      <div className="space-y-2">
+        <Label htmlFor="quantity">
+          Số lượng tồn kho <span className="text-red-500">*</span>
+        </Label>
+        <Input
+          id="quantity"
           name="quantity"
-          label="Số lượng tồn kho"
+          type="number"
+          min={0}
           value={inventory.quantity}
           onChange={onChange}
-          error={!!errors.quantity}
-          helperText={errors.quantity}
-          inputProps={{ min: 0 }}
+          className={errors.quantity ? "border-red-500" : ""}
+          placeholder="Nhập số lượng tồn kho"
         />
-      </Grid>
+        {errors.quantity && (
+          <p className="text-sm text-red-500">{errors.quantity}</p>
+        )}
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
-          type="number"
+      {/* Số lượng cần dùng */}
+      <div className="space-y-2">
+        <Label htmlFor="onDemandQuantity">Số lượng cần dùng</Label>
+        <Input
+          id="onDemandQuantity"
           name="onDemandQuantity"
-          label="Số lượng cần dùng"
+          type="number"
+          min={0}
           value={inventory.onDemandQuantity}
           onChange={onChange}
-          error={!!errors.onDemandQuantity}
-          helperText={errors.onDemandQuantity}
-          inputProps={{ min: 0 }}
+          className={errors.onDemandQuantity ? "border-red-500" : ""}
+          placeholder="Nhập số lượng cần dùng"
         />
-      </Grid>
-    </Grid>
+        {errors.onDemandQuantity && (
+          <p className="text-sm text-red-500">{errors.onDemandQuantity}</p>
+        )}
+      </div>
+    </div>
   );
 };
 

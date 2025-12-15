@@ -1,18 +1,14 @@
-import React, { useEffect, useState } from "react";
-import DataTable from "@components/content-components/DataTable";
+import { AddButton } from "@/components/common/ActionButtons";
+import ListPageLayout from "@/components/layout/ListPageLayout";
+import { DataTable, createSortableHeader } from "@/components/ui/data-table";
 import { getAllStagesInCompany } from "@/services/manufacturing/StageService";
-import { useNavigate } from "react-router-dom";
 import toastrService from "@/services/toastrService";
-import { Button, Typography, Card, CardBody } from "@material-tailwind/react";
-import { getButtonProps } from "@/utils/buttonStyles";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const StageInCompany = () => {
   const [stages, setStages] = useState([]);
-  const [search, setSearch] = useState("");
-  const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState("stageCode");
-  const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
@@ -20,144 +16,102 @@ const StageInCompany = () => {
 
   useEffect(() => {
     const fetchStages = async () => {
+      setLoading(true);
       try {
         const data = await getAllStagesInCompany(companyId, token);
         setStages(data);
       } catch (error) {
         toastrService.error(
-          error.response?.data?.message ||
-            "Có lỗi xảy ra khi lấy danh sách Stage!"
+          error.response?.data?.message || "Có lỗi xảy ra khi lấy danh sách Stage!"
         );
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchStages();
   }, [companyId, token]);
 
-  const handleRequestSort = (property) => {
-    const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(property);
-  };
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(Number(event.target.value));
-    setPage(1);
-  };
-
   const statusLabels = {
     active: "Đang sử dụng",
     inactive: "Ngừng sử dụng",
   };
 
-  const statusColorMap = {
-    active: "green",
-    inactive: "red",
+  const statusColors = {
+    active: "bg-green-100 text-green-700",
+    inactive: "bg-red-100 text-red-700",
   };
 
   const columns = [
-    { id: "stageCode", label: "Mã Stage" },
-    { id: "itemCode", label: "Mã hàng hóa" },
-    { id: "itemName", label: "Tên hàng hóa" },
-    { id: "description", label: "Mô tả" },
-    { id: "status", label: "Trạng thái" },
+    {
+      accessorKey: "stageCode",
+      header: createSortableHeader("Mã Stage"),
+      cell: ({ getValue }) => {
+        const code = getValue();
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+            {code}
+          </span>
+        );
+      },
+    },
+    {
+      accessorKey: "itemCode",
+      header: createSortableHeader("Mã hàng hóa"),
+    },
+    {
+      accessorKey: "itemName",
+      header: createSortableHeader("Tên hàng hóa"),
+    },
+    {
+      accessorKey: "description",
+      header: createSortableHeader("Mô tả"),
+    },
+    {
+      accessorKey: "status",
+      header: createSortableHeader("Trạng thái"),
+      cell: ({ getValue }) => {
+        const status = getValue();
+        const label = statusLabels[status] || status;
+        const colorClass = statusColors[status] || "bg-gray-100 text-gray-700";
+
+        return (
+          <span
+            className={`inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-medium ${colorClass}`}
+          >
+            {label}
+          </span>
+        );
+      },
+    },
   ];
 
   return (
-    <div className="p-6">
-      <Card className="shadow-lg">
-        <CardBody>
-          <div className="flex items-center justify-between mb-4">
-            <Typography variant="h4" color="blue-gray" className="font-bold">
-              DANH SÁCH QUY TRÌNH SẢN XUẤT
-            </Typography>
-            <Button
-              type="button"
-              {...getButtonProps("primary")}
-              onClick={() => navigate("/create-stage")}
-            >
-              Thêm mới
-            </Button>
-          </div>
-
-          <DataTable
-            rows={stages}
-            columns={columns}
-            order={order}
-            orderBy={orderBy}
-            onRequestSort={handleRequestSort}
-            page={page}
-            rowsPerPage={rowsPerPage}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            search={search}
-            setSearch={setSearch}
-            statusColumn="status"
-            statusColors={statusColorMap}
-            renderRow={(stage, index, page, rowsPerPage, renderStatusCell) => {
-              const isLast = index === stages.length - 1;
-              const classes = isLast
-                ? "p-4"
-                : "p-4 border-b border-blue-gray-50";
-              return (
-                <tr
-                  key={stage.stageId}
-                  className="hover:bg-blue-gray-50 transition-colors cursor-pointer"
-                  onClick={() => navigate(`/stage/${stage.stageId}`)}
-                >
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {stage.stageCode || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {stage.itemCode || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {stage.itemName || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {stage.description || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    {renderStatusCell(
-                      statusLabels[stage.status] || stage.status || "",
-                      statusColorMap[stage.status]
-                    )}
-                  </td>
-                </tr>
-              );
-            }}
-          />
-        </CardBody>
-      </Card>
-    </div>
+    <ListPageLayout
+      breadcrumbs="Quy trình sản xuất"
+      title="Danh sách quy trình sản xuất"
+      actions={
+        <AddButton
+          onClick={() => navigate("/create-stage")}
+          label="Thêm mới"
+        />
+      }
+    >
+      <DataTable
+        columns={columns}
+        data={stages}
+        loading={loading}
+        onRowClick={(row) => navigate(`/stage/${row.stageId}`)}
+        exportFileName="Danh_sach_quy_trinh"
+        exportMapper={(row = {}) => ({
+          "Mã Stage": row.stageCode || "",
+          "Mã hàng hóa": row.itemCode || "",
+          "Tên hàng hóa": row.itemName || "",
+          "Mô tả": row.description || "",
+          "Trạng thái": statusLabels[row.status] || row.status || "",
+        })}
+      />
+    </ListPageLayout>
   );
 };
 

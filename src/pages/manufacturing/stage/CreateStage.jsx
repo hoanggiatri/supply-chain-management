@@ -1,15 +1,15 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import {
-  createStage,
-  checkIsItemCreatedStage,
-} from "@/services/manufacturing/StageService";
-import StageForm from "@/components/manufacturing/StageForm";
+import FormPageLayout from "@/components/layout/FormPageLayout";
 import StageDetailTable from "@/components/manufacturing/StageDetailTable";
+import StageForm from "@/components/manufacturing/StageForm";
+import { Button } from "@/components/ui/button";
+import {
+    checkIsItemCreatedStage,
+    createStage,
+} from "@/services/manufacturing/StageService";
 import toastrService from "@/services/toastrService";
-import { Button, Card, CardBody, Typography } from "@material-tailwind/react";
-import { getButtonProps } from "@/utils/buttonStyles";
-import BackButton from "@/components/common/BackButton";
+import { Save, X } from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const CreateStage = () => {
   const navigate = useNavigate();
@@ -126,53 +126,53 @@ const CreateStage = () => {
   };
 
   return (
-    <div className="p-6">
-      <Card className="shadow-lg max-w-6xl mx-auto">
-        <CardBody>
-          <div className="flex items-center justify-between mb-6">
-            <Typography variant="h4" color="blue-gray" className="font-bold">
-              THÊM MỚI QUY TRÌNH SẢN XUẤT
-            </Typography>
-            <BackButton to="/stages" label="Quay lại danh sách" />
-          </div>
+    <FormPageLayout
+      breadcrumbItems={[
+        { label: "Danh sách quy trình", path: "/stages" },
+        { label: "Thêm mới" },
+      ]}
+      backLink="/stages"
+      backLabel="Quay lại danh sách"
+    >
+      <StageForm
+        stage={stage}
+        onChange={handleChange}
+        errors={errors}
+        readOnlyFields={{ stageCode: true }}
+        setStage={setStage}
+      />
 
-          <StageForm
-            stage={stage}
-            onChange={handleChange}
-            errors={errors}
-            readOnlyFields={{ stageCode: true }}
-            setStage={setStage}
-          />
+      <h2 className="text-lg font-semibold text-gray-900 mt-8 mb-4">
+        Danh sách công đoạn
+      </h2>
 
-          <Typography variant="h5" color="blue-gray" className="mt-6 mb-4">
-            DANH SÁCH CÔNG ĐOẠN
-          </Typography>
+      <StageDetailTable
+        stageDetails={stageDetails}
+        setStageDetails={setStageDetails}
+        errors={errors.stageDetailErrors}
+      />
 
-          <StageDetailTable
-            stageDetails={stageDetails}
-            setStageDetails={setStageDetails}
-            errors={errors.stageDetailErrors}
-          />
-
-          <div className="mt-6 flex justify-end gap-3">
-            <Button
-              type="button"
-              {...getButtonProps("primary")}
-              onClick={handleSubmit}
-            >
-              Thêm
-            </Button>
-            <Button
-              type="button"
-              {...getButtonProps("outlinedSecondary")}
-              onClick={() => navigate("/stages")}
-            >
-              Hủy
-            </Button>
-          </div>
-        </CardBody>
-      </Card>
-    </div>
+      <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-100">
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => navigate("/stages")}
+          className="gap-2"
+        >
+          <X className="w-4 h-4" />
+          Hủy
+        </Button>
+        <Button
+          type="button"
+          variant="default"
+          onClick={handleSubmit}
+          className="gap-2 bg-blue-600 hover:bg-blue-700 min-w-[120px]"
+        >
+          <Save className="w-4 h-4" />
+          Thêm
+        </Button>
+      </div>
+    </FormPageLayout>
   );
 };
 

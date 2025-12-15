@@ -1,14 +1,14 @@
 /* global globalThis */
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { Button, Card, CardBody, Typography } from "@material-tailwind/react";
-import DataTable from "@/components/content-components/DataTable";
-import BomForm from "@/components/manufacturing/BomForm";
-import { getBomByItemId, deleteBom } from "@/services/manufacturing/BomService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
+import FormPageLayout from "@/components/layout/FormPageLayout";
+import BomForm from "@/components/manufacturing/BomForm";
+import { Button } from "@/components/ui/button";
+import { DataTable, createSortableHeader } from "@/components/ui/data-table";
+import { deleteBom, getBomByItemId } from "@/services/manufacturing/BomService";
 import toastrService from "@/services/toastrService";
-import BackButton from "@/components/common/BackButton";
-import { getButtonProps } from "@/utils/buttonStyles";
+import { Edit, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 const BomDetail = () => {
   const { itemId } = useParams();
@@ -17,12 +17,6 @@ const BomDetail = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-
-  const [search, setSearch] = useState("");
-  const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState("itemCode");
-  const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   useEffect(() => {
     const fetchBom = async () => {
@@ -51,10 +45,31 @@ const BomDetail = () => {
   };
 
   const columns = [
-    { id: "itemCode", label: "Mã NVL" },
-    { id: "itemName", label: "Tên NVL" },
-    { id: "quantity", label: "Số lượng" },
-    { id: "note", label: "Ghi chú" },
+    {
+      accessorKey: "itemCode",
+      header: createSortableHeader("Mã NVL"),
+      cell: ({ getValue }) => {
+        const code = getValue();
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+            {code}
+          </span>
+        );
+      },
+    },
+    {
+      accessorKey: "itemName",
+      header: createSortableHeader("Tên NVL"),
+    },
+    {
+      accessorKey: "quantity",
+      header: createSortableHeader("Số lượng"),
+    },
+    {
+      accessorKey: "note",
+      header: createSortableHeader("Ghi chú"),
+      cell: ({ getValue }) => getValue() || "-",
+    },
   ];
 
   const handleDelete = async () => {
@@ -83,114 +98,53 @@ const BomDetail = () => {
   }
 
   return (
-    <div className="p-6">
-      <Card className="shadow-lg max-w-6xl mx-auto">
-        <CardBody>
-          <div className="flex items-center justify-between mb-6">
-            <Typography variant="h4" color="blue-gray" className="font-bold">
-              THÔNG TIN BOM
-            </Typography>
-            <BackButton to="/boms" label="Quay lại danh sách" />
-          </div>
+    <FormPageLayout
+      breadcrumbItems={[
+        { label: "Danh sách BOM", path: "/boms" },
+        { label: "Chi tiết" },
+      ]}
+      backLink="/boms"
+      backLabel="Quay lại danh sách"
+    >
+      <BomForm
+        bom={bom}
+        onChange={() => {}}
+        errors={{}}
+        readOnlyFields={readOnlyFields}
+        setBom={setBom}
+      />
 
-          <BomForm
-            bom={bom}
-            onChange={() => {}}
-            errors={{}}
-            readOnlyFields={readOnlyFields}
-            setBom={setBom}
-          />
+      <h2 className="text-lg font-semibold text-gray-900 mt-8 mb-4">
+        Danh sách nguyên vật liệu
+      </h2>
 
-          <Typography variant="h5" color="blue-gray" className="mt-6 mb-4">
-            DANH SÁCH NGUYÊN VẬT LIỆU
-          </Typography>
+      <DataTable
+        columns={columns}
+        data={bomDetails}
+        loading={loading}
+      />
 
-          <DataTable
-            rows={bomDetails}
-            columns={columns}
-            order={order}
-            orderBy={orderBy}
-            onRequestSort={(property) => {
-              const isAsc = orderBy === property && order === "asc";
-              setOrder(isAsc ? "desc" : "asc");
-              setOrderBy(property);
-            }}
-            page={page}
-            rowsPerPage={rowsPerPage}
-            onPageChange={(_, newPage) => setPage(newPage)}
-            onRowsPerPageChange={(event) =>
-              setRowsPerPage(Number(event.target.value))
-            }
-            search={search}
-            setSearch={setSearch}
-            loading={loading}
-            renderRow={(detail, index) => {
-              const isLast = index === bomDetails.length - 1;
-              const classes = isLast
-                ? "p-4"
-                : "p-4 border-b border-blue-gray-50";
-              return (
-                <tr key={`${detail.itemCode}-${index}`}>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {detail.itemCode}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {detail.itemName}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {detail.quantity}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {detail.note || "-"}
-                    </Typography>
-                  </td>
-                </tr>
-              );
-            }}
-          />
-
-          <div className="mt-6 flex justify-end gap-3">
-            <Button
-              type="button"
-              {...getButtonProps("primary")}
-              onClick={() => navigate(`/bom/${bom.itemId}/edit`)}
-            >
-              Sửa
-            </Button>
-            <Button
-              type="button"
-              {...getButtonProps("danger")}
-              onClick={handleDelete}
-            >
-              Xóa
-            </Button>
-          </div>
-        </CardBody>
-      </Card>
-    </div>
+      <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-100">
+        <Button
+          type="button"
+          variant="default"
+          onClick={() => navigate(`/bom/${bom.itemId}/edit`)}
+          className="gap-2 bg-blue-600 hover:bg-blue-700"
+        >
+          <Edit className="w-4 h-4" />
+          Sửa
+        </Button>
+        <Button
+          type="button"
+          variant="destructive"
+          onClick={handleDelete}
+          className="gap-2"
+        >
+          <Trash2 className="w-4 h-4" />
+          Xóa
+        </Button>
+      </div>
+    </FormPageLayout>
   );
 };
 

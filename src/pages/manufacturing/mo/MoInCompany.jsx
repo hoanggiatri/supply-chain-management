@@ -1,27 +1,24 @@
-import React, { useEffect, useState } from "react";
-import DataTable from "@components/content-components/DataTable";
-import StatusSummaryCard from "@/components/content-components/StatusSummaryCard";
+import { AddButton } from "@/components/common/ActionButtons";
+import ListPageLayout from "@/components/layout/ListPageLayout";
+import { DataTable, createSortableHeader } from "@/components/ui/data-table";
+import { StatusSummaryCard } from "@/components/ui/status-summary-card";
 import { getAllMosInCompany } from "@/services/manufacturing/MoService";
-import { useNavigate } from "react-router-dom";
 import toastrService from "@/services/toastrService";
-import { Button, Typography, Card, CardBody } from "@material-tailwind/react";
-import { getButtonProps } from "@/utils/buttonStyles";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const MoInCompany = () => {
   const [mos, setMos] = useState([]);
-  const [search, setSearch] = useState("");
-  const [order, setOrder] = useState("desc");
-  const [orderBy, setOrderBy] = useState("createdOn");
-  const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const [filterStatus, setFilterStatus] = useState("Tất cả");
+  const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
   const companyId = localStorage.getItem("companyId");
 
   useEffect(() => {
     const fetchMos = async () => {
+      setLoading(true);
       try {
         const data = await getAllMosInCompany(companyId, token);
         setMos(data);
@@ -29,26 +26,13 @@ const MoInCompany = () => {
         toastrService.error(
           error.response?.data?.message || "Có lỗi khi lấy danh sách công lệnh!"
         );
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchMos();
   }, [companyId, token]);
-
-  const handleRequestSort = (property) => {
-    const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(property);
-  };
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(Number(event.target.value));
-    setPage(1);
-  };
 
   const filteredMos =
     !filterStatus || filterStatus === "Tất cả"
@@ -64,212 +48,155 @@ const MoInCompany = () => {
     "Đã hủy": "Đã hủy",
   };
 
-  const statusColorMap = {
-    "Chờ xác nhận": "purple",
-    "Chờ sản xuất": "blue",
-    "Đang sản xuất": "cyan",
-    "Chờ nhập kho": "amber",
-    "Đã hoàn thành": "green",
-    "Đã hủy": "red",
+  const statusColors = {
+    "Chờ xác nhận": "bg-purple-100 text-purple-700",
+    "Chờ sản xuất": "bg-blue-100 text-blue-700",
+    "Đang sản xuất": "bg-cyan-100 text-cyan-700",
+    "Chờ nhập kho": "bg-amber-100 text-amber-700",
+    "Đã hoàn thành": "bg-green-100 text-green-700",
+    "Đã hủy": "bg-red-100 text-red-700",
   };
 
   const columns = [
-    { id: "moCode", label: "Mã MO" },
-    { id: "itemCode", label: "Mã hàng hóa" },
-    { id: "lineCode", label: "Mã chuyền" },
-    { id: "type", label: "Loại" },
-    { id: "quantity", label: "Số lượng" },
-    { id: "estimatedStartTime", label: "Ngày bắt đầu" },
-    { id: "estimatedEndTime", label: "Ngày kết thúc" },
-    { id: "createdBy", label: "Người tạo" },
-    { id: "createdOn", label: "Ngày tạo" },
-    { id: "lastUpdatedOn", label: "Cập nhật" },
-    { id: "status", label: "Trạng thái" },
+    {
+      accessorKey: "moCode",
+      header: createSortableHeader("Mã MO"),
+      cell: ({ getValue }) => {
+        const code = getValue();
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+            {code}
+          </span>
+        );
+      },
+    },
+    {
+      accessorKey: "itemCode",
+      header: createSortableHeader("Mã hàng hóa"),
+    },
+    {
+      accessorKey: "lineCode",
+      header: createSortableHeader("Mã chuyền"),
+    },
+    {
+      accessorKey: "type",
+      header: createSortableHeader("Loại"),
+    },
+    {
+      accessorKey: "quantity",
+      header: createSortableHeader("Số lượng"),
+    },
+    {
+      accessorKey: "estimatedStartTime",
+      header: createSortableHeader("Ngày bắt đầu"),
+      cell: ({ getValue }) => {
+        const value = getValue();
+        return value ? new Date(value).toLocaleString("vi-VN") : "";
+      },
+    },
+    {
+      accessorKey: "estimatedEndTime",
+      header: createSortableHeader("Ngày kết thúc"),
+      cell: ({ getValue }) => {
+        const value = getValue();
+        return value ? new Date(value).toLocaleString("vi-VN") : "";
+      },
+    },
+    {
+      accessorKey: "createdBy",
+      header: createSortableHeader("Người tạo"),
+    },
+    {
+      accessorKey: "createdOn",
+      header: createSortableHeader("Ngày tạo"),
+      cell: ({ getValue }) => {
+        const value = getValue();
+        return value ? new Date(value).toLocaleString("vi-VN") : "";
+      },
+    },
+    {
+      accessorKey: "status",
+      header: createSortableHeader("Trạng thái"),
+      cell: ({ getValue }) => {
+        const status = getValue();
+        const label = statusLabels[status] || status;
+        const colorClass = statusColors[status] || "bg-gray-100 text-gray-700";
+
+        return (
+          <span
+            className={`inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-medium ${colorClass}`}
+          >
+            {label}
+          </span>
+        );
+      },
+    },
   ];
 
   return (
-    <div className="p-6">
-      <Card className="shadow-lg">
-        <CardBody>
-          <div className="mb-4">
-            <div className="flex items-center justify-between mb-4">
-              <Typography
-                variant="h4"
-                color="blue-gray"
-                className="font-bold mb-4"
-              >
-                DANH SÁCH CÔNG LỆNH SẢN XUẤT
-              </Typography>
-              <Button
-                type="button"
-                {...getButtonProps("primary")}
-                onClick={() => navigate("/create-mo")}
-              >
-                Thêm mới
-              </Button>
-            </div>
-            <StatusSummaryCard
-              data={mos}
-              statusLabels={[
-                "Tất cả",
-                "Chờ xác nhận",
-                "Chờ sản xuất",
-                "Đang sản xuất",
-                "Chờ nhập kho",
-                "Đã hoàn thành",
-                "Đã hủy",
-              ]}
-              getStatus={(mo) => mo.status}
-              statusColors={{
-                "Tất cả": "#000",
-                "Chờ xác nhận": "#9c27b0",
-                "Chờ sản xuất": "#2196f3",
-                "Đang sản xuất": "#00bcd4",
-                "Chờ nhập kho": "#ff9800",
-                "Đã hoàn thành": "#4caf50",
-                "Đã hủy": "#f44336",
-              }}
-              onSelectStatus={(status) => setFilterStatus(status)}
-              selectedStatus={filterStatus}
-            />
-          </div>
+    <ListPageLayout
+      breadcrumbs="Công lệnh sản xuất"
+      title="Danh sách công lệnh sản xuất"
+      actions={
+        <AddButton
+          onClick={() => navigate("/create-mo")}
+          label="Thêm mới"
+        />
+      }
+    >
+      <div className="mb-6">
+        <StatusSummaryCard
+          data={mos}
+          statusLabels={[
+            "Tất cả",
+            "Chờ xác nhận",
+            "Chờ sản xuất",
+            "Đang sản xuất",
+            "Chờ nhập kho",
+            "Đã hoàn thành",
+            "Đã hủy",
+          ]}
+          getStatus={(mo) => mo.status}
+          statusColors={{
+            "Tất cả": "#000",
+            "Chờ xác nhận": "#9c27b0",
+            "Chờ sản xuất": "#2196f3",
+            "Đang sản xuất": "#00bcd4",
+            "Chờ nhập kho": "#ff9800",
+            "Đã hoàn thành": "#4caf50",
+            "Đã hủy": "#f44336",
+          }}
+          onSelectStatus={(status) => setFilterStatus(status)}
+          selectedStatus={filterStatus}
+        />
+      </div>
 
-          <DataTable
-            rows={filteredMos}
-            columns={columns}
-            order={order}
-            orderBy={orderBy}
-            onRequestSort={handleRequestSort}
-            page={page}
-            rowsPerPage={rowsPerPage}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            search={search}
-            setSearch={setSearch}
-            statusColumn="status"
-            statusColors={statusColorMap}
-            renderRow={(mo, index, page, rowsPerPage, renderStatusCell) => {
-              const isLast = index === filteredMos.length - 1;
-              const classes = isLast
-                ? "p-4"
-                : "p-4 border-b border-blue-gray-50";
-              return (
-                <tr
-                  key={mo.moId}
-                  className="hover:bg-blue-gray-50 transition-colors cursor-pointer"
-                  onClick={() => navigate(`/mo/${mo.moId}`)}
-                >
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {mo.moCode || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {mo.itemCode || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {mo.lineCode || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {mo.type || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {mo.quantity}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {mo.estimatedStartTime
-                        ? new Date(mo.estimatedStartTime).toLocaleString()
-                        : ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {mo.estimatedEndTime
-                        ? new Date(mo.estimatedEndTime).toLocaleString()
-                        : ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {mo.createdBy || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {mo.createdOn
-                        ? new Date(mo.createdOn).toLocaleString()
-                        : ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {mo.lastUpdatedOn
-                        ? new Date(mo.lastUpdatedOn).toLocaleString()
-                        : ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    {renderStatusCell(
-                      statusLabels[mo.status] || mo.status || "",
-                      statusColorMap[mo.status]
-                    )}
-                  </td>
-                </tr>
-              );
-            }}
-          />
-        </CardBody>
-      </Card>
-    </div>
+      <DataTable
+        columns={columns}
+        data={filteredMos}
+        loading={loading}
+        onRowClick={(row) => navigate(`/mo/${row.moId}`)}
+        exportFileName="Danh_sach_cong_lenh"
+        exportMapper={(row = {}) => ({
+          "Mã MO": row.moCode || "",
+          "Mã hàng hóa": row.itemCode || "",
+          "Mã chuyền": row.lineCode || "",
+          "Loại": row.type || "",
+          "Số lượng": row.quantity || "",
+          "Ngày bắt đầu": row.estimatedStartTime
+            ? new Date(row.estimatedStartTime).toLocaleString("vi-VN")
+            : "",
+          "Ngày kết thúc": row.estimatedEndTime
+            ? new Date(row.estimatedEndTime).toLocaleString("vi-VN")
+            : "",
+          "Người tạo": row.createdBy || "",
+          "Ngày tạo": row.createdOn
+            ? new Date(row.createdOn).toLocaleString("vi-VN")
+            : "",
+          "Trạng thái": statusLabels[row.status] || row.status || "",
+        })}
+      />
+    </ListPageLayout>
   );
 };
 

@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { Button, Card, CardBody, Typography } from "@material-tailwind/react";
-import { getBomByItemId, updateBom } from "@/services/manufacturing/BomService";
-import { getAllItemsInCompany } from "@/services/general/ItemService";
-import BomForm from "@/components/manufacturing/BomForm";
-import BomDetailTable from "@/components/manufacturing/BomDetailTable";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
+import FormPageLayout from "@/components/layout/FormPageLayout";
+import BomDetailTable from "@/components/manufacturing/BomDetailTable";
+import BomForm from "@/components/manufacturing/BomForm";
+import { Button } from "@/components/ui/button";
+import { getAllItemsInCompany } from "@/services/general/ItemService";
+import { getBomByItemId, updateBom } from "@/services/manufacturing/BomService";
 import toastrService from "@/services/toastrService";
-import BackButton from "@/components/common/BackButton";
-import { getButtonProps } from "@/utils/buttonStyles";
+import { Save, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 const EditBom = () => {
   const { itemId } = useParams();
@@ -130,54 +130,54 @@ const EditBom = () => {
   }
 
   return (
-    <div className="p-6">
-      <Card className="shadow-lg max-w-6xl mx-auto">
-        <CardBody>
-          <div className="flex items-center justify-between mb-6">
-            <Typography variant="h4" color="blue-gray" className="font-bold">
-              CẬP NHẬT BOM
-            </Typography>
-            <BackButton to="/boms" label="Quay lại danh sách" />
-          </div>
+    <FormPageLayout
+      breadcrumbItems={[
+        { label: "Danh sách BOM", path: "/boms" },
+        { label: "Chỉnh sửa" },
+      ]}
+      backLink="/boms"
+      backLabel="Quay lại danh sách"
+    >
+      <BomForm
+        bom={bom}
+        onChange={handleChange}
+        errors={errors}
+        readOnlyFields={readOnlyFields}
+        setBom={setBom}
+      />
 
-          <BomForm
-            bom={bom}
-            onChange={handleChange}
-            errors={errors}
-            readOnlyFields={readOnlyFields}
-            setBom={setBom}
-          />
+      <h2 className="text-lg font-semibold text-gray-900 mt-8 mb-4">
+        Danh sách nguyên vật liệu
+      </h2>
 
-          <Typography variant="h5" color="blue-gray" className="mt-6 mb-4">
-            DANH SÁCH NGUYÊN VẬT LIỆU
-          </Typography>
+      <BomDetailTable
+        bomDetails={bomDetails}
+        setBomDetails={setBomDetails}
+        items={items}
+        errors={errors.bomDetailErrors}
+      />
 
-          <BomDetailTable
-            bomDetails={bomDetails}
-            setBomDetails={setBomDetails}
-            items={items}
-            errors={errors.bomDetailErrors}
-          />
-
-          <div className="mt-6 flex justify-end gap-3">
-            <Button
-              type="button"
-              {...getButtonProps("primary")}
-              onClick={handleSubmit}
-            >
-              Lưu
-            </Button>
-            <Button
-              type="button"
-              {...getButtonProps("outlinedSecondary")}
-              onClick={() => navigate("/boms")}
-            >
-              Hủy
-            </Button>
-          </div>
-        </CardBody>
-      </Card>
-    </div>
+      <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-100">
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => navigate("/boms")}
+          className="gap-2"
+        >
+          <X className="w-4 h-4" />
+          Hủy
+        </Button>
+        <Button
+          type="button"
+          variant="default"
+          onClick={handleSubmit}
+          className="gap-2 bg-blue-600 hover:bg-blue-700 min-w-[120px]"
+        >
+          <Save className="w-4 h-4" />
+          Lưu
+        </Button>
+      </div>
+    </FormPageLayout>
   );
 };
 

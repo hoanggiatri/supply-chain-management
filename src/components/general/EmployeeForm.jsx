@@ -1,6 +1,4 @@
-import React, { useEffect, useState } from "react";
-import { getAllDepartmentsInCompany } from "@/services/general/DepartmentService";
-import toastrService from "@/services/toastrService";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -10,6 +8,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { getAllDepartmentsInCompany } from "@/services/general/DepartmentService";
+import toastrService from "@/services/toastrService";
+import { useEffect, useState } from "react";
 
 const EmployeeForm = ({
   employee,
@@ -139,13 +140,12 @@ const EmployeeForm = ({
       {/* Ngày sinh */}
       <div className="space-y-2">
         <Label htmlFor="dateOfBirth">Ngày sinh</Label>
-        <Input
-          id="dateOfBirth"
+        <DatePicker
           name="dateOfBirth"
-          type="date"
           value={employee.dateOfBirth || ""}
           onChange={onChange}
-          readOnly={isFieldReadOnly("dateOfBirth")}
+          disabled={isFieldReadOnly("dateOfBirth")}
+          placeholder="Chọn ngày sinh"
         />
       </div>
 
@@ -191,13 +191,12 @@ const EmployeeForm = ({
       {/* Ngày bắt đầu làm */}
       <div className="space-y-2">
         <Label htmlFor="startDate">Ngày bắt đầu làm</Label>
-        <Input
-          id="startDate"
+        <DatePicker
           name="startDate"
-          type="date"
           value={employee.startDate || ""}
           onChange={onChange}
-          readOnly={isFieldReadOnly("startDate")}
+          disabled={isFieldReadOnly("startDate")}
+          placeholder="Chọn ngày bắt đầu"
         />
       </div>
 

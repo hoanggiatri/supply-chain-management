@@ -1,6 +1,14 @@
-import React from "react";
+import { DateTimePicker } from "@/components/ui/date-time-picker";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import PropTypes from "prop-types";
-import { Input, Select, Option, Typography } from "@material-tailwind/react";
 
 const MoForm = ({
   mo = {},
@@ -26,7 +34,6 @@ const MoForm = ({
 
   const handleItemChange = (value) => {
     if (!value) {
-      // If value is empty, clear the selection
       if (typeof setMo === "function") {
         setMo((prev) => ({
           ...prev,
@@ -58,7 +65,6 @@ const MoForm = ({
 
   const handleLineChange = (value) => {
     if (!value) {
-      // If value is empty, clear the selection
       if (typeof setMo === "function") {
         setMo((prev) => ({
           ...prev,
@@ -88,249 +94,218 @@ const MoForm = ({
     }
   };
 
-  const formatDateTimeLocal = (isoString) => {
-    if (!isoString) return "";
-    const date = new Date(isoString);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
-  };
-
-  const renderItemSelect = () => {
-    if (isFieldReadOnly("itemId")) {
-      return (
-        <Input
-          label="Hàng hóa"
-          value={mo.itemCode || ""}
-          readOnly
-          color="blue"
-          className="w-full placeholder:opacity-100"
-        />
-      );
-    }
-
-    const currentValue = mo.itemId ? String(mo.itemId) : "";
-
-    return (
-      <Select
-        label="Chọn hàng hóa"
-        color="blue"
-        value={currentValue}
-        onChange={handleItemChange}
-        className="w-full"
-      >
-        {items.map((item) => (
-          <Option key={item.itemId} value={String(item.itemId)}>
-            {item.itemCode} - {item.itemName}
-          </Option>
-        ))}
-      </Select>
-    );
-  };
-
-  const renderLineSelect = () => {
-    if (isFieldReadOnly("lineId")) {
-      return (
-        <Input
-          label="Dây chuyền"
-          value={mo.lineCode || ""}
-          readOnly
-          color="blue"
-          className="w-full placeholder:opacity-100"
-        />
-      );
-    }
-
-    const currentValue = mo.lineId ? String(mo.lineId) : "";
-
-    return (
-      <Select
-        label="Chọn dây chuyền"
-        color="blue"
-        value={currentValue}
-        onChange={handleLineChange}
-        className="w-full"
-      >
-        {lines.map((line) => (
-          <Option key={line.lineId} value={String(line.lineId)}>
-            {line.lineCode} - {line.lineName}
-          </Option>
-        ))}
-      </Select>
-    );
-  };
-
-  const renderStatusField = () => {
-    if (isFieldReadOnly("status")) {
-      return (
-        <Input
-          label="Trạng thái"
-          value={mo.status || ""}
-          readOnly
-          color="blue"
-          className="w-full placeholder:opacity-100"
-        />
-      );
-    }
-
-    return (
-      <Select
-        label="Trạng thái"
-        color="blue"
-        value={mo.status || ""}
-        onChange={(val) => handleSelectChange("status", val)}
-        className="w-full"
-      >
-        <Option value="Chờ xác nhận">Chờ xác nhận</Option>
-        <Option value="Chờ sản xuất">Chờ sản xuất</Option>
-        <Option value="Đang sản xuất">Đang sản xuất</Option>
-        <Option value="Chờ nhập kho">Chờ nhập kho</Option>
-        <Option value="Đã hoàn thành">Đã hoàn thành</Option>
-        <Option value="Đã hủy">Đã hủy</Option>
-      </Select>
-    );
-  };
-
-  const renderTypeField = () => {
-    if (isFieldReadOnly("type")) {
-      return (
-        <Input
-          label="Loại công lệnh"
-          value={mo.type || ""}
-          readOnly
-          color="blue"
-          className="w-full placeholder:opacity-100"
-        />
-      );
-    }
-
-    return (
-      <Select
-        label="Loại công lệnh"
-        color="blue"
-        value={mo.type || ""}
-        onChange={(val) => handleSelectChange("type", val)}
-        className="w-full"
-      >
-        <Option value="Sản xuất đại trà">Sản xuất đại trà</Option>
-        <Option value="Sản xuất thử nghiệm">Sản xuất thử nghiệm</Option>
-      </Select>
-    );
-  };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div>
+      {/* Mã MO */}
+      <div className="space-y-2">
+        <Label htmlFor="moCode">Mã MO</Label>
         <Input
-          label="Mã MO"
+          id="moCode"
           name="moCode"
-          color="blue"
           value={mo.moCode || ""}
           onChange={onChange}
           placeholder="Mã công lệnh được tạo tự động"
-          className="w-full placeholder:opacity-100"
           readOnly={isFieldReadOnly("moCode")}
-          required
+          disabled={isFieldReadOnly("moCode")}
+          className={errors.moCode ? "border-red-500" : ""}
         />
         {errors.moCode && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.moCode}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.moCode}</p>
         )}
       </div>
 
-      <div>
-        {renderTypeField()}
+      {/* Loại công lệnh */}
+      <div className="space-y-2">
+        <Label htmlFor="type">
+          Loại công lệnh <span className="text-red-500">*</span>
+        </Label>
+        {isFieldReadOnly("type") ? (
+          <Input
+            id="type"
+            value={mo.type || ""}
+            readOnly
+            disabled
+          />
+        ) : (
+          <Select
+            value={mo.type || ""}
+            onValueChange={(val) => handleSelectChange("type", val)}
+            disabled={isFieldReadOnly("type")}
+          >
+            <SelectTrigger className={errors.type ? "border-red-500" : ""}>
+              <SelectValue placeholder="Chọn loại công lệnh" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Sản xuất đại trà">Sản xuất đại trà</SelectItem>
+              <SelectItem value="Sản xuất thử nghiệm">Sản xuất thử nghiệm</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
         {errors.type && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.type}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.type}</p>
         )}
       </div>
 
-      <div>
-        {renderItemSelect()}
+      {/* Hàng hóa */}
+      <div className="space-y-2">
+        <Label htmlFor="itemId">
+          Hàng hóa <span className="text-red-500">*</span>
+        </Label>
+        {isFieldReadOnly("itemId") ? (
+          <Input
+            id="itemId"
+            value={mo.itemCode || ""}
+            readOnly
+            disabled
+          />
+        ) : (
+          <Select
+            value={mo.itemId ? String(mo.itemId) : ""}
+            onValueChange={handleItemChange}
+            disabled={isFieldReadOnly("itemId")}
+          >
+            <SelectTrigger className={errors.itemId ? "border-red-500" : ""}>
+              <SelectValue placeholder="Chọn hàng hóa" />
+            </SelectTrigger>
+            <SelectContent>
+              {items.map((item) => (
+                <SelectItem key={item.itemId} value={String(item.itemId)}>
+                  {item.itemCode} - {item.itemName}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
         {errors.itemId && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.itemId}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.itemId}</p>
         )}
       </div>
 
-      <div>
-        {renderLineSelect()}
+      {/* Dây chuyền */}
+      <div className="space-y-2">
+        <Label htmlFor="lineId">
+          Dây chuyền <span className="text-red-500">*</span>
+        </Label>
+        {isFieldReadOnly("lineId") ? (
+          <Input
+            id="lineId"
+            value={mo.lineCode || ""}
+            readOnly
+            disabled
+          />
+        ) : (
+          <Select
+            value={mo.lineId ? String(mo.lineId) : ""}
+            onValueChange={handleLineChange}
+            disabled={isFieldReadOnly("lineId")}
+          >
+            <SelectTrigger className={errors.lineId ? "border-red-500" : ""}>
+              <SelectValue placeholder="Chọn dây chuyền" />
+            </SelectTrigger>
+            <SelectContent>
+              {lines.map((line) => (
+                <SelectItem key={line.lineId} value={String(line.lineId)}>
+                  {line.lineCode} - {line.lineName}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
         {errors.lineId && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.lineId}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.lineId}</p>
         )}
       </div>
 
-      <div>
+      {/* Số lượng */}
+      <div className="space-y-2">
+        <Label htmlFor="quantity">
+          Số lượng <span className="text-red-500">*</span>
+        </Label>
         <Input
-          label="Số lượng"
+          id="quantity"
           name="quantity"
           type="number"
           min={0}
-          color="blue"
           value={mo.quantity ?? ""}
           onChange={onChange}
-          className="w-full placeholder:opacity-100"
           readOnly={isFieldReadOnly("quantity")}
-          required
+          disabled={isFieldReadOnly("quantity")}
+          className={errors.quantity ? "border-red-500" : ""}
+          placeholder="Nhập số lượng"
         />
         {errors.quantity && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.quantity}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.quantity}</p>
         )}
       </div>
 
-      <div>
-        <Input
-          label="Thời gian bắt đầu dự kiến"
+      {/* Thời gian bắt đầu dự kiến */}
+      <div className="space-y-2">
+        <Label htmlFor="estimatedStartTime">
+          Thời gian bắt đầu dự kiến <span className="text-red-500">*</span>
+        </Label>
+        <DateTimePicker
           name="estimatedStartTime"
-          type="datetime-local"
-          value={formatDateTimeLocal(mo.estimatedStartTime) || ""}
+          value={mo.estimatedStartTime || ""}
           onChange={onChange}
-          color="blue"
-          className="w-full placeholder:opacity-100"
-          readOnly={isFieldReadOnly("estimatedStartTime")}
+          disabled={isFieldReadOnly("estimatedStartTime")}
+          error={!!errors.estimatedStartTime}
+          placeholder="Chọn thời gian bắt đầu"
         />
         {errors.estimatedStartTime && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.estimatedStartTime}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.estimatedStartTime}</p>
         )}
       </div>
 
-      <div>
-        <Input
-          label="Thời gian kết thúc dự kiến"
+      {/* Thời gian kết thúc dự kiến */}
+      <div className="space-y-2">
+        <Label htmlFor="estimatedEndTime">
+          Thời gian kết thúc dự kiến <span className="text-red-500">*</span>
+        </Label>
+        <DateTimePicker
           name="estimatedEndTime"
-          type="datetime-local"
-          value={formatDateTimeLocal(mo.estimatedEndTime) || ""}
+          value={mo.estimatedEndTime || ""}
           onChange={onChange}
-          color="blue"
-          className="w-full placeholder:opacity-100"
-          readOnly={isFieldReadOnly("estimatedEndTime")}
+          disabled={isFieldReadOnly("estimatedEndTime")}
+          error={!!errors.estimatedEndTime}
+          placeholder="Chọn thời gian kết thúc"
         />
         {errors.estimatedEndTime && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.estimatedEndTime}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.estimatedEndTime}</p>
         )}
       </div>
 
-      <div>
-        {renderStatusField()}
+      {/* Trạng thái */}
+      <div className="space-y-2">
+        <Label htmlFor="status">Trạng thái</Label>
+        {isFieldReadOnly("status") ? (
+          <Input
+            id="status"
+            value={mo.status || ""}
+            readOnly
+            disabled
+          />
+        ) : (
+          <Select
+            value={mo.status || ""}
+            onValueChange={(val) => handleSelectChange("status", val)}
+            disabled={isFieldReadOnly("status")}
+          >
+            <SelectTrigger className={errors.status ? "border-red-500" : ""}>
+              <SelectValue placeholder="Chọn trạng thái" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Chờ xác nhận">Chờ xác nhận</SelectItem>
+              <SelectItem value="Chờ sản xuất">Chờ sản xuất</SelectItem>
+              <SelectItem value="Đang sản xuất">Đang sản xuất</SelectItem>
+              <SelectItem value="Chờ nhập kho">Chờ nhập kho</SelectItem>
+              <SelectItem value="Đã hoàn thành">Đã hoàn thành</SelectItem>
+              <SelectItem value="Đã hủy">Đã hủy</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
         {errors.status && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.status}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.status}</p>
         )}
       </div>
     </div>

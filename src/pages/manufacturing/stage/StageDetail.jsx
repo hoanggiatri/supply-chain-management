@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
+import LoadingPaper from "@/components/content-components/LoadingPaper";
+import FormPageLayout from "@/components/layout/FormPageLayout";
+import StageForm from "@/components/manufacturing/StageForm";
+import { Button } from "@/components/ui/button";
+import { DataTable, createSortableHeader } from "@/components/ui/data-table";
 import {
-  deleteStage,
-  getStageById,
+    deleteStage,
+    getStageById,
 } from "@/services/manufacturing/StageService";
 import toastrService from "@/services/toastrService";
-import StageForm from "@/components/manufacturing/StageForm";
-import DataTable from "@/components/content-components/DataTable";
-import LoadingPaper from "@/components/content-components/LoadingPaper";
-import BackButton from "@/components/common/BackButton";
-import ConfirmDialog from "@/components/common/ConfirmDialog";
-import { Button, Card, CardBody, Typography } from "@material-tailwind/react";
-import { getButtonProps } from "@/utils/buttonStyles";
+import { Edit, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 const StageDetail = () => {
   const { stageId } = useParams();
@@ -24,12 +24,6 @@ const StageDetail = () => {
   });
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-
-  const [search, setSearch] = useState("");
-  const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState("stageOrder");
-  const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   useEffect(() => {
     const fetchStage = async () => {
@@ -59,10 +53,23 @@ const StageDetail = () => {
   };
 
   const columns = [
-    { id: "stageOrder", label: "Thứ tự" },
-    { id: "stageName", label: "Tên công đoạn" },
-    { id: "estimatedTime", label: "Thời gian dự kiến (phút)" },
-    { id: "description", label: "Ghi chú" },
+    {
+      accessorKey: "stageOrder",
+      header: createSortableHeader("Thứ tự"),
+    },
+    {
+      accessorKey: "stageName",
+      header: createSortableHeader("Tên công đoạn"),
+    },
+    {
+      accessorKey: "estimatedTime",
+      header: createSortableHeader("Thời gian dự kiến (phút)"),
+    },
+    {
+      accessorKey: "description",
+      header: createSortableHeader("Ghi chú"),
+      cell: ({ getValue }) => getValue() || "-",
+    },
   ];
 
   const handleDelete = async () => {
@@ -81,129 +88,58 @@ const StageDetail = () => {
     return <LoadingPaper title="THÔNG TIN QUY TRÌNH SẢN XUẤT" />;
   }
 
-  const sortedDetails = Array.isArray(stageDetails)
-    ? [...stageDetails].sort((a, b) => {
-        if (orderBy) {
-          if (a[orderBy] < b[orderBy]) return order === "asc" ? -1 : 1;
-          if (a[orderBy] > b[orderBy]) return order === "asc" ? 1 : -1;
-        }
-        return 0;
-      })
-    : [];
-
   return (
-    <div className="p-6">
-      <Card className="shadow-lg max-w-6xl mx-auto">
-        <CardBody>
-          <div className="flex items-center justify-between mb-6">
-            <Typography variant="h4" color="blue-gray" className="font-bold">
-              THÔNG TIN QUY TRÌNH SẢN XUẤT
-            </Typography>
-            <BackButton to="/stages" label="Quay lại danh sách" />
-          </div>
+    <FormPageLayout
+      breadcrumbItems={[
+        { label: "Danh sách quy trình", path: "/stages" },
+        { label: "Chi tiết" },
+      ]}
+      backLink="/stages"
+      backLabel="Quay lại danh sách"
+    >
+      <StageForm
+        stage={stage}
+        onChange={() => {}}
+        errors={{}}
+        readOnlyFields={readOnlyFields}
+        setStage={setStage}
+      />
 
-          <StageForm
-            stage={stage}
-            onChange={() => {}}
-            errors={{}}
-            readOnlyFields={readOnlyFields}
-            setStage={setStage}
-          />
+      <h2 className="text-lg font-semibold text-gray-900 mt-8 mb-4">
+        Danh sách công đoạn
+      </h2>
 
-          <Typography variant="h5" color="blue-gray" className="mt-6 mb-4">
-            DANH SÁCH CÔNG ĐOẠN
-          </Typography>
+      <DataTable
+        columns={columns}
+        data={stageDetails}
+        loading={loading}
+      />
 
-          <DataTable
-            rows={sortedDetails}
-            columns={columns}
-            order={order}
-            orderBy={orderBy}
-            onRequestSort={(property) => {
-              const isAsc = orderBy === property && order === "asc";
-              setOrder(isAsc ? "desc" : "asc");
-              setOrderBy(property);
-            }}
-            page={page}
-            rowsPerPage={rowsPerPage}
-            onPageChange={(_, newPage) => setPage(newPage)}
-            onRowsPerPageChange={(event) =>
-              setRowsPerPage(Number(event.target.value))
-            }
-            search={search}
-            setSearch={setSearch}
-            loading={loading}
-            renderRow={(detail, index) => {
-              const isLast = index === sortedDetails.length - 1;
-              const classes = isLast
-                ? "p-4"
-                : "p-4 border-b border-blue-gray-50";
-              return (
-                <tr key={`${detail.stageOrder}-${detail.stageName}-${index}`}>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {detail.stageOrder}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {detail.stageName}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {detail.estimatedTime}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {detail.description || "-"}
-                    </Typography>
-                  </td>
-                </tr>
-              );
-            }}
-          />
-
-          <div className="mt-6 flex justify-end gap-3">
-            <Button
-              type="button"
-              {...getButtonProps("primary")}
-              onClick={() => navigate(`/stage/${stageId}/edit`)}
-            >
-              Sửa
-            </Button>
-            <Button
-              type="button"
-              {...getButtonProps("danger")}
-              onClick={() =>
-                setConfirmDialog({
-                  open: true,
-                  onConfirm: handleDelete,
-                })
-              }
-            >
-              Xóa
-            </Button>
-          </div>
-        </CardBody>
-      </Card>
+      <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-100">
+        <Button
+          type="button"
+          variant="default"
+          onClick={() => navigate(`/stage/${stageId}/edit`)}
+          className="gap-2 bg-blue-600 hover:bg-blue-700"
+        >
+          <Edit className="w-4 h-4" />
+          Sửa
+        </Button>
+        <Button
+          type="button"
+          variant="destructive"
+          onClick={() =>
+            setConfirmDialog({
+              open: true,
+              onConfirm: handleDelete,
+            })
+          }
+          className="gap-2"
+        >
+          <Trash2 className="w-4 h-4" />
+          Xóa
+        </Button>
+      </div>
 
       <ConfirmDialog
         open={confirmDialog.open}
@@ -215,7 +151,7 @@ const StageDetail = () => {
         cancelText="Hủy"
         confirmButtonProps="danger"
       />
-    </div>
+    </FormPageLayout>
   );
 };
 

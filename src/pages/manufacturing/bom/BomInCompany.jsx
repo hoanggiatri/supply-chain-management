@@ -1,18 +1,14 @@
-import React, { useEffect, useState } from "react";
-import DataTable from "@components/content-components/DataTable";
+import { AddButton } from "@/components/common/ActionButtons";
+import ListPageLayout from "@/components/layout/ListPageLayout";
+import { DataTable, createSortableHeader } from "@/components/ui/data-table";
 import { getAllBomsInCompany } from "@/services/manufacturing/BomService";
-import { useNavigate } from "react-router-dom";
 import toastrService from "@/services/toastrService";
-import { Button, Typography, Card, CardBody } from "@material-tailwind/react";
-import { getButtonProps } from "@/utils/buttonStyles";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const BomInCompany = () => {
   const [boms, setBoms] = useState([]);
-  const [search, setSearch] = useState("");
-  const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState("itemCode");
-  const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
@@ -20,144 +16,102 @@ const BomInCompany = () => {
 
   useEffect(() => {
     const fetchBoms = async () => {
+      setLoading(true);
       try {
         const data = await getAllBomsInCompany(companyId, token);
         setBoms(data);
       } catch (error) {
         toastrService.error(
-          error.response?.data?.message ||
-            "Có lỗi xảy ra khi lấy danh sách Bom!"
+          error.response?.data?.message || "Có lỗi xảy ra khi lấy danh sách BOM!"
         );
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchBoms();
   }, [companyId, token]);
 
-  const handleRequestSort = (property) => {
-    const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(property);
-  };
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(Number(event.target.value));
-    setPage(1);
-  };
-
   const statusLabels = {
     active: "Đang sử dụng",
     inactive: "Ngừng sử dụng",
   };
 
-  const statusColorMap = {
-    active: "green",
-    inactive: "red",
+  const statusColors = {
+    active: "bg-green-100 text-green-700",
+    inactive: "bg-red-100 text-red-700",
   };
 
   const columns = [
-    { id: "bomCode", label: "Mã BOM" },
-    { id: "itemCode", label: "Mã hàng hóa" },
-    { id: "itemName", label: "Tên hàng hóa" },
-    { id: "description", label: "Mô tả" },
-    { id: "status", label: "Trạng thái" },
+    {
+      accessorKey: "bomCode",
+      header: createSortableHeader("Mã BOM"),
+      cell: ({ getValue }) => {
+        const code = getValue();
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+            {code}
+          </span>
+        );
+      },
+    },
+    {
+      accessorKey: "itemCode",
+      header: createSortableHeader("Mã hàng hóa"),
+    },
+    {
+      accessorKey: "itemName",
+      header: createSortableHeader("Tên hàng hóa"),
+    },
+    {
+      accessorKey: "description",
+      header: createSortableHeader("Mô tả"),
+    },
+    {
+      accessorKey: "status",
+      header: createSortableHeader("Trạng thái"),
+      cell: ({ getValue }) => {
+        const status = getValue();
+        const label = statusLabels[status] || status;
+        const colorClass = statusColors[status] || "bg-gray-100 text-gray-700";
+
+        return (
+          <span
+            className={`inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-medium ${colorClass}`}
+          >
+            {label}
+          </span>
+        );
+      },
+    },
   ];
 
   return (
-    <div className="p-6">
-      <Card className="shadow-lg">
-        <CardBody>
-          <div className="flex items-center justify-between mb-4">
-            <Typography variant="h4" color="blue-gray" className="font-bold">
-              DANH SÁCH BOM
-            </Typography>
-            <Button
-              type="button"
-              {...getButtonProps("primary")}
-              onClick={() => navigate("/create-bom")}
-            >
-              Thêm mới
-            </Button>
-          </div>
-
-          <DataTable
-            rows={boms}
-            columns={columns}
-            order={order}
-            orderBy={orderBy}
-            onRequestSort={handleRequestSort}
-            page={page}
-            rowsPerPage={rowsPerPage}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            search={search}
-            setSearch={setSearch}
-            statusColumn="status"
-            statusColors={statusColorMap}
-            renderRow={(bom, index, page, rowsPerPage, renderStatusCell) => {
-              const isLast = index === boms.length - 1;
-              const classes = isLast
-                ? "p-4"
-                : "p-4 border-b border-blue-gray-50";
-              return (
-                <tr
-                  key={bom.bomId}
-                  className="hover:bg-blue-gray-50 transition-colors cursor-pointer"
-                  onClick={() => navigate(`/bom/${bom.itemId}`)}
-                >
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {bom.bomCode || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {bom.itemCode || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {bom.itemName || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {bom.description || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    {renderStatusCell(
-                      statusLabels[bom.status] || bom.status || "",
-                      statusColorMap[bom.status]
-                    )}
-                  </td>
-                </tr>
-              );
-            }}
-          />
-        </CardBody>
-      </Card>
-    </div>
+    <ListPageLayout
+      breadcrumbs="Danh mục BOM"
+      title="Danh sách BOM"
+      actions={
+        <AddButton
+          onClick={() => navigate("/create-bom")}
+          label="Thêm mới"
+        />
+      }
+    >
+      <DataTable
+        columns={columns}
+        data={boms}
+        loading={loading}
+        onRowClick={(row) => navigate(`/bom/${row.itemId}`)}
+        exportFileName="Danh_sach_BOM"
+        exportMapper={(row = {}) => ({
+          "Mã BOM": row.bomCode || "",
+          "Mã hàng hóa": row.itemCode || "",
+          "Tên hàng hóa": row.itemName || "",
+          "Mô tả": row.description || "",
+          "Trạng thái": statusLabels[row.status] || row.status || "",
+        })}
+      />
+    </ListPageLayout>
   );
 };
 

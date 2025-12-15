@@ -1,49 +1,47 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import {
-  Button,
-  Card,
-  CardBody,
-  Select,
-  Option,
-  Typography,
-  Dialog,
-  DialogHeader,
-  DialogBody,
-  DialogFooter,
-  Input,
-  Spinner,
-} from "@material-tailwind/react";
-import { Grid } from "@mui/material";
-import {
-  QrCode2 as QrCode2Icon,
-  List as ListIcon,
-  Download as DownloadIcon,
-} from "@mui/icons-material";
-import MoForm from "@/components/manufacturing/MoForm";
-import {
-  getMoById,
-  updateMo,
-  completeMo,
-} from "@/services/manufacturing/MoService";
-import { getAllItemsInCompany } from "@/services/general/ItemService";
-import { getAllLinesInCompany } from "@/services/general/ManufactureLineService";
-import {
-  getAllProcessesInMo,
-  updateProcess,
-} from "@/services/manufacturing/ProcessService";
-import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
-import {
-  createReceiveTicket,
-  getAllReceiveTicketsInCompany,
-} from "@/services/inventory/ReceiveTicketService";
-import { downloadQRPDF } from "@/services/general/ProductService";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import ProcessCard from "@/components/content-components/ProcessCard";
-import dayjs from "dayjs";
+import FormPageLayout from "@/components/layout/FormPageLayout";
+import MoForm from "@/components/manufacturing/MoForm";
+import { Button } from "@/components/ui/button";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { getAllItemsInCompany } from "@/services/general/ItemService";
+import { getAllLinesInCompany } from "@/services/general/ManufactureLineService";
+import { downloadQRPDF } from "@/services/general/ProductService";
+import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
+import {
+    createReceiveTicket,
+    getAllReceiveTicketsInCompany,
+} from "@/services/inventory/ReceiveTicketService";
+import {
+    completeMo,
+    getMoById,
+    updateMo,
+} from "@/services/manufacturing/MoService";
+import {
+    getAllProcessesInMo,
+    updateProcess,
+} from "@/services/manufacturing/ProcessService";
 import toastrService from "@/services/toastrService";
-import BackButton from "@/components/common/BackButton";
-import { getButtonProps } from "@/utils/buttonStyles";
+import dayjs from "dayjs";
+import { Check, Download, Edit, Eye, List, Loader2, QrCode, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 const MoDetail = () => {
   const { moId } = useParams();
@@ -184,7 +182,6 @@ const MoDetail = () => {
     }
 
     try {
-      // Only send allowed fields, exclude read-only and computed fields
       const request = {
         itemId: Number(mo.itemId),
         lineId: Number(mo.lineId),
@@ -222,26 +219,22 @@ const MoDetail = () => {
     const now = dayjs().format("YYYY-MM-DDTHH:mm:ss");
 
     try {
-      // Validate process data
       if (!currentProcess.id) {
         toastrService.error("Không tìm thấy ID của process!");
         return;
       }
 
-      // Convert moId to number if needed
       const moIdNum = Number(moId);
       if (Number.isNaN(moIdNum)) {
         toastrService.error("ID công lệnh không hợp lệ!");
         return;
       }
 
-      // If process hasn't started yet, start it first
       const startedOn = currentProcess.startedOn || now;
       const isFirstProcess = currentProcess.stageDetailOrder === 1;
       const isStartingFirstProcess =
         !currentProcess.startedOn && isFirstProcess;
 
-      // If starting the first process and MO is "Chờ sản xuất", update MO to "Đang sản xuất"
       if (isStartingFirstProcess && mo.status === "Chờ sản xuất") {
         await updateMo(
           moIdNum,
@@ -263,7 +256,6 @@ const MoDetail = () => {
         }));
       }
 
-      // Update current process to completed
       await updateProcess(
         currentProcess.id,
         {
@@ -282,7 +274,6 @@ const MoDetail = () => {
       const nextProcess = processes[currentIndex + 1];
 
       if (nextProcess) {
-        // Start next process
         if (!nextProcess.id) {
           toastrService.error("Không tìm thấy ID của process tiếp theo!");
           return;
@@ -299,8 +290,6 @@ const MoDetail = () => {
           token
         );
       } else {
-        // All processes completed, update MO status
-        // Only send allowed fields, exclude read-only and computed fields
         await updateMo(
           moIdNum,
           {
@@ -321,7 +310,6 @@ const MoDetail = () => {
         }));
       }
 
-      // Refresh processes list
       const updatedProcesses = await getAllProcessesInMo(moIdNum, token);
       const sorted = updatedProcesses.sort(
         (a, b) => a.stageDetailOrder - b.stageDetailOrder
@@ -436,10 +424,6 @@ const MoDetail = () => {
     estimatedEndTime: true,
   };
 
-  const allProcessesCompleted =
-    processes.length > 0 &&
-    processes.every((p) => p.status === "Đã hoàn thành");
-
   if (!mo) {
     return <LoadingPaper title="THÔNG TIN CÔNG LỆNH" />;
   }
@@ -449,248 +433,254 @@ const MoDetail = () => {
   }
 
   return (
-    <div className="p-6">
-      <Card className="shadow-lg max-w-6xl mx-auto">
-        <CardBody>
-          <div className="flex items-center justify-between mb-6">
-            <Typography variant="h4" color="blue-gray" className="font-bold">
-              THÔNG TIN CÔNG LỆNH
-            </Typography>
-            <BackButton to="/mos" label="Quay lại danh sách" />
-          </div>
+    <FormPageLayout
+      breadcrumbItems={[
+        { label: "Danh sách công lệnh", path: "/mos" },
+        { label: "Chi tiết" },
+      ]}
+      backLink="/mos"
+      backLabel="Quay lại danh sách"
+    >
+      {/* Action buttons */}
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+        <Button
+          variant="secondary"
+          onClick={() => navigate(`/bom/${mo.itemId}`)}
+          className="gap-2"
+        >
+          <Eye className="w-4 h-4" />
+          Xem BOM
+        </Button>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+        {mo.status === "Chờ xác nhận" && (
+          <div className="flex gap-3">
             <Button
-              type="button"
-              {...getButtonProps("secondary")}
-              onClick={() => navigate(`/bom/${mo.itemId}`)}
+              variant="default"
+              onClick={() => handleConfirm("mo", mo.moId)}
+              className="gap-2 bg-green-600 hover:bg-green-700"
             >
-              Xem BOM
+              <Check className="w-4 h-4" />
+              Xác nhận
             </Button>
+            <Button
+              variant="destructive"
+              onClick={handleCancelMo}
+              className="gap-2"
+            >
+              <X className="w-4 h-4" />
+              Hủy
+            </Button>
+          </div>
+        )}
 
-            {mo.status === "Chờ xác nhận" && (
-              <div className="flex gap-3">
-                <Button
-                  type="button"
-                  {...getButtonProps("success")}
-                  onClick={() => handleConfirm("mo", mo.moId)}
-                >
-                  Xác nhận
-                </Button>
-                <Button
-                  type="button"
-                  {...getButtonProps("danger")}
-                  onClick={handleCancelMo}
-                >
-                  Hủy
-                </Button>
-              </div>
-            )}
+        {mo.status === "Đã nhập kho" && (
+          <Button
+            variant="default"
+            onClick={() => {
+              setCompletedQuantity(mo.quantity);
+              setShowCompleteModal(true);
+            }}
+            className="gap-2 bg-green-600 hover:bg-green-700"
+          >
+            <Check className="w-4 h-4" />
+            Hoàn thành công lệnh
+          </Button>
+        )}
+      </div>
 
-            {mo.status === "Đã nhập kho" && (
-              <Button
-                {...getButtonProps("success")}
-                onClick={() => {
-                  setCompletedQuantity(mo.quantity);
-                  setShowCompleteModal(true);
-                }}
-              >
-                Hoàn thành công lệnh
-              </Button>
-            )}
+      {/* Product info when completed */}
+      {mo.status === "Đã hoàn thành" && mo.batchNo && (
+        <div className="mb-6 p-4 border border-gray-200 rounded-lg bg-blue-50/50">
+          <div className="flex items-center gap-2 mb-4">
+            <QrCode className="w-5 h-5 text-blue-600" />
+            <h3 className="text-lg font-semibold text-gray-900">
+              Thông tin sản phẩm đã tạo
+            </h3>
           </div>
 
-          {mo.status === "Đã hoàn thành" && mo.batchNo && (
-            <Card className="mb-6 border border-blue-gray-100">
-              <CardBody>
-                <div className="flex items-center gap-2 mb-4">
-                  <QrCode2Icon color="primary" />
-                  <Typography variant="h5" color="blue-gray">
-                    Thông tin sản phẩm đã tạo
-                  </Typography>
-                </div>
-
-                <Grid container spacing={2}>
-                  <Grid item xs={12} md={6}>
-                    <Typography variant="small" color="gray">
-                      Batch Number
-                    </Typography>
-                    <Typography variant="h6">{mo.batchNo}</Typography>
-                  </Grid>
-
-                  <Grid item xs={12} md={6}>
-                    <Typography variant="small" color="gray">
-                      Số lượng sản phẩm
-                    </Typography>
-                    <Typography variant="h6">
-                      {mo.completedQuantity} sản phẩm
-                    </Typography>
-                  </Grid>
-
-                  <Grid item xs={12}>
-                    <div className="flex flex-wrap gap-2">
-                      <Button
-                        {...getButtonProps("primary")}
-                        onClick={() =>
-                          navigate(`/products?batch=${mo.batchNo}`)
-                        }
-                      >
-                        <ListIcon className="mr-2" />
-                        Xem danh sách sản phẩm
-                      </Button>
-
-                      <Button
-                        {...getButtonProps("secondary")}
-                        onClick={handleDownloadBatchQR}
-                      >
-                        <DownloadIcon className="mr-2" />
-                        Tải QR Codes (PDF)
-                      </Button>
-                    </div>
-                  </Grid>
-                </Grid>
-              </CardBody>
-            </Card>
-          )}
-
-          {mo.status === "Chờ nhập kho" && !hasRequestedReceive && (
-            <div className="border border-blue-gray-100 rounded-lg p-4 mb-6">
-              <Typography variant="h5" color="blue-gray" className="mb-4">
-                Chọn kho để nhập thành phẩm
-              </Typography>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Select
-                    label="Kho nhập"
-                    color="blue"
-                    value={selectedWarehouseId}
-                    onChange={(val) => setSelectedWarehouseId(val)}
-                    className="w-full"
-                  >
-                    {warehouses.map((wh) => (
-                      <Option key={wh.warehouseId} value={wh.warehouseId}>
-                        {wh.warehouseCode} - {wh.warehouseName}
-                      </Option>
-                    ))}
-                  </Select>
-                </div>
-                <div className="flex items-center">
-                  <Button
-                    type="button"
-                    {...getButtonProps("primary")}
-                    onClick={handleCreateReceiveTicket}
-                    disabled={!selectedWarehouseId}
-                    className="disabled:opacity-60"
-                  >
-                    Yêu cầu nhập kho
-                  </Button>
-                </div>
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <p className="text-sm text-gray-500">Batch Number</p>
+              <p className="text-lg font-medium">{mo.batchNo}</p>
             </div>
-          )}
+            <div>
+              <p className="text-sm text-gray-500">Số lượng sản phẩm</p>
+              <p className="text-lg font-medium">{mo.completedQuantity} sản phẩm</p>
+            </div>
+          </div>
 
-          {hasRequestedReceive &&
-            receiveTicketId &&
-            mo.status === "Chờ nhập kho" && (
-              <Card className="mb-6 bg-green-50">
-                <CardBody>
-                  <Typography variant="h6" color="green" className="mb-2">
-                    Đã tạo phiếu nhập kho thành công!
-                  </Typography>
-                  <Typography variant="small" color="gray" className="mb-4">
-                    Vui lòng chuyển đến trang nhập kho để xác nhận.
-                  </Typography>
-                  <Button
-                    {...getButtonProps("primary")}
-                    onClick={() =>
-                      navigate(`/receive-ticket/${receiveTicketId}`)
-                    }
-                  >
-                    Đến trang nhập kho
-                  </Button>
-                </CardBody>
-              </Card>
-            )}
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant="default"
+              onClick={() => navigate(`/products?batch=${mo.batchNo}`)}
+              className="gap-2 bg-blue-600 hover:bg-blue-700"
+            >
+              <List className="w-4 h-4" />
+              Xem danh sách sản phẩm
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={handleDownloadBatchQR}
+              className="gap-2"
+            >
+              <Download className="w-4 h-4" />
+              Tải QR Codes (PDF)
+            </Button>
+          </div>
+        </div>
+      )}
 
-          <MoForm
-            mo={mo}
-            onChange={() => {}}
-            errors={{}}
-            readOnlyFields={readOnlyFields}
-            items={items}
-            lines={lines}
-            setMo={setMo}
-          />
-
-          {mo.status === "Chờ xác nhận" && (
-            <div className="mt-6 flex justify-end">
-              <Button
-                type="button"
-                {...getButtonProps("primary")}
-                onClick={handleEditClick}
+      {/* Warehouse selection when waiting for inventory */}
+      {mo.status === "Chờ nhập kho" && !hasRequestedReceive && (
+        <div className="mb-6 p-4 border border-gray-200 rounded-lg">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            Chọn kho để nhập thành phẩm
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Kho nhập</Label>
+              <Select
+                value={selectedWarehouseId}
+                onValueChange={(val) => setSelectedWarehouseId(val)}
               >
-                Sửa
+                <SelectTrigger>
+                  <SelectValue placeholder="Chọn kho" />
+                </SelectTrigger>
+                <SelectContent>
+                  {warehouses.map((wh) => (
+                    <SelectItem key={wh.warehouseId} value={String(wh.warehouseId)}>
+                      {wh.warehouseCode} - {wh.warehouseName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-end">
+              <Button
+                variant="default"
+                onClick={handleCreateReceiveTicket}
+                disabled={!selectedWarehouseId}
+                className="gap-2 bg-blue-600 hover:bg-blue-700"
+              >
+                Yêu cầu nhập kho
               </Button>
             </div>
-          )}
+          </div>
+        </div>
+      )}
 
-          {mo.status !== "Chờ xác nhận" && mo.status !== "Đã hủy" && (
-            <>
-              <Typography variant="h5" color="blue-gray" className="mt-6 mb-4">
-                QUÁ TRÌNH SẢN XUẤT
-              </Typography>
-              <div className="flex gap-4 overflow-x-auto pb-2">
-                {processes.map((process) => (
-                  <div key={process.stageDetailOrder} className="min-w-[240px]">
-                    <ProcessCard
-                      process={process}
-                      onComplete={(p) => handleCompleteProcess(p)}
-                      moStatus={mo?.status}
-                    />
-                  </div>
-                ))}
+      {/* Receive ticket created notification */}
+      {hasRequestedReceive && receiveTicketId && mo.status === "Chờ nhập kho" && (
+        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <h3 className="text-lg font-semibold text-green-700 mb-2">
+            Đã tạo phiếu nhập kho thành công!
+          </h3>
+          <p className="text-sm text-gray-600 mb-4">
+            Vui lòng chuyển đến trang nhập kho để xác nhận.
+          </p>
+          <Button
+            variant="default"
+            onClick={() => navigate(`/receive-ticket/${receiveTicketId}`)}
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            Đến trang nhập kho
+          </Button>
+        </div>
+      )}
+
+      {/* MO Form */}
+      <MoForm
+        mo={mo}
+        onChange={() => {}}
+        errors={{}}
+        readOnlyFields={readOnlyFields}
+        items={items}
+        lines={lines}
+        setMo={setMo}
+      />
+
+      {/* Edit button for pending MO */}
+      {mo.status === "Chờ xác nhận" && (
+        <div className="mt-6 flex justify-end">
+          <Button
+            variant="default"
+            onClick={handleEditClick}
+            className="gap-2 bg-blue-600 hover:bg-blue-700"
+          >
+            <Edit className="w-4 h-4" />
+            Sửa
+          </Button>
+        </div>
+      )}
+
+      {/* Process timeline */}
+      {mo.status !== "Chờ xác nhận" && mo.status !== "Đã hủy" && (
+        <div className="mt-8">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            Quá trình sản xuất
+          </h2>
+          <div className="flex gap-4 overflow-x-auto pb-2">
+            {processes.map((process) => (
+              <div key={process.stageDetailOrder} className="min-w-[240px]">
+                <ProcessCard
+                  process={process}
+                  onComplete={(p) => handleCompleteProcess(p)}
+                  moStatus={mo?.status}
+                />
               </div>
-            </>
-          )}
-        </CardBody>
-      </Card>
+            ))}
+          </div>
+        </div>
+      )}
 
-      <Dialog
-        open={showCompleteModal}
-        handler={() => setShowCompleteModal(false)}
-      >
-        <DialogHeader>Hoàn thành công lệnh sản xuất</DialogHeader>
-        <DialogBody>
-          <Input
-            label="Số lượng hoàn thành"
-            type="number"
-            color="blue"
-            size="lg"
-            value={completedQuantity}
-            onChange={(e) => setCompletedQuantity(Number(e.target.value))}
-            className="w-full"
-          />
-          <Typography variant="small" color="gray" className="mt-2">
-            Số lượng kế hoạch: {mo.quantity}
-          </Typography>
-        </DialogBody>
-        <DialogFooter className="gap-2">
-          <Button
-            {...getButtonProps("secondary")}
-            onClick={() => setShowCompleteModal(false)}
-          >
-            Hủy
-          </Button>
-          <Button
-            {...getButtonProps("success")}
-            onClick={handleCompleteMo}
-            disabled={isCompletingMo}
-          >
-            {isCompletingMo ? "Đang xử lý..." : "Xác nhận"}
-          </Button>
-        </DialogFooter>
+      {/* Complete MO Dialog */}
+      <Dialog open={showCompleteModal} onOpenChange={setShowCompleteModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Hoàn thành công lệnh sản xuất</DialogTitle>
+            <DialogDescription>
+              Nhập số lượng sản phẩm đã hoàn thành
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Số lượng hoàn thành</Label>
+              <Input
+                type="number"
+                value={completedQuantity}
+                onChange={(e) => setCompletedQuantity(Number(e.target.value))}
+              />
+            </div>
+            <p className="text-sm text-gray-500">
+              Số lượng kế hoạch: {mo.quantity}
+            </p>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="secondary"
+              onClick={() => setShowCompleteModal(false)}
+            >
+              Hủy
+            </Button>
+            <Button
+              variant="default"
+              onClick={handleCompleteMo}
+              disabled={isCompletingMo}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              {isCompletingMo ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Đang xử lý...
+                </>
+              ) : (
+                "Xác nhận"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
-    </div>
+    </FormPageLayout>
   );
 };
 

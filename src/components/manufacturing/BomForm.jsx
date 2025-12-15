@@ -1,14 +1,17 @@
-import React, { useEffect, useState } from "react";
-import PropTypes from "prop-types";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
-  Input,
-  Select,
-  Option,
-  Textarea,
-  Typography,
-} from "@material-tailwind/react";
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { getAllItemsInCompany } from "@/services/general/ItemService";
 import toastrService from "@/services/toastrService";
+import PropTypes from "prop-types";
+import { useEffect, useState } from "react";
 
 const BomForm = ({
   bom = {},
@@ -78,132 +81,121 @@ const BomForm = ({
     }
   };
 
-  const renderItemSelect = () => {
-    if (isFieldReadOnly("itemCode")) {
-      return (
-        <Input
-          label="Hàng hóa"
-          value={bom.itemCode ? `${bom.itemCode} - ${bom.itemName || ""}` : ""}
-          readOnly
-          color="blue"
-          className="w-full placeholder:opacity-100"
-        />
-      );
-    }
-
-    return (
-      <Select
-        label="Chọn hàng hóa"
-        color="blue"
-        value={bom.itemCode || ""}
-        onChange={handleItemSelect}
-        className="w-full"
-      >
-        {items.map((item) => (
-          <Option key={item.itemCode} value={item.itemCode}>
-            {item.itemCode} - {item.itemName}
-          </Option>
-        ))}
-      </Select>
-    );
-  };
-
-  const renderStatusField = () => {
-    if (isFieldReadOnly("status")) {
-      return (
-        <Input
-          label="Trạng thái"
-          value={bom.status || ""}
-          readOnly
-          color="blue"
-          className="w-full placeholder:opacity-100"
-        />
-      );
-    }
-
-    return (
-      <Select
-        label="Trạng thái"
-        color="blue"
-        value={bom.status || ""}
-        onChange={(val) => handleSelectChange("status", val)}
-        className="w-full"
-      >
-        <Option value="Đang sử dụng">Đang sử dụng</Option>
-        <Option value="Ngừng sử dụng">Ngừng sử dụng</Option>
-      </Select>
-    );
-  };
-
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div>
+      {/* Mã BOM */}
+      <div className="space-y-2">
+        <Label htmlFor="bomCode">Mã BOM</Label>
         <Input
-          label="Mã BOM"
+          id="bomCode"
           name="bomCode"
           value={bom.bomCode || ""}
           onChange={onChange}
           placeholder="Mã BOM sẽ được tạo tự động"
-          color="blue"
-          className="w-full placeholder:opacity-100"
           readOnly={isFieldReadOnly("bomCode")}
-          required
+          disabled={isFieldReadOnly("bomCode")}
+          className={errors.bomCode ? "border-red-500" : ""}
         />
         {errors.bomCode && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.bomCode}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.bomCode}</p>
         )}
       </div>
 
-      <div>
-        {renderItemSelect()}
+      {/* Hàng hóa */}
+      <div className="space-y-2">
+        <Label htmlFor="itemCode">
+          Hàng hóa <span className="text-red-500">*</span>
+        </Label>
+        {isFieldReadOnly("itemCode") ? (
+          <Input
+            id="itemCode"
+            value={bom.itemCode ? `${bom.itemCode} - ${bom.itemName || ""}` : ""}
+            readOnly
+            disabled
+          />
+        ) : (
+          <Select
+            value={bom.itemCode || ""}
+            onValueChange={handleItemSelect}
+            disabled={isFieldReadOnly("itemCode")}
+          >
+            <SelectTrigger className={errors.itemCode ? "border-red-500" : ""}>
+              <SelectValue placeholder="Chọn hàng hóa" />
+            </SelectTrigger>
+            <SelectContent>
+              {items.map((item) => (
+                <SelectItem key={item.itemCode} value={item.itemCode}>
+                  {item.itemCode} - {item.itemName}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
         {errors.itemCode && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.itemCode}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.itemCode}</p>
         )}
       </div>
 
-      <div>
+      {/* Tên hàng hóa */}
+      <div className="space-y-2">
+        <Label htmlFor="itemName">Tên hàng hóa</Label>
         <Input
-          label="Tên hàng hóa"
+          id="itemName"
           name="itemName"
           value={bom.itemName || ""}
           readOnly
-          color="blue"
-          className="w-full placeholder:opacity-100"
+          disabled
         />
         {errors.itemName && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.itemName}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.itemName}</p>
         )}
       </div>
 
-      <div>
-        {renderStatusField()}
+      {/* Trạng thái */}
+      <div className="space-y-2">
+        <Label htmlFor="status">Trạng thái</Label>
+        {isFieldReadOnly("status") ? (
+          <Input
+            id="status"
+            value={bom.status || ""}
+            readOnly
+            disabled
+          />
+        ) : (
+          <Select
+            value={bom.status || ""}
+            onValueChange={(val) => handleSelectChange("status", val)}
+            disabled={isFieldReadOnly("status")}
+          >
+            <SelectTrigger className={errors.status ? "border-red-500" : ""}>
+              <SelectValue placeholder="Chọn trạng thái" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Đang sử dụng">Đang sử dụng</SelectItem>
+              <SelectItem value="Ngừng sử dụng">Ngừng sử dụng</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
         {errors.status && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.status}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.status}</p>
         )}
       </div>
 
-      <div className="md:col-span-2">
+      {/* Mô tả */}
+      <div className="space-y-2 md:col-span-2">
+        <Label htmlFor="description">Mô tả</Label>
         <Textarea
-          label="Mô tả"
+          id="description"
           name="description"
           value={bom.description || ""}
           onChange={onChange}
-          color="blue"
-          className="w-full placeholder:opacity-100"
           readOnly={isFieldReadOnly("description")}
+          disabled={isFieldReadOnly("description")}
+          placeholder="Nhập mô tả..."
+          className={errors.description ? "border-red-500" : ""}
         />
         {errors.description && (
-          <Typography variant="small" color="red" className="mt-1">
-            {errors.description}
-          </Typography>
+          <p className="text-sm text-red-500">{errors.description}</p>
         )}
       </div>
     </div>

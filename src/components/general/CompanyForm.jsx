@@ -1,4 +1,4 @@
-import React from "react";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -166,14 +166,13 @@ const CompanyForm = ({ companyData, onChange, errors, readOnly = false }) => {
       {/* Ngày bắt đầu */}
       <div className="space-y-2">
         <Label htmlFor="startDate">Ngày bắt đầu</Label>
-        <Input
-          id="startDate"
+        <DatePicker
           name="startDate"
-          type="date"
-          value={companyData.startDate?.substring(0, 10) || ""}
+          value={companyData.startDate || ""}
           onChange={onChange}
-          readOnly={readOnly}
-          className={errors.startDate ? "border-red-500" : ""}
+          disabled={readOnly}
+          error={!!errors.startDate}
+          placeholder="Chọn ngày bắt đầu"
         />
         {errors.startDate && (
           <p className="text-sm text-red-500">{errors.startDate}</p>
