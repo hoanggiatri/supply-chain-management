@@ -1,7 +1,88 @@
-import axios from "axios";
 import toastrService from "@/services/toastrService";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 
+/**
+ * Check if token is expired
+ * @param {string} token - JWT token
+ * @returns {boolean} - true if expired or invalid
+ */
+const isTokenExpired = (token) => {
+  if (!token) return true;
+  try {
+    const decoded = jwtDecode(token);
+    // Add 5 second buffer to avoid edge cases
+    return decoded.exp * 1000 < Date.now() + 5000;
+  } catch (e) {
+    return true;
+  }
+};
+
+/**
+ * Handle token expiration - clear storage and redirect to login
+ */
+const handleTokenExpired = () => {
+  localStorage.clear();
+  toastrService.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+  setTimeout(() => {
+    window.location.href = "/login";
+  }, 500);
+};
+
+/**
+ * Check token validity on app initialization
+ * Should be called once when the app starts
+ */
+export const validateTokenOnInit = () => {
+  const token = localStorage.getItem("token");
+
+  // If no token, user is not logged in - that's fine
+  if (!token) return;
+
+  // If token exists but is expired, clear and redirect
+  if (isTokenExpired(token)) {
+    console.log("Token expired on app init - clearing session");
+    handleTokenExpired();
+  }
+};
+
+/**
+ * Setup Axios interceptors for request and response
+ */
 export const setupAxiosInterceptors = () => {
+  // Request interceptor - check token before each request
+  axios.interceptors.request.use(
+    (config) => {
+      const token = localStorage.getItem("token");
+
+      // Skip token check for auth endpoints
+      const isAuthEndpoint = config.url?.includes("/auth/");
+      if (isAuthEndpoint) {
+        return config;
+      }
+
+      // If token exists, validate it
+      if (token) {
+        if (isTokenExpired(token)) {
+          // Token expired - reject the request and handle logout
+          handleTokenExpired();
+          return Promise.reject(new Error("Token expired"));
+        }
+
+        // Token valid - add to header if not already present
+        if (!config.headers.Authorization) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+      }
+
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
+    }
+  );
+
+  // Response interceptor - handle 401 and 403 responses
   axios.interceptors.response.use(
     (response) => response,
     (error) => {
