@@ -1,19 +1,20 @@
+import * as IssueTicketService from '@/services/inventory/IssueTicketService';
 import confetti from 'canvas-confetti';
 import { motion } from 'framer-motion';
 import {
-    ArrowLeft,
-    Building2,
-    Calendar,
-    Check,
-    CreditCard,
-    MapPin,
-    Package,
-    X
+  ArrowLeft,
+  Building2,
+  Calendar,
+  Check,
+  CreditCard,
+  MapPin,
+  Package,
+  X
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
-import { useCreateSo, usePoById, useUpdatePoStatus } from '../../../hooks/useApi';
+import { useCreateSo, useIncreaseOnDemand, usePoById, useUpdatePoStatus } from '../../../hooks/useApi';
 
 const formatCurrency = (amount) => {
   return new Intl.NumberFormat('vi-VN', {
@@ -41,6 +42,7 @@ const CreateSo = () => {
   const { data: po, isLoading } = usePoById(poId);
   const createSoMutation = useCreateSo();
   const updatePoStatusMutation = useUpdatePoStatus();
+  const increaseOnDemandMutation = useIncreaseOnDemand();
 
   // SO state
   const [so, setSo] = useState({
@@ -108,7 +110,35 @@ const CreateSo = () => {
         status: so.status
       };
 
-      await createSoMutation.mutateAsync(request);
+      const createdSo = await createSoMutation.mutateAsync(request);
+      const soCode = createdSo.soCode;
+
+      // Get auth data
+      const token = localStorage.getItem('token');
+
+      // Create Issue Ticket for warehouse
+      const issueTicketRequest = {
+        companyId: Number(companyId),
+        warehouseId: Number(poWarehouseId),
+        reason: 'Xuất kho để bán hàng',
+        issueType: 'Bán hàng',
+        referenceCode: soCode,
+        status: 'Chờ xác nhận',
+        createdBy: employeeName,
+        issueDate: new Date().toISOString()
+      };
+      await IssueTicketService.createIssueTicket(issueTicketRequest, token);
+
+      // Increase onDemand for each item
+      await Promise.all(
+        soDetails.map((d) =>
+          increaseOnDemandMutation.mutateAsync({
+            warehouseId: Number(poWarehouseId),
+            itemId: Number(d.itemId),
+            onDemandQuantity: parseFloat(d.quantity)
+          })
+        )
+      );
 
       // Update PO status to "Đã xác nhận"
       await updatePoStatusMutation.mutateAsync({
@@ -131,7 +161,6 @@ const CreateSo = () => {
       }, 1500);
 
     } catch (error) {
-      console.error('Error creating SO:', error);
       toast.error(error.response?.data?.message || 'Không thể tạo đơn bán hàng!');
     }
   };

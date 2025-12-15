@@ -10,9 +10,7 @@ export const createRfq = async (rfqRequest, token) => {
 };
 
 export const getAllRfqsInCompany = async (companyId, token) => {
-  console.log('📥 RFQ API - Calling:', `${BASE_URL}/request-for-quotations/company/${companyId}`);
   const res = await axios.get(`${BASE_URL}/request-for-quotations/company/${companyId}`, axiosAuth(token));
-  console.log('📥 RFQ API - Response:', res.data);
   return res.data;
 };
 

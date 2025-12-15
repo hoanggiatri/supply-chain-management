@@ -1,23 +1,23 @@
-import React, { useEffect, useState } from "react";
-import {
-  Container,
-  Paper,
-  Typography,
-  Box,
-  Button,
-  TableRow,
-  TableCell,
-  Grid,
-} from "@mui/material";
-import { useParams, useNavigate } from "react-router-dom";
-import { getPoById, updatePoStatus } from "@/services/purchasing/PoService";
-import { createSo } from "@/services/sale/SoService";
-import SoForm from "@/components/sale/SoForm";
-import LoadingPaper from "@/components/content-components/LoadingPaper";
 import DataTable from "@/components/content-components/DataTable";
+import LoadingPaper from "@/components/content-components/LoadingPaper";
+import SoForm from "@/components/sale/SoForm";
 import { increaseOnDemand } from "@/services/inventory/InventoryService";
 import { createIssueTicket } from "@/services/inventory/IssueTicketService";
+import { getPoById, updatePoStatus } from "@/services/purchasing/PoService";
+import { createSo } from "@/services/sale/SoService";
 import toastrService from "@/services/toastrService";
+import {
+  Box,
+  Button,
+  Container,
+  Grid,
+  Paper,
+  TableCell,
+  TableRow,
+  Typography,
+} from "@mui/material";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 const CreateSo = () => {
   const { poId } = useParams();
@@ -83,7 +83,7 @@ const CreateSo = () => {
   }, [poId, token, employeeName, companyAddress]);
 
   const handleSubmit = async () => {
-    try {
+    try { 
       // Only send allowed fields, exclude read-only and computed fields
       const request = {
         companyId: Number(so.companyId),
