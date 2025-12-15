@@ -1,19 +1,15 @@
-import React, { useEffect, useState } from "react";
-import {
-  Container,
-  Typography,
-  Paper,
-  Grid,
-  Button,
-  TextField,
-} from "@mui/material";
-import { useNavigate, useParams } from "react-router-dom";
+import LoadingPaper from "@/components/content-components/LoadingPaper";
+import FormPageLayout from "@/components/layout/FormPageLayout";
+import QuotationDetailTable from "@/components/sale/QuotationDetailTable";
+import QuotationForm from "@/components/sale/QuotationForm";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { getRfqById, updateRfqStatus } from "@/services/purchasing/RfqService";
 import { createQuotation } from "@/services/sale/QuotationService";
-import QuotationForm from "@/components/sale/QuotationForm";
-import QuotationDetailTable from "@/components/sale/QuotationDetailTable";
-import LoadingPaper from "@/components/content-components/LoadingPaper";
 import toastrService from "@/services/toastrService";
+import { Save, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 const CreateQuotation = () => {
   const navigate = useNavigate();
@@ -39,7 +35,6 @@ const CreateQuotation = () => {
   useEffect(() => {
     const fetchRfq = async () => {
       try {
-        console.log("rfqId:", rfqId);
         const data = await getRfqById(rfqId, token);
         setRfq(data);
         const details = data.rfqDetails.map((d) => ({
@@ -115,92 +110,81 @@ const CreateQuotation = () => {
   if (!rfq) return <LoadingPaper title="TẠO BÁO GIÁ" />;
 
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
-          TẠO BÁO GIÁ
-        </Typography>
+    <FormPageLayout
+      breadcrumbItems={[
+        { label: "Yêu cầu báo giá", path: "/supplier-rfqs" },
+        { label: "Tạo báo giá" },
+      ]}
+      backLink="/supplier-rfqs"
+      backLabel="Quay lại danh sách"
+    >
+      <QuotationForm rfq={rfq} quotation={quotation} />
 
-        <QuotationForm rfq={rfq} quotation={quotation} />
+      <h2 className="text-lg font-semibold text-gray-900 mt-8 mb-4">
+        Danh sách hàng hóa báo giá
+      </h2>
 
-        <Typography variant="h5" mt={3} mb={2}>
-          DANH SÁCH HÀNG HÓA BÁO GIÁ:
-        </Typography>
+      <QuotationDetailTable
+        quotationDetails={quotationDetails}
+        setQuotationDetails={setQuotationDetails}
+      />
 
-        <QuotationDetailTable
-          quotationDetails={quotationDetails}
-          setQuotationDetails={setQuotationDetails}
-        />
+      {/* Summary */}
+      <div className="mt-6 flex justify-end">
+        <div className="w-full max-w-sm space-y-3">
+          <div className="flex justify-between items-center">
+            <span className="font-medium text-gray-700">Tổng tiền hàng (VNĐ):</span>
+            <span className="font-semibold text-gray-900">
+              {quotation.subTotal.toLocaleString("vi-VN")}
+            </span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="font-medium text-gray-700">Thuế (%):</span>
+            <Input
+              type="number"
+              name="taxRate"
+              value={quotation.taxRate}
+              onChange={handleChange}
+              className="w-24 text-right"
+              min={0}
+            />
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="font-medium text-gray-700">Tiền thuế (VNĐ):</span>
+            <span className="font-semibold text-gray-900">
+              {quotation.taxAmount.toLocaleString("vi-VN")}
+            </span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="font-medium text-gray-700">Tổng cộng (VNĐ):</span>
+            <span className="font-bold text-gray-900 text-lg">
+              {quotation.totalAmount.toLocaleString("vi-VN")}
+            </span>
+          </div>
+        </div>
+      </div>
 
-        <Grid container justifyContent="flex-end" mt={2}>
-          <Grid item>
-            {[
-              {
-                label: "Tổng tiền hàng (VNĐ):",
-                value: quotation.subTotal.toLocaleString(),
-                isInput: false,
-              },
-              { label: "Thuế (%):", value: quotation.taxRate, isInput: true },
-              {
-                label: "Tiền thuế (VNĐ):",
-                value: quotation.taxAmount.toLocaleString(),
-                isInput: false,
-              },
-              {
-                label: "Tổng cộng (VNĐ):",
-                value: quotation.totalAmount.toLocaleString(),
-                isInput: false,
-              },
-            ].map((item, index) => (
-              <Grid
-                container
-                key={index}
-                justifyContent="space-between"
-                spacing={2}
-              >
-                <Grid item mb={3}>
-                  <Typography fontWeight="bold">{item.label}</Typography>
-                </Grid>
-                <Grid item>
-                  {item.isInput ? (
-                    <TextField
-                      type="number"
-                      name="taxRate"
-                      value={quotation.taxRate}
-                      onChange={handleChange}
-                      size="small"
-                      inputProps={{ min: 0, step: "any" }}
-                      sx={{ width: 100 }}
-                    />
-                  ) : (
-                    <Typography fontWeight="bold" align="right">
-                      {item.value}
-                    </Typography>
-                  )}
-                </Grid>
-              </Grid>
-            ))}
-          </Grid>
-        </Grid>
-
-        <Grid container spacing={2} mt={1} justifyContent="flex-end">
-          <Grid item>
-            <Button variant="contained" color="default" onClick={handleSubmit}>
-              Gửi báo giá
-            </Button>
-          </Grid>
-          <Grid item>
-            <Button
-              variant="outlined"
-              color="default"
-              onClick={() => navigate(-1)}
-            >
-              Hủy
-            </Button>
-          </Grid>
-        </Grid>
-      </Paper>
-    </Container>
+      <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-100">
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => navigate(-1)}
+          className="gap-2"
+        >
+          <X className="w-4 h-4" />
+          Hủy
+        </Button>
+        <Button
+          type="button"
+          variant="default"
+          onClick={handleSubmit}
+          className="gap-2 bg-blue-600 hover:bg-blue-700 min-w-[140px]"
+        >
+          <Save className="w-4 h-4" />
+          Gửi báo giá
+        </Button>
+      </div>
+    </FormPageLayout>
   );
 };
 

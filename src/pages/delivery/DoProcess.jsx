@@ -1,34 +1,16 @@
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import {
-  Container,
-  Paper,
-  Typography,
-  Box,
-  CircularProgress,
-  Stepper,
-  Step,
-  StepLabel,
-} from "@mui/material";
+import FormPageLayout from "@/components/layout/FormPageLayout";
 import { getAllDeliveryProcesses } from "@/services/delivery/DoProcessService";
-import {
-  Timeline,
-  TimelineItem,
-  TimelineSeparator,
-  TimelineConnector,
-  TimelineContent,
-  TimelineDot,
-  TimelineOppositeContent,
-} from "@mui/lab";
 import { getDeliveryOrderById } from "@/services/delivery/DoService";
-import DeliveryStep from "@/components/delivery/DeliveryStep";
 import toastrService from "@/services/toastrService";
+import { CheckCircle, Package, Truck } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
 const DoProcess = () => {
   const { doId } = useParams();
   const token = localStorage.getItem("token");
 
-  const [deliveryOrder, setDeliveryOrder] = useState([]);
+  const [deliveryOrder, setDeliveryOrder] = useState(null);
   const [processes, setProcesses] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -58,66 +40,77 @@ const DoProcess = () => {
     "Đã hoàn thành": 2,
   };
 
+  const steps = [
+    { label: "Chờ lấy hàng", icon: Package },
+    { label: "Đang vận chuyển", icon: Truck },
+    { label: "Giao hàng thành công", icon: CheckCircle },
+  ];
+
+  const activeStep = statusToStepIndex[deliveryOrder?.status] ?? 0;
+
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
-          THÔNG TIN VẬN CHUYỂN
-        </Typography>
+    <FormPageLayout
+      breadcrumbItems={[
+        { label: "Đơn vận chuyển", path: "/dos" },
+        { label: "Thông tin vận chuyển" },
+      ]}
+      backLink={`/do/${doId}`}
+      backLabel="Quay lại chi tiết"
+    >
+      {/* Stepper */}
+      {deliveryOrder && (
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            {steps.map((step, index) => {
+              const Icon = step.icon;
+              const isCompleted = index < activeStep;
+              const isActive = index === activeStep;
+              const iconColor = isCompleted || isActive ? "text-gray-900" : "text-gray-400";
+              const lineColor = index < activeStep ? "bg-gray-900" : "bg-gray-300";
 
-        {deliveryOrder && (
-          <Box my={3}>
-            <Stepper
-              activeStep={statusToStepIndex[deliveryOrder.status] || 0}
-              alternativeLabel
-              sx={{
-                "& .MuiStepConnector-line": {
-                  borderTopWidth: 3,
-                },
-              }}
-            >
-              {["Chờ lấy hàng", "Đang vận chuyển", "Giao hàng thành công"].map((label) => (
-                <Step key={label}>
-                  <StepLabel
-                    StepIconComponent={DeliveryStep}
-                    sx={{ "& .MuiStepLabel-label": { fontSize: "0.9rem", fontWeight: 500 } }}
-                  >
-                    {label}
-                  </StepLabel>
-                </Step>
-              ))}
-            </Stepper>
-          </Box>
-        )}
+              return (
+                <div key={step.label} className="flex-1 relative">
+                  <div className="flex flex-col items-center">
+                    <div className={`${iconColor}`}>
+                      <Icon className="w-7 h-7" />
+                    </div>
+                    <span className={`mt-2 text-sm font-medium ${isCompleted || isActive ? "text-gray-900" : "text-gray-500"}`}>
+                      {step.label}
+                    </span>
+                  </div>
+                  {index < steps.length - 1 && (
+                    <div className={`absolute top-3.5 left-1/2 w-full h-0.5 ${lineColor}`} />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
-        {loading ? (
-          <Box display="flex" justifyContent="center" my={5}>
-            <CircularProgress />
-          </Box>
-        ) : (
-          <Timeline>
-            {processes.map((process, index) => (
-              <TimelineItem key={index}>
-                <TimelineOppositeContent
-                  sx={{ flex: 1, textAlign: "right", pr: 2 }}
-                >
-                  {process.arrivalTime ? new Date(process.arrivalTime).toLocaleString() : ""}
-                </TimelineOppositeContent>
-
-                <TimelineSeparator>
-                  <TimelineDot color="secondary" />
-                  {index < processes.length - 1 && <TimelineConnector />}
-                </TimelineSeparator>
-
-                <TimelineContent sx={{ flex: 3 }}>
-                  <Typography>{process.location}</Typography>
-                </TimelineContent>
-              </TimelineItem>
-            ))}
-          </Timeline>
-        )}
-      </Paper>
-    </Container>
+      {/* Timeline */}
+      {loading ? (
+        <div className="flex justify-center py-10">
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-900 border-t-transparent" />
+        </div>
+      ) : (
+        <div className="relative pl-8 border-l-2 border-gray-300">
+          {processes.map((process, index) => (
+            <div key={index} className="relative mb-6">
+              <div className="absolute -left-[calc(0.5rem+9px)] w-4 h-4 rounded-full bg-purple-500 border-2 border-white" />
+              <div className="flex items-start gap-4">
+                <div className="text-sm text-gray-500 min-w-[140px]">
+                  {process.arrivalTime
+                    ? new Date(process.arrivalTime).toLocaleString("vi-VN")
+                    : ""}
+                </div>
+                <div className="text-gray-900">{process.location}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </FormPageLayout>
   );
 };
 

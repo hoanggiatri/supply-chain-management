@@ -1,17 +1,11 @@
-import DataTable from "@/components/content-components/DataTable";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
+import FormPageLayout from "@/components/layout/FormPageLayout";
 import SupplierRfqForm from "@/components/purchasing/SupplierRfqForm";
+import { Button } from "@/components/ui/button";
+import { DataTable, createSortableHeader } from "@/components/ui/data-table";
 import { getRfqById } from "@/services/purchasing/RfqService";
 import toastrService from "@/services/toastrService";
-import {
-  Box,
-  Button,
-  Container,
-  Paper,
-  TableCell,
-  TableRow,
-  Typography,
-} from "@mui/material";
+import { Send } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -21,12 +15,6 @@ const SupplierRfqDetail = () => {
   const [loading, setLoading] = useState(false);
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
-
-  const [search, setSearch] = useState("");
-  const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState("itemCode");
-  const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   useEffect(() => {
     const fetchRfq = async () => {
@@ -44,82 +32,69 @@ const SupplierRfqDetail = () => {
   }, [rfqId, token]);
 
   const columns = [
-    { id: "supplierItemCode", label: "Mã hàng hóa" },
-    { id: "supplierItemName", label: "Tên hàng hóa" },
-    { id: "quantity", label: "Số lượng" },
-    { id: "note", label: "Ghi chú" },
+    {
+      accessorKey: "supplierItemCode",
+      header: createSortableHeader("Mã hàng hóa"),
+      cell: ({ getValue }) => {
+        const code = getValue();
+        return (
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+            {code}
+          </span>
+        );
+      },
+    },
+    {
+      accessorKey: "supplierItemName",
+      header: createSortableHeader("Tên hàng hóa"),
+    },
+    {
+      accessorKey: "quantity",
+      header: createSortableHeader("Số lượng"),
+    },
+    {
+      accessorKey: "note",
+      header: createSortableHeader("Ghi chú"),
+    },
   ];
-
-  const filteredDetails =
-    rfq?.rfqDetails?.sort((a, b) => {
-      if (orderBy && a[orderBy] !== undefined && b[orderBy] !== undefined) {
-        if (a[orderBy] < b[orderBy]) return order === "asc" ? -1 : 1;
-        if (a[orderBy] > b[orderBy]) return order === "asc" ? 1 : -1;
-      }
-      return 0;
-    }) || [];
-
-  const paginatedDetails = filteredDetails.slice(
-    (page - 1) * rowsPerPage,
-    (page - 1) * rowsPerPage + rowsPerPage
-  );
-
-  const handleRequestSort = (property) => {
-    const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(property);
-  };
 
   if (!rfq) return <LoadingPaper title="THÔNG TIN YÊU CẦU BÁO GIÁ" />;
 
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
-          THÔNG TIN YÊU CẦU BÁO GIÁ
-        </Typography>
+    <FormPageLayout
+      breadcrumbItems={[
+        { label: "Yêu cầu báo giá", path: "/supplier-rfqs" },
+        { label: "Chi tiết" },
+      ]}
+      backLink="/supplier-rfqs"
+      backLabel="Quay lại danh sách"
+    >
+      {/* Action button */}
+      <div className="flex justify-end gap-3 mb-6">
         {rfq.status === "Chưa báo giá" && (
-          <Box mt={3} mb={3} display="flex" justifyContent="flex-end" gap={2}>
-            <Button
-              variant="contained"
-              color="default"
-              onClick={() => navigate(`/create-quotation/${rfqId}`)}
-            >
-              Gửi báo giá
-            </Button>
-          </Box>
+          <Button
+            variant="default"
+            onClick={() => navigate(`/create-quotation/${rfqId}`)}
+            className="gap-2 bg-blue-600 hover:bg-blue-700"
+          >
+            <Send className="w-4 h-4" />
+            Gửi báo giá
+          </Button>
         )}
-        <SupplierRfqForm rfq={rfq} />
-        <Typography variant="h5" mt={3} mb={3}>
-          DANH SÁCH HÀNG HÓA YÊU CẦU BÁO GIÁ:
-        </Typography>
-        <DataTable
-          rows={paginatedDetails}
-          columns={columns}
-          order={order}
-          orderBy={orderBy}
-          onRequestSort={handleRequestSort}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          onPageChange={(e, newPage) => setPage(newPage)}
-          onRowsPerPageChange={(e) => {
-            setRowsPerPage(parseInt(e.target.value));
-            setPage(1);
-          }}
-          search={search}
-          setSearch={setSearch}
-          isLoading={loading}
-          renderRow={(detail, index) => (
-            <TableRow key={index}>
-              <TableCell>{detail.supplierItemCode}</TableCell>
-              <TableCell>{detail.supplierItemName}</TableCell>
-              <TableCell>{detail.quantity}</TableCell>
-              <TableCell>{detail.note}</TableCell>
-            </TableRow>
-          )}
-        />
-      </Paper>
-    </Container>
+      </div>
+
+      <SupplierRfqForm rfq={rfq} />
+
+      <h2 className="text-lg font-semibold text-gray-900 mt-8 mb-4">
+        Danh sách hàng hóa yêu cầu báo giá
+      </h2>
+
+      <DataTable
+        columns={columns}
+        data={rfq?.rfqDetails || []}
+        loading={loading}
+      />
+    </FormPageLayout>
   );
 };
 

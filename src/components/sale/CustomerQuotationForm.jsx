@@ -1,68 +1,71 @@
-import React from "react";
-import { FormControl, Grid, InputLabel, MenuItem, Select, TextField } from "@mui/material";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import dayjs from "dayjs";
 
 const CustomerQuotationForm = ({ quotation }) => {
-  const formatDateTimeLocal = (isoString) => {
+  const formatDateTime = (isoString) => {
     if (!isoString) return "";
-    const date = new Date(isoString);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
+    return dayjs(isoString).format("DD/MM/YYYY HH:mm");
+  };
+
+  const statusLabels = {
+    "Đã báo giá": "Đã báo giá",
+    "Đã từ chối": "Đã từ chối",
+    "Đã chấp nhận": "Đã chấp nhận",
   };
 
   return (
-    <Grid container spacing={2} mt={1}>
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
-          label="Mã yêu cầu báo giá"
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Mã yêu cầu báo giá */}
+      <div className="space-y-2">
+        <Label>Mã yêu cầu báo giá</Label>
+        <Input
           value={quotation?.rfqCode || ""}
-          InputProps={{ readOnly: true }}
+          readOnly
+          className="bg-gray-50"
         />
-      </Grid>
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
-          type="datetime-local"
-          label="Ngày báo giá"
-          value={formatDateTimeLocal(quotation?.createdOn)}
-          InputProps={{ readOnly: true }}
+      {/* Ngày báo giá */}
+      <div className="space-y-2">
+        <Label>Ngày báo giá</Label>
+        <Input
+          value={formatDateTime(quotation?.createdOn)}
+          readOnly
+          className="bg-gray-50"
         />
-      </Grid>
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
-          label="Mã công ty báo giá"
+      {/* Mã công ty báo giá */}
+      <div className="space-y-2">
+        <Label>Mã công ty báo giá</Label>
+        <Input
           value={quotation?.companyCode || ""}
-          InputProps={{ readOnly: true }}
+          readOnly
+          className="bg-gray-50"
         />
-      </Grid>
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
-          label="Tên công ty báo giá"
+      {/* Tên công ty báo giá */}
+      <div className="space-y-2">
+        <Label>Tên công ty báo giá</Label>
+        <Input
           value={quotation?.companyName || ""}
-          InputProps={{ readOnly: true }}
+          readOnly
+          className="bg-gray-50"
         />
-      </Grid>
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <FormControl fullWidth required InputProps={{ readOnly: true }}>
-          <InputLabel>Trạng thái</InputLabel>
-          <Select name="status" value={quotation.status || ""} label="Trạng thái" >
-            <MenuItem value="Đã báo giá">Đã báo giá</MenuItem>
-            <MenuItem value="Đã từ chối">Đã từ chối</MenuItem>
-            <MenuItem value="Đã chấp nhận">Đã chấp nhận</MenuItem>
-          </Select>
-        </FormControl>
-      </Grid>
-    </Grid>
+      {/* Trạng thái */}
+      <div className="space-y-2">
+        <Label>Trạng thái</Label>
+        <Input
+          value={statusLabels[quotation?.status] || quotation?.status || ""}
+          readOnly
+          className="bg-gray-50"
+        />
+      </div>
+    </div>
   );
 };
 

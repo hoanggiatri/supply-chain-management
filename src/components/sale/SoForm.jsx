@@ -1,99 +1,95 @@
-import React from "react";
-import { Grid, TextField, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const SoForm = ({ po = {}, so = {}, setSo }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setSo((prev) => ({ ...prev, [name]: value }));
+    setSo?.((prev) => ({ ...prev, [name]: value }));
   };
 
   return (
-    <Grid container spacing={2} mt={1}>
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
-          label="Mã đơn bán hàng"
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Mã đơn bán hàng */}
+      <div className="space-y-2">
+        <Label>Mã đơn bán hàng</Label>
+        <Input
           value={so.soCode || ""}
           placeholder="Mã đơn bán hàng được tạo tự động"
-          InputProps={{ readOnly: true }}
+          readOnly
+          className="bg-gray-50"
         />
-      </Grid>
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
-          label="Mã đơn mua hàng"
+      {/* Mã đơn mua hàng */}
+      <div className="space-y-2">
+        <Label>Mã đơn mua hàng</Label>
+        <Input
           value={po.poCode || ""}
-          InputProps={{ readOnly: true }}
+          readOnly
+          className="bg-gray-50"
         />
-      </Grid>
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
-          label="Mã công ty khách hàng"
+      {/* Mã công ty khách hàng */}
+      <div className="space-y-2">
+        <Label>Mã công ty khách hàng</Label>
+        <Input
           value={po.companyCode || ""}
-          InputProps={{ readOnly: true }}
+          readOnly
+          className="bg-gray-50"
         />
-      </Grid>
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
-          label="Tên công ty khách hàng"
+      {/* Tên công ty khách hàng */}
+      <div className="space-y-2">
+        <Label>Tên công ty khách hàng</Label>
+        <Input
           value={po.companyName || ""}
-          InputProps={{ readOnly: true }}
+          readOnly
+          className="bg-gray-50"
         />
-      </Grid>
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
-          label="Địa chỉ lấy hàng"
+      {/* Địa chỉ lấy hàng */}
+      <div className="space-y-2">
+        <Label>Địa chỉ lấy hàng</Label>
+        <Input
           name="deliveryFromAddress"
           value={so.deliveryFromAddress || ""}
           onChange={handleChange}
         />
-      </Grid>
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
-          label="Địa chỉ giao hàng"
-          name="deliveryToAddress"
+      {/* Địa chỉ giao hàng */}
+      <div className="space-y-2">
+        <Label>Địa chỉ giao hàng</Label>
+        <Input
           value={po.deliveryToAddress || ""}
           readOnly
+          className="bg-gray-50"
         />
-      </Grid>
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <FormControl fullWidth>
-          <InputLabel>Phương thức thanh toán</InputLabel>
-          <Select
-            name="paymentMethod"
-            value={po.paymentMethod || ""}
-            label="Phương thức thanh toán"
-            readOnly
-          >
-            <MenuItem value="Ghi công nợ">Ghi công nợ</MenuItem>
-            <MenuItem value="Chuyển khoản">Chuyển khoản</MenuItem>
-            <MenuItem value="Tiền mặt">Tiền mặt</MenuItem>
-          </Select>
-        </FormControl>
-      </Grid>
+      {/* Phương thức thanh toán */}
+      <div className="space-y-2">
+        <Label>Phương thức thanh toán</Label>
+        <Input
+          value={po.paymentMethod || ""}
+          readOnly
+          className="bg-gray-50"
+        />
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <FormControl fullWidth>
-          <InputLabel>Trạng thái</InputLabel>
-          <Select name="status" value={so.status || ""} label="Trạng thái" readOnly>
-            <MenuItem value="Chờ xuất kho">Chờ xuất kho</MenuItem>
-            <MenuItem value="Chờ vận chuyển">Chờ vận chuyển</MenuItem>
-            <MenuItem value="Đang vận chuyển">Đang vận chuyển</MenuItem>
-            <MenuItem value="Đã hoàn thành">Đã hoàn thành</MenuItem>
-          </Select>
-        </FormControl>
-      </Grid>
-    </Grid>
+      {/* Trạng thái */}
+      <div className="space-y-2">
+        <Label>Trạng thái</Label>
+        <Input
+          value={so.status || ""}
+          readOnly
+          className="bg-gray-50"
+        />
+      </div>
+    </div>
   );
 };
 

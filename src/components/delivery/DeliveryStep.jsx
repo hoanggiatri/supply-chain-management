@@ -1,24 +1,25 @@
-import React from "react";
-import { CheckCircle, Inventory, LocalShipping } from "@mui/icons-material";
-import { Box } from "@mui/material";
+import { CheckCircle, Package, Truck } from "lucide-react";
 
 const DeliveryStep = (props) => {
   const { active, completed, icon } = props;
 
   const icons = {
-    1: <Inventory />,
-    2: <LocalShipping />,
-    3: <CheckCircle />,
+    1: Package,
+    2: Truck,
+    3: CheckCircle,
   };
 
-  let color = "#9e9e9e";
-  if (completed) color = "#000";
-  else if (active) color = "#000";
+  const Icon = icons[icon] || Package;
+
+  let color = "text-gray-400";
+  if (completed) color = "text-gray-900";
+  else if (active) color = "text-gray-900";
 
   return (
-    <Box sx={{ color }}>
-      {React.cloneElement(icons[icon], { sx: { fontSize: 30, color } })}
-    </Box>
+    <div className={color}>
+      <Icon className="w-7 h-7" />
+    </div>
   );
 };
+
 export default DeliveryStep;

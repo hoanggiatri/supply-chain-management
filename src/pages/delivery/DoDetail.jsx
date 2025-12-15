@@ -1,28 +1,22 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import {
-  Container,
-  Paper,
-  Typography,
-  TableRow,
-  TableCell,
-  Box,
-  Button,
-} from "@mui/material";
-import {
-  getDeliveryOrderById,
-  updateDeliveryOrder,
-} from "@/services/delivery/DoService";
-import DoForm from "@/components/delivery/DoForm";
-import DataTable from "@/components/content-components/DataTable";
-import LoadingPaper from "@/components/content-components/LoadingPaper";
-import { getSoById, updateSoStatus } from "@/services/sale/SoService";
-import { getPoById, updatePoStatus } from "@/services/purchasing/PoService";
-import { createDeliveryProcess } from "@/services/delivery/DoProcessService";
-import { createReceiveTicket } from "@/services/inventory/ReceiveTicketService";
-import dayjs from "dayjs";
-import toastrService from "@/services/toastrService";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
+import LoadingPaper from "@/components/content-components/LoadingPaper";
+import DoForm from "@/components/delivery/DoForm";
+import FormPageLayout from "@/components/layout/FormPageLayout";
+import { Button } from "@/components/ui/button";
+import { DataTable, createSortableHeader } from "@/components/ui/data-table";
+import { createDeliveryProcess } from "@/services/delivery/DoProcessService";
+import {
+    getDeliveryOrderById,
+    updateDeliveryOrder,
+} from "@/services/delivery/DoService";
+import { createReceiveTicket } from "@/services/inventory/ReceiveTicketService";
+import { getPoById, updatePoStatus } from "@/services/purchasing/PoService";
+import { getSoById, updateSoStatus } from "@/services/sale/SoService";
+import toastrService from "@/services/toastrService";
+import dayjs from "dayjs";
+import { Check, CheckCircle, Package, Truck } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 const DoDetail = () => {
   const { doId } = useParams();
@@ -34,15 +28,10 @@ const DoDetail = () => {
   const [details, setDetails] = useState([]);
   const [confirmDialog, setConfirmDialog] = useState({
     open: false,
-    type: null, // 'confirm', 'pickup', or 'complete'
+    type: null,
     onConfirm: null,
   });
   const navigate = useNavigate();
-
-  const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState("itemCode");
-  const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -167,134 +156,128 @@ const DoDetail = () => {
   };
 
   const columns = [
-    { id: "itemCode", label: "Mã hàng hóa" },
-    { id: "itemName", label: "Tên hàng hóa" },
-    { id: "quantity", label: "Số lượng" },
-    { id: "note", label: "Ghi chú" },
+    {
+      accessorKey: "itemCode",
+      header: createSortableHeader("Mã hàng hóa"),
+      cell: ({ getValue }) => {
+        const code = getValue();
+        return (
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+            {code}
+          </span>
+        );
+      },
+    },
+    {
+      accessorKey: "itemName",
+      header: createSortableHeader("Tên hàng hóa"),
+    },
+    {
+      accessorKey: "quantity",
+      header: createSortableHeader("Số lượng"),
+    },
+    {
+      accessorKey: "note",
+      header: createSortableHeader("Ghi chú"),
+    },
   ];
-
-  const sortedDetails = [...details].sort((a, b) => {
-    if (a[orderBy] < b[orderBy]) return order === "asc" ? -1 : 1;
-    if (a[orderBy] > b[orderBy]) return order === "asc" ? 1 : -1;
-    return 0;
-  });
-
-  const paginatedDetails = sortedDetails.slice(
-    (page - 1) * rowsPerPage,
-    (page - 1) * rowsPerPage + rowsPerPage
-  );
 
   if (!deliveryOrder) return <LoadingPaper title="CHI TIẾT ĐƠN VẬN CHUYỂN" />;
 
   return (
-    <Container>
-      <Paper className="paper-container" elevation={3}>
-        <Typography className="page-title" variant="h4">
-          CHI TIẾT ĐƠN VẬN CHUYỂN
-        </Typography>
-
-        <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
-          {deliveryOrder.status === "Chờ xác nhận" && (
+    <FormPageLayout
+      breadcrumbItems={[
+        { label: "Đơn vận chuyển", path: "/dos" },
+        { label: "Chi tiết" },
+      ]}
+      backLink="/dos"
+      backLabel="Quay lại danh sách"
+    >
+      {/* Action buttons */}
+      <div className="flex justify-end gap-3 mb-6">
+        {deliveryOrder.status === "Chờ xác nhận" && (
+          <Button
+            variant="default"
+            onClick={() =>
+              setConfirmDialog({
+                open: true,
+                type: "confirm",
+                onConfirm: handleConfirm,
+              })
+            }
+            className="gap-2 bg-blue-600 hover:bg-blue-700"
+          >
+            <Check className="w-4 h-4" />
+            Xác nhận
+          </Button>
+        )}
+        {deliveryOrder.status === "Chờ lấy hàng" && (
+          <Button
+            variant="default"
+            onClick={() =>
+              setConfirmDialog({
+                open: true,
+                type: "pickup",
+                onConfirm: handlePickup,
+              })
+            }
+            className="gap-2 bg-orange-600 hover:bg-orange-700"
+          >
+            <Package className="w-4 h-4" />
+            Lấy hàng
+          </Button>
+        )}
+        {deliveryOrder.status === "Đang vận chuyển" && (
+          <>
             <Button
-              variant="contained"
-              color="default"
+              variant="default"
               onClick={() =>
-                setConfirmDialog({
-                  open: true,
-                  type: "confirm",
-                  onConfirm: handleConfirm,
-                })
+                navigate(`/update-do-process/${deliveryOrder.doId}`)
               }
+              className="gap-2 bg-green-600 hover:bg-green-700"
             >
-              Xác nhận
-            </Button>
-          )}
-          {deliveryOrder.status === "Chờ lấy hàng" && (
-            <Button
-              variant="contained"
-              color="default"
-              onClick={() =>
-                setConfirmDialog({
-                  open: true,
-                  type: "pickup",
-                  onConfirm: handlePickup,
-                })
-              }
-            >
-              Lấy hàng
-            </Button>
-          )}
-          {deliveryOrder.status === "Đang vận chuyển" && (
-            <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
-              <Button
-                variant="contained"
-                color="success"
-                onClick={() =>
-                  navigate(`/update-do-process/${deliveryOrder.doId}`)
-                }
-              >
-                Thông tin vận chuyển
-              </Button>
-              <Button
-                variant="contained"
-                color="default"
-                onClick={() =>
-                  setConfirmDialog({
-                    open: true,
-                    type: "complete",
-                    onConfirm: handleComplete,
-                  })
-                }
-              >
-                Hoàn thành
-              </Button>
-            </Box>
-          )}
-          {deliveryOrder.status === "Đã hoàn thành" && (
-            <Button
-              variant="contained"
-              color="success"
-              onClick={() => navigate(`/do-process/${deliveryOrder.doId}`)}
-            >
+              <Truck className="w-4 h-4" />
               Thông tin vận chuyển
             </Button>
-          )}
-        </Box>
+            <Button
+              variant="default"
+              onClick={() =>
+                setConfirmDialog({
+                  open: true,
+                  type: "complete",
+                  onConfirm: handleComplete,
+                })
+              }
+              className="gap-2 bg-blue-600 hover:bg-blue-700"
+            >
+              <CheckCircle className="w-4 h-4" />
+              Hoàn thành
+            </Button>
+          </>
+        )}
+        {deliveryOrder.status === "Đã hoàn thành" && (
+          <Button
+            variant="default"
+            onClick={() => navigate(`/do-process/${deliveryOrder.doId}`)}
+            className="gap-2 bg-green-600 hover:bg-green-700"
+          >
+            <Truck className="w-4 h-4" />
+            Thông tin vận chuyển
+          </Button>
+        )}
+      </div>
 
-        <DoForm deliveryOrder={deliveryOrder} />
+      <DoForm deliveryOrder={deliveryOrder} />
 
-        <Typography variant="h5" mt={3} mb={3}>
-          DANH SÁCH HÀNG HÓA:
-        </Typography>
+      <h2 className="text-lg font-semibold text-gray-900 mt-8 mb-4">
+        Danh sách hàng hóa
+      </h2>
 
-        <DataTable
-          rows={paginatedDetails}
-          columns={columns}
-          order={order}
-          orderBy={orderBy}
-          onRequestSort={(property) => {
-            const isAsc = orderBy === property && order === "asc";
-            setOrder(isAsc ? "desc" : "asc");
-            setOrderBy(property);
-          }}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          onPageChange={(e, newPage) => setPage(newPage)}
-          onRowsPerPageChange={(e) => {
-            setRowsPerPage(Number(e.target.value));
-            setPage(1);
-          }}
-          isLoading={loading}
-          renderRow={(row, index) => (
-            <TableRow key={index}>
-              <TableCell>{row.itemCode}</TableCell>
-              <TableCell>{row.itemName}</TableCell>
-              <TableCell>{row.quantity}</TableCell>
-              <TableCell>{row.note}</TableCell>
-            </TableRow>
-          )}
-        />
-      </Paper>
+      <DataTable
+        columns={columns}
+        data={details}
+        loading={loading}
+      />
 
       <ConfirmDialog
         open={confirmDialog.open}
@@ -315,7 +298,7 @@ const DoDetail = () => {
         confirmText="Xác nhận"
         cancelText="Hủy"
       />
-    </Container>
+    </FormPageLayout>
   );
 };
 

@@ -1,61 +1,59 @@
-import React from "react";
-import { Grid, TextField, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const DoForm = ({ deliveryOrder }) => {
   return (
-    <Grid container spacing={2} mt={1}>
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
-          label="Mã đơn vận chuyển"
-          value={deliveryOrder.doCode || ""}
-          InputProps={{ readOnly: true }}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Mã đơn vận chuyển */}
+      <div className="space-y-2">
+        <Label>Mã đơn vận chuyển</Label>
+        <Input
+          value={deliveryOrder?.doCode || ""}
+          readOnly
+          className="bg-gray-50"
         />
-      </Grid>
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
-          label="Mã đơn bán hàng"
-          value={deliveryOrder.soCode || ""}
-          InputProps={{ readOnly: true }}
+      {/* Mã đơn bán hàng */}
+      <div className="space-y-2">
+        <Label>Mã đơn bán hàng</Label>
+        <Input
+          value={deliveryOrder?.soCode || ""}
+          readOnly
+          className="bg-gray-50"
         />
-      </Grid>
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
-          label="Địa chỉ lấy hàng"
-          value={deliveryOrder.deliveryFromAddress || ""}
-          InputProps={{ readOnly: true }}
+      {/* Địa chỉ lấy hàng */}
+      <div className="space-y-2">
+        <Label>Địa chỉ lấy hàng</Label>
+        <Input
+          value={deliveryOrder?.deliveryFromAddress || ""}
+          readOnly
+          className="bg-gray-50"
         />
-      </Grid>
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <TextField
-          fullWidth
-          label="Địa chỉ giao hàng"
-          value={deliveryOrder.deliveryToAddress || ""}
-          InputProps={{ readOnly: true }}
+      {/* Địa chỉ giao hàng */}
+      <div className="space-y-2">
+        <Label>Địa chỉ giao hàng</Label>
+        <Input
+          value={deliveryOrder?.deliveryToAddress || ""}
+          readOnly
+          className="bg-gray-50"
         />
-      </Grid>
+      </div>
 
-      <Grid item xs={12} sm={6}>
-        <FormControl fullWidth>
-          <InputLabel>Trạng thái</InputLabel>
-          <Select
-            value={deliveryOrder.status || ""}
-            label="Trạng thái"
-            readOnly
-          >
-            <MenuItem value="Chờ xác nhận">Chờ xác nhận</MenuItem>
-            <MenuItem value="Chờ lấy hàng">Chờ lấy hàng</MenuItem>
-            <MenuItem value="Đang vận chuyển">Đang vận chuyển</MenuItem>
-            <MenuItem value="Đã hoàn thành">Đã hoàn thành</MenuItem>
-          </Select>
-        </FormControl>
-      </Grid>
-    </Grid>
+      {/* Trạng thái */}
+      <div className="space-y-2">
+        <Label>Trạng thái</Label>
+        <Input
+          value={deliveryOrder?.status || ""}
+          readOnly
+          className="bg-gray-50"
+        />
+      </div>
+    </div>
   );
 };
 

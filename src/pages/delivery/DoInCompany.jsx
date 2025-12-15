@@ -1,18 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { Typography, Card, CardBody } from "@material-tailwind/react";
-import { useNavigate } from "react-router-dom";
-import DataTable from "@/components/content-components/DataTable";
-import StatusSummaryCard from "@/components/content-components/StatusSummaryCard";
+import ListPageLayout from "@/components/layout/ListPageLayout";
+import { DataTable, createSortableHeader } from "@/components/ui/data-table";
+import { StatusSummaryCard } from "@/components/ui/status-summary-card";
 import { getAllDeliveryOrdersInCompany } from "@/services/delivery/DoService";
 import toastrService from "@/services/toastrService";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const DoInCompany = () => {
   const [dos, setDos] = useState([]);
-  const [search, setSearch] = useState("");
-  const [order, setOrder] = useState("desc");
-  const [orderBy, setOrderBy] = useState("createdOn");
-  const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [loading, setLoading] = useState(false);
   const [filterStatus, setFilterStatus] = useState("Tất cả");
 
   const token = localStorage.getItem("token");
@@ -21,6 +17,7 @@ const DoInCompany = () => {
 
   useEffect(() => {
     const fetchDos = async () => {
+      setLoading(true);
       try {
         const data = await getAllDeliveryOrdersInCompany(companyId, token);
         const normalized = Array.isArray(data)
@@ -36,6 +33,8 @@ const DoInCompany = () => {
           error.response?.data?.message ||
             "Không thể lấy danh sách đơn vận chuyển!"
         );
+      } finally {
+        setLoading(false);
       }
     };
     fetchDos();
@@ -50,153 +49,124 @@ const DoInCompany = () => {
       ? dos.filter((ord) => ord.status === filterStatus)
       : [];
 
-  const handleRequestSort = (property) => {
-    const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(property);
+  const statusLabels = {
+    "Chờ xác nhận": "Chờ xác nhận",
+    "Chờ lấy hàng": "Chờ lấy hàng",
+    "Đang vận chuyển": "Đang vận chuyển",
+    "Đã hoàn thành": "Đã hoàn thành",
   };
 
-  const handleChangePage = (_event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(Number(event.target.value));
-    setPage(1);
+  const statusColors = {
+    "Chờ xác nhận": "bg-red-100 text-red-700",
+    "Chờ lấy hàng": "bg-orange-100 text-orange-700",
+    "Đang vận chuyển": "bg-blue-100 text-blue-700",
+    "Đã hoàn thành": "bg-green-100 text-green-700",
   };
 
   const columns = [
-    { id: "doCode", label: "Mã đơn vận chuyển" },
-    { id: "soCode", label: "Mã đơn bán" },
-    { id: "createdBy", label: "Người tạo" },
-    { id: "createdOn", label: "Ngày tạo" },
-    { id: "lastUpdatedOn", label: "Cập nhật gần nhất" },
-    { id: "status", label: "Trạng thái" },
+    {
+      accessorKey: "doCode",
+      header: createSortableHeader("Mã đơn vận chuyển"),
+      cell: ({ getValue }) => {
+        const code = getValue();
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+            {code}
+          </span>
+        );
+      },
+    },
+    {
+      accessorKey: "soCode",
+      header: createSortableHeader("Mã đơn bán"),
+    },
+    {
+      accessorKey: "createdBy",
+      header: createSortableHeader("Người tạo"),
+    },
+    {
+      accessorKey: "createdOn",
+      header: createSortableHeader("Ngày tạo"),
+      cell: ({ getValue }) => {
+        const value = getValue();
+        return value ? new Date(value).toLocaleString("vi-VN") : "";
+      },
+    },
+    {
+      accessorKey: "lastUpdatedOn",
+      header: createSortableHeader("Cập nhật gần nhất"),
+      cell: ({ getValue }) => {
+        const value = getValue();
+        return value ? new Date(value).toLocaleString("vi-VN") : "";
+      },
+    },
+    {
+      accessorKey: "status",
+      header: createSortableHeader("Trạng thái"),
+      cell: ({ getValue }) => {
+        const status = getValue();
+        const label = statusLabels[status] || status;
+        const colorClass = statusColors[status] || "bg-gray-100 text-gray-700";
+
+        return (
+          <span
+            className={`inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-medium ${colorClass}`}
+          >
+            {label}
+          </span>
+        );
+      },
+    },
   ];
 
   return (
-    <div className="h-full p-6">
-      <Card className="h-full shadow-lg flex flex-col">
-        <CardBody className="flex flex-col flex-1 overflow-hidden">
-          <Typography variant="h4" color="blue-gray" className="mb-6 font-bold">
-            DANH SÁCH ĐƠN VẬN CHUYỂN
-          </Typography>
+    <ListPageLayout
+      breadcrumbs="Vận chuyển"
+      title="Danh sách đơn vận chuyển"
+    >
+      <div className="mb-6">
+        <StatusSummaryCard
+          data={dos}
+          statusLabels={[
+            "Tất cả",
+            "Chờ xác nhận",
+            "Chờ lấy hàng",
+            "Đang vận chuyển",
+            "Đã hoàn thành",
+          ]}
+          getStatus={(ord) => ord.status}
+          statusColors={{
+            "Tất cả": "#000",
+            "Chờ xác nhận": "#f44336",
+            "Chờ lấy hàng": "#ff9800",
+            "Đang vận chuyển": "#2196f3",
+            "Đã hoàn thành": "#4caf50",
+          }}
+          onSelectStatus={setFilterStatus}
+          selectedStatus={filterStatus}
+        />
+      </div>
 
-          <StatusSummaryCard
-            data={dos}
-            statusLabels={[
-              "Tất cả",
-              "Chờ xác nhận",
-              "Chờ lấy hàng",
-              "Đang vận chuyển",
-              "Đã hoàn thành",
-            ]}
-            getStatus={(ord) => ord.status}
-            statusColors={{
-              "Tất cả": "#000",
-              "Chờ xác nhận": "#f44336",
-              "Chờ lấy hàng": "#ff9800",
-              "Đang vận chuyển": "#2196f3",
-              "Đã hoàn thành": "#4caf50",
-            }}
-            onSelectStatus={setFilterStatus}
-            selectedStatus={filterStatus}
-          />
-
-          <div className="flex-1 min-h-0">
-            <DataTable
-              rows={filteredDos}
-              columns={columns}
-              order={order}
-              orderBy={orderBy}
-              onRequestSort={handleRequestSort}
-              page={page}
-              rowsPerPage={rowsPerPage}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-              search={search}
-              setSearch={setSearch}
-              height="100%"
-              statusColumn="status"
-              statusColors={{
-                "Chờ xác nhận": "red",
-                "Chờ lấy hàng": "orange",
-                "Đang vận chuyển": "blue",
-                "Đã hoàn thành": "green",
-              }}
-              renderRow={(
-                ord,
-                _index,
-                _page,
-                _rowsPerPage,
-                renderStatusCell
-              ) => (
-                <tr
-                  key={ord.doId}
-                  className="border-b border-blue-gray-100 hover:bg-blue-gray-50 transition-colors cursor-pointer"
-                  onClick={() => navigate(`/do/${ord.doId}`)}
-                >
-                  <td className="p-4">
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {ord.doCode}
-                    </Typography>
-                  </td>
-                  <td className="p-4">
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {ord.soCode}
-                    </Typography>
-                  </td>
-                  <td className="p-4">
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {ord.createdBy}
-                    </Typography>
-                  </td>
-                  <td className="p-4">
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {ord.createdOn
-                        ? new Date(ord.createdOn).toLocaleString()
-                        : ""}
-                    </Typography>
-                  </td>
-                  <td className="p-4">
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {ord.lastUpdatedOn
-                        ? new Date(ord.lastUpdatedOn).toLocaleString()
-                        : ""}
-                    </Typography>
-                  </td>
-                  <td className="p-4">
-                    {renderStatusCell
-                      ? renderStatusCell(ord.status)
-                      : ord.status}
-                  </td>
-                </tr>
-              )}
-            />
-          </div>
-        </CardBody>
-      </Card>
-    </div>
+      <DataTable
+        columns={columns}
+        data={filteredDos}
+        loading={loading}
+        onRowClick={(row) => navigate(`/do/${row.doId}`)}
+        exportFileName="Danh_sach_don_van_chuyen"
+        exportMapper={(row = {}) => ({
+          "Mã đơn vận chuyển": row.doCode || "",
+          "Mã đơn bán": row.soCode || "",
+          "Người tạo": row.createdBy || "",
+          "Ngày tạo": row.createdOn
+            ? new Date(row.createdOn).toLocaleString("vi-VN")
+            : "",
+          "Cập nhật gần nhất": row.lastUpdatedOn
+            ? new Date(row.lastUpdatedOn).toLocaleString("vi-VN")
+            : "",
+          "Trạng thái": statusLabels[row.status] || row.status || "",
+        })}
+      />
+    </ListPageLayout>
   );
 };
 

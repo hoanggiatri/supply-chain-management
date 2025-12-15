@@ -1,57 +1,66 @@
-import React from "react";
-import { FormControl, Grid, InputLabel, MenuItem, Select, TextField } from "@mui/material";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const QuotationForm = ({ rfq, quotation }) => {
+  const statusLabels = {
+    "Đã báo giá": "Đã báo giá",
+    "Đã từ chối": "Đã từ chối",
+    "Đã chấp nhận": "Đã chấp nhận",
+  };
+
   return (
-    <Grid container spacing={2} mt={1}>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            fullWidth
-            label="Mã báo giá"
-            value={quotation.quotationCode || ""}
-            placeholder="Mã báo giá được tạo tự động"
-            InputProps={{ readOnly: true }}
-          />
-        </Grid>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Mã báo giá */}
+      <div className="space-y-2">
+        <Label>Mã báo giá</Label>
+        <Input
+          value={quotation?.quotationCode || ""}
+          placeholder="Mã báo giá được tạo tự động"
+          readOnly
+          className="bg-gray-50"
+        />
+      </div>
 
-        <Grid item xs={12} sm={6}>
-          <TextField
-            fullWidth
-            label="Mã yêu cầu báo giá"
-            value={rfq?.rfqCode || ""}
-            InputProps={{ readOnly: true }}
-          />
-        </Grid>
-        
-        <Grid item xs={12} sm={6}>
-          <TextField
-            fullWidth
-            label="Mã công ty yêu cầu"
-            value={rfq?.companyCode || ""}
-            InputProps={{ readOnly: true }}
-          />
-        </Grid>
+      {/* Mã yêu cầu báo giá */}
+      <div className="space-y-2">
+        <Label>Mã yêu cầu báo giá</Label>
+        <Input
+          value={rfq?.rfqCode || ""}
+          readOnly
+          className="bg-gray-50"
+        />
+      </div>
 
-        <Grid item xs={12} sm={6}>
-          <TextField
-            fullWidth
-            label="Tên công ty yêu cầu"
-            value={rfq?.companyName || ""}
-            InputProps={{ readOnly: true }}
-          />
-        </Grid>
+      {/* Mã công ty yêu cầu */}
+      <div className="space-y-2">
+        <Label>Mã công ty yêu cầu</Label>
+        <Input
+          value={rfq?.companyCode || ""}
+          readOnly
+          className="bg-gray-50"
+        />
+      </div>
 
-        <Grid item xs={12} sm={6}>
-        <FormControl fullWidth required InputProps={{ readOnly: true }}>
-          <InputLabel>Trạng thái</InputLabel>
-          <Select name="status" value={quotation.status || ""} label="Trạng thái" >
-            <MenuItem value="Đã báo giá">Đã báo giá</MenuItem>
-            <MenuItem value="Đã từ chối">Đã từ chối</MenuItem>
-            <MenuItem value="Đã chấp nhận">Đã chấp nhận</MenuItem>
-          </Select>
-        </FormControl>
-      </Grid>
-    </Grid>
+      {/* Tên công ty yêu cầu */}
+      <div className="space-y-2">
+        <Label>Tên công ty yêu cầu</Label>
+        <Input
+          value={rfq?.companyName || ""}
+          readOnly
+          className="bg-gray-50"
+        />
+      </div>
+
+      {/* Trạng thái */}
+      <div className="space-y-2">
+        <Label>Trạng thái</Label>
+        <Input
+          value={statusLabels[quotation?.status] || quotation?.status || ""}
+          readOnly
+          className="bg-gray-50"
+        />
+      </div>
+    </div>
   );
 };
 
