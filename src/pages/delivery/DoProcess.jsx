@@ -21,7 +21,7 @@ const DoProcess = () => {
         const doData = await getDeliveryOrderById(doId, token);
         setDeliveryOrder(doData);
         const data = await getAllDeliveryProcesses(doId, token);
-        setProcesses(data);
+        setProcesses(Array.isArray(data) ? data : []);
       } catch (err) {
         toastrService.error(
           err.response?.data?.message || "Không thể tải tiến trình vận chuyển!"
@@ -95,7 +95,7 @@ const DoProcess = () => {
         </div>
       ) : (
         <div className="relative pl-8 border-l-2 border-gray-300">
-          {processes.map((process, index) => (
+          {(Array.isArray(processes) ? processes : []).map((process, index) => (
             <div key={index} className="relative mb-6">
               <div className="absolute -left-[calc(0.5rem+9px)] w-4 h-4 rounded-full bg-purple-500 border-2 border-white" />
               <div className="flex items-start gap-4">
