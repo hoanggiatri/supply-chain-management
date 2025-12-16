@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { DataTable, createSortableHeader } from "@/components/ui/data-table";
 import { createDeliveryProcess } from "@/services/delivery/DoProcessService";
 import {
-    getDeliveryOrderById,
-    updateDeliveryOrder,
+  getDeliveryOrderById,
+  updateDeliveryOrder,
 } from "@/services/delivery/DoService";
 import { createReceiveTicket } from "@/services/inventory/ReceiveTicketService";
 import { getPoById, updatePoStatus } from "@/services/purchasing/PoService";
@@ -64,6 +64,7 @@ const DoDetail = () => {
     const employeeName = localStorage.getItem("employeeName");
     try {
       const request = {
+        soId: deliveryOrder.soId,
         createdBy: employeeName,
         status: "Chờ lấy hàng",
       };
@@ -97,7 +98,7 @@ const DoDetail = () => {
 
       await updateDeliveryOrder(
         deliveryOrder.doId,
-        { ...deliveryOrder, status: "Đang vận chuyển" },
+        { soId: deliveryOrder.soId, status: "Đang vận chuyển" },
         token
       );
       setDeliveryOrder((prev) => ({ ...prev, status: "Đang vận chuyển" }));
@@ -123,7 +124,7 @@ const DoDetail = () => {
 
       await updateDeliveryOrder(
         deliveryOrder.doId,
-        { ...deliveryOrder, status: "Đã hoàn thành" },
+        { soId: deliveryOrder.soId, status: "Đã hoàn thành" },
         token
       );
       setDeliveryOrder((prev) => ({ ...prev, status: "Đã hoàn thành" }));

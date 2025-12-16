@@ -32,7 +32,7 @@ const UpdateDoProcess = () => {
         const doData = await getDeliveryOrderById(doId, token);
         setDeliveryOrder(doData);
         const processData = await getAllDeliveryProcesses(doId, token);
-        setProcesses(processData);
+        setProcesses(Array.isArray(processData) ? processData : []);
         const soData = await getSoById(doData.soId, token);
         setSo(soData);
       } catch (err) {
@@ -52,8 +52,9 @@ const UpdateDoProcess = () => {
     "Đã hoàn thành": 2,
   };
 
-  const fromProcess = processes.find((p) => p.note === "from");
-  const middleProcesses = processes.filter((p) => !p.note);
+  const processesArray = Array.isArray(processes) ? processes : [];
+  const fromProcess = processesArray.find((p) => p.note === "from");
+  const middleProcesses = processesArray.filter((p) => !p.note);
 
   const handleAddMidProcess = async () => {
     if (!newMidLocation.trim()) return;
@@ -67,7 +68,7 @@ const UpdateDoProcess = () => {
         token
       );
       const updated = await getAllDeliveryProcesses(doId, token);
-      setProcesses(updated);
+      setProcesses(Array.isArray(updated) ? updated : []);
       setIsEditing(false);
       setNewMidLocation("");
     } catch (err) {
