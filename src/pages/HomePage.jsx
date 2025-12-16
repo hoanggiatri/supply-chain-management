@@ -7,7 +7,6 @@ import {
     Package,
     ShoppingCart,
     Sparkles,
-    TrendingUp,
     Truck,
     Users,
     Zap
@@ -80,10 +79,11 @@ const HomePage = () => {
   ];
 
   const quickActions = [
-    { label: "Tạo đơn mua hàng", icon: ShoppingCart, href: "/pos/create", color: "bg-gradient-to-r from-blue-500 to-blue-600" },
-    { label: "Tạo đơn bán hàng", icon: ClipboardList, href: "/sos/create", color: "bg-gradient-to-r from-green-500 to-green-600" },
-    { label: "Xem báo cáo", icon: TrendingUp, href: "/reports", color: "bg-gradient-to-r from-purple-500 to-purple-600" },
-    { label: "Quản lý kho", icon: Package, href: "/warehouses", color: "bg-gradient-to-r from-orange-500 to-orange-600" },
+    { label: "Quản lý sản xuất", icon: Factory, href: "/mos", color: "bg-gradient-to-r from-blue-500 to-blue-600" },
+    { label: "Quản lý kho", icon: Package, href: "/inventory", color: "bg-gradient-to-r from-green-500 to-green-600" },
+    { label: "Quản lý mua hàng", icon: ShoppingCart, href: "/pos", color: "bg-gradient-to-r from-purple-500 to-purple-600" },
+    { label: "Quản lý bán hàng", icon: ClipboardList, href: "/sos", color: "bg-gradient-to-r from-orange-500 to-orange-600" },
+    { label: "Quản lý vận chuyển", icon: Truck, href: "/dos", color: "bg-gradient-to-r from-red-500 to-red-600" },
   ];
 
   return (
