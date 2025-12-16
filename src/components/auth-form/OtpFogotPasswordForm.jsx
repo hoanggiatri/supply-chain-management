@@ -1,22 +1,17 @@
-import React, { useState, useEffect } from "react";
-import {
-  Typography,
-  Input,
-  Button,
-  Alert,
-  Card,
-  CardBody,
-} from "@material-tailwind/react";
-import { verifyOtp, forgotPassword } from "@/services/general/AuthService";
-import { getButtonProps } from "@/utils/buttonStyles";
-import { useNavigate } from "react-router-dom";
+import { forgotPassword, verifyForgotPasswordOtp } from "@/services/general/AuthService";
 import toastrService from "@/services/toastrService";
+import { AlertCircle, ArrowLeft, KeyRound, Loader2, Mail, Package, RefreshCw } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-const OtpForgotPasswordForm = () => {
-  const [otp, setOtp] = useState("");
+const OtpFogotPasswordForm = () => {
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [email, setEmail] = useState("");
   const [errors, setErrors] = useState({});
   const [resendTimer, setResendTimer] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const inputRefs = useRef([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,6 +19,7 @@ const OtpForgotPasswordForm = () => {
     if (storedEmail) {
       setEmail(storedEmail);
     }
+    inputRefs.current[0]?.focus();
   }, []);
 
   useEffect(() => {
@@ -33,128 +29,236 @@ const OtpForgotPasswordForm = () => {
     }
   }, [resendTimer]);
 
-  const handleChange = (event) => {
-    const onlyDigits = event.target.value.replace(/\D/g, "");
-    setOtp(onlyDigits.slice(0, 6));
+  const handleChange = (index, value) => {
+    const digit = value.replace(/\D/g, "").slice(-1);
+    
+    const newOtp = [...otp];
+    newOtp[index] = digit;
+    setOtp(newOtp);
+
     if (errors.otp) {
       setErrors({ ...errors, otp: "" });
     }
+
+    if (digit && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+
+    if (digit) {
+      inputRefs.current[index]?.classList.add("filled");
+      setTimeout(() => {
+        inputRefs.current[index]?.classList.remove("filled");
+      }, 300);
+    }
+  };
+
+  const handleKeyDown = (index, e) => {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handlePaste = (e) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    const newOtp = [...otp];
+    
+    for (let i = 0; i < pastedData.length; i++) {
+      newOtp[i] = pastedData[i];
+    }
+    
+    setOtp(newOtp);
+    
+    const nextEmptyIndex = newOtp.findIndex(digit => !digit);
+    const focusIndex = nextEmptyIndex === -1 ? 5 : nextEmptyIndex;
+    inputRefs.current[focusIndex]?.focus();
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    const otpString = otp.join("");
 
-    if (!/^\d{6}$/.test(otp)) {
-      setErrors({ otp: "OTP phải có 6 chữ số" });
+    if (otpString.length !== 6) {
+      setErrors({ otp: "Vui lòng nhập đủ 6 chữ số" });
       return;
     }
 
+    setIsLoading(true);
+
     try {
-      await verifyOtp({ email, otp: Number(otp) });
+      await verifyForgotPasswordOtp({ email, otp: Number(otpString) });
       toastrService.success("Xác thực thành công!");
       navigate("/reset-password");
     } catch (error) {
       const errorMessage =
-        error.response?.data?.message || "Xác thực thất bại! Vui lòng thử lại.";
+        error.response?.data?.message ||
+        "Mã OTP không đúng. Vui lòng thử lại!";
       toastrService.error(errorMessage);
-      setErrors((prevErrors) => ({
-        ...prevErrors,
-        apiError: errorMessage,
-      }));
+      setErrors({ apiError: errorMessage });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleResendOtp = async () => {
+    setIsResending(true);
     try {
       await forgotPassword(email);
       toastrService.success("Mã OTP đã được gửi lại!");
       setResendTimer(60);
+      setOtp(["", "", "", "", "", ""]);
+      inputRefs.current[0]?.focus();
     } catch (error) {
-      toastrService.error(
+      const errorMessage =
         error.response?.data?.message ||
-          "Lỗi khi gửi lại OTP. Vui lòng thử lại!"
-      );
+        "Lỗi khi gửi lại OTP. Vui lòng thử lại!";
+      toastrService.error(errorMessage);
+    } finally {
+      setIsResending(false);
     }
   };
 
   return (
-    <Card className="w-full max-w-[28rem] shadow-2xl">
-      <CardBody className="p-8">
-        <div className="text-center mb-6">
-          <Typography variant="h3" color="blue-gray" className="mb-2">
-            Xác Thực OTP
-          </Typography>
-          <Typography className="text-gray-600 font-normal">
-            Mã xác thực đã được gửi đến email. Vui lòng kiểm tra và nhập mã.
-          </Typography>
+    <>
+      {/* Back to Home */}
+      <button
+        type="button"
+        onClick={() => navigate("/")}
+        className="absolute top-6 left-6 flex items-center gap-2 text-sm font-medium auth-link"
+        style={{ color: 'var(--auth-text-muted)' }}
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Trang chủ
+      </button>
+
+      {/* Logo */}
+      <div 
+        className="auth-logo cursor-pointer" 
+        onClick={() => navigate("/")}
+        title="Quay lại trang chủ"
+      >
+        <div className="auth-logo-icon">
+          <Package className="w-6 h-6 text-white" />
+        </div>
+        <span className="auth-logo-text">SCMS</span>
+      </div>
+
+      {/* Header */}
+      <div className="text-center mb-8">
+        <div className="flex justify-center mb-4">
+          <div 
+            className="w-16 h-16 rounded-full flex items-center justify-center"
+            style={{ background: 'rgba(102, 126, 234, 0.2)' }}
+          >
+            <KeyRound className="w-8 h-8" style={{ color: 'var(--auth-primary-light)' }} />
+          </div>
+        </div>
+        <h1 className="auth-title">Xác Thực OTP</h1>
+        <p className="auth-subtitle">
+          Nhập mã xác thực để đặt lại mật khẩu
+        </p>
+        {email && (
+          <div className="flex items-center justify-center gap-2 mt-3 text-sm" style={{ color: 'var(--auth-primary-light)' }}>
+            <Mail className="w-4 h-4" />
+            <span>{email}</span>
+          </div>
+        )}
+      </div>
+
+      <form onSubmit={handleSubmit}>
+        {/* OTP Input Boxes */}
+        <div className="auth-otp-container mb-6">
+          {otp.map((digit, index) => (
+            <input
+              key={index}
+              ref={(el) => (inputRefs.current[index] = el)}
+              type="text"
+              inputMode="numeric"
+              maxLength={1}
+              value={digit}
+              onChange={(e) => handleChange(index, e.target.value)}
+              onKeyDown={(e) => handleKeyDown(index, e)}
+              onPaste={handlePaste}
+              className={`auth-otp-input ${errors.otp ? 'error' : ''}`}
+            />
+          ))}
         </div>
 
-        <form onSubmit={handleSubmit} className="text-left">
-          {/* OTP Field */}
-          <div className="mb-3">
-            <Input
-              id="otp"
-              color="blue"
-              size="lg"
-              type="text"
-              label="Mã OTP (6 chữ số)"
-              value={otp}
-              onChange={handleChange}
-              error={!!errors.otp}
-              maxLength={6}
-              className="w-full placeholder:opacity-100 tracking-widest text-center text-2xl"
-            />
-            {errors.otp && (
-              <Typography variant="small" color="red" className="mt-1">
-                {errors.otp}
-              </Typography>
-            )}
+        {/* Error Messages */}
+        {errors.otp && (
+          <p className="auth-field-error text-center mb-4">
+            <AlertCircle className="w-3.5 h-3.5" />
+            {errors.otp}
+          </p>
+        )}
+
+        {errors.apiError && (
+          <div className="auth-error mb-4">
+            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+            <span>{errors.apiError}</span>
           </div>
+        )}
 
-          {/* API Error Alert */}
-          {errors.apiError && (
-            <Alert color="red" className="mb-4">
-              {errors.apiError}
-            </Alert>
+        {/* Submit Button */}
+        <button
+          type="submit"
+          className={`auth-button ${isLoading ? 'loading' : ''}`}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <span className="flex items-center justify-center gap-2">
+              <Loader2 className="w-5 h-5 animate-spin" />
+              Đang xác thực...
+            </span>
+          ) : (
+            "Xác nhận"
           )}
+        </button>
 
-          {/* Submit Button */}
-          <Button
-            type="submit"
-            size="lg"
-            className="mt-4"
-            fullWidth
-            {...getButtonProps("primary")}
+        {/* Resend OTP */}
+        <div className="mt-6 text-center">
+          <p className="auth-text-muted text-sm mb-2">Chưa nhận được mã?</p>
+          <button
+            type="button"
+            onClick={handleResendOtp}
+            disabled={resendTimer > 0 || isResending}
+            className={`auth-link text-sm inline-flex items-center gap-2 ${
+              resendTimer > 0 ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+            style={resendTimer > 0 ? { pointerEvents: 'none' } : {}}
           >
-            Xác nhận
-          </Button>
+            {isResending ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Đang gửi...
+              </>
+            ) : resendTimer > 0 ? (
+              <>
+                <RefreshCw className="w-4 h-4" />
+                Gửi lại sau {resendTimer}s
+              </>
+            ) : (
+              <>
+                <RefreshCw className="w-4 h-4" />
+                Gửi lại mã OTP
+              </>
+            )}
+          </button>
+        </div>
 
-          {/* Resend OTP */}
-          <Typography
-            variant="small"
-            color="gray"
-            className="mt-3 text-center font-normal"
+        {/* Back to Login */}
+        <p className="mt-6 text-center auth-text-muted text-sm">
+          <button
+            type="button"
+            onClick={() => navigate("/login")}
+            className="auth-link"
           >
-            Bạn chưa nhận được OTP?{" "}
-            <button
-              type="button"
-              onClick={handleResendOtp}
-              disabled={resendTimer > 0}
-              className={`font-medium ${
-                resendTimer > 0
-                  ? "text-gray-400 cursor-not-allowed"
-                  : "text-blue-600 hover:text-blue-700 transition-colors"
-              }`}
-            >
-              {resendTimer > 0
-                ? `Gửi lại OTP (${resendTimer}s)`
-                : "Gửi lại OTP"}
-            </button>
-          </Typography>
-        </form>
-      </CardBody>
-    </Card>
+            ← Quay lại đăng nhập
+          </button>
+        </p>
+      </form>
+    </>
   );
 };
 
-export default OtpForgotPasswordForm;
+export default OtpFogotPasswordForm;

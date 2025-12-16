@@ -1,23 +1,29 @@
 import { registerCompany } from "@/services/general/AuthService";
 import toastrService from "@/services/toastrService";
-import { getButtonProps } from "@/utils/buttonStyles";
-import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
 import {
-  Alert,
-  Button,
-  Card,
-  CardBody,
-  Checkbox,
-  Input,
-  Option,
-  Select,
-  Typography,
-} from "@material-tailwind/react";
+    AlertCircle,
+    ArrowLeft,
+    Briefcase,
+    Building2,
+    Check,
+    ChevronLeft,
+    ChevronRight,
+    Eye, EyeOff,
+    IdCard,
+    Loader2,
+    Lock,
+    Mail,
+    MapPin,
+    Package,
+    Phone,
+    User
+} from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const RegisterForm = () => {
   const navigate = useNavigate();
+  const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     companyName: "",
     taxCode: "",
@@ -33,377 +39,492 @@ const RegisterForm = () => {
   });
   const [errors, setErrors] = useState({});
   const [passwordShown, setPasswordShown] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const togglePasswordVisibility = () => setPasswordShown((cur) => !cur);
+
+  const steps = [
+    { number: 1, title: "Công ty" },
+    { number: 2, title: "Đại diện" },
+    { number: 3, title: "Tài khoản" },
+  ];
 
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
     setFormData({ ...formData, [name]: type === "checkbox" ? checked : value });
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors({ ...errors, [name]: "" });
     }
   };
 
-  const handleSelectChange = (value) => {
-    setFormData({ ...formData, companyType: value });
-    if (errors.companyType) {
-      setErrors({ ...errors, companyType: "" });
+  const validateStep = (step) => {
+    const newErrors = {};
+    
+    if (step === 1) {
+      if (!formData.companyName.trim()) newErrors.companyName = "Tên công ty không được để trống";
+      if (!formData.taxCode.trim()) newErrors.taxCode = "Mã số thuế là bắt buộc";
+      if (!formData.address.trim()) newErrors.address = "Địa chỉ không được để trống";
+      if (!formData.companyType) newErrors.companyType = "Vui lòng chọn loại hình công ty";
+    } else if (step === 2) {
+      if (!formData.mainIndustry.trim()) newErrors.mainIndustry = "Ngành chính không được để trống";
+      if (!formData.representativeName.trim()) newErrors.representativeName = "Người đại diện không được để trống";
+      if (!formData.phoneNumber.trim()) newErrors.phoneNumber = "Số điện thoại không được để trống";
+      else if (!/^\d{10,11}$/.test(formData.phoneNumber)) newErrors.phoneNumber = "Số điện thoại không hợp lệ";
+    } else if (step === 3) {
+      if (!formData.email.trim()) newErrors.email = "Email không được để trống";
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = "Email không hợp lệ";
+      if (!formData.employeeCode.trim()) newErrors.employeeCode = "Mã nhân viên không được để trống";
+      if (!formData.password.trim()) newErrors.password = "Mật khẩu không được để trống";
+      else if (formData.password.length < 8) newErrors.password = "Mật khẩu phải có ít nhất 8 ký tự";
+      if (!formData.termsAccepted) newErrors.termsAccepted = "Bạn phải đồng ý với điều khoản";
     }
+    
+    return newErrors;
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-    if (!formData.companyName.trim())
-      newErrors.companyName = "Tên công ty không được để trống";
-    if (!formData.taxCode.trim()) newErrors.taxCode = "Mã số thuế là bắt buộc";
-    if (!formData.address.trim())
-      newErrors.address = "Địa chỉ không được để trống";
-    if (!formData.companyType.trim())
-      newErrors.companyType = "Loại hình công ty không được để trống";
-    if (!formData.mainIndustry.trim())
-      newErrors.mainIndustry = "Ngành chính không được để trống";
-    if (!formData.representativeName.trim())
-      newErrors.representativeName = "Người đại diện không được để trống";
-    if (!formData.phoneNumber.trim())
-      newErrors.phoneNumber = "Số điện thoại không được để trống";
-    if (!/^\d{10,11}$/.test(formData.phoneNumber))
-      newErrors.phoneNumber = "Số điện thoại không hợp lệ";
-    if (!formData.email.trim()) newErrors.email = "Email không được để trống";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
-      newErrors.email = "Email không hợp lệ";
-    if (!formData.employeeCode.trim())
-      newErrors.employeeCode = "Mã nhân viên không được để trống";
-    if (!formData.password.trim())
-      newErrors.password = "Mật khẩu không được để trống";
-    if (formData.password.length < 8)
-      newErrors.password = "Mật khẩu phải có ít nhất 8 ký tự";
-    if (!formData.termsAccepted)
-      newErrors.termsAccepted = "Bạn phải đồng ý với điều khoản";
-    return newErrors;
+  const handleNext = () => {
+    const stepErrors = validateStep(currentStep);
+    if (Object.keys(stepErrors).length > 0) {
+      setErrors(stepErrors);
+      return;
+    }
+    setErrors({});
+    setCurrentStep(currentStep + 1);
+  };
+
+  const handleBack = () => {
+    setCurrentStep(currentStep - 1);
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const errors = validateForm();
-    if (Object.keys(errors).length > 0) {
-      setErrors(errors);
+    
+    const stepErrors = validateStep(3);
+    if (Object.keys(stepErrors).length > 0) {
+      setErrors(stepErrors);
       return;
     }
+
+    setIsLoading(true);
 
     try {
       const { termsAccepted, ...payload } = formData;
       await registerCompany(payload);
       localStorage.setItem("registeredEmail", formData.email);
-      toastrService.success(
-        "Kiểm tra email để nhận mã OTP.",
-        "Đăng ký thành công!"
-      );
+      toastrService.success("Kiểm tra email để nhận mã OTP.", "Đăng ký thành công!");
       navigate("/otp-verification");
     } catch (error) {
-      const errorMessage =
-        error.response?.data?.message || "Đăng ký thất bại! Vui lòng thử lại.";
+      const errorMessage = error.response?.data?.message || "Đăng ký thất bại! Vui lòng thử lại.";
       toastrService.error(errorMessage);
-      setErrors({
-        apiError: errorMessage,
-      });
+      setErrors({ apiError: errorMessage });
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  return (
-    <Card className="w-full max-w-4xl shadow-2xl">
-      <CardBody className="p-8">
-        <div className="text-center mb-6">
-          <Typography variant="h3" color="blue-gray" className="mb-2">
-            Đăng Ký
-          </Typography>
-          <Typography className="text-gray-600 font-normal">
-            Đăng ký tài khoản để sử dụng hệ thống SCMS
-          </Typography>
+  const renderStepIndicator = () => (
+    <div className="auth-steps">
+      {steps.map((step, index) => (
+        <div key={step.number} className="auth-step">
+          <div
+            className={`auth-step-circle ${
+              currentStep > step.number
+                ? "completed"
+                : currentStep === step.number
+                ? "active"
+                : "pending"
+            }`}
+          >
+            {currentStep > step.number ? (
+              <Check className="w-4 h-4" />
+            ) : (
+              step.number
+            )}
+          </div>
+          {index < steps.length - 1 && (
+            <div
+              className={`auth-step-line ${
+                currentStep > step.number ? "active" : ""
+              }`}
+            />
+          )}
         </div>
+      ))}
+    </div>
+  );
 
-        <form onSubmit={handleSubmit} className="text-left">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Company Name */}
-          <div>
-            <Input
-              id="companyName"
-              size="lg"
-              color="blue"
-              name="companyName"
-              label="Tên công ty"
-              value={formData.companyName}
-              onChange={handleChange}
-              error={!!errors.companyName}
-              className="w-full placeholder:opacity-100"
-            />
-            {errors.companyName && (
-              <Typography variant="small" color="red" className="mt-1">
-                {errors.companyName}
-              </Typography>
-            )}
-          </div>
-
-          {/* Tax Code */}
-          <div>
-            <Input
-              id="taxCode"
-              size="lg"
-              color="blue"
-              name="taxCode"
-              label="Mã số thuế"
-              value={formData.taxCode}
-              onChange={handleChange}
-              error={!!errors.taxCode}
-              className="w-full placeholder:opacity-100"
-            />
-            {errors.taxCode && (
-              <Typography variant="small" color="red" className="mt-1">
-                {errors.taxCode}
-              </Typography>
-            )}
-          </div>
-
-          {/* Address */}
-          <div>
-            <Input
-              id="address"
-              size="lg"
-              color="blue"
-              name="address"
-              label="Địa chỉ"
-              value={formData.address}
-              onChange={handleChange}
-              error={!!errors.address}
-              className="w-full placeholder:opacity-100"
-            />
-            {errors.address && (
-              <Typography variant="small" color="red" className="mt-1">
-                {errors.address}
-              </Typography>
-            )}
-          </div>
-
-          {/* Company Type */}
-          <div>
-            <Select
-              id="companyType"
-              size="lg"
-              color="blue"
-              label="Loại hình công ty"
-              value={formData.companyType}
-              onChange={handleSelectChange}
-              error={!!errors.companyType}
-              className="w-full"
-            >
-              <Option value="Doanh nghiệp sản xuất">
-                Doanh nghiệp sản xuất
-              </Option>
-              <Option value="Doanh nghiệp thương mại">
-                Doanh nghiệp thương mại
-              </Option>
-            </Select>
-            {errors.companyType && (
-              <Typography variant="small" color="red" className="mt-1">
-                {errors.companyType}
-              </Typography>
-            )}
-          </div>
-
-          {/* Main Industry */}
-          <div>
-            <Input
-              id="mainIndustry"
-              size="lg"
-              color="blue"
-              name="mainIndustry"
-              label="Ngành nghề chính"
-              value={formData.mainIndustry}
-              onChange={handleChange}
-              error={!!errors.mainIndustry}
-              className="w-full placeholder:opacity-100"
-            />
-            {errors.mainIndustry && (
-              <Typography variant="small" color="red" className="mt-1">
-                {errors.mainIndustry}
-              </Typography>
-            )}
-          </div>
-
-          {/* Representative Name */}
-          <div>
-            <Input
-              id="representativeName"
-              size="lg"
-              color="blue"
-              name="representativeName"
-              label="Người đại diện"
-              value={formData.representativeName}
-              onChange={handleChange}
-              error={!!errors.representativeName}
-              className="w-full placeholder:opacity-100"
-            />
-            {errors.representativeName && (
-              <Typography variant="small" color="red" className="mt-1">
-                {errors.representativeName}
-              </Typography>
-            )}
-          </div>
-
-          {/* Phone Number */}
-          <div>
-            <Input
-              id="phoneNumber"
-              size="lg"
-              color="blue"
-              name="phoneNumber"
-              label="Số điện thoại"
-              value={formData.phoneNumber}
-              onChange={handleChange}
-              error={!!errors.phoneNumber}
-              className="w-full placeholder:opacity-100"
-            />
-            {errors.phoneNumber && (
-              <Typography variant="small" color="red" className="mt-1">
-                {errors.phoneNumber}
-              </Typography>
-            )}
-          </div>
-
-          {/* Email */}
-          <div>
-            <Input
-              id="email"
-              size="lg"
-              color="blue"
-              type="email"
-              name="email"
-              label="Email"
-              value={formData.email}
-              onChange={handleChange}
-              error={!!errors.email}
-              className="w-full placeholder:opacity-100"
-            />
-            {errors.email && (
-              <Typography variant="small" color="red" className="mt-1">
-                {errors.email}
-              </Typography>
-            )}
-          </div>
-
-          {/* Employee Code */}
-          <div>
-            <Input
-              id="employeeCode"
-              size="lg"
-              color="blue"
-              name="employeeCode"
-              label="Mã nhân viên"
-              value={formData.employeeCode}
-              onChange={handleChange}
-              error={!!errors.employeeCode}
-              className="w-full placeholder:opacity-100"
-            />
-            {errors.employeeCode && (
-              <Typography variant="small" color="red" className="mt-1">
-                {errors.employeeCode}
-              </Typography>
-            )}
-          </div>
-
-          {/* Password */}
-          <div>
-            <div className="relative">
-              <Input
-                id="password"
-                size="lg"
-                color="blue"
-                name="password"
-                label="Mật khẩu"
-                value={formData.password}
-                onChange={handleChange}
-                error={!!errors.password}
-                className="w-full placeholder:opacity-100 pr-10"
-                type={passwordShown ? "text" : "password"}
-                containerProps={{ className: "min-w-0" }}
-              />
-              <button
-                type="button"
-                onClick={togglePasswordVisibility}
-                className="!absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer z-10"
-              >
-                {passwordShown ? (
-                  <EyeIcon className="h-5 w-5 text-blue-gray-500" />
-                ) : (
-                  <EyeSlashIcon className="h-5 w-5 text-blue-gray-500" />
-                )}
-              </button>
-            </div>
-            {errors.password && (
-              <Typography variant="small" color="red" className="mt-1">
-                {errors.password}
-              </Typography>
-            )}
-          </div>
-        </div>
-
-        {/* Terms Checkbox */}
-        <div className="mt-6">
-          <Checkbox
-            name="termsAccepted"
-            checked={formData.termsAccepted}
+  const renderStep1 = () => (
+    <div className="space-y-5">
+      {/* Company Name */}
+      <div>
+        <label className="auth-label">Tên công ty</label>
+        <div className="auth-input-wrapper">
+          <Building2 className="auth-input-icon w-5 h-5" />
+          <input
+            name="companyName"
+            placeholder="Nhập tên công ty"
+            value={formData.companyName}
             onChange={handleChange}
-            label={
-              <Typography variant="small" color="gray" className="flex font-normal">
-                Tôi đồng ý với điều khoản sử dụng
-              </Typography>
-            }
-            containerProps={{ className: "-ml-2.5" }}
+            className={`auth-input ${errors.companyName ? 'error' : ''}`}
+            style={{ paddingLeft: '44px' }}
           />
-          {errors.termsAccepted && (
-            <Typography variant="small" color="red" className="mt-2">
-              {errors.termsAccepted}
-            </Typography>
+        </div>
+        {errors.companyName && (
+          <p className="auth-field-error">
+            <AlertCircle className="w-3.5 h-3.5" />
+            {errors.companyName}
+          </p>
+        )}
+      </div>
+
+      {/* Tax Code */}
+      <div>
+        <label className="auth-label">Mã số thuế</label>
+        <div className="auth-input-wrapper">
+          <IdCard className="auth-input-icon w-5 h-5" />
+          <input
+            name="taxCode"
+            placeholder="Nhập mã số thuế"
+            value={formData.taxCode}
+            onChange={handleChange}
+            className={`auth-input ${errors.taxCode ? 'error' : ''}`}
+            style={{ paddingLeft: '44px' }}
+          />
+        </div>
+        {errors.taxCode && (
+          <p className="auth-field-error">
+            <AlertCircle className="w-3.5 h-3.5" />
+            {errors.taxCode}
+          </p>
+        )}
+      </div>
+
+      {/* Address */}
+      <div>
+        <label className="auth-label">Địa chỉ</label>
+        <div className="auth-input-wrapper">
+          <MapPin className="auth-input-icon w-5 h-5" />
+          <input
+            name="address"
+            placeholder="Nhập địa chỉ công ty"
+            value={formData.address}
+            onChange={handleChange}
+            className={`auth-input ${errors.address ? 'error' : ''}`}
+            style={{ paddingLeft: '44px' }}
+          />
+        </div>
+        {errors.address && (
+          <p className="auth-field-error">
+            <AlertCircle className="w-3.5 h-3.5" />
+            {errors.address}
+          </p>
+        )}
+      </div>
+
+      {/* Company Type */}
+      <div>
+        <label className="auth-label">Loại hình công ty</label>
+        <select
+          name="companyType"
+          value={formData.companyType}
+          onChange={handleChange}
+          className={`auth-select ${errors.companyType ? 'error' : ''}`}
+        >
+          <option value="">Chọn loại hình công ty</option>
+          <option value="Doanh nghiệp sản xuất">Doanh nghiệp sản xuất</option>
+          <option value="Doanh nghiệp thương mại">Doanh nghiệp thương mại</option>
+        </select>
+        {errors.companyType && (
+          <p className="auth-field-error">
+            <AlertCircle className="w-3.5 h-3.5" />
+            {errors.companyType}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+
+  const renderStep2 = () => (
+    <div className="space-y-5">
+      {/* Main Industry */}
+      <div>
+        <label className="auth-label">Ngành nghề chính</label>
+        <div className="auth-input-wrapper">
+          <Briefcase className="auth-input-icon w-5 h-5" />
+          <input
+            name="mainIndustry"
+            placeholder="Nhập ngành nghề chính"
+            value={formData.mainIndustry}
+            onChange={handleChange}
+            className={`auth-input ${errors.mainIndustry ? 'error' : ''}`}
+            style={{ paddingLeft: '44px' }}
+          />
+        </div>
+        {errors.mainIndustry && (
+          <p className="auth-field-error">
+            <AlertCircle className="w-3.5 h-3.5" />
+            {errors.mainIndustry}
+          </p>
+        )}
+      </div>
+
+      {/* Representative Name */}
+      <div>
+        <label className="auth-label">Người đại diện</label>
+        <div className="auth-input-wrapper">
+          <User className="auth-input-icon w-5 h-5" />
+          <input
+            name="representativeName"
+            placeholder="Nhập tên người đại diện"
+            value={formData.representativeName}
+            onChange={handleChange}
+            className={`auth-input ${errors.representativeName ? 'error' : ''}`}
+            style={{ paddingLeft: '44px' }}
+          />
+        </div>
+        {errors.representativeName && (
+          <p className="auth-field-error">
+            <AlertCircle className="w-3.5 h-3.5" />
+            {errors.representativeName}
+          </p>
+        )}
+      </div>
+
+      {/* Phone Number */}
+      <div>
+        <label className="auth-label">Số điện thoại</label>
+        <div className="auth-input-wrapper">
+          <Phone className="auth-input-icon w-5 h-5" />
+          <input
+            name="phoneNumber"
+            placeholder="Nhập số điện thoại"
+            value={formData.phoneNumber}
+            onChange={handleChange}
+            className={`auth-input ${errors.phoneNumber ? 'error' : ''}`}
+            style={{ paddingLeft: '44px' }}
+          />
+        </div>
+        {errors.phoneNumber && (
+          <p className="auth-field-error">
+            <AlertCircle className="w-3.5 h-3.5" />
+            {errors.phoneNumber}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+
+  const renderStep3 = () => (
+    <div className="space-y-5">
+      {/* Email */}
+      <div>
+        <label className="auth-label">Email</label>
+        <div className="auth-input-wrapper">
+          <Mail className="auth-input-icon w-5 h-5" />
+          <input
+            name="email"
+            type="email"
+            placeholder="your@email.com"
+            value={formData.email}
+            onChange={handleChange}
+            className={`auth-input ${errors.email ? 'error' : ''}`}
+            style={{ paddingLeft: '44px' }}
+          />
+        </div>
+        {errors.email && (
+          <p className="auth-field-error">
+            <AlertCircle className="w-3.5 h-3.5" />
+            {errors.email}
+          </p>
+        )}
+      </div>
+
+      {/* Employee Code */}
+      <div>
+        <label className="auth-label">Mã nhân viên</label>
+        <div className="auth-input-wrapper">
+          <IdCard className="auth-input-icon w-5 h-5" />
+          <input
+            name="employeeCode"
+            placeholder="Nhập mã nhân viên"
+            value={formData.employeeCode}
+            onChange={handleChange}
+            className={`auth-input ${errors.employeeCode ? 'error' : ''}`}
+            style={{ paddingLeft: '44px' }}
+          />
+        </div>
+        {errors.employeeCode && (
+          <p className="auth-field-error">
+            <AlertCircle className="w-3.5 h-3.5" />
+            {errors.employeeCode}
+          </p>
+        )}
+      </div>
+
+      {/* Password */}
+      <div>
+        <label className="auth-label">Mật khẩu</label>
+        <div className="auth-input-wrapper">
+          <Lock className="auth-input-icon w-5 h-5" />
+          <input
+            name="password"
+            type={passwordShown ? "text" : "password"}
+            placeholder="••••••••"
+            value={formData.password}
+            onChange={handleChange}
+            className={`auth-input ${errors.password ? 'error' : ''}`}
+            style={{ paddingLeft: '44px', paddingRight: '44px' }}
+          />
+          <button
+            type="button"
+            onClick={togglePasswordVisibility}
+            className="auth-password-toggle"
+          >
+            {passwordShown ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
+          </button>
+        </div>
+        {errors.password && (
+          <p className="auth-field-error">
+            <AlertCircle className="w-3.5 h-3.5" />
+            {errors.password}
+          </p>
+        )}
+      </div>
+
+      {/* Terms Checkbox */}
+      <div 
+        className="auth-checkbox-wrapper"
+        onClick={() => setFormData({ ...formData, termsAccepted: !formData.termsAccepted })}
+      >
+        <div className={`auth-checkbox ${formData.termsAccepted ? 'checked' : ''}`}>
+          {formData.termsAccepted && <Check className="w-3.5 h-3.5 text-white" />}
+        </div>
+        <span className="auth-checkbox-label">
+          Tôi đồng ý với điều khoản sử dụng
+        </span>
+      </div>
+      {errors.termsAccepted && (
+        <p className="auth-field-error">
+          <AlertCircle className="w-3.5 h-3.5" />
+          {errors.termsAccepted}
+        </p>
+      )}
+    </div>
+  );
+
+  return (
+    <>
+      {/* Back to Home */}
+      <button
+        type="button"
+        onClick={() => navigate("/")}
+        className="absolute top-6 left-6 flex items-center gap-2 text-sm font-medium auth-link"
+        style={{ color: 'var(--auth-text-muted)' }}
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Trang chủ
+      </button>
+
+      {/* Logo */}
+      <div 
+        className="auth-logo cursor-pointer" 
+        onClick={() => navigate("/")}
+        title="Quay lại trang chủ"
+      >
+        <div className="auth-logo-icon">
+          <Package className="w-6 h-6 text-white" />
+        </div>
+        <span className="auth-logo-text">SCMS</span>
+      </div>
+
+      {/* Header */}
+      <div className="text-center mb-6">
+        <h1 className="auth-title">Đăng Ký</h1>
+        <p className="auth-subtitle">
+          Đăng ký tài khoản để sử dụng hệ thống SCMS
+        </p>
+      </div>
+
+      {/* Step Indicator */}
+      {renderStepIndicator()}
+
+      <form onSubmit={handleSubmit}>
+        {/* Step Content */}
+        <div className="min-h-[280px]">
+          {currentStep === 1 && renderStep1()}
+          {currentStep === 2 && renderStep2()}
+          {currentStep === 3 && renderStep3()}
+        </div>
+
+        {/* API Error */}
+        {errors.apiError && (
+          <div className="auth-error">
+            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+            <span>{errors.apiError}</span>
+          </div>
+        )}
+
+        {/* Navigation Buttons */}
+        <div className="flex gap-3 mt-6">
+          {currentStep > 1 && (
+            <button
+              type="button"
+              onClick={handleBack}
+              className="auth-button flex-1"
+              style={{ 
+                background: 'rgba(255, 255, 255, 0.1)', 
+                border: '1px solid rgba(255, 255, 255, 0.2)' 
+              }}
+            >
+              <span className="flex items-center justify-center gap-2">
+                <ChevronLeft className="w-5 h-5" />
+                Quay lại
+              </span>
+            </button>
+          )}
+          
+          {currentStep < 3 ? (
+            <button
+              type="button"
+              onClick={handleNext}
+              className="auth-button flex-1"
+            >
+              <span className="flex items-center justify-center gap-2">
+                Tiếp theo
+                <ChevronRight className="w-5 h-5" />
+              </span>
+            </button>
+          ) : (
+            <button
+              type="submit"
+              className={`auth-button flex-1 ${isLoading ? 'loading' : ''}`}
+              disabled={isLoading || !formData.termsAccepted}
+            >
+              {isLoading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Đang đăng ký...
+                </span>
+              ) : (
+                "Đăng ký"
+              )}
+            </button>
           )}
         </div>
 
-        {/* API Error Alert */}
-        {errors.apiError && (
-          <Alert color="red" className="mt-6">
-            {errors.apiError}
-          </Alert>
-        )}
-
-        {/* Submit Button */}
-        <Button
-          type="submit"
-          size="lg"
-          className="mt-6"
-          fullWidth
-          disabled={!formData.termsAccepted}
-          {...getButtonProps("primary")}
-        >
-          Đăng ký
-        </Button>
-
         {/* Login Link */}
-        <Typography
-          variant="small"
-          color="gray"
-          className="mt-3 text-center font-normal"
-        >
+        <p className="mt-6 text-center auth-text-muted text-sm">
           Đã có tài khoản?{" "}
           <button
             type="button"
             onClick={() => navigate("/login")}
-            className="font-medium text-blue-600 hover:text-blue-700 transition-colors"
+            className="auth-link"
           >
             Đăng nhập
           </button>
-        </Typography>
-        </form>
-      </CardBody>
-    </Card>
+        </p>
+      </form>
+    </>
   );
 };
 

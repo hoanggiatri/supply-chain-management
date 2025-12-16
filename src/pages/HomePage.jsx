@@ -1,165 +1,235 @@
-import React from "react";
 import {
-  Card,
-  CardBody,
-  Typography,
-  Button,
-} from "@material-tailwind/react";
-import {
-  ChartBarIcon,
-  TruckIcon,
-  ShoppingCartIcon,
-  CubeIcon,
-  BuildingOfficeIcon,
-  ClipboardDocumentListIcon,
-} from "@heroicons/react/24/solid";
+    ArrowRight,
+    BarChart3,
+    Box, Building2,
+    ClipboardList,
+    Factory,
+    Package,
+    ShoppingCart,
+    Sparkles,
+    TrendingUp,
+    Truck,
+    Users,
+    Zap
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const HomePage = () => {
-  const userName = localStorage.getItem("userName") || "Người dùng";
-  const companyName = localStorage.getItem("companyName") || "Công ty";
+  const navigate = useNavigate();
+  const userName = localStorage.getItem("employeeName") || "Người dùng";
+  const companyName = localStorage.getItem("companyName") || "SCMS";
+  const departmentName = localStorage.getItem("departmentName") || "Bộ phận";
+  const role = localStorage.getItem("role") || "user";
 
   const features = [
     {
-      icon: BuildingOfficeIcon,
+      icon: Building2,
       title: "Quản lý Công ty",
-      description: "Quản lý thông tin công ty, bộ phận, nhân viên và phân quyền hệ thống một cách hiệu quả",
-      color: "bg-blue-500",
+      description: "Quản lý thông tin công ty, bộ phận, nhân viên và phân quyền",
+      gradient: "from-blue-500 to-blue-600",
+      bgColor: "bg-blue-50",
+      iconColor: "text-blue-600",
     },
     {
-      icon: CubeIcon,
+      icon: Factory,
       title: "Quản lý Sản xuất",
-      description: "Theo dõi quy trình sản xuất, lệnh sản xuất và tối ưu hóa năng suất sản xuất",
-      color: "bg-orange-500",
+      description: "Theo dõi quy trình sản xuất và tối ưu hóa năng suất",
+      gradient: "from-orange-500 to-orange-600",
+      bgColor: "bg-orange-50",
+      iconColor: "text-orange-600",
     },
     {
-      icon: ShoppingCartIcon,
+      icon: ShoppingCart,
       title: "Quản lý Mua hàng",
-      description: "Xử lý đơn mua hàng, quản lý nhà cung cấp và tối ưu chi phí mua hàng",
-      color: "bg-green-500",
+      description: "Xử lý đơn mua hàng và quản lý nhà cung cấp",
+      gradient: "from-green-500 to-green-600",
+      bgColor: "bg-green-50",
+      iconColor: "text-green-600",
     },
     {
-      icon: ClipboardDocumentListIcon,
+      icon: ClipboardList,
       title: "Quản lý Bán hàng",
-      description: "Quản lý đơn bán hàng, khách hàng và theo dõi doanh thu bán hàng",
-      color: "bg-purple-500",
+      description: "Quản lý đơn bán hàng và theo dõi doanh thu",
+      gradient: "from-purple-500 to-purple-600",
+      bgColor: "bg-purple-50",
+      iconColor: "text-purple-600",
     },
     {
-      icon: TruckIcon,
+      icon: Truck,
       title: "Quản lý Vận chuyển",
-      description: "Theo dõi đơn vận chuyển, tối ưu tuyến đường và quản lý giao nhận",
-      color: "bg-red-500",
+      description: "Theo dõi đơn vận chuyển và quản lý giao nhận",
+      gradient: "from-red-500 to-red-600",
+      bgColor: "bg-red-50",
+      iconColor: "text-red-600",
     },
     {
-      icon: ChartBarIcon,
+      icon: BarChart3,
       title: "Báo cáo & Phân tích",
-      description: "Phân tích dữ liệu, tạo báo cáo và hỗ trợ ra quyết định kinh doanh",
-      color: "bg-indigo-500",
+      description: "Phân tích dữ liệu và tạo báo cáo kinh doanh",
+      gradient: "from-indigo-500 to-indigo-600",
+      bgColor: "bg-indigo-50",
+      iconColor: "text-indigo-600",
     },
   ];
 
   const stats = [
-    { label: "Mô-đun", value: "6+", color: "text-blue-500" },
-    { label: "Tính năng", value: "50+", color: "text-green-500" },
-    { label: "Người dùng", value: "100+", color: "text-purple-500" },
-    { label: "Doanh nghiệp", value: "20+", color: "text-orange-500" },
+    { label: "Mô-đun", value: "6+", icon: Box, bgColor: "bg-blue-50", iconColor: "text-blue-500", textColor: "text-blue-600" },
+    { label: "Tính năng", value: "50+", icon: Sparkles, bgColor: "bg-green-50", iconColor: "text-green-500", textColor: "text-green-600" },
+    { label: "Người dùng", value: "100+", icon: Users, bgColor: "bg-purple-50", iconColor: "text-purple-500", textColor: "text-purple-600" },
+    { label: "Doanh nghiệp", value: "20+", icon: Building2, bgColor: "bg-orange-50", iconColor: "text-orange-500", textColor: "text-orange-600" },
+  ];
+
+  const quickActions = [
+    { label: "Tạo đơn mua hàng", icon: ShoppingCart, href: "/pos/create", color: "bg-gradient-to-r from-blue-500 to-blue-600" },
+    { label: "Tạo đơn bán hàng", icon: ClipboardList, href: "/sos/create", color: "bg-gradient-to-r from-green-500 to-green-600" },
+    { label: "Xem báo cáo", icon: TrendingUp, href: "/reports", color: "bg-gradient-to-r from-purple-500 to-purple-600" },
+    { label: "Quản lý kho", icon: Package, href: "/warehouses", color: "bg-gradient-to-r from-orange-500 to-orange-600" },
   ];
 
   return (
-    <div className="h-full overflow-y-auto">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white">
-        <div className="max-w-7xl mx-auto px-6 py-16">
-          <div className="text-center">
-            <Typography variant="h2" className="font-bold mb-4">
-              Chào mừng trở lại, {userName}! 👋
-            </Typography>
-            <Typography variant="lead" className="mb-2 text-blue-100">
-              {companyName}
-            </Typography>
-            <Typography variant="paragraph" className="text-blue-100 max-w-3xl mx-auto">
-              Hệ thống quản lý chuỗi cung ứng toàn diện - Giải pháp số hóa doanh nghiệp
-            </Typography>
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12">
-            {stats.map((stat, index) => (
-              <Card key={index} className="bg-white/10 backdrop-blur-lg border border-white/20">
-                <CardBody className="text-center py-6">
-                  <Typography variant="h3" className={`font-bold ${stat.color}`}>
-                    {stat.value}
-                  </Typography>
-                  <Typography variant="small" className="text-white font-medium mt-2">
-                    {stat.label}
-                  </Typography>
-                </CardBody>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Features Section */}
-      <div className="max-w-7xl mx-auto px-6 py-16">
-        <div className="text-center mb-12">
-          <Typography variant="h3" color="blue-gray" className="font-bold mb-4">
-            Tính năng nổi bật
-          </Typography>
-          <Typography variant="paragraph" color="gray" className="max-w-2xl mx-auto">
-            Hệ thống cung cấp đầy đủ các tính năng quản lý chuỗi cung ứng từ đầu đến cuối
-          </Typography>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {features.map((feature, index) => (
-            <Card
-              key={index}
-              className="hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer border border-blue-gray-100"
-            >
-              <CardBody className="text-center">
-                <div className={`${feature.color} w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg`}>
-                  <feature.icon className="h-8 w-8 text-white" />
-                </div>
-                <Typography variant="h5" color="blue-gray" className="mb-2 font-bold">
-                  {feature.title}
-                </Typography>
-                <Typography variant="small" color="gray" className="font-normal">
-                  {feature.description}
-                </Typography>
-              </CardBody>
-            </Card>
-          ))}
-        </div>
-      </div>
-
-      {/* About Section */}
-      <div className="bg-gray-50 py-16">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+    <div className="min-h-screen bg-gray-50">
+      {/* Welcome Section */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <Typography variant="h3" color="blue-gray" className="font-bold mb-6">
+              <div className="flex items-center gap-3 mb-2">
+                <span className="text-3xl">👋</span>
+                <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
+                  Xin chào, {userName}!
+                </h1>
+              </div>
+              <p className="text-gray-500">
+                {role === "c_admin" ? "Quản trị" : departmentName} • {companyName}
+              </p>
+            </div>
+            
+            <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-green-50 border border-green-100">
+              <Zap className="w-5 h-5 text-green-500" />
+              <span className="text-green-700 font-medium text-sm">Hệ thống hoạt động bình thường</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          {stats.map((stat, index) => {
+            const Icon = stat.icon;
+            return (
+              <div
+                key={index}
+                className={`${stat.bgColor} rounded-2xl p-6 border border-gray-100 hover:shadow-md transition-all duration-300`}
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className={`w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-sm`}>
+                    <Icon className={`w-5 h-5 ${stat.iconColor}`} />
+                  </div>
+                </div>
+                <div className={`text-3xl font-bold ${stat.textColor} mb-1`}>
+                  {stat.value}
+                </div>
+                <div className="text-gray-600 text-sm">
+                  {stat.label}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Quick Actions */}
+        <div className="mb-8">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <Zap className="w-5 h-5 text-yellow-500" />
+            Thao tác nhanh
+          </h2>
+          <div className="flex flex-wrap gap-3">
+            {quickActions.map((action, index) => {
+              const Icon = action.icon;
+              return (
+                <button
+                  key={index}
+                  onClick={() => navigate(action.href)}
+                  className={`flex items-center gap-2 px-5 py-3 rounded-xl ${action.color} text-white font-medium shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5`}
+                >
+                  <Icon className="w-4 h-4" />
+                  {action.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Features Section */}
+        <div className="mb-8">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">
+              Tính năng nổi bật
+            </h2>
+            <p className="text-gray-500">
+              Hệ thống cung cấp đầy đủ các tính năng quản lý chuỗi cung ứng từ đầu đến cuối
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {features.map((feature, index) => {
+              const Icon = feature.icon;
+              return (
+                <div
+                  key={index}
+                  className="group bg-white rounded-2xl p-6 border border-gray-100 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+                >
+                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                    <Icon className="w-7 h-7 text-white" />
+                  </div>
+                  
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2 group-hover:text-blue-600 transition-colors">
+                    {feature.title}
+                  </h3>
+                  
+                  <p className="text-gray-500 text-sm leading-relaxed">
+                    {feature.description}
+                  </p>
+                  
+                  <div className="mt-4 flex items-center gap-2 text-blue-600 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    Khám phá
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* About Section */}
+        <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-3xl p-8 md:p-10 text-white">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-bold mb-4">
                 Về hệ thống quản lý chuỗi cung ứng
-              </Typography>
-              <Typography variant="paragraph" color="gray" className="mb-4">
+              </h2>
+              <p className="text-blue-100 mb-4 leading-relaxed">
                 Hệ thống quản lý chuỗi cung ứng là giải pháp toàn diện giúp doanh nghiệp
                 số hóa và tối ưu hóa toàn bộ quy trình từ sản xuất, mua hàng, bán hàng
                 đến vận chuyển và phân phối.
-              </Typography>
-              <Typography variant="paragraph" color="gray" className="mb-4">
+              </p>
+              <p className="text-blue-100 mb-6 leading-relaxed">
                 Với giao diện thân thiện, dễ sử dụng và các tính năng mạnh mẽ, hệ thống
-                giúp doanh nghiệp nâng cao hiệu quả hoạt động, giảm chi phí và tăng
-                khả năng cạnh tranh trên thị trường.
-              </Typography>
-              <div className="flex gap-4 mt-8">
-                <Button color="blue" size="lg">
+                giúp doanh nghiệp nâng cao hiệu quả hoạt động.
+              </p>
+              
+              <div className="flex flex-wrap gap-3">
+                <button className="px-6 py-3 rounded-xl bg-white text-blue-600 font-semibold hover:bg-blue-50 transition-colors shadow-lg">
                   Khám phá thêm
-                </Button>
-                <Button variant="outlined" color="blue" size="lg">
+                </button>
+                <button className="px-6 py-3 rounded-xl border-2 border-white/50 text-white font-semibold hover:bg-white/10 transition-colors">
                   Hướng dẫn sử dụng
-                </Button>
+                </button>
               </div>
             </div>
-            <div>
+            
+            <div className="hidden lg:block">
               <img
                 src="https://blog.cedarmanagement.co.uk/wp-content/uploads/2020/04/Supply-chain-blog-cover-desktop-size-15-04.png"
                 alt="Supply Chain Management"
@@ -167,21 +237,6 @@ const HomePage = () => {
               />
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* CTA Section */}
-      <div className="bg-gradient-to-br from-blue-600 to-blue-800 text-white py-16">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <Typography variant="h3" className="font-bold mb-4">
-            Sẵn sàng bắt đầu?
-          </Typography>
-          <Typography variant="paragraph" className="text-blue-100 mb-8">
-            Khám phá các tính năng mạnh mẽ của hệ thống và tối ưu hóa chuỗi cung ứng của bạn ngay hôm nay
-          </Typography>
-          <Button color="white" size="lg">
-            Bắt đầu ngay
-          </Button>
         </div>
       </div>
     </div>

@@ -1,20 +1,13 @@
-import React, { useState } from "react";
-import {
-  Typography,
-  Input,
-  Button,
-  Alert,
-  Card,
-  CardBody,
-} from "@material-tailwind/react";
-import { useNavigate } from "react-router-dom";
 import { forgotPassword } from "@/services/general/AuthService";
-import { getButtonProps } from "@/utils/buttonStyles";
 import toastrService from "@/services/toastrService";
+import { AlertCircle, ArrowLeft, KeyRound, Loader2, Mail, Package } from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const ForgotPasswordForm = () => {
   const [email, setEmail] = useState("");
   const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const validateForm = () => {
@@ -34,6 +27,7 @@ const ForgotPasswordForm = () => {
     }
 
     setErrors({});
+    setIsLoading(true);
 
     try {
       await forgotPassword(email);
@@ -44,9 +38,9 @@ const ForgotPasswordForm = () => {
       const errorMessage =
         error.response?.data?.message || "Không thể gửi OTP! Vui lòng thử lại.";
       toastrService.error(errorMessage);
-      setErrors({
-        apiError: errorMessage,
-      });
+      setErrors({ apiError: errorMessage });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -58,69 +52,106 @@ const ForgotPasswordForm = () => {
   };
 
   return (
-    <Card className="w-full max-w-[28rem] shadow-2xl">
-      <CardBody className="p-8">
-        <div className="text-center mb-6">
-          <Typography variant="h3" color="blue-gray" className="mb-2">
-            Quên Mật Khẩu
-          </Typography>
-          <Typography className="text-gray-600 font-normal">
-            Nhập email của bạn để nhận mã xác thực
-          </Typography>
-        </div>
+    <>
+      {/* Back to Home */}
+      <button
+        type="button"
+        onClick={() => navigate("/")}
+        className="absolute top-6 left-6 flex items-center gap-2 text-sm font-medium auth-link"
+        style={{ color: 'var(--auth-text-muted)' }}
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Trang chủ
+      </button>
 
-        <form onSubmit={handleSubmit} className="text-left">
-          {/* Email Field */}
-          <div className="mb-3">
-            <Input
+      {/* Logo */}
+      <div 
+        className="auth-logo cursor-pointer" 
+        onClick={() => navigate("/")}
+        title="Quay lại trang chủ"
+      >
+        <div className="auth-logo-icon">
+          <Package className="w-6 h-6 text-white" />
+        </div>
+        <span className="auth-logo-text">SCMS</span>
+      </div>
+
+      {/* Header */}
+      <div className="text-center mb-8">
+        <div className="flex justify-center mb-4">
+          <div 
+            className="w-16 h-16 rounded-full flex items-center justify-center"
+            style={{ background: 'rgba(102, 126, 234, 0.2)' }}
+          >
+            <KeyRound className="w-8 h-8" style={{ color: 'var(--auth-primary-light)' }} />
+          </div>
+        </div>
+        <h1 className="auth-title">Quên Mật Khẩu</h1>
+        <p className="auth-subtitle">
+          Nhập email của bạn để nhận mã xác thực
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit}>
+        {/* Email Field */}
+        <div className="mb-5">
+          <label className="auth-label">Email</label>
+          <div className="auth-input-wrapper">
+            <Mail className="auth-input-icon w-5 h-5" />
+            <input
               id="email"
-              color="blue"
-              size="lg"
               type="email"
-              label="Email"
+              placeholder="your@email.com"
               value={email}
               onChange={handleChange}
-              error={!!errors.email}
-              className="w-full placeholder:opacity-100"
+              className={`auth-input ${errors.email ? 'error' : ''}`}
+              style={{ paddingLeft: '44px' }}
             />
-            {errors.email && (
-              <Typography variant="small" color="red" className="mt-1">
-                {errors.email}
-              </Typography>
-            )}
           </div>
-
-          {/* API Error Alert */}
-          {errors.apiError && (
-            <Alert color="red" className="mb-4">
-              {errors.apiError}
-            </Alert>
+          {errors.email && (
+            <p className="auth-field-error">
+              <AlertCircle className="w-3.5 h-3.5" />
+              {errors.email}
+            </p>
           )}
+        </div>
 
-          {/* Submit Button */}
-          <Button
-            type="submit"
-            size="lg"
-            className="mt-4"
-            fullWidth
-            {...getButtonProps("primary")}
-          >
-            Gửi mã OTP
-          </Button>
-
-          {/* Back to Login Link */}
-          <div className="mt-3 text-center">
-            <button
-              type="button"
-              onClick={() => navigate("/login")}
-              className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
-            >
-              ← Quay lại đăng nhập
-            </button>
+        {/* API Error */}
+        {errors.apiError && (
+          <div className="auth-error">
+            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+            <span>{errors.apiError}</span>
           </div>
-        </form>
-      </CardBody>
-    </Card>
+        )}
+
+        {/* Submit Button */}
+        <button
+          type="submit"
+          className={`auth-button mt-6 ${isLoading ? 'loading' : ''}`}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <span className="flex items-center justify-center gap-2">
+              <Loader2 className="w-5 h-5 animate-spin" />
+              Đang gửi...
+            </span>
+          ) : (
+            "Gửi mã OTP"
+          )}
+        </button>
+
+        {/* Back to Login Link */}
+        <p className="mt-6 text-center auth-text-muted text-sm">
+          <button
+            type="button"
+            onClick={() => navigate("/login")}
+            className="auth-link"
+          >
+            ← Quay lại đăng nhập
+          </button>
+        </p>
+      </form>
+    </>
   );
 };
 

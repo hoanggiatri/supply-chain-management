@@ -1,11 +1,11 @@
-import React from "react";
+import AuthLayout from "@/components/layout/AuthLayout";
 import RegisterForm from "@components/auth-form/RegisterForm";
 
 const Register = () => {
   return (
-    <section className="flex text-center h-screen justify-center items-center p-8 bg-gray-50">
+    <AuthLayout maxWidth="32rem">
       <RegisterForm />
-    </section>
+    </AuthLayout>
   );
 };
 

@@ -1,11 +1,11 @@
-import React from "react";
+import AuthLayout from "@/components/layout/AuthLayout";
 import OtpFogotPasswordForm from "@components/auth-form/OtpFogotPasswordForm";
 
 const OtpForgotPassword = () => {
   return (
-    <section className="flex text-center h-screen justify-center items-center p-8 bg-gray-50">
+    <AuthLayout>
       <OtpFogotPasswordForm />
-    </section>
+    </AuthLayout>
   );
 };
 
