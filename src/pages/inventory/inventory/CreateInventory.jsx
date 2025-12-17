@@ -1,11 +1,10 @@
-import React, { useState } from "react";
-import { Typography, Button, Card, CardBody } from "@material-tailwind/react";
-import { useNavigate } from "react-router-dom";
-import { createInventory } from "@/services/inventory/InventoryService";
 import InventoryForm from "@/components/inventory/InventoryForm";
+import { Button } from "@/components/ui/button";
+import { createInventory } from "@/services/inventory/InventoryService";
 import toastrService from "@/services/toastrService";
-import { getButtonProps } from "@/utils/buttonStyles";
-import BackButton from "@/components/common/BackButton";
+import { MoveLeft, Save, X } from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const CreateInventory = () => {
   const navigate = useNavigate();
@@ -82,41 +81,53 @@ const CreateInventory = () => {
   };
 
   return (
-    <div className="p-6">
-      <div className="flex items-center justify-between mb-4">
-        <Typography variant="h4" className="font-bold">
-          THÊM MỚI TỒN KHO
-        </Typography>
-        <BackButton to="/inventory-count" label="Quay lại tồn kho" />
+    <div className="max-w-4xl mx-auto p-4 space-y-6">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={handleCancel}
+        >
+          <MoveLeft className="w-4 h-4" />
+        </Button>
+        <div>
+          <h1 className="text-2xl font-bold">Thêm mới tồn kho</h1>
+          <p className="text-muted-foreground text-sm mt-1">
+            Tạo mới phiếu tồn kho cho kho hàng
+          </p>
+        </div>
       </div>
 
-      <Card className="shadow-sm">
-        <CardBody>
-          <InventoryForm
-            inventory={inventory}
-            onChange={handleChange}
-            setInventory={setInventory}
-            errors={errors}
-          />
+      {/* Form Card */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border p-6">
+        <InventoryForm
+          inventory={inventory}
+          onChange={handleChange}
+          setInventory={setInventory}
+          errors={errors}
+        />
 
-          <div className="mt-6 flex justify-end gap-3">
-            <Button
-              type="button"
-              {...getButtonProps("primary")}
-              onClick={handleSubmit}
-            >
-              Thêm
-            </Button>
-            <Button
-              type="button"
-              {...getButtonProps("outlinedSecondary")}
-              onClick={handleCancel}
-            >
-              Hủy
-            </Button>
-          </div>
-        </CardBody>
-      </Card>
+        {/* Actions */}
+        <div className="flex justify-end gap-3 mt-8 pt-6 border-t">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={handleCancel}
+          >
+            <X className="w-4 h-4 mr-2" />
+            Hủy
+          </Button>
+          <Button
+            type="button"
+            onClick={handleSubmit}
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            <Save className="w-4 h-4 mr-2" />
+            Lưu tồn kho
+          </Button>
+        </div>
+      </div>
     </div>
   );
 };

@@ -1,17 +1,14 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Typography, Button, Card, CardBody } from "@material-tailwind/react";
 import { DataTable } from "@/components/ui/data-table";
 import { useInventoryWithFilters } from "@/hooks/useInventory";
 import { useItems } from "@/hooks/useItems";
 import { useWarehouses } from "@/hooks/useWarehouses";
-import { getInventoryColumns } from "./inventoryColumns";
-import InventoryFilter from "@/components/inventory/InventoryFilter";
-import { AddButton } from "@components/common/ActionButtons";
-import ListPageLayout from "@/components/layout/ListPageLayout";
 import toastService from "@/services/toastService";
 import { getButtonProps } from "@/utils/buttonStyles";
 import SelectAutocomplete from "@components/content-components/SelectAutocomplete";
+import { Button, Card, CardBody, Typography } from "@material-tailwind/react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { getInventoryColumns } from "./inventoryColumns";
 
 const Inventory = () => {
   const [selectedItemCode, setSelectedItemCode] = useState("");
@@ -22,9 +19,12 @@ const Inventory = () => {
   const companyId = localStorage.getItem("companyId");
 
   // Custom hooks for data fetching
-  const { data: inventories = [], isLoading: inventoryLoading, error: inventoryError } = useInventoryWithFilters(companyId);
+  const { data: queryData, isLoading: inventoryLoading, error: inventoryError } = useInventoryWithFilters(companyId);
   const { data: items = [], isLoading: itemsLoading, error: itemsError } = useItems(companyId);
   const { data: warehouses = [], isLoading: warehousesLoading, error: warehousesError } = useWarehouses(companyId);
+
+  // Ensure inventories is always an array
+  const inventories = Array.isArray(queryData) ? queryData : (queryData?.data || queryData?.content || []);
 
   // Error handling
   if (inventoryError) {

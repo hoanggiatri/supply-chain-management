@@ -1,14 +1,11 @@
-import React from "react";
-import PropTypes from "prop-types";
-import {
-  Input,
-  Textarea,
-  Typography,
-  IconButton,
-  Button,
-} from "@material-tailwind/react";
 import { TrashIcon } from "@heroicons/react/24/outline";
-import { getButtonProps } from "@/utils/buttonStyles";
+import {
+  Button,
+  IconButton,
+  Input,
+  Typography
+} from "@material-tailwind/react";
+import PropTypes from "prop-types";
 
 const StageDetailTable = ({
   stageDetails = [],
@@ -68,13 +65,13 @@ const StageDetailTable = ({
         <table className="w-full min-w-max table-auto text-left">
           <thead>
             <tr>
-              <th className="bg-blue-gray-50/50 p-3 text-sm font-semibold text-blue-gray-700">
+              <th className="bg-blue-gray-50/50 p-3 text-sm font-semibold text-blue-gray-700 text-center w-20">
                 Thứ tự
               </th>
               <th className="bg-blue-gray-50/50 p-3 text-sm font-semibold text-blue-gray-700">
                 Tên công đoạn
               </th>
-              <th className="bg-blue-gray-50/50 p-3 text-sm font-semibold text-blue-gray-700">
+              <th className="bg-blue-gray-50/50 p-3 text-sm font-semibold text-blue-gray-700 w-40">
                 Thời gian dự kiến (phút)
               </th>
               <th className="bg-blue-gray-50/50 p-3 text-sm font-semibold text-blue-gray-700">
@@ -104,11 +101,11 @@ const StageDetailTable = ({
                   : `stage-detail-${index}`;
                 return (
                   <tr key={rowKey} className="border-b border-blue-gray-50">
-                    <td className="p-3 align-top">
+                    <td className="p-3 align-middle text-center w-20">
                       <Typography
                         variant="small"
                         color="blue-gray"
-                        className="font-normal"
+                        className="font-medium"
                       >
                         {detail.stageOrder}
                       </Typography>
@@ -147,7 +144,7 @@ const StageDetailTable = ({
                       )}
                     </td>
 
-                    <td className="p-3 align-top">
+                    <td className="p-3 align-top w-40">
                       {readOnly ? (
                         <Typography
                           variant="small"
@@ -193,7 +190,7 @@ const StageDetailTable = ({
                           {detail.description || "-"}
                         </Typography>
                       ) : (
-                        <Textarea
+                        <Input
                           label="Ghi chú"
                           value={detail.description || ""}
                           onChange={(e) =>
@@ -231,11 +228,12 @@ const StageDetailTable = ({
       {canEdit && (
         <Button
           type="button"
-          className="mt-4"
-          {...getButtonProps("outlinedSecondary")}
+          variant="outlined"
+          color="blue"
+          className="mt-6 border-blue-500 text-blue-500 hover:bg-blue-50"
           onClick={handleAddRow}
         >
-          Thêm công đoạn
+          + Thêm công đoạn
         </Button>
       )}
     </>

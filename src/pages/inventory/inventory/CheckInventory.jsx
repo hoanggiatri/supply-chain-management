@@ -1,33 +1,33 @@
-import React, { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
 import {
-  Typography,
-  Button,
-  Select,
-  Option,
-  Card,
-  CardBody,
-} from "@material-tailwind/react";
-import { DataTable } from "@/components/ui/data-table";
-import {
-  getAllInventory,
   checkInventory,
+  getAllInventory,
   increaseOnDemand,
 } from "@/services/inventory/InventoryService";
-import { getBomByItemId } from "@/services/manufacturing/BomService";
-import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
-import { getMoById, updateMo } from "@/services/manufacturing/MoService";
 import { createIssueTicket } from "@/services/inventory/IssueTicketService";
-import { useNavigate, useParams } from "react-router-dom";
 import {
   getTransferTicketById,
   updateTransferTicket,
 } from "@/services/inventory/TransferTicketService";
+import { getBomByItemId } from "@/services/manufacturing/BomService";
+import { getMoById, updateMo } from "@/services/manufacturing/MoService";
 import { getPoById } from "@/services/purchasing/PoService";
 import toastrService from "@/services/toastrService";
-import { getButtonProps } from "@/utils/buttonStyles";
-import BackButton from "@/components/common/BackButton";
 import dayjs from "dayjs";
-import { createSortableHeader, createStatusBadge } from "@/components/ui/data-table";
+import {
+  ArrowLeft,
+  Check,
+  Loader2,
+  Package,
+  Search,
+  Warehouse
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 const CheckInventory = () => {
   const [warehouses, setWarehouses] = useState([]);
@@ -72,7 +72,7 @@ const CheckInventory = () => {
         if (type === "tt") {
           const tt = await getTransferTicketById(id, token);
           setTtDetails(tt.transferTicketDetails);
-          setSelectedWarehouseId(tt.fromWarehouseId);
+          setSelectedWarehouseId(String(tt.fromWarehouseId));
         }
 
         if (type === "po") {
@@ -87,10 +87,6 @@ const CheckInventory = () => {
     };
     fetchDataByType();
   }, [type, id, token]);
-
-  const handleWarehouseChange = (e) => {
-    setSelectedWarehouseId(e.target.value);
-  };
 
   const handleCheckInventory = async () => {
     if (!selectedWarehouseId) {
@@ -208,11 +204,14 @@ const CheckInventory = () => {
     }
 
     try {
-      const allEnough = inventoryResults.every((r) => r.enough);
+      const allEnough = inventoryResults.every(
+        (r) => r.enough === "Đủ" || r.enough === true // Handle both potential return values
+      );
+      
       if (allEnough) {
+        setLoading(true);
         if (type === "mo") {
           const mo = await getMoById(id, token);
-          // Only send allowed fields, exclude read-only and computed fields
           const updatedMo = {
             itemId: Number(mo.itemId),
             lineId: Number(mo.lineId),
@@ -255,7 +254,6 @@ const CheckInventory = () => {
 
         if (type === "tt") {
           const tt = await getTransferTicketById(id, token);
-          console.log("tt", tt);
           const updatedTt = {
             companyId: companyId,
             status: "Chờ xuất kho",
@@ -319,187 +317,183 @@ const CheckInventory = () => {
     }
   };
 
-  const getCheckInventoryColumns = () => [
-    {
-      accessorKey: "itemCode",
-      header: createSortableHeader("Mã hàng hóa"),
-      cell: ({ getValue }) => <span className="font-medium">{getValue() || ""}</span>
-    },
-    {
-      accessorKey: "itemName",
-      header: createSortableHeader("Tên hàng hóa"),
-      cell: ({ getValue }) => <span>{getValue() || ""}</span>
-    },
-    {
-      accessorKey: "quantityNeeded",
-      header: createSortableHeader("Số lượng cần"),
-      cell: ({ getValue }) => {
-        const value = getValue();
-        return value !== "-" ? (
-          <span className="font-semibold text-blue-600">
-            {Number(value).toLocaleString()}
-          </span>
-        ) : (
-          <span className="text-gray-400">-</span>
-        );
-      },
-    },
-    {
-      accessorKey: "available",
-      header: createSortableHeader("Tồn kho sẵn có"),
-      cell: ({ getValue }) => {
-        const value = getValue();
-        return value !== "-" ? (
-          <span className="font-semibold text-green-600">
-            {Number(value).toLocaleString()}
-          </span>
-        ) : (
-          <span className="text-gray-400">-</span>
-        );
-      },
-    },
-    {
-      accessorKey: "enough",
-      header: createSortableHeader("Đủ hàng"),
-      cell: ({ getValue }) => {
-        const status = getValue();
-        const statusColors = {
-          "Đủ": "bg-green-100 text-green-800",
-          "Không đủ": "bg-red-100 text-red-800",
-          "Không có tồn kho": "bg-orange-100 text-orange-800"
-        };
-        
-        const statusLabels = {
-          "Đủ": "✔️ Đủ",
-          "Không đủ": "❌ Không đủ",
-          "Không có tồn kho": "⚠️ Không có tồn kho"
-        };
-        
-        return (
-          <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-medium ${statusColors[status] || "bg-gray-100 text-gray-700"}`}>
-            {statusLabels[status] || status}
-          </span>
-        );
-      },
-    },
-  ];
-
-  const columns = getCheckInventoryColumns();
+  const statusColors = {
+    "Đủ": "bg-green-100 text-green-800",
+    "Không đủ": "bg-red-100 text-red-800",
+    "Không có tồn kho": "bg-orange-100 text-orange-800"
+  };
+  
+  const statusLabels = {
+    "Đủ": "✔️ Đủ",
+    "Không đủ": "❌ Không đủ",
+    "Không có tồn kho": "⚠️ Không có tồn kho"
+  };
 
   return (
-    <div className="p-6">
-      <div className="flex items-center justify-between mb-4">
-        <Typography variant="h4" className="font-bold">
-          KIỂM TRA TỒN KHO
-        </Typography>
-        <BackButton />
+    <div className="max-w-5xl mx-auto p-4 space-y-6">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => navigate(-1)}
+        >
+          <ArrowLeft className="w-4 h-4" />
+        </Button>
+        <div>
+          <h1 className="text-2xl font-bold flex items-center gap-3">
+            <Warehouse className="w-7 h-7" />
+            Kiểm tra tồn kho
+          </h1>
+          <p className="text-muted-foreground text-sm mt-1">
+            Mã: {id}
+          </p>
+        </div>
       </div>
 
-      <Card className="mb-4 shadow-sm">
-        <CardBody>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
-            <div>
-              <Typography variant="small" className="mb-1 font-medium">
-                Kho xuất
-              </Typography>
-              {type === "tt" ? (
-                <Typography className="border border-blue-gray-100 rounded-lg px-3 py-2 bg-blue-gray-50 text-sm">
-                  {warehouses.find(
-                    (w) => String(w.warehouseId) === String(selectedWarehouseId)
-                  )
-                    ? `${
-                        warehouses.find(
-                          (w) =>
-                            String(w.warehouseId) ===
-                            String(selectedWarehouseId)
-                        )?.warehouseCode
-                      } - ${
-                        warehouses.find(
-                          (w) =>
-                            String(w.warehouseId) ===
-                            String(selectedWarehouseId)
-                        )?.warehouseName
-                      }`
-                    : "Không có kho"}
-                </Typography>
-              ) : (
-                <Select
-                  value={selectedWarehouseId || ""}
-                  onChange={(value) => setSelectedWarehouseId(value)}
-                  color="blue"
-                  className="w-full"
-                  label="Kho xuất"
-                >
-                  {warehouses.map((wh) => (
-                    <Option key={wh.warehouseId} value={wh.warehouseId}>
-                      {wh.warehouseCode} - {wh.warehouseName}
-                    </Option>
-                  ))}
-                </Select>
-              )}
-            </div>
-
-            <div className="flex md:justify-end">
-              <Button
-                type="button"
-                {...getButtonProps("primary")}
-                onClick={handleCheckInventory}
-                disabled={!selectedWarehouseId || loading}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border p-6">
+        <div className="flex flex-col md:flex-row md:items-end gap-4">
+          <div className="flex-1 space-y-2">
+            <Label className="flex items-center">
+              <Warehouse className="w-4 h-4 mr-2" />
+              {type === "tt" ? 'Kho xuất (từ phiếu chuyển)' : 'Kho xuất'}
+            </Label>
+            
+            {type === "tt" ? (
+              <Input
+                readOnly
+                value={warehouses.find(
+                  (w) => String(w.warehouseId) === String(selectedWarehouseId)
+                )
+                  ? `${
+                      warehouses.find(
+                        (w) =>
+                          String(w.warehouseId) ===
+                          String(selectedWarehouseId)
+                      )?.warehouseCode
+                    } - ${
+                      warehouses.find(
+                        (w) =>
+                          String(w.warehouseId) ===
+                          String(selectedWarehouseId)
+                      )?.warehouseName
+                    }`
+                  : "Không có kho"}
+                className="bg-muted"
+              />
+            ) : (
+              <Select 
+                value={selectedWarehouseId} 
+                onValueChange={setSelectedWarehouseId}
               >
-                Kiểm tra tồn kho
-              </Button>
-            </div>
+                <SelectTrigger>
+                  <SelectValue placeholder="-- Chọn kho --" />
+                </SelectTrigger>
+                <SelectContent>
+                  {warehouses.map((wh) => (
+                    <SelectItem key={wh.warehouseId} value={String(wh.warehouseId)}>
+                      {wh.warehouseCode} - {wh.warehouseName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
-        </CardBody>
-      </Card>
+          <Button
+            onClick={handleCheckInventory}
+            disabled={!selectedWarehouseId || loading}
+            variant="secondary"
+            className="min-w-[180px]"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                Đang kiểm tra...
+              </>
+            ) : (
+              <>
+                <Search className="w-4 h-4 mr-2" />
+                Kiểm tra tồn kho
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
 
-      <DataTable
-        columns={columns}
-        data={inventoryResults}
-        loading={loading}
-        emptyMessage="Chưa có dữ liệu kiểm tra tồn kho"
-        height="calc(100vh - 500px)"
-        renderRow={(row, index) => {
-          const key = `${row.itemId || row.supplierItemId}-${index}`;
-          const statusLabels = {
-            "Đủ": "✔️ Đủ",
-            "Không đủ": "❌ Không đủ",
-            "Không có tồn kho": "⚠️ Không có tồn kho"
-          };
-          
-          return (
-            <tr key={key} className="group even:bg-[#F8F9FC] odd:bg-white">
-              <td className="px-6 py-4 text-sm font-medium">
-                {type === "po" ? row.supplierItemCode : row.itemCode}
-              </td>
-              <td className="px-6 py-4 text-sm">
-                {type === "po" ? row.supplierItemName : row.itemName}
-              </td>
-              <td className="px-6 py-4 text-sm font-semibold text-blue-600">
-                {row.enough === "Không có tồn kho" ? "-" : Number(row.quantityNeeded).toLocaleString()}
-              </td>
-              <td className="px-6 py-4 text-sm font-semibold text-green-600">
-                {row.enough === "Không có tồn kho" ? "-" : Number(row.available).toLocaleString()}
-              </td>
-              <td className="px-6 py-4 text-sm">
-                {statusLabels[row.enough] || row.enough}
-              </td>
-            </tr>
-          );
-        }}
-      />
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border overflow-hidden">
+        <div className="p-4 border-b bg-muted/30">
+          <h3 className="font-semibold flex items-center gap-2">
+            <Package className="w-5 h-5" />
+            Kết quả kiểm tra ({inventoryResults.length} sản phẩm)
+          </h3>
+        </div>
+
+        {inventoryResults.length === 0 ? (
+          <div className="text-center py-12">
+            <Package className="mx-auto mb-4 w-12 h-12 text-muted-foreground" />
+            <p className="text-muted-foreground">
+              {selectedWarehouseId ? 'Nhấn "Kiểm tra tồn kho" để xem kết quả' : 'Vui lòng chọn kho xuất'}
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/50 border-b">
+                <tr>
+                  <th className="h-10 px-2 text-left align-middle font-medium text-muted-foreground ml-2">Mã hàng hóa</th>
+                  <th className="h-10 px-2 text-left align-middle font-medium text-muted-foreground">Tên hàng hóa</th>
+                  <th className="h-10 px-2 text-right align-middle font-medium text-muted-foreground">Số lượng cần</th>
+                  <th className="h-10 px-2 text-right align-middle font-medium text-muted-foreground">Tồn kho sẵn có</th>
+                  <th className="h-10 px-2 text-center align-middle font-medium text-muted-foreground">Trạng thái</th>
+                </tr>
+              </thead>
+              <tbody>
+                {inventoryResults.map((result, index) => {
+                  const key = `${result.itemId || result.supplierItemId}-${index}`;
+                  return (
+                    <tr key={key} className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                      <td className="p-2 align-middle font-medium">
+                        {type === "po" ? result.supplierItemCode : result.itemCode}
+                      </td>
+                      <td className="p-2 align-middle text-muted-foreground">
+                        {type === "po" ? result.supplierItemName : result.itemName}
+                      </td>
+                      <td className="p-2 align-middle text-right font-semibold text-blue-600">
+                        {result.enough === "Không có tồn kho" ? "-" : Number(result.quantityNeeded).toLocaleString()}
+                      </td>
+                      <td className="p-2 align-middle text-right font-semibold text-green-600">
+                        {result.enough === "Không có tồn kho" ? "-" : Number(result.available).toLocaleString()}
+                      </td>
+                      <td className="p-2 align-middle text-center">
+                         <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${statusColors[result.enough] || "bg-gray-100 text-gray-700"}`}>
+                          {statusLabels[result.enough] || result.enough}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
 
       {inventoryResults.length > 0 && (
-        <div className="mt-4 flex justify-end gap-3">
+         <div className="flex justify-end gap-3 sticky bottom-4">
           <Button
-            type="button"
-            {...getButtonProps("primary")}
+            variant="outline"
+            onClick={() => navigate(-1)}
+          >
+            Hủy
+          </Button>
+          <Button
             onClick={handleConfirm}
             disabled={loading}
+            className="bg-emerald-600 hover:bg-emerald-700"
           >
+            <Check className="w-4 h-4 mr-2" />
             Xác nhận
           </Button>
-          <BackButton label="Hủy" />
         </div>
       )}
     </div>

@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { getItemById, updateItem, updateItemImage } from "@/services/general/ItemService";
-import ItemForm from "@components/general/ItemForm";
 import ImageUpload from "@/components/common/ImageUpload";
-import FormPageLayout from "@/components/layout/FormPageLayout";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
-import toastrService from "@/services/toastrService";
+import FormPageLayout from "@/components/layout/FormPageLayout";
 import { Button } from "@/components/ui/button";
+import { getItemById, updateItem, updateItemImage } from "@/services/general/ItemService";
+import toastrService from "@/services/toastrService";
+import ItemForm from "@components/general/ItemForm";
 import { Save, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 const EditItem = () => {
   const { itemId } = useParams();
@@ -76,7 +76,8 @@ const EditItem = () => {
     setEditedItem((prev) => ({ ...prev, [name]: newValue }));
   };
 
-  const handleImageChange = (file) => {
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
     if (file) {
       setImageFile(file);
       setImagePreview(URL.createObjectURL(file));

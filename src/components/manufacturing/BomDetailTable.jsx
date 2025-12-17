@@ -1,15 +1,13 @@
-import React from "react";
-import PropTypes from "prop-types";
-import {
-  Input,
-  Select,
-  Option,
-  Typography,
-  IconButton,
-  Button,
-} from "@material-tailwind/react";
 import { TrashIcon } from "@heroicons/react/24/outline";
-import { getButtonProps } from "@/utils/buttonStyles";
+import {
+    Button,
+    IconButton,
+    Input,
+    Option,
+    Select,
+    Typography,
+} from "@material-tailwind/react";
+import PropTypes from "prop-types";
 
 const BomDetailRow = ({
   detail,
@@ -215,11 +213,12 @@ const BomDetailTable = ({
 
       <Button
         type="button"
-        className="mt-4"
-        {...getButtonProps("outlinedSecondary")}
+        variant="outlined"
+        color="blue"
+        className="mt-6 border-blue-500 text-blue-500 hover:bg-blue-50"
         onClick={handleAddRow}
       >
-        Thêm nguyên vật liệu
+        + Thêm nguyên vật liệu
       </Button>
     </>
   );

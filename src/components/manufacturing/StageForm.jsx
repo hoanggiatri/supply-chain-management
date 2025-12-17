@@ -1,11 +1,11 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { getAllItemsInCompany } from "@/services/general/ItemService";
@@ -84,24 +84,6 @@ const StageForm = ({
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {/* Mã Stage */}
-      <div className="space-y-2">
-        <Label htmlFor="stageCode">Mã Stage</Label>
-        <Input
-          id="stageCode"
-          name="stageCode"
-          value={stage.stageCode || ""}
-          onChange={onChange}
-          placeholder="Mã Stage sẽ được tạo tự động"
-          readOnly={isFieldReadOnly("stageCode")}
-          disabled={isFieldReadOnly("stageCode")}
-          className={errors.stageCode ? "border-red-500" : ""}
-        />
-        {errors.stageCode && (
-          <p className="text-sm text-red-500">{errors.stageCode}</p>
-        )}
-      </div>
-
       {/* Hàng hóa */}
       <div className="space-y-2">
         <Label htmlFor="itemCode">
@@ -136,26 +118,7 @@ const StageForm = ({
           <p className="text-sm text-red-500">{errors.itemCode}</p>
         )}
       </div>
-
-      {/* Mô tả */}
-      <div className="space-y-2 md:col-span-2">
-        <Label htmlFor="description">Mô tả</Label>
-        <Textarea
-          id="description"
-          name="description"
-          value={stage.description || ""}
-          onChange={onChange}
-          readOnly={isFieldReadOnly("description")}
-          disabled={isFieldReadOnly("description")}
-          placeholder="Nhập mô tả..."
-          className={errors.description ? "border-red-500" : ""}
-        />
-        {errors.description && (
-          <p className="text-sm text-red-500">{errors.description}</p>
-        )}
-      </div>
-
-      {/* Trạng thái */}
+            {/* Trạng thái */}
       <div className="space-y-2">
         <Label htmlFor="status">Trạng thái</Label>
         {isFieldReadOnly("status") ? (
@@ -184,6 +147,26 @@ const StageForm = ({
           <p className="text-sm text-red-500">{errors.status}</p>
         )}
       </div>
+
+      {/* Mô tả */}
+      <div className="space-y-2 md:col-span-2">
+        <Label htmlFor="description">Mô tả</Label>
+        <Textarea
+          id="description"
+          name="description"
+          value={stage.description || ""}
+          onChange={onChange}
+          readOnly={isFieldReadOnly("description")}
+          disabled={isFieldReadOnly("description")}
+          placeholder="Nhập mô tả..."
+          className={errors.description ? "border-red-500" : ""}
+        />
+        {errors.description && (
+          <p className="text-sm text-red-500">{errors.description}</p>
+        )}
+      </div>
+
+
     </div>
   );
 };

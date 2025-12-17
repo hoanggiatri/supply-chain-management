@@ -1,15 +1,17 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { createItem, updateItemImage } from "@/services/general/ItemService";
-import ItemForm from "@components/general/ItemForm";
 import ImageUpload from "@/components/common/ImageUpload";
 import FormPageLayout from "@/components/layout/FormPageLayout";
-import toastrService from "@/services/toastrService";
 import { Button } from "@/components/ui/button";
+import { createItem, updateItemImage } from "@/services/general/ItemService";
+import toastrService from "@/services/toastrService";
+import ItemForm from "@components/general/ItemForm";
+import { useQueryClient } from "@tanstack/react-query";
 import { FileSpreadsheet, Save, X } from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const CreateItem = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const token = localStorage.getItem("token");
   const companyId = localStorage.getItem("companyId");
   const [errors, setErrors] = useState({});
@@ -105,6 +107,7 @@ const CreateItem = () => {
         }
       }
 
+      await queryClient.invalidateQueries({ queryKey: ["items", companyId] });
       toastrService.success("Thêm hàng hóa thành công!");
       navigate("/items");
     } catch (error) {
