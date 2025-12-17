@@ -43,6 +43,27 @@ const MyProfile = () => {
   const token = localStorage.getItem("token");
   const employeeId = localStorage.getItem("employeeId");
 
+  // Helper function to format gender
+  const formatGender = (gender) => {
+    if (!gender) return "--";
+    return gender === "male" ? "Nam" : gender === "female" ? "Nữ" : "Khác";
+  };
+
+  // Helper function to format status
+  const formatStatus = (status) => {
+    if (!status) return "--";
+    switch (status) {
+      case "active":
+        return "Đang hoạt động";
+      case "inactive":
+        return "Không hoạt động";
+      case "resigned":
+        return "Đã nghỉ";
+      default:
+        return status;
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -96,10 +117,10 @@ const MyProfile = () => {
 
           <div>
             <h2 className="text-2xl font-bold text-gray-900">
-              {employee.fullName}
+              {employee.employeeName}
             </h2>
             <p className="text-gray-500 text-sm mt-1">
-              {employee.positionName} — {employee.departmentName}
+              {employee.position} — {employee.departmentName}
             </p>
           </div>
         </div>
@@ -108,14 +129,17 @@ const MyProfile = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
           <SectionCard title="Thông tin nhân viên" highlight>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <InfoItem label="Họ và tên" value={employee.fullName} />
-              <InfoItem label="Giới tính" value={employee.gender} />
+              <InfoItem label="Họ và tên" value={employee.employeeName} />
+              <InfoItem
+                label="Giới tính"
+                value={formatGender(employee.gender)}
+              />
               <InfoItem label="Ngày sinh" value={employee.dateOfBirth} />
               <InfoItem label="Số điện thoại" value={employee.phoneNumber} />
               <InfoItem label="Địa chỉ" value={employee.address} />
               <InfoItem label="Mã nhân viên" value={employee.employeeCode} />
               <InfoItem label="Phòng ban" value={employee.departmentName} />
-              <InfoItem label="Chức vụ" value={employee.positionName} />
+              <InfoItem label="Chức vụ" value={employee.position} />
             </div>
           </SectionCard>
 
@@ -126,7 +150,7 @@ const MyProfile = () => {
               <InfoItem label="Vai trò" value={role} />
               <InfoItem
                 label="Trạng thái"
-                value={user.active ? "Đang hoạt động" : "Đã khoá"}
+                value={formatStatus(user.status)}
               />
             </div>
           </SectionCard>
