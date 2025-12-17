@@ -22,7 +22,7 @@ export const forgotPassword = async (email) => {
 
 // Xác thực OTP quên mật khẩu (có thể cần endpoint riêng, tạm thời giữ nguyên)
 export const verifyForgotPasswordOtp = async (data) => {
-  await axios.post(`${BASE_URL}/auth/forgot-password`, data);
+  await axios.post(`${BASE_URL}/auth/verify-otp`, data);
 };
 
 // Reset password sau khi đã verify OTP
@@ -39,15 +39,11 @@ export const login = async (data) => {
 };
 
 export const adminLogin = async (email, password) => {
-  const res = await axios.post(`${BASE_URL}/auth/sysadmin-login`, null, {
-    params: { email, password }
-  });
+  const res = await axios.post(`${BASE_URL}/auth/sysadmin-login`, { email, password });
   return res.data;
 };
 
 export const adminVerifyOtp = async (email, otp) => {
-  const res = await axios.post(`${BASE_URL}/auth/sysadmin-verify-otp`, null, {
-    params: { email, otp }
-  });
+  const res = await axios.post(`${BASE_URL}/auth/sysadmin-verify-otp`, { email, otp });
   return res.data;
 };

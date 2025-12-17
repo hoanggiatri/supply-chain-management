@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { TextField, Button, Container, Typography, Paper } from "@mui/material";
-import { sendVerifyOtp, adminVerifyOtp } from "@/services/general/AuthService";
-import { setupTokenExpirationCheck } from "@/utils/tokenUtils";
+import { adminVerifyOtp, sendVerifyOtp } from "@/services/general/AuthService";
 import toastrService from "@/services/toastrService";
+import { setupTokenExpirationCheck } from "@/utils/tokenUtils";
+import { Button, Container, Paper, TextField, Typography } from "@mui/material";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 const AdminVerifyOtp = () => {
   const { email } = useParams();
@@ -33,10 +33,20 @@ const AdminVerifyOtp = () => {
     }
 
     try {
-      const response = await adminVerifyOtp(email, otp);
+      const response = await adminVerifyOtp(email, Number(otp));
+      console.log("Admin verify OTP response:", response); // Debug: see actual response structure
       toastrService.success("Xác thực thành công!");
 
-      const { token, role } = response;
+      // Handle both 'token' and 'accessToken' field names
+      const token = response.token || response.accessToken;
+      const role = response.role;
+      
+      if (!token) {
+        console.error("Token not found in response:", response);
+        setErrors({ apiError: "Không nhận được token từ server." });
+        return;
+      }
+      
       localStorage.setItem("token", token);
       localStorage.setItem("role", role);
 
