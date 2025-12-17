@@ -161,12 +161,20 @@ const WarehouseDashboard = () => {
   const navigate = useNavigate();
 
   // Fetch data
-  const { data: inventoryData = [], isLoading: inventoryLoading, refetch: refetchInventory } = useInventoryInCompany();
-  const { data: issueTickets = [], isLoading: issueLoading, refetch: refetchIssue } = useIssueTicketsInCompany();
-  const { data: receiveTickets = [], isLoading: receiveLoading, refetch: refetchReceive } = useReceiveTicketsInCompany();
-  const { data: transferTickets = [], isLoading: transferLoading, refetch: refetchTransfer } = useTransferTicketsInCompany();
-  const { data: monthlyIssue = [] } = useMonthlyIssueReport();
-  const { data: monthlyReceive = [] } = useMonthlyReceiveReport();
+  const { data: inventoryDataRaw = [], isLoading: inventoryLoading, refetch: refetchInventory } = useInventoryInCompany();
+  const { data: issueTicketsRaw = [], isLoading: issueLoading, refetch: refetchIssue } = useIssueTicketsInCompany();
+  const { data: receiveTicketsRaw = [], isLoading: receiveLoading, refetch: refetchReceive } = useReceiveTicketsInCompany();
+  const { data: transferTicketsRaw = [], isLoading: transferLoading, refetch: refetchTransfer } = useTransferTicketsInCompany();
+  const { data: monthlyIssueRaw = [] } = useMonthlyIssueReport();
+  const { data: monthlyReceiveRaw = [] } = useMonthlyReceiveReport();
+
+  // Ensure all data are arrays to prevent "reduce is not a function" errors
+  const inventoryData = Array.isArray(inventoryDataRaw) ? inventoryDataRaw : [];
+  const issueTickets = Array.isArray(issueTicketsRaw) ? issueTicketsRaw : [];
+  const receiveTickets = Array.isArray(receiveTicketsRaw) ? receiveTicketsRaw : [];
+  const transferTickets = Array.isArray(transferTicketsRaw) ? transferTicketsRaw : [];
+  const monthlyIssue = Array.isArray(monthlyIssueRaw) ? monthlyIssueRaw : [];
+  const monthlyReceive = Array.isArray(monthlyReceiveRaw) ? monthlyReceiveRaw : [];
 
   const isLoading = inventoryLoading || issueLoading || receiveLoading || transferLoading;
 
