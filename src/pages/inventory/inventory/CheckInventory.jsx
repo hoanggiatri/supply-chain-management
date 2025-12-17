@@ -387,9 +387,9 @@ const CheckInventory = () => {
   const columns = getCheckInventoryColumns();
 
   return (
-    <div className="page-container">
+    <div className="p-6">
       <div className="flex items-center justify-between mb-4">
-        <Typography variant="h4" className="page-title">
+        <Typography variant="h4" className="font-bold">
           KIỂM TRA TỒN KHO
         </Typography>
         <BackButton />

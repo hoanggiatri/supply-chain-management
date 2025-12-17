@@ -32,7 +32,7 @@ const RtInCompany = () => {
       } catch (error) {
         toastrService.error(
           error.response?.data?.message ||
-            "Có lỗi khi lấy danh sách phiếu nhập!"
+          "Có lỗi khi lấy danh sách phiếu nhập!"
         );
       }
     };
@@ -49,7 +49,7 @@ const RtInCompany = () => {
       } catch (error) {
         toastrService.error(
           error.response?.data?.message ||
-            "Có lỗi khi lấy dữ liệu biểu đồ!"
+          "Có lỗi khi lấy dữ liệu biểu đồ!"
         );
       } finally {
         setChartLoading(false);
@@ -179,7 +179,7 @@ const RtInCompany = () => {
             selectedStatus={filterStatus}
           />
 
-          <BarChart
+          {/* <BarChart
             title="Nhập kho theo tháng"
             data={monthlyData}
             dataKey="totalQuantity"
@@ -188,7 +188,7 @@ const RtInCompany = () => {
             height={250}
             loading={chartLoading}
             className="mb-6"
-          />
+          /> */}
 
           <DataTable
             columns={columns}

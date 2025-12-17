@@ -29,7 +29,7 @@ const ItInCompany = () => {
       } catch (error) {
         toastrService.error(
           error.response?.data?.message ||
-            "Có lỗi khi lấy danh sách phiếu xuất!"
+          "Có lỗi khi lấy danh sách phiếu xuất!"
         );
       } finally {
         setLoading(false);
@@ -50,7 +50,7 @@ const ItInCompany = () => {
       } catch (error) {
         toastrService.error(
           error.response?.data?.message ||
-            "Có lỗi khi lấy dữ liệu biểu đồ!"
+          "Có lỗi khi lấy dữ liệu biểu đồ!"
         );
       } finally {
         setChartLoading(false);
@@ -130,7 +130,7 @@ const ItInCompany = () => {
       header: createSortableHeader("Trạng thái"),
       cell: createStatusBadge({
         "Chờ xác nhận": "bg-purple-100 text-purple-800",
-        "Chờ xuất kho": "bg-orange-100 text-orange-800", 
+        "Chờ xuất kho": "bg-orange-100 text-orange-800",
         "Đã hoàn thành": "bg-green-100 text-green-800"
       })
     },
@@ -165,7 +165,7 @@ const ItInCompany = () => {
             selectedStatus={filterStatus}
           />
 
-          <BarChart
+          {/* <BarChart
             title="Xuất kho theo tháng"
             data={monthlyData}
             dataKey="totalQuantity"
@@ -174,7 +174,7 @@ const ItInCompany = () => {
             height={250}
             loading={chartLoading}
             className="mb-6"
-          />
+          /> */}
 
           <DataTable
             columns={columns}
