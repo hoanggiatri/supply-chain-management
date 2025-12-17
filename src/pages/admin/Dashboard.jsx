@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { Container, Grid, Paper, Typography } from "@mui/material";
+import LoadingPaper from "@/components/content-components/LoadingPaper";
+import MonthlyBarChart from "@/components/content-components/MonthlyBarChart";
+import PieChart from "@/components/content-components/PieChart";
 import {
-  getAllCompanies,
-  monthlyCompanyReport,
+    getAllCompanies,
+    monthlyCompanyReport,
 } from "@/services/general/CompanyService";
 import { getAllUsers, monthlyUserReport } from "@/services/general/UserService";
-import PieChart from "@/components/content-components/PieChart";
-import MonthlyBarChart from "@/components/content-components/MonthlyBarChart";
-import LoadingPaper from "@/components/content-components/LoadingPaper";
 import { ArrowUpward } from "@mui/icons-material";
+import { Container, Grid, Paper, Typography } from "@mui/material";
+import { useEffect, useState } from "react";
 
 const Dashboard = () => {
   const token = localStorage.getItem("token");
@@ -19,12 +19,17 @@ const Dashboard = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const companyList = await getAllCompanies(token);
+      const companyData = await getAllCompanies(token);
+      const companyList = Array.isArray(companyData) ? companyData : (companyData?.data || companyData?.content || []);
       setCompanies(companyList);
+
       const monthly = await monthlyCompanyReport(token);
       setMonthlyCompanyData(monthly);
-      const userList = await getAllUsers(token);
+
+      const userData = await getAllUsers(token);
+      const userList = Array.isArray(userData) ? userData : (userData?.data || userData?.content || []);
       setUsers(userList);
+
       const monthlyUsers = await monthlyUserReport(token);
       setMonthlyUserData(monthlyUsers);
     };

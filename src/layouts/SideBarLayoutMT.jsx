@@ -1,15 +1,14 @@
-import React from "react";
-import { Outlet } from "react-router-dom";
 import AdminSideBarMT from "@/components/layout-components/AdminSideBarMT";
-import SideBarMT from "@/components/layout-components/SideBarMT";
 import HeaderMT from "@/components/layout-components/HeaderMT";
+import SideBarMT from "@/components/layout-components/SideBarMT";
+import { Outlet } from "react-router-dom";
 
 const SideBarLayoutMT = ({ role }) => {
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">
       {/* Fixed Sidebar */}
       <div className="flex-shrink-0">
-        {role === "s-admin" ? <AdminSideBarMT /> : <SideBarMT />}
+        {role === "s_admin" ? <AdminSideBarMT /> : <SideBarMT />}
       </div>
 
       {/* Main Content Area */}

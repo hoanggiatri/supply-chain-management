@@ -8,8 +8,11 @@ const axiosAuth = (token, config = {}) => ({
   },
 });
 
-export const getAllUsers = async (token) => {
-  const response = await axios.get(`${BASE_URL}/users`, axiosAuth(token));
+export const getAllUsers = async (token, { page = 1, pageSize = 100 } = {}) => {
+  const response = await axios.get(`${BASE_URL}/users`, {
+    ...axiosAuth(token),
+    params: { page, pageSize },
+  });
   return response.data;
 };
 
@@ -42,6 +45,6 @@ export const updatePassword = async (userId, data, token) => {
 };
 
 export const monthlyUserReport = async (token) => {
-  const res = await axios.get(`${BASE_URL}/sysad/monthly-user-report`, axiosAuth(token));
+  const res = await axios.get(`${BASE_URL}/users/monthly-report`, axiosAuth(token));
   return res.data;
 }
