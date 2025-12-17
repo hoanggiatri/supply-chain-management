@@ -78,33 +78,27 @@
 
 // export default HeaderMT;
 
-import React, { useState, useEffect, useRef } from "react";
 import {
-  Navbar,
-  Typography,
-  IconButton,
-  Menu,
-  MenuHandler,
-  MenuList,
-  MenuItem,
+  ArrowRightOnRectangleIcon,
+  ChevronRightIcon,
+  CommandLineIcon,
+  MagnifyingGlassIcon,
+  UserCircleIcon
+} from "@heroicons/react/24/solid";
+import {
   Avatar,
-  Badge,
-  Input,
   Card,
   List,
   ListItem,
+  Menu,
+  MenuHandler,
+  MenuItem,
+  MenuList,
+  Navbar,
+  Typography
 } from "@material-tailwind/react";
-import {
-  UserCircleIcon,
-  BellIcon,
-  MagnifyingGlassIcon,
-  SunIcon,
-  MoonIcon,
-  ChevronRightIcon,
-  ArrowRightOnRectangleIcon,
-  CommandLineIcon,
-} from "@heroicons/react/24/solid";
-import { useNavigate, useLocation } from "react-router-dom";
+import React, { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 // Navigation Items for Search
 const NAV_ITEMS = [
@@ -127,7 +121,7 @@ const NAV_ITEMS = [
   { title: "Hàng hoá", path: "/items", keywords: "hang hoa item list" }
 ];
 
-const HeaderMT = () => {
+const HeaderMT = ({ role }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
@@ -303,7 +297,7 @@ const HeaderMT = () => {
         <div className="flex items-center justify-between">
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-sm overflow-hidden whitespace-nowrap mr-4">
-            {breadcrumbs.map((crumb, index) => (
+            {role !== "s_admin" && role !== "s-admin" && breadcrumbs.map((crumb, index) => (
               <React.Fragment key={index}>
                 {index > 0 && (
                   <ChevronRightIcon className="h-3 w-3 text-blue-gray-400 dark:text-dark-muted flex-shrink-0" />

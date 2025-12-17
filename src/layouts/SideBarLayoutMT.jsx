@@ -14,7 +14,7 @@ const SideBarLayoutMT = ({ role }) => {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Fixed Header */}
-        <HeaderMT />
+        <HeaderMT role={role} />
 
         {/* Scrollable Content */}
         <main className="flex-1 overflow-y-auto bg-gray-50">
