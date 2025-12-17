@@ -114,8 +114,8 @@ const RfqDetailTable = ({
               <Combobox
                 options={itemOptions}
                 value={String(detail.itemId || "")}
-                onValueChange={(val) =>
-                  handleDetailChange(index, "itemId", val)
+                onChange={(option) =>
+                  handleDetailChange(index, "itemId", option?.value)
                 }
                 placeholder="Chọn hàng hóa"
                 searchPlaceholder="Tìm hàng hóa..."
@@ -135,8 +135,8 @@ const RfqDetailTable = ({
               <Combobox
                 options={supplierItemOptions}
                 value={String(detail.supplierItemId || "")}
-                onValueChange={(val) =>
-                  handleDetailChange(index, "supplierItemId", val)
+                onChange={(option) =>
+                  handleDetailChange(index, "supplierItemId", option?.value)
                 }
                 placeholder="Chọn hàng hóa NCC"
                 searchPlaceholder="Tìm hàng hóa NCC..."

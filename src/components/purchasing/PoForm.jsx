@@ -169,7 +169,7 @@ const PoForm = ({ quotation, po = {}, setPo, errors = {}, readOnlyFields }) => {
           <Combobox
             options={warehouseOptions}
             value={String(po?.receiveWarehouseId || "")}
-            onValueChange={handleWarehouseChange}
+            onChange={(option) => handleWarehouseChange(option?.value)}
             placeholder="Chọn kho"
             searchPlaceholder="Tìm kho..."
             emptyText="Không tìm thấy kho"

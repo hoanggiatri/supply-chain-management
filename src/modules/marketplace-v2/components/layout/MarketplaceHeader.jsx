@@ -175,7 +175,7 @@ const MarketplaceHeader = ({ onMenuClick, user }) => {
                }`
              }
            >
-             Dashboard
+             Tổng quan
            </NavLink>
 
           <div className="w-px h-6 bg-gray-200 dark:bg-gray-700 mx-1" />

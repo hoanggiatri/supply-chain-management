@@ -20,19 +20,19 @@ import {
 
 // Mua hàng menu - for "Mua, Bán hàng" department
 export const PURCHASING_MENU = [
-  { path: '/marketplace-v2/rfqs', label: 'Yêu cầu báo giá (RFQ)', icon: FileText },
+  { path: '/marketplace-v2/rfqs', label: 'Yêu cầu báo giá', icon: FileText },
   { path: '/marketplace-v2/customer-quotations', label: 'Báo giá từ NCC', icon: DollarSign },
-  { path: '/marketplace-v2/pos', label: 'Đơn mua hàng (PO)', icon: ShoppingCart },
+  { path: '/marketplace-v2/pos', label: 'Đơn mua hàng', icon: ShoppingCart },
   { path: '/marketplace-v2/suppliers', label: 'Nhà cung cấp', icon: Building2 },
   { path: '/marketplace-v2/purchase-report', label: 'Báo cáo mua hàng', icon: TrendingUp },
 ];
 
 // Bán hàng menu - for "Mua, Bán hàng" department
 export const SALES_MENU = [
-  { path: '/marketplace-v2/supplier-rfqs', label: 'RFQ từ khách hàng', icon: FileText },
+  { path: '/marketplace-v2/supplier-rfqs', label: 'Yêu cầu từ khách', icon: FileText },
   { path: '/marketplace-v2/sent-quotations', label: 'Báo giá đã gửi', icon: DollarSign },
-  { path: '/marketplace-v2/customer-pos', label: 'PO từ khách hàng', icon: ShoppingCart },
-  { path: '/marketplace-v2/sos', label: 'Đơn bán hàng (SO)', icon: Package },
+  { path: '/marketplace-v2/customer-pos', label: 'Đơn đặt hàng', icon: ShoppingCart },
+  { path: '/marketplace-v2/sos', label: 'Đơn bán hàng', icon: Package },
   { path: '/marketplace-v2/sales-report', label: 'Báo cáo bán hàng', icon: TrendingUp },
 ];
 
@@ -48,7 +48,7 @@ export const WAREHOUSE_MENU = [
 
 // Sản xuất menu - for "Kho, Sản xuất, Vận chuyển" department
 export const MANUFACTURING_MENU = [
-  { path: '/marketplace-v2/mos', label: 'Công lệnh sản xuất (MO)', icon: Factory },
-  { path: '/marketplace-v2/boms', label: 'Định mức NVL (BOM)', icon: Package },
+  { path: '/marketplace-v2/mos', label: 'Lệnh sản xuất', icon: Factory },
+  { path: '/marketplace-v2/boms', label: 'Định mức vật tư', icon: Package },
   { path: '/marketplace-v2/stages', label: 'Quy trình sản xuất', icon: Box },
 ];

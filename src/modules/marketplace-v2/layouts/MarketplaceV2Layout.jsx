@@ -169,7 +169,7 @@ const MarketplaceV2Layout = () => {
                   style={{ zIndex: 'var(--mp-z-modal)' }}
                 >
                   <div className="p-4 flex items-center justify-between border-b border-gray-100 dark:border-gray-800">
-                    <span className="font-bold text-lg text-gray-900 dark:text-white">Menu</span>
+                    <span className="font-bold text-lg text-gray-900 dark:text-white">Danh mục</span>
                     <button 
                       onClick={() => setIsMobileMenuOpen(false)}
                       className="p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-full transition-colors"

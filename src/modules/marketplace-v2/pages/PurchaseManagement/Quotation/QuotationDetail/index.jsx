@@ -1,12 +1,12 @@
 import { motion } from 'framer-motion';
 import {
-    ArrowLeft,
-    Building2,
-    Calendar,
-    CheckCircle,
-    RefreshCw,
-    ShoppingCart,
-    XCircle
+  ArrowLeft,
+  Building2,
+  Calendar,
+  CheckCircle,
+  RefreshCw,
+  ShoppingCart,
+  XCircle
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -14,9 +14,9 @@ import ItemList from '../../../../components/items/ItemList';
 import { StatusTimeline } from '../../../../components/timeline';
 import ConfirmModal from '../../../../components/ui/ConfirmModal';
 import {
-    useQuotationById,
-    useUpdateQuotationStatus,
-    useUpdateRfqStatus
+  useQuotationById,
+  useUpdateQuotationStatus,
+  useUpdateRfqStatus
 } from '../../../../hooks/useApi';
 
 // Quotation Status Config - 3 trạng thái (Uppercase từ API)
@@ -239,7 +239,7 @@ const QuotationDetail = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleAccept}
-                className="mp-btn bg-emerald-500 hover:bg-emerald-600 text-white"
+                className="mp-btn bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/30"
               >
                 <CheckCircle size={18} />
                 Chấp nhận

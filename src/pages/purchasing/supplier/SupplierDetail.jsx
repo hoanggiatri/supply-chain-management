@@ -46,10 +46,10 @@ const SupplierDetail = () => {
   return (
     <FormPageLayout
       breadcrumbItems={[
-        { label: "Nhà cung cấp", path: "/suppliers" },
+        { label: "Nhà cung cấp", path: "/supplier-search" },
         { label: "Chi tiết" },
       ]}
-      backLink="/suppliers"
+      backLink="/supplier-search"
       backLabel="Quay lại danh sách"
     >
       {/* Action button */}

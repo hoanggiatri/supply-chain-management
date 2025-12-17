@@ -4,14 +4,14 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
 import {
-  checkInventory,
-  getAllInventory,
-  increaseOnDemand,
+    checkInventory,
+    getAllInventory,
+    increaseOnDemand,
 } from "@/services/inventory/InventoryService";
 import { createIssueTicket } from "@/services/inventory/IssueTicketService";
 import {
-  getTransferTicketById,
-  updateTransferTicket,
+    getTransferTicketById,
+    updateTransferTicket,
 } from "@/services/inventory/TransferTicketService";
 import { getBomByItemId } from "@/services/manufacturing/BomService";
 import { getMoById, updateMo } from "@/services/manufacturing/MoService";
@@ -19,12 +19,12 @@ import { getPoById } from "@/services/purchasing/PoService";
 import toastrService from "@/services/toastrService";
 import dayjs from "dayjs";
 import {
-  ArrowLeft,
-  Check,
-  Loader2,
-  Package,
-  Search,
-  Warehouse
+    ArrowLeft,
+    Check,
+    Loader2,
+    Package,
+    Search,
+    Warehouse
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -330,19 +330,20 @@ const CheckInventory = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-4 space-y-6">
+    <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button
           variant="outline"
           size="icon"
           onClick={() => navigate(-1)}
+          className="bg-white"
         >
           <ArrowLeft className="w-4 h-4" />
         </Button>
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-3">
-            <Warehouse className="w-7 h-7" />
+            <Warehouse className="w-7 h-7 text-blue-600" />
             Kiểm tra tồn kho
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
@@ -402,8 +403,7 @@ const CheckInventory = () => {
           <Button
             onClick={handleCheckInventory}
             disabled={!selectedWarehouseId || loading}
-            variant="secondary"
-            className="min-w-[180px]"
+            className="min-w-[180px] bg-blue-600 hover:bg-blue-700"
           >
             {loading ? (
               <>
@@ -483,13 +483,14 @@ const CheckInventory = () => {
           <Button
             variant="outline"
             onClick={() => navigate(-1)}
+            className="bg-white"
           >
             Hủy
           </Button>
           <Button
             onClick={handleConfirm}
             disabled={loading}
-            className="bg-emerald-600 hover:bg-emerald-700"
+            className="bg-blue-600 hover:bg-blue-700"
           >
             <Check className="w-4 h-4 mr-2" />
             Xác nhận

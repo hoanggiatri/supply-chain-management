@@ -315,7 +315,7 @@ const DeliveryDetail = () => {
 
       await updateDoMutation.mutateAsync({
         doId,
-        request: { ...deliveryOrder, status: 'Đang vận chuyển' }
+        request: { soId: deliveryOrder.soId, status: 'Đang vận chuyển' }
       });
       toast.success('Lấy hàng thành công!');
       refetch();
@@ -340,7 +340,7 @@ const DeliveryDetail = () => {
 
       await updateDoMutation.mutateAsync({
         doId,
-        request: { ...deliveryOrder, status: 'Đã hoàn thành' }
+        request: { soId: deliveryOrder.soId, status: 'Đã hoàn thành' }
       });
 
       if (so) {
@@ -473,6 +473,64 @@ const DeliveryDetail = () => {
         className="mp-glass-card p-6"
       >
         <DeliveryStepper currentStatus={deliveryOrder.status} />
+      </motion.div>
+
+      {/* General Info */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15 }}
+        className="grid grid-cols-1 md:grid-cols-2 gap-6"
+      >
+        {/* Info Card - Sender/Receiver */}
+        <div className="mp-glass-card p-6 space-y-4">
+          <h3 className="text-lg font-semibold flex items-center gap-2" style={{ color: 'var(--mp-text-primary)' }}>
+            <Package size={20} className="text-blue-500" />
+            Thông tin vận chuyển
+          </h3>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-xs font-medium" style={{ color: 'var(--mp-text-tertiary)' }}>Kho xuất hàng</label>
+              <p className="text-sm font-medium" style={{ color: 'var(--mp-text-primary)' }}>{so?.companyName || '-'}</p>
+              <p className="text-xs" style={{ color: 'var(--mp-text-secondary)' }}>{so?.deliveryFromAddress || '-'}</p>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium" style={{ color: 'var(--mp-text-tertiary)' }}>Kho nhận hàng</label>
+              <p className="text-sm font-medium" style={{ color: 'var(--mp-text-primary)' }}>{so?.customerCompanyName || '-'}</p>
+              <p className="text-xs" style={{ color: 'var(--mp-text-secondary)' }}>{so?.deliveryToAddress || '-'}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Info Card - Order Details */}
+        <div className="mp-glass-card p-6 space-y-4">
+          <h3 className="text-lg font-semibold flex items-center gap-2" style={{ color: 'var(--mp-text-primary)' }}>
+            <CheckCircle2 size={20} className="text-purple-500" />
+            Thông tin đơn hàng
+          </h3>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-xs font-medium" style={{ color: 'var(--mp-text-tertiary)' }}>Đơn mua hàng (PO)</label>
+              <p className="text-sm font-medium" style={{ color: 'var(--mp-text-primary)' }}>{so?.poCode || '-'}</p>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium" style={{ color: 'var(--mp-text-tertiary)' }}>Phương thức thanh toán</label>
+              <p className="text-sm font-medium" style={{ color: 'var(--mp-text-primary)' }}>{so?.paymentMethod || '-'}</p>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium" style={{ color: 'var(--mp-text-tertiary)' }}>Tổng tiền</label>
+              <p className="text-sm font-medium" style={{ color: 'var(--mp-text-primary)' }}>
+                {so?.totalAmount ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(so.totalAmount) : '-'}
+              </p>
+            </div>
+             <div className="space-y-1">
+              <label className="text-xs font-medium" style={{ color: 'var(--mp-text-tertiary)' }}>Ngày tạo</label>
+              <p className="text-sm font-medium" style={{ color: 'var(--mp-text-primary)' }}>
+                {so?.createdOn ? new Date(so.createdOn).toLocaleDateString('vi-VN') : '-'}
+              </p>
+            </div>
+          </div>
+        </div>
       </motion.div>
 
       {/* Main Content Grid */}

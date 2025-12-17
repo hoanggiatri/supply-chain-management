@@ -1,12 +1,12 @@
 import { motion } from 'framer-motion';
 import {
-    Building2,
-    Mail,
-    MapPin,
-    Phone,
-    Plus,
-    RefreshCw,
-    Search
+  Building2,
+  Mail,
+  MapPin,
+  Phone,
+  Plus,
+  RefreshCw,
+  Search
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -230,7 +230,7 @@ const Suppliers = () => {
                     className="flex-1 mp-btn mp-btn-primary text-sm py-2"
                   >
                     <Plus size={16} />
-                    Tạo RFQ
+                    Tạo yêu cầu báo giá
                   </motion.button>
                 </div>
               </motion.div>

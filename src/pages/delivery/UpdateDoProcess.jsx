@@ -2,8 +2,8 @@ import LoadingPaper from "@/components/content-components/LoadingPaper";
 import FormPageLayout from "@/components/layout/FormPageLayout";
 import { Input } from "@/components/ui/input";
 import {
-    createDeliveryProcess,
-    getAllDeliveryProcesses,
+  createDeliveryProcess,
+  getAllDeliveryProcesses,
 } from "@/services/delivery/DoProcessService";
 import { getDeliveryOrderById } from "@/services/delivery/DoService";
 import { getSoById } from "@/services/sale/SoService";
@@ -61,7 +61,7 @@ const UpdateDoProcess = () => {
     try {
       await createDeliveryProcess(
         {
-          doId,
+          doId: Number(doId),
           location: newMidLocation.trim(),
           arrivalTime: dayjs().format("YYYY-MM-DDTHH:mm:ss"),
         },

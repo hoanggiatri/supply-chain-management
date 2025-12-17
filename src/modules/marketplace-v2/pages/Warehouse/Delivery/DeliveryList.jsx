@@ -1,16 +1,16 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-    CheckCircle2,
-    Clock,
-    Eye,
-    Grid3X3,
-    List,
-    Package,
-    RefreshCw,
-    Search,
-    Truck
+  CheckCircle2,
+  Clock,
+  Eye,
+  Grid3X3,
+  List,
+  Package,
+  RefreshCw,
+  Search,
+  Truck
 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { forwardRef, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDebounce } from '../../../hooks';
 import { useDeliveryOrdersInCompany } from '../../../hooks/useApi';
@@ -40,12 +40,13 @@ const AnimatedCounter = ({ value }) => {
 };
 
 // Delivery Card Component
-const DeliveryCard = ({ order, onClick }) => {
+const DeliveryCard = forwardRef(({ order, onClick }, ref) => {
   const config = STATUS_CONFIG[order.status] || STATUS_CONFIG['Chờ xác nhận'];
   const StatusIcon = config.icon;
 
   return (
     <motion.div
+      ref={ref}
       layout
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -94,7 +95,7 @@ const DeliveryCard = ({ order, onClick }) => {
       </motion.div>
     </motion.div>
   );
-};
+});
 
 // Kanban Column Component
 const KanbanColumn = ({ status, orders, onCardClick }) => {

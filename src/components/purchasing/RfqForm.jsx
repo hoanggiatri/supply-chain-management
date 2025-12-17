@@ -97,7 +97,7 @@ const RfqForm = ({ rfq, onChange, errors = {}, readOnlyFields, setRfq }) => {
           <Combobox
             options={companyOptions}
             value={String(rfq.requestedCompanyId || "")}
-            onValueChange={handleCompanyChange}
+            onChange={(option) => handleCompanyChange(option?.value)}
             placeholder="Chọn công ty cung cấp"
             searchPlaceholder="Tìm công ty..."
             emptyText="Không tìm thấy công ty"
