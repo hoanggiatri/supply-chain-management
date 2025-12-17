@@ -1,19 +1,18 @@
 import {
-    ArrowRight,
-    BarChart3,
-    Box,
-    Check,
-    ClipboardList,
-    Package,
-    Play,
-    Rocket,
-    Shield,
-    ShoppingCart,
-    Star,
-    Store,
-    Truck,
-    Wrench,
-    Zap
+  ArrowRight,
+  BarChart3,
+  Box,
+  Check,
+  ClipboardList,
+  Package,
+  Rocket,
+  Shield,
+  ShoppingCart,
+  Star,
+  Store,
+  Truck,
+  Wrench,
+  Zap
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -170,12 +169,7 @@ const DefaultPage = () => {
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </button>
                 
-                <button
-                  className="flex items-center justify-center gap-3 px-8 py-4 rounded-xl border-2 border-gray-300 text-gray-700 font-semibold hover:bg-gray-100 hover:border-gray-400 transition-all duration-300"
-                >
-                  <Play className="w-5 h-5" />
-                  Xem demo
-                </button>
+                {/* Demo button removed as per user request */}
               </div>
               
               {/* Trust Badges */}

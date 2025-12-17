@@ -1,15 +1,15 @@
 import {
-    ArrowRight,
-    BarChart3,
-    Box, Building2,
-    ClipboardList,
-    Factory,
-    Package,
-    ShoppingCart,
-    Sparkles,
-    Truck,
-    Users,
-    Zap
+  ArrowRight,
+  BarChart3,
+  Box, Building2,
+  ClipboardList,
+  Factory,
+  Package,
+  ShoppingCart,
+  Sparkles,
+  Truck,
+  Users,
+  Zap
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -220,12 +220,7 @@ const HomePage = () => {
               </p>
               
               <div className="flex flex-wrap gap-3">
-                <button className="px-6 py-3 rounded-xl bg-white text-blue-600 font-semibold hover:bg-blue-50 transition-colors shadow-lg">
-                  Khám phá thêm
-                </button>
-                <button className="px-6 py-3 rounded-xl border-2 border-white/50 text-white font-semibold hover:bg-white/10 transition-colors">
-                  Hướng dẫn sử dụng
-                </button>
+                {/* Buttons removed as per user request */}
               </div>
             </div>
             
