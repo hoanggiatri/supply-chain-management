@@ -480,7 +480,7 @@ const marketplaceV2Routes = [
       <PrivateRoute
         element={withSuspense(DeliveryDetail)()}
         allowedRoles={['user']}
-        allowedDepartments={[DEPT_ADMIN, DEPT_WAREHOUSE]}
+        allowedDepartments={[DEPT_ADMIN, DEPT_WAREHOUSE, DEPT_SALES]}
       />
     ),
   },

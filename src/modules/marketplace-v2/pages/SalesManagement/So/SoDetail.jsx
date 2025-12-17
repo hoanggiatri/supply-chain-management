@@ -339,7 +339,7 @@ const SoDetail = () => {
               <button
                 onClick={() => {
                   if (deliveryOrder && deliveryOrder.doId) {
-                    navigate(`/do-process/${deliveryOrder.doId}`);
+                    navigate(`/marketplace-v2/warehouse/delivery/${deliveryOrder.doId}`);
                   } else {
                     toast.info('Chưa có thông tin đơn vận chuyển');
                   }
