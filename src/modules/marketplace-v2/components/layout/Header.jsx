@@ -61,7 +61,7 @@ const Header = ({
             className="font-bold text-xl hidden sm:block"
             style={{ color: 'var(--mp-text-primary)' }}
           >
-            Marketplace
+            SCMS
           </span>
         </Link>
       </div>

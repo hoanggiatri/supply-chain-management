@@ -1,17 +1,18 @@
+import { DatePicker } from '@/components/ui/date-picker';
 import confetti from 'canvas-confetti';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-    AlertCircle,
-    ArrowLeft,
-    ArrowRight,
-    Building2,
-    Check,
-    FileText,
-    Loader2,
-    Package,
-    Search
+  AlertCircle,
+  ArrowLeft,
+  ArrowRight,
+  Building2,
+  Check,
+  FileText,
+  Loader2,
+  Package,
+  Search
 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import StepProgress from '../../components/forms/StepProgress';
 import { useDebounce } from '../../hooks';
@@ -176,12 +177,28 @@ const CreateFormWizard = ({ type = 'rfq' }) => {
     return items;
   }, [supplierItemsData, debouncedItemSearch]);
 
+  // Auto-scroll to selected supplier when list loads
+  useEffect(() => {
+    if (companies.length > 0 && formData.requestedCompanyId) {
+      // Use setTimeout to ensure DOM is rendered
+      setTimeout(() => {
+        const selectedElement = document.getElementById(`supplier-item-${formData.requestedCompanyId}`);
+        if (selectedElement) {
+          selectedElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+    }
+  }, [companies, formData.requestedCompanyId]);
+
   const validateStep = () => {
     const newErrors = {};
 
     if (currentStep === 0) {
       if (!formData.requestedCompanyId) {
         newErrors.requestedCompanyId = 'Vui lòng chọn nhà cung cấp';
+      }
+      if (!formData.expectedDate) {
+        newErrors.expectedDate = 'Vui lòng chọn ngày cần hàng';
       }
     } else if (currentStep === 1) {
       if (formData.items.length === 0) {
@@ -395,6 +412,7 @@ const CreateFormWizard = ({ type = 'rfq' }) => {
                       {companies.length > 0 ? companies.map((company) => (
                         <motion.button
                           key={company.id}
+                          id={`supplier-item-${company.id}`}
                           whileTap={{ scale: 0.99 }}
                           onClick={() => {
                             setFormData({ ...formData, requestedCompanyId: company.id.toString(), items: [] });
@@ -466,15 +484,30 @@ const CreateFormWizard = ({ type = 'rfq' }) => {
                     className="block text-sm font-medium mb-2"
                     style={{ color: 'var(--mp-text-primary)' }}
                   >
-                    Ngày giao dự kiến
+                    Ngày cần hàng *
                   </label>
-                  <input
-                    type="date"
+                  <DatePicker
+                    name="expectedDate"
                     value={formData.expectedDate}
-                    onChange={(e) => setFormData({ ...formData, expectedDate: e.target.value })}
-                    className="mp-input"
+                    onChange={(e) => {
+                      setFormData({ ...formData, expectedDate: e.target.value });
+                      setErrors({ ...errors, expectedDate: undefined });
+                    }}
+                    placeholder="Chọn ngày cần hàng"
+                    error={!!errors.expectedDate}
+                    className="w-full"
                   />
                 </div>
+                {errors.expectedDate && (
+                  <motion.p
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-2 text-sm text-red-500 flex items-center gap-1"
+                  >
+                    <AlertCircle size={14} />
+                    {errors.expectedDate}
+                  </motion.p>
+                )}
 
                 <div>
                   <label

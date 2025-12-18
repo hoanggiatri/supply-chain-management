@@ -170,27 +170,35 @@ const Dashboard = () => {
           companyStatus: [
             {
               name: "Hoạt động",
-              value: companies.filter((c) => c.status === "Đang hoạt động")
-                .length,
+              value: companies.filter((c) => 
+                ["Đang hoạt động", "active"].includes(c.status)
+              ).length,
             },
             {
               name: "Ngừng HĐ",
-              value: companies.filter((c) => c.status === "Ngừng hoạt động")
-                .length,
+              value: companies.filter((c) => 
+                ["Ngừng hoạt động", "inactive"].includes(c.status)
+              ).length,
             },
           ],
           userRole: [
             {
               name: "Sys Admin",
-              value: users.filter((u) => u.role === "s-admin").length,
+              value: users.filter((u) => 
+                ["s-admin", "s_admin"].includes(u.role)
+              ).length,
             },
             {
               name: "Comp Admin",
-              value: users.filter((u) => u.role === "c-admin").length,
+              value: users.filter((u) => 
+                ["c-admin", "c_admin"].includes(u.role)
+              ).length,
             },
             {
               name: "User",
-              value: users.filter((u) => u.role === "user").length,
+              value: users.filter((u) => 
+                !["s-admin", "s_admin", "c-admin", "c_admin"].includes(u.role)
+              ).length,
             },
           ],
           monthlyGrowth: companyReport.map((c, i) => ({
@@ -266,7 +274,7 @@ const Dashboard = () => {
         <div className="lg:col-span-2 h-[400px]">
           <ChartCard title="Tăng trưởng hệ thống">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartsData.monthlyGrowth}>
+              <AreaChart data={chartsData.monthlyGrowth} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorCompanies" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1} />
@@ -295,7 +303,7 @@ const Dashboard = () => {
                   tick={{ fill: "#9ca3af", fontSize: 12 }}
                 />
                 <Tooltip content={<CustomTooltip />} />
-                <Legend iconType="circle" />
+                <Legend iconType="circle" wrapperStyle={{ paddingTop: "20px" }} />
                 <Area
                   type="monotone"
                   dataKey="companies"
@@ -323,7 +331,7 @@ const Dashboard = () => {
         <div className="h-[400px]">
           <ChartCard title="Phân loại công ty">
             <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
+              <PieChart margin={{ bottom: 20 }}>
                 <Pie
                   data={chartsData.companyType}
                   cx="50%"
@@ -341,7 +349,7 @@ const Dashboard = () => {
                   ))}
                 </Pie>
                 <Tooltip content={<CustomTooltip />} />
-                <Legend verticalAlign="bottom" height={36} />
+                <Legend verticalAlign="bottom" height={36} wrapperStyle={{ paddingTop: "20px" }} />
               </PieChart>
             </ResponsiveContainer>
           </ChartCard>
@@ -352,9 +360,9 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-[300px]">
         <ChartCard title="Trạng thái công ty">
             <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartsData.companyStatus}>
+                <BarChart data={chartsData.companyStatus} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={12} />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={12} dy={10} />
                     <Tooltip content={<CustomTooltip />} />
                     <Bar dataKey="value" name="Số lượng" fill="#f59e0b" radius={[4, 4, 0, 0]} barSize={40} />
                 </BarChart>
@@ -364,10 +372,10 @@ const Dashboard = () => {
         <div className="md:col-span-2">
             <ChartCard title="Phân quyền người dùng">
                 <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartsData.userRole} layout="vertical">
+                    <BarChart data={chartsData.userRole} layout="vertical" margin={{ top: 10, right: 30, left: 10, bottom: 0 }}>
                         <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f3f4f6" />
                         <XAxis type="number" axisLine={false} tickLine={false} fontSize={12} />
-                        <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} width={100} fontSize={12} />
+                        <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} width={100} fontSize={12} dx={-10} />
                         <Tooltip content={<CustomTooltip />} />
                         <Bar dataKey="value" name="Số lượng" fill="#8b5cf6" radius={[0, 4, 4, 0]} barSize={20} />
                     </BarChart>

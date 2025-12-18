@@ -1,29 +1,29 @@
-import React, { useState, useCallback } from "react";
 import {
-  Navbar,
-  Typography,
-  Button,
-  IconButton,
-  Collapse,
-  Menu,
-  MenuHandler,
-  MenuList,
-  MenuItem,
-  Avatar,
-} from "@material-tailwind/react";
-import { useNavigate, useLocation } from "react-router-dom";
-import {
+  BriefcaseIcon,
+  BuildingStorefrontIcon,
+  ChartBarIcon,
+  ClipboardDocumentListIcon,
+  CurrencyDollarIcon,
+  DocumentTextIcon,
   HomeIcon,
   MagnifyingGlassCircleIcon,
-  DocumentTextIcon,
-  CurrencyDollarIcon,
   ShoppingCartIcon,
-  ClipboardDocumentListIcon,
   TruckIcon,
-  BuildingStorefrontIcon,
-  BriefcaseIcon,
-  ChartBarIcon,
 } from "@heroicons/react/24/outline";
+import {
+  Avatar,
+  Button,
+  Collapse,
+  IconButton,
+  Menu,
+  MenuHandler,
+  MenuItem,
+  MenuList,
+  Navbar,
+  Typography,
+} from "@material-tailwind/react";
+import { useCallback, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 // Navigation items based on department
 const BASE_NAV_ITEMS = [
@@ -262,7 +262,7 @@ const MarketplaceHeader = () => {
         >
           <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg shadow-md">
             <Typography variant="h5" className="text-white font-bold">
-              M
+              HGT
             </Typography>
           </div>
           <div className="hidden sm:block">
@@ -270,7 +270,7 @@ const MarketplaceHeader = () => {
               variant="h6"
               className="font-bold text-blue-gray-900 leading-tight"
             >
-              Marketplace
+              SCMS
             </Typography>
             <Typography variant="small" className="text-blue-gray-500 text-xs">
               {companyName || "Supply Chain Management"}

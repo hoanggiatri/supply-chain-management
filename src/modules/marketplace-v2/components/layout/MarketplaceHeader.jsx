@@ -159,7 +159,7 @@ const MarketplaceHeader = ({ onMenuClick, user }) => {
             <span
               className="font-bold text-xl hidden sm:block bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400"
             >
-              Marketplace
+              SCMS
             </span>
           </Link>
         </div>

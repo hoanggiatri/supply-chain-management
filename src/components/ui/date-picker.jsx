@@ -215,13 +215,13 @@ const DatePicker = React.forwardRef(({
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 z-40"
+            className="fixed inset-0 z-[9998]"
             onClick={() => setIsOpen(false)}
           />
 
           {/* Picker container - Fixed position */}
           <div 
-            className="fixed z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-4 min-w-[300px]"
+            className="fixed z-[9999] bg-white border border-gray-200 rounded-lg shadow-lg p-4 min-w-[300px]"
             style={{
               top: dropdownPosition.openAbove ? 'auto' : dropdownPosition.top,
               bottom: dropdownPosition.openAbove ? `${window.innerHeight - dropdownPosition.top + 4}px` : 'auto',
@@ -397,3 +397,4 @@ const DatePicker = React.forwardRef(({
 DatePicker.displayName = "DatePicker";
 
 export { DatePicker };
+
