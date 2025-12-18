@@ -19,6 +19,7 @@ const CreateInventory = () => {
     itemCode: "",
     quantity: 0,
     onDemandQuantity: 0,
+    status: "Đang sử dụng",
   });
 
   const validateForm = () => {
@@ -61,6 +62,7 @@ const CreateInventory = () => {
         itemId: inventory.itemId,
         quantity: inventory.quantity,
         onDemandQuantity: inventory.onDemandQuantity,
+        status: inventory.status,
       };
 
       console.log(inv);
@@ -106,6 +108,7 @@ const CreateInventory = () => {
           onChange={handleChange}
           setInventory={setInventory}
           errors={errors}
+          mode="create"
         />
 
         {/* Actions */}

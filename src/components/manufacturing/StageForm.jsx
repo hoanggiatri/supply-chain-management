@@ -1,11 +1,11 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { getAllItemsInCompany } from "@/services/general/ItemService";
@@ -19,6 +19,7 @@ const StageForm = ({
   errors = {},
   readOnlyFields = {},
   setStage,
+  mode,
 }) => {
   const [items, setItems] = useState([]);
   const token = localStorage.getItem("token");
@@ -134,7 +135,7 @@ const StageForm = ({
             onValueChange={(val) => handleSelectChange("status", val)}
             disabled={isFieldReadOnly("status")}
           >
-            <SelectTrigger className={errors.status ? "border-red-500" : ""}>
+            <SelectTrigger className={`${errors.status ? "border-red-500" : ""} ${isFieldReadOnly("status") ? "bg-gray-50" : ""}`}>
               <SelectValue placeholder="Chọn trạng thái" />
             </SelectTrigger>
             <SelectContent>
@@ -177,6 +178,7 @@ StageForm.propTypes = {
   errors: PropTypes.object,
   readOnlyFields: PropTypes.object,
   setStage: PropTypes.func,
+  mode: PropTypes.string,
 };
 
 export default StageForm;

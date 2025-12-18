@@ -1,14 +1,13 @@
-import React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 
 const WarehouseForm = ({ warehouse, onChange, errors, readOnlyFields }) => {
   const isFieldReadOnly = (field) => readOnlyFields[field] ?? false;
@@ -113,7 +112,7 @@ const WarehouseForm = ({ warehouse, onChange, errors, readOnlyFields }) => {
           onValueChange={(val) => handleSelectChange("status", val)}
           disabled={isFieldReadOnly("status")}
         >
-          <SelectTrigger className={errors.status ? "border-red-500" : ""}>
+          <SelectTrigger className={`${errors.status ? "border-red-500" : ""} ${isFieldReadOnly("status") ? "bg-gray-50" : ""}`}>
             <SelectValue placeholder="Chọn trạng thái" />
           </SelectTrigger>
           <SelectContent>

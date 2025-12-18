@@ -4,14 +4,14 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
 import {
-    checkInventory,
-    getAllInventory,
-    increaseOnDemand,
+  checkInventory,
+  getAllInventory,
+  increaseOnDemand,
 } from "@/services/inventory/InventoryService";
 import { createIssueTicket } from "@/services/inventory/IssueTicketService";
 import {
-    getTransferTicketById,
-    updateTransferTicket,
+  getTransferTicketById,
+  updateTransferTicket,
 } from "@/services/inventory/TransferTicketService";
 import { getBomByItemId } from "@/services/manufacturing/BomService";
 import { getMoById, updateMo } from "@/services/manufacturing/MoService";
@@ -19,12 +19,12 @@ import { getPoById } from "@/services/purchasing/PoService";
 import toastrService from "@/services/toastrService";
 import dayjs from "dayjs";
 import {
-    ArrowLeft,
-    Check,
-    Loader2,
-    Package,
-    Search,
-    Warehouse
+  ArrowLeft,
+  Check,
+  Loader2,
+  Package,
+  Search,
+  Warehouse
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -239,7 +239,7 @@ const CheckInventory = () => {
             inventoryResults.map((r) =>
               increaseOnDemand(
                 {
-                  warehouseId: selectedWarehouseId,
+                  warehouseId: parseInt(selectedWarehouseId),
                   itemId: r.itemId,
                   onDemandQuantity: r.quantityNeeded,
                 },
@@ -288,7 +288,7 @@ const CheckInventory = () => {
             inventoryResults.map((r) =>
               increaseOnDemand(
                 {
-                  warehouseId: selectedWarehouseId,
+                  warehouseId: parseInt(selectedWarehouseId),
                   itemId: r.itemId,
                   onDemandQuantity: r.quantityNeeded,
                 },

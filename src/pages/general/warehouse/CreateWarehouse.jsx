@@ -1,11 +1,11 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { createWarehouse } from "@/services/general/WarehouseService";
-import WarehouseForm from "@components/general/WarehouseForm";
-import toastrService from "@/services/toastrService";
-import { Button } from "@/components/ui/button";
 import FormPageLayout from "@/components/layout/FormPageLayout";
+import { Button } from "@/components/ui/button";
+import { createWarehouse } from "@/services/general/WarehouseService";
+import toastrService from "@/services/toastrService";
+import WarehouseForm from "@components/general/WarehouseForm";
 import { Save, X } from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const CreateWarehouse = () => {
   const navigate = useNavigate();
@@ -17,7 +17,7 @@ const CreateWarehouse = () => {
     description: "",
     maxCapacity: 0,
     warehouseType: "",
-    status: "",
+    status: "Đang sử dụng",
   });
 
   const [errors, setErrors] = useState({});
@@ -46,7 +46,6 @@ const CreateWarehouse = () => {
       newErrors.maxCapacity = "Sức chứa phải lớn hơn 0";
     if (!warehouse.warehouseType)
       newErrors.warehouseType = "Loại kho không được để trống";
-    if (!warehouse.status) newErrors.status = "Trạng thái không được để trống";
     return newErrors;
   };
 
@@ -79,7 +78,8 @@ const CreateWarehouse = () => {
         warehouse={warehouse}
         onChange={handleChange}
         errors={errors}
-        readOnlyFields={{}}
+        readOnlyFields={{ status: true }}
+        mode="create"
       />
 
       {/* Actions */}

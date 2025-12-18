@@ -25,7 +25,7 @@ const CreateBom = () => {
     itemCode: "",
     itemName: "",
     description: "",
-    status: "",
+    status: "Đang sử dụng",
   });
 
   useEffect(() => {
@@ -46,8 +46,6 @@ const CreateBom = () => {
     const formErrors = {};
     if (!bom.itemCode) formErrors.itemCode = "Phải chọn hàng hóa";
     if (!bom.itemName) formErrors.itemName = "Chưa có tên hàng hóa";
-    if (!bom.status?.trim())
-      formErrors.status = "Trạng thái không được để trống";
     return formErrors;
   };
 
@@ -120,8 +118,9 @@ const CreateBom = () => {
         bom={bom}
         onChange={handleChange}
         errors={errors}
-        readOnlyFields={{ bomCode: true }}
+        readOnlyFields={{ bomCode: true, status: true }}
         setBom={setBom}
+        mode="create"
       />
 
       <h2 className="text-lg font-semibold text-gray-900 mt-8 mb-4">

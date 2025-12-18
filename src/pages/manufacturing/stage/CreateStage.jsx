@@ -3,8 +3,8 @@ import StageDetailTable from "@/components/manufacturing/StageDetailTable";
 import StageForm from "@/components/manufacturing/StageForm";
 import { Button } from "@/components/ui/button";
 import {
-    checkIsItemCreatedStage,
-    createStage,
+  checkIsItemCreatedStage,
+  createStage,
 } from "@/services/manufacturing/StageService";
 import toastrService from "@/services/toastrService";
 import { Save, X } from "lucide-react";
@@ -26,15 +26,13 @@ const CreateStage = () => {
     itemCode: "",
     itemName: "",
     description: "",
-    status: "",
+    status: "Đang sử dụng",
   });
 
   const validateForm = () => {
     const formErrors = {};
     if (!stage.itemCode) formErrors.itemCode = "Phải chọn hàng hóa";
     if (!stage.itemName) formErrors.itemName = "Chưa có tên hàng hóa";
-    if (!stage.status?.trim())
-      formErrors.status = "Trạng thái không được để trống";
     return formErrors;
   };
 
@@ -138,8 +136,9 @@ const CreateStage = () => {
         stage={stage}
         onChange={handleChange}
         errors={errors}
-        readOnlyFields={{ stageCode: true }}
+        readOnlyFields={{ stageCode: true, status: true }}
         setStage={setStage}
+        mode="create"
       />
 
       <h2 className="text-lg font-semibold text-gray-900 mt-8 mb-4">

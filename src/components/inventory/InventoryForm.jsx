@@ -1,12 +1,19 @@
 import { Combobox } from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { getAllItemsInCompany } from "@/services/general/ItemService";
 import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
 import toastrService from "@/services/toastrService";
 import { useEffect, useState } from "react";
 
-const InventoryForm = ({ inventory, onChange, setInventory, errors }) => {
+const InventoryForm = ({ inventory, onChange, setInventory, errors, mode }) => {
   const [items, setItems] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
 
@@ -53,6 +60,15 @@ const InventoryForm = ({ inventory, onChange, setInventory, errors }) => {
       itemId: selectedItem?.itemId || "",
       itemName: selectedItem?.itemName || "",
     }));
+  };
+
+  const handleSelectChange = (name, value) => {
+    onChange({
+      target: {
+        name,
+        value,
+      },
+    });
   };
 
   return (
@@ -129,6 +145,24 @@ const InventoryForm = ({ inventory, onChange, setInventory, errors }) => {
         {errors.onDemandQuantity && (
           <p className="text-sm text-red-500">{errors.onDemandQuantity}</p>
         )}
+      </div>
+
+      {/* Trạng thái */}
+      <div className="space-y-2">
+        <Label htmlFor="status">Trạng thái</Label>
+        <Select
+          value={inventory.status || ""}
+          onValueChange={(val) => handleSelectChange("status", val)}
+          disabled={mode === "create"}
+        >
+          <SelectTrigger className={mode === "create" ? "bg-gray-50" : ""}>
+            <SelectValue placeholder="Chọn trạng thái" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Đang sử dụng">Đang sử dụng</SelectItem>
+            <SelectItem value="Ngừng sử dụng">Ngừng sử dụng</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );

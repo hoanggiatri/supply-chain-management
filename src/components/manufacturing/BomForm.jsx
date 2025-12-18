@@ -19,6 +19,7 @@ const BomForm = ({
   errors = {},
   readOnlyFields = {},
   setBom,
+  mode,
 }) => {
   const [items, setItems] = useState([]);
   const token = localStorage.getItem("token");
@@ -83,23 +84,25 @@ const BomForm = ({
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {/* Mã BOM */}
-      <div className="space-y-2">
-        <Label htmlFor="bomCode">Mã BOM</Label>
-        <Input
-          id="bomCode"
-          name="bomCode"
-          value={bom.bomCode || ""}
-          onChange={onChange}
-          placeholder="Mã BOM sẽ được tạo tự động"
-          readOnly={isFieldReadOnly("bomCode")}
-          disabled={isFieldReadOnly("bomCode")}
-          className={errors.bomCode ? "border-red-500" : ""}
-        />
-        {errors.bomCode && (
-          <p className="text-sm text-red-500">{errors.bomCode}</p>
-        )}
-      </div>
+      {/* Mã BOM - Ẩn khi là create mode */}
+      {mode !== "create" && (
+        <div className="space-y-2">
+          <Label htmlFor="bomCode">Mã BOM</Label>
+          <Input
+            id="bomCode"
+            name="bomCode"
+            value={bom.bomCode || ""}
+            onChange={onChange}
+            placeholder="Mã BOM sẽ được tạo tự động"
+            readOnly={isFieldReadOnly("bomCode")}
+            disabled={isFieldReadOnly("bomCode")}
+            className={errors.bomCode ? "border-red-500" : ""}
+          />
+          {errors.bomCode && (
+            <p className="text-sm text-red-500">{errors.bomCode}</p>
+          )}
+        </div>
+      )}
 
       {/* Hàng hóa */}
       <div className="space-y-2">
@@ -167,7 +170,7 @@ const BomForm = ({
             onValueChange={(val) => handleSelectChange("status", val)}
             disabled={isFieldReadOnly("status")}
           >
-            <SelectTrigger className={errors.status ? "border-red-500" : ""}>
+            <SelectTrigger className={`${errors.status ? "border-red-500" : ""} ${isFieldReadOnly("status") ? "bg-gray-50" : ""}`}>
               <SelectValue placeholder="Chọn trạng thái" />
             </SelectTrigger>
             <SelectContent>
@@ -208,6 +211,7 @@ BomForm.propTypes = {
   errors: PropTypes.object,
   readOnlyFields: PropTypes.object,
   setBom: PropTypes.func,
+  mode: PropTypes.string,
 };
 
 export default BomForm;
