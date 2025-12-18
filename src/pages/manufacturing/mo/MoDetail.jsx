@@ -4,38 +4,38 @@ import FormPageLayout from "@/components/layout/FormPageLayout";
 import MoForm from "@/components/manufacturing/MoForm";
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { getAllItemsInCompany } from "@/services/general/ItemService";
 import { getAllLinesInCompany } from "@/services/general/ManufactureLineService";
 import { downloadQRPDF } from "@/services/general/ProductService";
 import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
 import {
-    createReceiveTicket,
-    getAllReceiveTicketsInCompany,
+  createReceiveTicket,
+  getAllReceiveTicketsInCompany,
 } from "@/services/inventory/ReceiveTicketService";
 import {
-    completeMo,
-    getMoById,
-    updateMo,
+  completeMo,
+  getMoById,
+  updateMo,
 } from "@/services/manufacturing/MoService";
 import {
-    getAllProcessesInMo,
-    updateProcess,
+  getAllProcessesInMo,
+  updateProcess,
 } from "@/services/manufacturing/ProcessService";
 import toastrService from "@/services/toastrService";
 import dayjs from "dayjs";
@@ -182,6 +182,7 @@ const MoDetail = () => {
     }
 
     try {
+      const employeeName = localStorage.getItem("employeeName");
       const request = {
         itemId: Number(mo.itemId),
         lineId: Number(mo.lineId),
@@ -190,6 +191,7 @@ const MoDetail = () => {
         estimatedStartTime: toISO8601String(mo.estimatedStartTime),
         estimatedEndTime: toISO8601String(mo.estimatedEndTime),
         status: "Đã hủy",
+        createdBy: employeeName,
       };
       await updateMo(moId, request, token);
       toastrService.success("Đã hủy công lệnh!");
@@ -236,6 +238,7 @@ const MoDetail = () => {
         !currentProcess.startedOn && isFirstProcess;
 
       if (isStartingFirstProcess && mo.status === "Chờ sản xuất") {
+        const employeeName = localStorage.getItem("employeeName");
         await updateMo(
           moIdNum,
           {
@@ -246,6 +249,7 @@ const MoDetail = () => {
             estimatedStartTime: toISO8601String(mo.estimatedStartTime),
             estimatedEndTime: toISO8601String(mo.estimatedEndTime),
             status: "Đang sản xuất",
+            createdBy: employeeName,
           },
           token
         );
@@ -290,6 +294,7 @@ const MoDetail = () => {
           token
         );
       } else {
+        const employeeName = localStorage.getItem("employeeName");
         await updateMo(
           moIdNum,
           {
@@ -300,6 +305,7 @@ const MoDetail = () => {
             estimatedStartTime: toISO8601String(mo.estimatedStartTime),
             estimatedEndTime: toISO8601String(mo.estimatedEndTime),
             status: "Chờ nhập kho",
+            createdBy: employeeName,
           },
           token
         );
