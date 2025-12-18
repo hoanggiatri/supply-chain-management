@@ -716,48 +716,48 @@
 
 // export default SideBarMT;
 
-import React, { useState, useEffect } from "react";
 import {
+  ArrowRightOnRectangleIcon,
+  ArrowsRightLeftIcon,
+  ArrowUpTrayIcon,
+  BuildingOfficeIcon,
+  BuildingStorefrontIcon,
+  ChartBarIcon,
+  ChevronDownIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ClipboardDocumentListIcon,
+  CubeIcon,
+  DocumentTextIcon,
+  EnvelopeIcon,
+  HomeIcon,
+  InboxArrowDownIcon,
+  InformationCircleIcon,
+  ListBulletIcon,
+  MagnifyingGlassIcon,
+  QrCodeIcon,
+  ShoppingBagIcon,
+  ShoppingCartIcon,
+  TruckIcon,
+  UserGroupIcon,
+  UserIcon,
+  WrenchScrewdriverIcon,
+} from "@heroicons/react/24/solid";
+import {
+  Accordion,
+  AccordionBody,
+  AccordionHeader,
+  Button,
   Card,
-  Typography,
+  IconButton,
   List,
   ListItem,
   ListItemPrefix,
-  Accordion,
-  AccordionHeader,
-  AccordionBody,
-  Button,
-  IconButton,
   Tooltip,
+  Typography,
 } from "@material-tailwind/react";
-import {
-  HomeIcon,
-  InformationCircleIcon,
-  BuildingOfficeIcon,
-  UserGroupIcon,
-  UserIcon,
-  EnvelopeIcon,
-  CubeIcon,
-  BuildingStorefrontIcon,
-  WrenchScrewdriverIcon,
-  ListBulletIcon,
-  ChartBarIcon,
-  ShoppingCartIcon,
-  ShoppingBagIcon,
-  TruckIcon,
-  ClipboardDocumentListIcon,
-  DocumentTextIcon,
-  ArrowsRightLeftIcon,
-  InboxArrowDownIcon,
-  ArrowUpTrayIcon,
-  MagnifyingGlassIcon,
-  ArrowRightOnRectangleIcon,
-  ChevronDownIcon,
-  QrCodeIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-} from "@heroicons/react/24/solid";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const SideBarMT = () => {
   const navigate = useNavigate();
@@ -1002,7 +1002,6 @@ const SideBarMT = () => {
             {renderParentItem("inventory", BuildingStorefrontIcon, "Quản lý kho", (
               <>
                 {renderMenuItem("/inventory-count", ClipboardDocumentListIcon, "Kiểm kê", true)}
-                {renderMenuItem("/inventory", CubeIcon, "Theo dõi tồn kho", true)}
                 {renderMenuItem("/receive-tickets", InboxArrowDownIcon, "Nhập kho", true)}
                 {renderMenuItem("/issue-tickets", ArrowUpTrayIcon, "Xuất kho", true)}
                 {renderMenuItem("/transfer-tickets", ArrowsRightLeftIcon, "Chuyển kho", true)}
