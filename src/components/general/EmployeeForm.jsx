@@ -2,11 +2,11 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "@/components/ui/select";
 import { getAllDepartmentsInCompany } from "@/services/general/DepartmentService";
 import toastrService from "@/services/toastrService";
@@ -25,12 +25,47 @@ const EmployeeForm = ({
   const isFieldReadOnly = (field) => readOnlyFields[field] ?? false;
 
   const handleSelectChange = (name, value) => {
-    onChange({
-      target: {
-        name,
-        value,
-      },
-    });
+    // Auto-set position and role based on department selection
+    if (name === "departmentId" && mode === "create") {
+      // Find the selected department to check its name
+      const selectedDept = departments.find(dept => dept.id === value);
+      const isDeptQuanTri = selectedDept?.departmentName === "Quản trị";
+      
+      // Set position and role based on department
+      const position = isDeptQuanTri ? "Quản lý" : "Nhân viên";
+      const role = isDeptQuanTri ? "c_admin" : "user";
+      
+      // Update department, position, and role together
+      onChange({
+        target: {
+          name,
+          value,
+        },
+      });
+      
+      // Also set position
+      onChange({
+        target: {
+          name: "position",
+          value: position,
+        },
+      });
+      
+      // Also set role
+      onChange({
+        target: {
+          name: "role",
+          value: role,
+        },
+      });
+    } else {
+      onChange({
+        target: {
+          name,
+          value,
+        },
+      });
+    }
   };
 
   useEffect(() => {
@@ -77,26 +112,7 @@ const EmployeeForm = ({
         )}
       </div>
 
-      {/* Chức vụ */}
-      <div className="space-y-2">
-        <Label htmlFor="position">Chức vụ</Label>
-        <Select
-          value={employee.position || ""}
-          onValueChange={(val) => handleSelectChange("position", val)}
-          disabled={isFieldReadOnly("position")}
-        >
-          <SelectTrigger className={errors.position ? "border-red-500" : ""}>
-            <SelectValue placeholder="Chọn chức vụ" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Quản lý">Quản lý</SelectItem>
-            <SelectItem value="Nhân viên">Nhân viên</SelectItem>
-          </SelectContent>
-        </Select>
-        {errors.position && (
-          <p className="text-sm text-red-500">{errors.position}</p>
-        )}
-      </div>
+
 
       {/* Mã nhân viên */}
       <div className="space-y-2">
@@ -278,27 +294,7 @@ const EmployeeForm = ({
             )}
           </div>
 
-          {/* Vai trò */}
-          <div className="space-y-2">
-            <Label htmlFor="role">Vai trò</Label>
-            <Select
-              value={employee.role || ""}
-              onValueChange={(val) => handleSelectChange("role", val)}
-              disabled={isFieldReadOnly("role")}
-            >
-              <SelectTrigger className={errors.role ? "border-red-500" : ""}>
-                <SelectValue placeholder="Chọn vai trò" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="s_admin">Super Admin</SelectItem>
-                <SelectItem value="c_admin">Company Admin</SelectItem>
-                <SelectItem value="user">User</SelectItem>
-              </SelectContent>
-            </Select>
-            {errors.role && (
-              <p className="text-sm text-red-500">{errors.role}</p>
-            )}
-          </div>
+
 
           {/* Trạng thái */}
           <div className="space-y-2">

@@ -1,12 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { Typography, Card, CardBody } from "@material-tailwind/react";
-import { DataTable } from "@/components/ui/data-table";
 import StatusSummaryCard from "@/components/common/StatusSummaryCard";
-import { BarChart } from "@/components/common/UniversalChart";
-import { getAllIssueTicketsInCompany, getMonthlyIssueReport, getIssueForecast } from "@/services/inventory/IssueTicketService";
-import { useNavigate } from "react-router-dom";
+import { createSortableHeader, createStatusBadge, DataTable } from "@/components/ui/data-table";
+import { getAllIssueTicketsInCompany, getIssueForecast, getMonthlyIssueReport } from "@/services/inventory/IssueTicketService";
 import toastrService from "@/services/toastrService";
-import { createSortableHeader, createStatusBadge } from "@/components/ui/data-table";
+import { Card, CardBody, Typography } from "@material-tailwind/react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const ItInCompany = () => {
   const [tickets, setTickets] = useState([]);
@@ -83,7 +81,7 @@ const ItInCompany = () => {
     },
     {
       accessorKey: "issueDate",
-      header: createSortableHeader("Ngày xuất"),
+      header: createSortableHeader("Ngày xuất kho"),
       cell: ({ getValue }) => {
         const value = getValue();
         return value ? new Date(value).toLocaleString() : "";
@@ -188,7 +186,7 @@ const ItInCompany = () => {
               "Mã phiếu": ticket.ticketCode || "",
               "Mã kho": ticket.warehouseCode || "",
               "Tên kho": ticket.warehouseName || "",
-              "Ngày xuất": ticket.issueDate ? new Date(ticket.issueDate).toLocaleString() : "",
+              "Ngày xuất kho": ticket.issueDate ? new Date(ticket.issueDate).toLocaleString() : "",
               "Lý do": ticket.reason || "",
               "Loại xuất kho": ticket.issueType || "",
               "Mã tham chiếu": ticket.referenceCode || "",

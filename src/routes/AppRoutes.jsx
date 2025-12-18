@@ -14,6 +14,7 @@ import OtpForgotPassword from "@pages/authentication/OtpForgotPassword";
 import OtpVerification from "@pages/authentication/OtpVerification";
 import Register from "@pages/authentication/Register";
 import ResetPassword from "@pages/authentication/ResetPassword";
+import NotFound from "@pages/NotFound";
 import Unauthorized from "@pages/Unauthorized";
 import PublicRoute from "./PublicRoute";
 
@@ -89,6 +90,9 @@ function AppRoutes() {
         <Route element={<SideBarLayoutMT />}>
           {renderRoutes(companyRoutes)}
         </Route>
+
+        {/* Catch-all route for 404 */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
   );

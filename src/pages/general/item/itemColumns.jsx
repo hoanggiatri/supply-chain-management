@@ -1,12 +1,6 @@
-import React from "react";
 import { createSortableHeader } from "@/components/ui/data-table";
 
 export const getItemColumns = () => [
-    {
-        accessorKey: "itemId",
-        header: createSortableHeader("ID"),
-        cell: ({ getValue }) => <span className="">{getValue()}</span>
-    },
     {
         accessorKey: "itemCode",
         header: createSortableHeader("Mã hàng hóa"),

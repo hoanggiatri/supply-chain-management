@@ -123,7 +123,7 @@ const RfqForm = ({ rfq, onChange, errors = {}, readOnlyFields, setRfq }) => {
         ) : (
           <DateTimePicker
             value={rfq.needByDate || ""}
-            onChange={(value) => setRfq((prev) => ({ ...prev, needByDate: value }))}
+            onChange={(e) => setRfq((prev) => ({ ...prev, needByDate: e.target.value }))}
             placeholder="Chọn ngày giờ"
             error={!!errors.needByDate}
           />

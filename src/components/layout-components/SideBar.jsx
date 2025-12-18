@@ -1,53 +1,52 @@
-import React, { useState, useEffect } from "react";
 import {
-  Drawer,
-  List,
-  Divider,
-  Collapse,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Button,
-  Box,
-  Tooltip,
-  IconButton,
-} from "@mui/material";
-import {
-  Home,
-  Info,
+  BarChart,
+  BuildCircle,
+  Business,
+  Category,
+  Checklist,
+  ChevronLeft,
+  ChevronRight,
+  CompareArrows,
   ContactMail,
   ExpandLess,
   ExpandMore,
+  FactCheck,
   Factory,
-  Business,
+  Home,
+  Info,
+  ListAlt,
+  LocalShipping,
+  Logout,
+  MoveToInbox,
+  Note,
+  Outbox,
   People,
   Person,
-  Category,
-  Warehouse,
-  BuildCircle,
-  Checklist,
-  ShoppingBag,
-  BarChart,
-  ShoppingCart,
-  Sell,
-  Inventory,
-  LocalShipping,
-  ListAlt,
-  RequestQuote,
-  CompareArrows,
-  FactCheck,
-  Note,
-  Schema,
-  MoveToInbox,
-  Outbox,
-  Search,
-  Logout,
-  ChevronLeft,
-  ChevronRight,
   QrCodeScanner,
+  RequestQuote,
+  Schema,
+  Search,
+  Sell,
+  ShoppingBag,
+  ShoppingCart,
+  Warehouse
 } from "@mui/icons-material";
+import {
+  Box,
+  Button,
+  Collapse,
+  Divider,
+  Drawer,
+  IconButton,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Tooltip,
+} from "@mui/material";
+import { useEffect, useState } from "react";
 
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import MenuItem from "./MenuItem";
 
 const SideBar = ({ openSidebar, toggleSidebar }) => {
@@ -343,14 +342,6 @@ const SideBar = ({ openSidebar, toggleSidebar }) => {
                 icon={<Checklist />}
                 title="Kiểm kê"
                 path="/inventory-count"
-                selectedPath={selectedPath}
-                onSelect={handleSelect}
-                collapsed={!openSidebar}
-              />
-              <MenuItem
-                icon={<Inventory />}
-                title="Theo dõi tồn kho"
-                path="/inventory"
                 selectedPath={selectedPath}
                 onSelect={handleSelect}
                 collapsed={!openSidebar}

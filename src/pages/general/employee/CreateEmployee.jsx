@@ -1,15 +1,15 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import ImageUpload from "@/components/common/ImageUpload";
+import FormPageLayout from "@/components/layout/FormPageLayout";
+import { Button } from "@/components/ui/button";
 import {
   createEmployee,
   updateEmployeeAvatar,
 } from "@/services/general/EmployeeService";
-import EmployeeForm from "@components/general/EmployeeForm";
-import ImageUpload from "@/components/common/ImageUpload";
 import toastrService from "@/services/toastrService";
-import FormPageLayout from "@/components/layout/FormPageLayout";
-import { Button } from "@/components/ui/button";
+import EmployeeForm from "@components/general/EmployeeForm";
 import { Save, X } from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const CreateEmployee = () => {
   const navigate = useNavigate();
@@ -33,15 +33,13 @@ const CreateEmployee = () => {
     username: "",
     password: "",
     role: "",
-    status: "",
+    status: "active",
   });
 
   const validateForm = () => {
     const errors = {};
     if (!formData.departmentId)
       errors.departmentId = "Bộ phận không được để trống";
-    if (!formData.position?.trim())
-      errors.position = "Chức vụ không được để trống";
     if (!formData.employeeCode?.trim())
       errors.employeeCode = "Mã nhân viên không được để trống";
     if (!formData.employeeName?.trim())
@@ -61,7 +59,6 @@ const CreateEmployee = () => {
       errors.password = "Mật khẩu không được để trống";
     else if (formData.password.length < 8)
       errors.password = "Mật khẩu phải ≥ 8 ký tự";
-    if (!formData.role) errors.role = "Vai trò không được để trống";
     if (!formData.status) errors.status = "Trạng thái không được để trống";
     return errors;
   };
@@ -149,7 +146,7 @@ const CreateEmployee = () => {
             employee={formData}
             onChange={handleChange}
             errors={errors}
-            readOnlyFields={{}}
+            readOnlyFields={{ status: true }}
             mode="create"
           />
 

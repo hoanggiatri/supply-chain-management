@@ -1,33 +1,23 @@
 import PrivateRoute from "../PrivateRoute";
 
-import Inventory from "@/pages/inventory/inventory/Inventory";
 import CheckInventory from "@/pages/inventory/inventory/CheckInventory";
-import InventoryCount from "@/pages/inventory/inventory/InventoryCount";
 import CreateInventory from "@/pages/inventory/inventory/CreateInventory";
+import InventoryCount from "@/pages/inventory/inventory/InventoryCount";
 
-import ItInCompany from "@/pages/inventory/issue-ticket/ItInCompany";
-import ItDetail from "@/pages/inventory/issue-ticket/ItDetail";
 import IssueReport from "@/pages/inventory/issue-ticket/IssueReport";
+import ItDetail from "@/pages/inventory/issue-ticket/ItDetail";
+import ItInCompany from "@/pages/inventory/issue-ticket/ItInCompany";
 
-import RtInCompany from "@/pages/inventory/receive-ticket/RtInCompany";
-import RtDetail from "@/pages/inventory/receive-ticket/RtDetail";
 import ReceiveReport from "@/pages/inventory/receive-ticket/ReceiveReport";
+import RtDetail from "@/pages/inventory/receive-ticket/RtDetail";
+import RtInCompany from "@/pages/inventory/receive-ticket/RtInCompany";
 
-import TtInCompany from "@/pages/inventory/transfer-ticket/TtInCompany";
-import TtDetail from "@/pages/inventory/transfer-ticket/TtDetail";
-import EditTt from "@/pages/inventory/transfer-ticket/EditTt";
 import CreateTt from "@/pages/inventory/transfer-ticket/CreateTt";
+import EditTt from "@/pages/inventory/transfer-ticket/EditTt";
+import TtDetail from "@/pages/inventory/transfer-ticket/TtDetail";
+import TtInCompany from "@/pages/inventory/transfer-ticket/TtInCompany";
 
 const inventoryRoutes = [
-  {
-    path: "/inventory",
-    element: (
-      <PrivateRoute
-        element={<Inventory />}
-        allowedRoles={["c_admin", "user"]}
-      />
-    ),
-  },
   {
     path: "/check-inventory/:type/:id",
     element: (

@@ -1,10 +1,10 @@
-import { useNavigate } from "react-router-dom";
-import { useItems } from "@/hooks/useItems";
+import ListPageLayout from "@/components/layout/ListPageLayout";
 import { DataTable } from "@/components/ui/data-table";
+import { useItems } from "@/hooks/useItems";
 import toastService from "@/services/toastService";
 import { AddButton } from "@components/common/ActionButtons";
+import { useNavigate } from "react-router-dom";
 import { getItemColumns } from "./itemColumns";
-import ListPageLayout from "@/components/layout/ListPageLayout";
 
 export default function ItemInCompany() {
   const navigate = useNavigate();
@@ -38,7 +38,7 @@ export default function ItemInCompany() {
         onRowClick={(item) => navigate(`/item/${item.itemId}`)}
         loading={isLoading}
         emptyMessage="Chưa có hàng hóa nào"
-        defaultSorting={[{ id: "itemId", desc: true }]}
+        defaultSorting={[{ id: "itemCode", desc: false }]}
         exportFileName="Danh_sach_hang_hoa"
         exportMapper={(item = {}) => ({
           "Tên hàng hóa": item.itemName || "",
