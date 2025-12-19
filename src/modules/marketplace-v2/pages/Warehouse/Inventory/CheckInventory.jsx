@@ -256,7 +256,7 @@ const CheckInventory = () => {
         await Promise.all(
           inventoryResults.map(r =>
             increaseOnDemandMutation.mutateAsync({
-              warehouseId: selectedWarehouseId,
+              warehouseId: parseInt(selectedWarehouseId),
               itemId: r.itemId,
               onDemandQuantity: r.quantityNeeded
             })
@@ -304,7 +304,7 @@ const CheckInventory = () => {
         await Promise.all(
           inventoryResults.map(r =>
             increaseOnDemandMutation.mutateAsync({
-              warehouseId: selectedWarehouseId,
+              warehouseId: parseInt(selectedWarehouseId),
               itemId: r.itemId,
               onDemandQuantity: r.quantityNeeded
             })
