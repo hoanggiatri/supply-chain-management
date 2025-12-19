@@ -40,16 +40,7 @@ const ProductVerification = () => {
         fetchProduct();
     }, [qrCode, token]);
 
-    const getStatusColor = (status) => {
-        const statusMap = {
-            PRODUCED: "orange",
-            IN_WAREHOUSE: "green",
-            ISSUED: "blue",
-            SOLD: "purple",
-            DELIVERED: "deep-purple",
-        };
-        return statusMap[status] || "gray";
-    };
+
 
     if (loading) return <LoadingPaper title="Đang xác thực thông tin sản phẩm..." />;
 
@@ -130,27 +121,27 @@ const ProductVerification = () => {
                             </Typography>
                         </div>
 
-                        <div>
-                            <Typography variant="small" color="gray" className="mb-1">
-                                Trạng thái
-                            </Typography>
-                            <Chip
-                                value={productDetail.status}
-                                color={getStatusColor(productDetail.status)}
-                                size="sm"
-                                variant="ghost"
-                                className="w-max"
-                            />
-                        </div>
+                        {productDetail.description && (
+                            <div className="md:col-span-2">
+                                <Typography variant="small" color="gray" className="mb-1">
+                                    Mô tả
+                                </Typography>
+                                <Typography className="text-gray-700 whitespace-pre-line">
+                                    {productDetail.description}
+                                </Typography>
+                            </div>
+                        )}
 
-                        <div>
-                            <Typography variant="small" color="gray" className="mb-1">
-                                Product ID
-                            </Typography>
-                            <Typography variant="small" className="font-mono">
-                                {productDetail.productId}
-                            </Typography>
-                        </div>
+                        {productDetail.technicalSpecifications && (
+                            <div className="md:col-span-2">
+                                <Typography variant="small" color="gray" className="mb-1">
+                                    Thông số kỹ thuật
+                                </Typography>
+                                <Typography className="text-gray-700 whitespace-pre-line">
+                                    {productDetail.technicalSpecifications}
+                                </Typography>
+                            </div>
+                        )}
 
                         {productDetail.currentCompanyName && (
                             <div className="md:col-span-2">
