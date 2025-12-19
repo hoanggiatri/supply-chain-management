@@ -1,20 +1,21 @@
+import { AnimatePresence, motion } from 'framer-motion';
 import {
-    ArrowDownToLine,
-    ArrowUpFromLine,
-    Grid3X3,
-    Kanban,
-    Package,
-    Plus,
-    RefreshCw,
-    Search
+  ArrowDownToLine,
+  ArrowUpFromLine,
+  Grid3X3,
+  Kanban,
+  Package,
+  Plus,
+  RefreshCw,
+  Search
 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { forwardRef, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useDebounce } from '../../../hooks';
 import {
-    useIssueTicketsInCompany,
-    useReceiveTicketsInCompany,
-    useTransferTicketsInCompany
+  useIssueTicketsInCompany,
+  useReceiveTicketsInCompany,
+  useTransferTicketsInCompany
 } from '../../../hooks/useApi';
 
 // Status configurations for different ticket types
@@ -45,15 +46,15 @@ const tabs = [
   { key: 'transfer', label: 'Phiếu chuyển kho', icon: Package, color: '#3b82f6' },
 ];
 
-// Ticket Card Component (Simplified)
-const TicketCard = ({ ticket, type, onClick }) => {
+// Ticket Card Component
+const TicketCard = forwardRef(({ ticket, type, onClick }, ref) => {
   const typeConfig = {
-    issue: { icon: ArrowUpFromLine, color: '#ef4444' },
-    receive: { icon: ArrowDownToLine, color: '#22c55e' },
-    transfer: { icon: Package, color: '#3b82f6' }
+    issue: { icon: ArrowUpFromLine, color: '#ef4444', detailPath: 'issue-ticket' },
+    receive: { icon: ArrowDownToLine, color: '#22c55e', detailPath: 'receive-ticket' },
+    transfer: { icon: Package, color: '#3b82f6', detailPath: 'transfer-ticket' }
   };
 
-  const config = typeConfig[type] || typeConfig.issue;
+  const config = typeConfig[type];
   const Icon = config.icon;
 
   const getStatusColor = (status) => {
@@ -70,9 +71,15 @@ const TicketCard = ({ ticket, type, onClick }) => {
   const statusColor = getStatusColor(ticket.status);
 
   return (
-    <div
+    <motion.div
+      ref={ref}
+      layout
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.9 }}
+      whileHover={{ y: -4, boxShadow: '0 10px 40px rgba(0,0,0,0.1)' }}
       onClick={onClick}
-      className="mp-glass-card p-5 cursor-pointer group hover:-translate-y-1 transition-transform duration-200"
+      className="mp-glass-card p-5 cursor-pointer group"
       style={{ borderLeft: `4px solid ${config.color}` }}
     >
       {/* Header */}
@@ -128,9 +135,11 @@ const TicketCard = ({ ticket, type, onClick }) => {
           </p>
         </div>
       )}
-    </div>
+    </motion.div>
   );
-};
+});
+
+TicketCard.displayName = 'TicketCard';
 
 // Loading Skeleton
 const TicketSkeleton = () => (
@@ -164,16 +173,9 @@ const TicketList = () => {
   const debouncedSearch = useDebounce(searchQuery, 300);
 
   // Fetch data for all ticket types
-  // ONLY fetch for the active tab to prevent overload/race conditions
-  const { data: issueTickets = [], isLoading: issueLoading, refetch: refetchIssue } = useIssueTicketsInCompany({ 
-    enabled: activeTab === 'issue' 
-  });
-  const { data: receiveTickets = [], isLoading: receiveLoading, refetch: refetchReceive } = useReceiveTicketsInCompany({ 
-    enabled: activeTab === 'receive' 
-  });
-  const { data: transferTickets = [], isLoading: transferLoading, refetch: refetchTransfer } = useTransferTicketsInCompany({ 
-    enabled: activeTab === 'transfer' 
-  });
+  const { data: issueTickets = [], isLoading: issueLoading, refetch: refetchIssue } = useIssueTicketsInCompany();
+  const { data: receiveTickets = [], isLoading: receiveLoading, refetch: refetchReceive } = useReceiveTicketsInCompany();
+  const { data: transferTickets = [], isLoading: transferLoading, refetch: refetchTransfer } = useTransferTicketsInCompany();
 
   const isLoading = activeTab === 'issue' ? issueLoading : activeTab === 'receive' ? receiveLoading : transferLoading;
 
@@ -181,11 +183,11 @@ const TicketList = () => {
   const { currentTickets, statusGroups } = useMemo(() => {
     switch (activeTab) {
       case 'issue':
-        return { currentTickets: issueTickets || [], statusGroups: issueStatusGroups };
+        return { currentTickets: issueTickets, statusGroups: issueStatusGroups };
       case 'receive':
-        return { currentTickets: receiveTickets || [], statusGroups: receiveStatusGroups };
+        return { currentTickets: receiveTickets, statusGroups: receiveStatusGroups };
       case 'transfer':
-        return { currentTickets: transferTickets || [], statusGroups: transferStatusGroups };
+        return { currentTickets: transferTickets, statusGroups: transferStatusGroups };
       default:
         return { currentTickets: [], statusGroups: [] };
     }
@@ -237,9 +239,9 @@ const TicketList = () => {
   };
 
   const handleRefresh = () => {
-    if (activeTab === 'issue') refetchIssue();
-    if (activeTab === 'receive') refetchReceive();
-    if (activeTab === 'transfer') refetchTransfer();
+    refetchIssue();
+    refetchReceive();
+    refetchTransfer();
   };
 
   const handleTicketClick = (ticket) => {
@@ -254,7 +256,11 @@ const TicketList = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex items-center justify-between"
+      >
         <div>
           <h1 className="text-2xl font-bold" style={{ color: 'var(--mp-text-primary)' }}>
             Quản lý phiếu kho
@@ -265,32 +271,41 @@ const TicketList = () => {
         </div>
         <div className="flex items-center gap-2">
           {activeTab === 'transfer' && (
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => navigate('/marketplace-v2/warehouse/create-transfer')}
-              className="mp-btn mp-btn-primary hover:scale-105 transition-transform"
+              className="mp-btn mp-btn-primary"
             >
               <Plus size={18} />
               Tạo phiếu chuyển
-            </button>
+            </motion.button>
           )}
-          <button
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={handleRefresh}
-            className="mp-glass-button p-3 rounded-xl hover:bg-gray-100 transition-colors"
+            className="mp-glass-button p-3 rounded-xl"
             disabled={isLoading}
           >
             <RefreshCw size={20} className={isLoading ? 'animate-spin' : ''} style={{ color: 'var(--mp-text-secondary)' }} />
-          </button>
+          </motion.button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Tab Navigation */}
-      <div className="mp-glass-card p-2 flex gap-2">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="mp-glass-card p-2 flex gap-2"
+      >
         {tabs.map(tab => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.key;
-          const count = tab.key === 'issue' ? (issueTickets?.length || 0)
-            : tab.key === 'receive' ? (receiveTickets?.length || 0)
-            : (transferTickets?.length || 0);
+          const count = tab.key === 'issue' ? issueTickets.length 
+            : tab.key === 'receive' ? receiveTickets.length 
+            : transferTickets.length;
 
           return (
             <button
@@ -318,10 +333,15 @@ const TicketList = () => {
             </button>
           );
         })}
-      </div>
+      </motion.div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-4 items-center">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15 }}
+        className="flex flex-wrap gap-4 items-center"
+      >
         {/* Search */}
         <div className="relative flex-1 min-w-[200px] max-w-md">
           <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--mp-text-tertiary)' }} />
@@ -376,7 +396,7 @@ const TicketList = () => {
             <Kanban size={18} />
           </button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Content */}
       {isLoading ? (
@@ -384,9 +404,11 @@ const TicketList = () => {
           {[...Array(6)].map((_, i) => <TicketSkeleton key={i} />)}
         </div>
       ) : viewMode === 'grid' ? (
-        <div
+        <motion.div
+          layout
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[calc(100vh-280px)] overflow-y-auto p-1"
         >
+          <AnimatePresence mode="popLayout">
             {filteredTickets.map(ticket => (
               <TicketCard
                 key={ticket.ticketId}
@@ -395,6 +417,7 @@ const TicketList = () => {
                 onClick={() => handleTicketClick(ticket)}
               />
             ))}
+          </AnimatePresence>
           {filteredTickets.length === 0 && (
             <div className="col-span-full text-center py-12">
               <Package size={48} className="mx-auto mb-4 opacity-30" />
@@ -403,7 +426,7 @@ const TicketList = () => {
               </p>
             </div>
           )}
-        </div>
+        </motion.div>
       ) : (
         // Kanban View
         <div className="flex gap-4 overflow-x-auto pb-4 max-h-[calc(100vh-280px)]">
