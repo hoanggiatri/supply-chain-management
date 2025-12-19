@@ -33,6 +33,7 @@ const RfqDetail = () => {
 
   const readOnlyFields = {
     rfqCode: true,
+    requestedCompanyId: true,
     requestedCompanyCode: true,
     needByDate: true,
     createdBy: true,
