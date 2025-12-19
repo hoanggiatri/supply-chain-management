@@ -1,4 +1,3 @@
-import React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,24 +7,6 @@ const PlantForm = ({ plant, onChange, errors = {}, readOnlyFields = {} }) => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div className="space-y-2">
-        <Label htmlFor="plantCode">
-          Mã xưởng <span className="text-red-500">*</span>
-        </Label>
-        <Input
-          id="plantCode"
-          name="plantCode"
-          value={plant.plantCode || ""}
-          onChange={onChange}
-          readOnly={isFieldReadOnly("plantCode")}
-          disabled={isFieldReadOnly("plantCode")}
-          className={errors.plantCode ? "border-red-500" : ""}
-          placeholder="Nhập mã xưởng"
-        />
-        {errors.plantCode && (
-          <p className="text-sm text-red-500">{errors.plantCode}</p>
-        )}
-      </div>
 
       <div className="space-y-2">
         <Label htmlFor="plantName">

@@ -1,20 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { Typography, Card, CardBody } from "@material-tailwind/react";
-import { DataTable } from "@/components/ui/data-table";
 import StatusSummaryCard from "@/components/common/StatusSummaryCard";
-import { BarChart } from "@/components/common/UniversalChart";
+import { createSortableHeader, createStatusBadge, DataTable } from "@/components/ui/data-table";
 import { getAllReceiveTicketsInCompany, getMonthlyReceiveReport } from "@/services/inventory/ReceiveTicketService";
-import { useNavigate } from "react-router-dom";
 import toastrService from "@/services/toastrService";
-import { createSortableHeader, createStatusBadge } from "@/components/ui/data-table";
+import { Card, CardBody, Typography } from "@material-tailwind/react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const RtInCompany = () => {
   const [tickets, setTickets] = useState([]);
-  const [search, setSearch] = useState("");
-  const [order, setOrder] = useState("desc");
-  const [orderBy, setOrderBy] = useState("createdOn");
-  const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
   const navigate = useNavigate();
   const [filterStatus, setFilterStatus] = useState("Tất cả");
   const [monthlyData, setMonthlyData] = useState([]);
@@ -64,20 +57,8 @@ const RtInCompany = () => {
       ? tickets
       : tickets.filter((ticket) => ticket.status === filterStatus);
 
-  const handleRequestSort = (property) => {
-    const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(property);
-  };
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
 
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(Number(event.target.value));
-    setPage(1);
-  };
 
   const getReceiveTicketColumns = () => [
     {
@@ -157,8 +138,8 @@ const RtInCompany = () => {
       <Card className="shadow-lg">
         <CardBody>
           <Typography variant="h4" color="blue-gray" className="mb-6 font-bold">
-            DANH SÁCH PHIẾU NHẬP KHO
-          </Typography>
+              DANH SÁCH PHIẾU NHẬP KHO
+            </Typography>
 
           <StatusSummaryCard
             data={tickets}

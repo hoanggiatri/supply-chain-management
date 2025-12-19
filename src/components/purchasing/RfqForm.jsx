@@ -65,18 +65,6 @@ const RfqForm = ({ rfq, onChange, errors = {}, readOnlyFields, setRfq }) => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {/* Mã yêu cầu */}
-      <div className="space-y-2">
-        <Label>Mã yêu cầu</Label>
-        <Input
-          name="rfqCode"
-          value={rfq.rfqCode || ""}
-          placeholder="Mã yêu cầu được tạo tự động"
-          readOnly={isFieldReadOnly("rfqCode")}
-          className={isFieldReadOnly("rfqCode") ? "bg-gray-50" : ""}
-          onChange={onChange}
-        />
-      </div>
 
       {/* Công ty cung cấp */}
       <div className="space-y-2">

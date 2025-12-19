@@ -20,7 +20,6 @@ const CreateRfq = () => {
   const [details, setDetails] = useState([]);
   const [errors, setErrors] = useState({ rfqDetailErrors: [] });
   const [readOnlyFields, setReadOnlyFields] = useState({
-    rfqCode: true,
     status: true,
   });
 

@@ -2,11 +2,11 @@ import { DateTimePicker } from "@/components/ui/date-time-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import PropTypes from "prop-types";
 
@@ -97,23 +97,6 @@ const MoForm = ({
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {/* Mã MO */}
-      <div className="space-y-2">
-        <Label htmlFor="moCode">Mã MO</Label>
-        <Input
-          id="moCode"
-          name="moCode"
-          value={mo.moCode || ""}
-          onChange={onChange}
-          placeholder="Mã công lệnh được tạo tự động"
-          readOnly={isFieldReadOnly("moCode")}
-          disabled={isFieldReadOnly("moCode")}
-          className={errors.moCode ? "border-red-500" : ""}
-        />
-        {errors.moCode && (
-          <p className="text-sm text-red-500">{errors.moCode}</p>
-        )}
-      </div>
 
       {/* Loại công lệnh */}
       <div className="space-y-2">

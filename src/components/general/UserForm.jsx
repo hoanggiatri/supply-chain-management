@@ -1,30 +1,27 @@
-import React from "react";
+import { Combobox } from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
+const ROLE_OPTIONS = [
+  { value: "s_admin", label: "Quản trị hệ thống" },
+  { value: "c_admin", label: "Quản trị công ty" },
+  { value: "user", label: "Nhân viên" },
+];
+
+const STATUS_OPTIONS = [
+  { value: "active", label: "Đang hoạt động" },
+  { value: "inactive", label: "Ngừng hoạt động" },
+  { value: "resigned", label: "Đã nghỉ" },
+];
 
 const getRoleLabel = (roleValue) => {
-  const roleMap = {
-    c_admin: "Quản trị công ty",
-    s_admin: "Quản trị hệ thống",
-    user: "Nhân viên",
-  };
-  return roleMap[roleValue] || roleValue;
+  const option = ROLE_OPTIONS.find((o) => o.value === roleValue);
+  return option ? option.label : roleValue;
 };
 
 const getStatusLabel = (statusValue) => {
-  const statusMap = {
-    active: "Đang hoạt động",
-    inactive: "Ngừng hoạt động",
-    resigned: "Đã nghỉ",
-  };
-  return statusMap[statusValue] || statusValue;
+  const option = STATUS_OPTIONS.find((o) => o.value === statusValue);
+  return option ? option.label : statusValue;
 };
 
 const UserForm = ({
@@ -44,6 +41,11 @@ const UserForm = ({
       },
     });
   };
+
+  const currentRoleOptions =
+    role === "s-admin"
+      ? ROLE_OPTIONS
+      : ROLE_OPTIONS.filter((o) => o.value !== "s_admin");
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -114,21 +116,15 @@ const UserForm = ({
             className="bg-gray-50"
           />
         ) : (
-          <Select
-            value={user.role || ""}
-            onValueChange={(val) => handleSelectChange("role", val)}
-          >
-            <SelectTrigger className={errors.role ? "border-red-500" : ""}>
-              <SelectValue placeholder="Chọn vai trò" />
-            </SelectTrigger>
-            <SelectContent>
-              {role === "s-admin" && (
-                <SelectItem value="s_admin">Quản trị hệ thống</SelectItem>
-              )}
-              <SelectItem value="c_admin">Quản trị công ty</SelectItem>
-              <SelectItem value="user">Nhân viên</SelectItem>
-            </SelectContent>
-          </Select>
+          <Combobox
+            options={currentRoleOptions}
+            value={user.role}
+            onChange={(option) => handleSelectChange("role", option?.value)}
+            placeholder="Chọn vai trò"
+            searchPlaceholder="Tìm vai trò..."
+            emptyText="Không tìm thấy vai trò"
+            className={errors.role ? "border-red-500" : ""}
+          />
         )}
         {errors.role && <p className="text-sm text-red-500">{errors.role}</p>}
       </div>
@@ -142,19 +138,15 @@ const UserForm = ({
             className="bg-gray-50"
           />
         ) : (
-          <Select
-            value={user.status || ""}
-            onValueChange={(val) => handleSelectChange("status", val)}
-          >
-            <SelectTrigger className={errors.status ? "border-red-500" : ""}>
-              <SelectValue placeholder="Chọn trạng thái" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="active">Đang hoạt động</SelectItem>
-              <SelectItem value="inactive">Ngừng hoạt động</SelectItem>
-              <SelectItem value="resigned">Đã nghỉ</SelectItem>
-            </SelectContent>
-          </Select>
+          <Combobox
+            options={STATUS_OPTIONS}
+            value={user.status}
+            onChange={(option) => handleSelectChange("status", option?.value)}
+            placeholder="Chọn trạng thái"
+            searchPlaceholder="Tìm trạng thái..."
+            emptyText="Không tìm thấy trạng thái"
+            className={errors.status ? "border-red-500" : ""}
+          />
         )}
         {errors.status && (
           <p className="text-sm text-red-500">{errors.status}</p>

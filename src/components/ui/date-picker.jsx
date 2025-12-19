@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import * as React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 // Vietnamese month names
 const MONTHS_VI = [
@@ -210,8 +211,8 @@ const DatePicker = React.forwardRef(({
         <Calendar className="h-4 w-4 text-gray-400" />
       </button>
 
-      {/* Dropdown */}
-      {isOpen && !disabled && (
+      {/* Dropdown with Portal */}
+      {isOpen && !disabled && createPortal(
         <>
           {/* Backdrop */}
           <div
@@ -388,7 +389,8 @@ const DatePicker = React.forwardRef(({
               </button>
             </div>
           </div>
-        </>
+        </>,
+        document.body
       )}
     </div>
   );

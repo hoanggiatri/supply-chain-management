@@ -1,13 +1,6 @@
 import { Combobox } from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
 import toastrService from "@/services/toastrService";
 import { useEffect, useState } from "react";
@@ -111,39 +104,8 @@ const TtForm = ({
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {/* Mã phiếu */}
-      <div className="space-y-2">
-        <Label htmlFor="ticketCode">Mã phiếu</Label>
-        <Input
-          id="ticketCode"
-          name="ticketCode"
-          value={ticket.ticketCode || ""}
-          onChange={onChange}
-          placeholder="Mã phiếu được tạo tự động"
-          readOnly={isFieldReadOnly("ticketCode")}
-          disabled={isFieldReadOnly("ticketCode")}
-        />
-      </div>
 
-      {/* Lý do */}
-      <div className="space-y-2">
-        <Label htmlFor="reason">
-          Lý do <span className="text-red-500">*</span>
-        </Label>
-        <Input
-          id="reason"
-          name="reason"
-          value={ticket.reason || ""}
-          onChange={onChange}
-          readOnly={isFieldReadOnly("reason")}
-          disabled={isFieldReadOnly("reason")}
-          className={errors.reason ? "border-red-500" : ""}
-          placeholder="Nhập lý do"
-        />
-        {errors.reason && (
-          <p className="text-sm text-red-500">{errors.reason}</p>
-        )}
-      </div>
+      
 
       {/* Kho xuất */}
       <div className="space-y-2">
@@ -183,34 +145,45 @@ const TtForm = ({
         />
       </div>
 
+      {/* Lý do */}
+      <div className="space-y-2">
+        <Label htmlFor="reason">
+          Lý do <span className="text-red-500">*</span>
+        </Label>
+        <Input
+          id="reason"
+          name="reason"
+          value={ticket.reason || ""}
+          onChange={onChange}
+          readOnly={isFieldReadOnly("reason")}
+          disabled={isFieldReadOnly("reason")}
+          className={errors.reason ? "border-red-500" : ""}
+          placeholder="Nhập lý do"
+        />
+        {errors.reason && (
+          <p className="text-sm text-red-500">{errors.reason}</p>
+        )}
+      </div>
+
       {/* Trạng thái */}
       <div className="space-y-2">
         <Label htmlFor="status">Trạng thái</Label>
-        {isFieldReadOnly("status") ? (
-          <Input
-            id="status"
-            value={ticket.status || ""}
-            readOnly
-            disabled
-          />
-        ) : (
-          <Select
-            value={ticket.status || ""}
-            onValueChange={(val) => handleSelectChange("status", val)}
-            disabled={isFieldReadOnly("status")}
-          >
-            <SelectTrigger className={errors.status ? "border-red-500" : ""}>
-              <SelectValue placeholder="Chọn trạng thái" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Chờ xác nhận">Chờ xác nhận</SelectItem>
-              <SelectItem value="Chờ xuất kho">Chờ xuất kho</SelectItem>
-              <SelectItem value="Chờ nhập kho">Chờ nhập kho</SelectItem>
-              <SelectItem value="Đã hoàn thành">Đã hoàn thành</SelectItem>
-              <SelectItem value="Đã hủy">Đã hủy</SelectItem>
-            </SelectContent>
-          </Select>
-        )}
+        <Combobox
+          options={[
+            { value: "Chờ xác nhận", label: "Chờ xác nhận" },
+            { value: "Chờ xuất kho", label: "Chờ xuất kho" },
+            { value: "Chờ nhập kho", label: "Chờ nhập kho" },
+            { value: "Đã hoàn thành", label: "Đã hoàn thành" },
+            { value: "Đã hủy", label: "Đã hủy" },
+          ]}
+          value={ticket.status}
+          onChange={(option) => handleSelectChange("status", option?.value)}
+          placeholder="Chọn trạng thái"
+          searchPlaceholder="Tìm trạng thái..."
+          emptyText="Không tìm thấy trạng thái"
+          disabled={isFieldReadOnly("status")}
+          className={errors.status ? "border-red-500" : ""}
+        />
         {errors.status && (
           <p className="text-sm text-red-500">{errors.status}</p>
         )}

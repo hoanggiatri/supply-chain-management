@@ -1,7 +1,18 @@
+import { Combobox } from "@/components/ui/combobox";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+const COMPANY_TYPE_OPTIONS = [
+  { value: "Doanh nghiệp sản xuất", label: "Doanh nghiệp sản xuất" },
+  { value: "Doanh nghiệp thương mại", label: "Doanh nghiệp thương mại" },
+];
+
+const COMPANY_STATUS_OPTIONS = [
+  { value: "active", label: "Đang hoạt động" },
+  { value: "inactive", label: "Ngừng hoạt động" },
+  { value: "closed", label: "Đã đóng" },
+];
 
 const CompanyForm = ({ companyData, onChange, errors, readOnly = false }) => {
   const handleSelectChange = (name, value) => {
@@ -80,19 +91,16 @@ const CompanyForm = ({ companyData, onChange, errors, readOnly = false }) => {
       {/* Loại hình doanh nghiệp */}
       <div className="space-y-2">
         <Label htmlFor="companyType">Loại hình doanh nghiệp</Label>
-        <Select
-          value={companyData.companyType || ""}
-          onValueChange={(val) => handleSelectChange("companyType", val)}
+        <Combobox
+          options={COMPANY_TYPE_OPTIONS}
+          value={companyData.companyType}
+          onChange={(option) => handleSelectChange("companyType", option?.value)}
+          placeholder="Chọn loại hình doanh nghiệp"
+          searchPlaceholder="Tìm loại hình doanh nghiệp..."
+          emptyText="Không tìm thấy loại hình doanh nghiệp"
           disabled={readOnly}
-        >
-          <SelectTrigger className={errors.companyType ? "border-red-500" : ""}>
-            <SelectValue placeholder="Chọn loại hình doanh nghiệp" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Doanh nghiệp sản xuất">Doanh nghiệp sản xuất</SelectItem>
-            <SelectItem value="Doanh nghiệp thương mại">Doanh nghiệp thương mại</SelectItem>
-          </SelectContent>
-        </Select>
+          className={errors.companyType ? "border-red-500" : ""}
+        />
         {errors.companyType && (
           <p className="text-sm text-red-500">{errors.companyType}</p>
         )}
@@ -198,20 +206,16 @@ const CompanyForm = ({ companyData, onChange, errors, readOnly = false }) => {
       {/* Trạng thái */}
       <div className="space-y-2">
         <Label htmlFor="status">Trạng thái</Label>
-        <Select
-          value={companyData.status || ""}
-          onValueChange={(val) => handleSelectChange("status", val)}
+        <Combobox
+          options={COMPANY_STATUS_OPTIONS}
+          value={companyData.status}
+          onChange={(option) => handleSelectChange("status", option?.value)}
+          placeholder="Chọn trạng thái"
+          searchPlaceholder="Tìm trạng thái..."
+          emptyText="Không tìm thấy trạng thái"
           disabled={readOnly}
-        >
-          <SelectTrigger className={errors.status ? "border-red-500" : ""}>
-            <SelectValue placeholder="Chọn trạng thái" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="active">Đang hoạt động</SelectItem>
-            <SelectItem value="inactive">Ngừng hoạt động</SelectItem>
-            <SelectItem value="closed">Đã đóng</SelectItem>
-          </SelectContent>
-        </Select>
+          className={errors.status ? "border-red-500" : ""}
+        />
         {errors.status && (
           <p className="text-sm text-red-500">{errors.status}</p>
         )}

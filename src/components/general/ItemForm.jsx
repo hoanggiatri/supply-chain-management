@@ -1,15 +1,14 @@
-import React from "react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Combobox } from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
+
+const ITEM_TYPE_OPTIONS = [
+  { value: "Nguyên vật liệu", label: "Nguyên vật liệu" },
+  { value: "Thành phẩm", label: "Thành phẩm" },
+  { value: "Bán thành phẩm", label: "Bán thành phẩm" },
+];
 
 const ItemForm = ({
   item,
@@ -74,23 +73,16 @@ const ItemForm = ({
 
         <div className="space-y-2">
           <Label htmlFor="itemType">Loại hàng hóa</Label>
-          <Select
-            value={item.itemType || ""}
-            onValueChange={(value) => handleSelectChange("itemType", value)}
+          <Combobox
+            options={ITEM_TYPE_OPTIONS}
+            value={item.itemType}
+            onChange={(option) => handleSelectChange("itemType", option?.value)}
+            placeholder="Chọn loại hàng hóa"
+            searchPlaceholder="Tìm loại hàng hóa..."
+            emptyText="Không tìm thấy loại hàng hóa"
             disabled={isFieldReadOnly("itemType")}
-          >
-            <SelectTrigger
-              id="itemType"
-              className={errors.itemType ? "border-red-500" : ""}
-            >
-              <SelectValue placeholder="Chọn loại hàng hóa" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Nguyên vật liệu">Nguyên vật liệu</SelectItem>
-              <SelectItem value="Thành phẩm">Thành phẩm</SelectItem>
-              <SelectItem value="Bán thành phẩm">Bán thành phẩm</SelectItem>
-            </SelectContent>
-          </Select>
+            error={!!errors.itemType}
+          />
           {errors.itemType && (
             <p className="text-sm text-red-500">{errors.itemType}</p>
           )}

@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { Typography, Card, CardBody, Button } from "@material-tailwind/react";
-import { DataTable } from "@/components/ui/data-table";
+import { AddButton } from "@/components/common/ActionButtons";
 import StatusSummaryCard from "@/components/common/StatusSummaryCard";
+import { createSortableHeader, createStatusBadge, DataTable } from "@/components/ui/data-table";
 import { getAllTransferTicketsInCompany } from "@/services/inventory/TransferTicketService";
-import { useNavigate } from "react-router-dom";
 import toastrService from "@/services/toastrService";
-import { getButtonProps } from "@/utils/buttonStyles";
-import { createSortableHeader, createStatusBadge } from "@/components/ui/data-table";
+import { Card, CardBody, Typography } from "@material-tailwind/react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const TransferTicketInCompany = () => {
   const [tickets, setTickets] = useState([]);
@@ -132,12 +131,10 @@ const TransferTicketInCompany = () => {
             <Typography variant="h4" color="blue-gray" className="font-bold">
               DANH SÁCH PHIẾU CHUYỂN KHO
             </Typography>
-            <Button
-              {...getButtonProps("primary")}
+            <AddButton
               onClick={() => navigate("/create-transfer-ticket")}
-            >
-              Thêm mới
-            </Button>
+              label="Thêm mới"
+            />
           </div>
 
           <StatusSummaryCard

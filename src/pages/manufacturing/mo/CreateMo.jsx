@@ -21,7 +21,6 @@ const CreateMo = () => {
   const [lines, setLines] = useState([]);
 
   const [mo, setMo] = useState({
-    moCode: "",
     itemId: "",
     itemCode: "",
     lineId: "",
@@ -146,7 +145,7 @@ const CreateMo = () => {
         mo={mo}
         onChange={handleChange}
         errors={errors}
-        readOnlyFields={{ moCode: true, status: true }}
+        readOnlyFields={{ status: true }}
         setMo={setMo}
         items={items}
         lines={lines}

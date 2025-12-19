@@ -1,13 +1,6 @@
 import { Combobox } from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { getAllItemsInCompany } from "@/services/general/ItemService";
 import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
 import toastrService from "@/services/toastrService";
@@ -150,19 +143,19 @@ const InventoryForm = ({ inventory, onChange, setInventory, errors, mode }) => {
       {/* Trạng thái */}
       <div className="space-y-2">
         <Label htmlFor="status">Trạng thái</Label>
-        <Select
-          value={inventory.status || ""}
-          onValueChange={(val) => handleSelectChange("status", val)}
+        <Combobox
+          options={[
+            { value: "Đang sử dụng", label: "Đang sử dụng" },
+            { value: "Ngừng sử dụng", label: "Ngừng sử dụng" },
+          ]}
+          value={inventory.status}
+          onChange={(option) => handleSelectChange("status", option?.value)}
+          placeholder="Chọn trạng thái"
+          searchPlaceholder="Tìm trạng thái..."
+          emptyText="Không tìm thấy trạng thái"
           disabled={mode === "create"}
-        >
-          <SelectTrigger className={mode === "create" ? "bg-gray-50" : ""}>
-            <SelectValue placeholder="Chọn trạng thái" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Đang sử dụng">Đang sử dụng</SelectItem>
-            <SelectItem value="Ngừng sử dụng">Ngừng sử dụng</SelectItem>
-          </SelectContent>
-        </Select>
+          className={errors.status ? "border-red-500" : ""}
+        />
       </div>
     </div>
   );

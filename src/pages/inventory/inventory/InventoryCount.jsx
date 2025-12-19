@@ -1,23 +1,22 @@
-import React, { useEffect, useState } from "react";
-import {
-  Typography,
-  Button,
-  Input,
-  Card,
-  CardBody,
-} from "@material-tailwind/react";
-import { DataTable } from "@/components/ui/data-table";
+import { AddButton } from "@/components/common/ActionButtons";
+import { Button } from "@/components/ui/button";
+import { Combobox } from "@/components/ui/combobox";
+import { createSortableHeader, DataTable } from "@/components/ui/data-table";
+import { getAllItemsInCompany } from "@/services/general/ItemService";
+import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
 import {
   getAllInventory,
   updateInventory,
 } from "@/services/inventory/InventoryService";
-import { getAllItemsInCompany } from "@/services/general/ItemService";
-import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
-import SelectAutocomplete from "@components/content-components/SelectAutocomplete";
-import { useNavigate } from "react-router-dom";
 import toastrService from "@/services/toastrService";
-import { getButtonProps } from "@/utils/buttonStyles";
-import { createSortableHeader } from "@/components/ui/data-table";
+import {
+  Card,
+  CardBody,
+  Typography,
+} from "@material-tailwind/react";
+import { Save } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const InventoryCount = () => {
   const [inventories, setInventories] = useState([]);
@@ -205,19 +204,16 @@ const InventoryCount = () => {
             <Typography variant="h4" color="blue-gray" className="font-bold">
               CẬP NHẬT TỒN KHO
             </Typography>
-            <Button
-              type="button"
-              {...getButtonProps("primary")}
+            <AddButton
+              label="Thêm mới"
               onClick={() => navigate("/create-inventory")}
-            >
-              Thêm mới
-            </Button>
+            />
           </div>
 
           <div className="mb-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="md:col-span-1">
-                <SelectAutocomplete
+                <Combobox
                   options={items.map((item) => ({
                     label: `${item.itemCode} - ${item.itemName}`,
                     value: item.itemCode,
@@ -227,11 +223,12 @@ const InventoryCount = () => {
                     setSelectedItemCode(selected?.value || "")
                   }
                   placeholder="Chọn hàng hóa"
+                  searchPlaceholder="Tìm hàng hóa..."
                 />
               </div>
 
               <div className="md:col-span-1">
-                <SelectAutocomplete
+                <Combobox
                   options={warehouses.map((w) => ({
                     label: `${w.warehouseCode} - ${w.warehouseName}`,
                     value: w.warehouseCode,
@@ -241,15 +238,14 @@ const InventoryCount = () => {
                     setSelectedWarehouseCode(selected?.value || "")
                   }
                   placeholder="Chọn kho"
+                  searchPlaceholder="Tìm kho..."
                 />
               </div>
 
               <div className="md:col-span-1 flex items-end">
                 <Button
-                  type="button"
-                  {...getButtonProps("primary")}
                   onClick={handleViewInventory}
-                  className="w-full"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   Xem tồn kho
                 </Button>
@@ -371,18 +367,12 @@ const InventoryCount = () => {
                   <td className="px-6 py-4 text-sm">
                     {hasChanges && (
                       <Button
-                        type="button"
-                        color="green"
                         size="sm"
                         onClick={() => handleSaveInventory(inventory)}
-                        className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 px-4 py-2 rounded-lg"
+                        className="bg-green-600 hover:bg-green-700 text-white gap-2 shadow-sm"
                       >
-                        <span className="flex items-center gap-2">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          Lưu
-                        </span>
+                        <Save className="w-4 h-4" />
+                        Lưu
                       </Button>
                     )}
                   </td>

@@ -1,11 +1,11 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { createPlant } from "@/services/general/ManufacturePlantService";
-import PlantForm from "@components/general/PlantForm";
-import toastrService from "@/services/toastrService";
-import { Button } from "@/components/ui/button";
 import FormPageLayout from "@/components/layout/FormPageLayout";
+import { Button } from "@/components/ui/button";
+import { createPlant } from "@/services/general/ManufacturePlantService";
+import toastrService from "@/services/toastrService";
+import PlantForm from "@components/general/PlantForm";
 import { Save, X } from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const CreatePlant = () => {
   const navigate = useNavigate();
@@ -13,7 +13,6 @@ const CreatePlant = () => {
   const companyId = localStorage.getItem("companyId");
 
   const [plant, setPlant] = useState({
-    plantCode: "",
     plantName: "",
     description: "",
   });
@@ -40,7 +39,7 @@ const CreatePlant = () => {
     }
 
     try {
-      const { companyId: _cid, plantCode, ...payload } = plant || {};
+      const { companyId: _cid, ...payload } = plant || {};
       await createPlant(companyId, payload, token);
       toastrService.success("Tạo xưởng thành công!");
       navigate("/plants");

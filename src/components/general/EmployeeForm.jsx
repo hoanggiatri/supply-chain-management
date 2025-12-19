@@ -1,16 +1,22 @@
+import { Combobox } from "@/components/ui/combobox";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 import { getAllDepartmentsInCompany } from "@/services/general/DepartmentService";
 import toastrService from "@/services/toastrService";
 import { useEffect, useState } from "react";
+
+const GENDER_OPTIONS = [
+  { value: "Nam", label: "Nam" },
+  { value: "Nữ", label: "Nữ" },
+  { value: "Khác", label: "Khác" },
+];
+
+const STATUS_OPTIONS = [
+  { value: "active", label: "Đang hoạt động" },
+  { value: "inactive", label: "Không hoạt động" },
+  { value: "resigned", label: "Đã nghỉ" },
+];
 
 const EmployeeForm = ({
   employee,
@@ -82,6 +88,11 @@ const EmployeeForm = ({
     fetchDepartments();
   }, [companyId, token]);
 
+  const departmentOptions = departments.map((dept) => ({
+    value: dept.id,
+    label: `${dept.departmentCode} - ${dept.departmentName}`,
+  }));
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* Bộ phận */}
@@ -89,24 +100,16 @@ const EmployeeForm = ({
         <Label htmlFor="departmentId">
           Bộ phận <span className="text-red-500">*</span>
         </Label>
-        <Select
-          value={employee.departmentId || ""}
-          onValueChange={(val) => handleSelectChange("departmentId", val)}
+        <Combobox
+          options={departmentOptions}
+          value={employee.departmentId}
+          onChange={(option) => handleSelectChange("departmentId", option?.value)}
+          placeholder="Chọn bộ phận"
+          searchPlaceholder="Tìm bộ phận..."
+          emptyText="Không tìm thấy bộ phận"
           disabled={isFieldReadOnly("departmentId")}
-        >
-          <SelectTrigger
-            className={errors.departmentId ? "border-red-500" : ""}
-          >
-            <SelectValue placeholder="Chọn bộ phận" />
-          </SelectTrigger>
-          <SelectContent>
-            {departments.map((dept) => (
-              <SelectItem key={dept.id} value={dept.id}>
-                {dept.departmentCode} - {dept.departmentName}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          className={errors.departmentId ? "border-red-500" : ""}
+        />
         {errors.departmentId && (
           <p className="text-sm text-red-500">{errors.departmentId}</p>
         )}
@@ -123,18 +126,13 @@ const EmployeeForm = ({
           id="employeeCode"
           name="employeeCode"
           value={employee.employeeCode || ""}
-          onChange={onChange}
-          readOnly={isFieldReadOnly("employeeCode")}
-          disabled={isFieldReadOnly("employeeCode")}
-          className={errors.employeeCode ? "border-red-500" : ""}
+          readOnly
+          disabled
+          className={`bg-gray-100 ${errors.employeeCode ? "border-red-500" : ""}`}
           placeholder="Nhập mã nhân viên"
         />
-        {errors.employeeCode && (
-          <p className="text-sm text-red-500">{errors.employeeCode}</p>
-        )}
       </div>
 
-      {/* Họ và tên */}
       <div className="space-y-2">
         <Label htmlFor="employeeName">
           Họ và tên <span className="text-red-500">*</span>
@@ -146,96 +144,44 @@ const EmployeeForm = ({
           onChange={onChange}
           readOnly={isFieldReadOnly("employeeName")}
           className={errors.employeeName ? "border-red-500" : ""}
-          placeholder="Nhập họ và tên"
         />
         {errors.employeeName && (
           <p className="text-sm text-red-500">{errors.employeeName}</p>
         )}
       </div>
 
-      {/* Ngày sinh */}
-      <div className="space-y-2">
-        <Label htmlFor="dateOfBirth">Ngày sinh</Label>
-        <DatePicker
-          name="dateOfBirth"
-          value={employee.dateOfBirth || ""}
-          onChange={onChange}
-          disabled={isFieldReadOnly("dateOfBirth")}
-          placeholder="Chọn ngày sinh"
-        />
-      </div>
-
-      {/* Giới tính */}
       <div className="space-y-2">
         <Label htmlFor="gender">Giới tính</Label>
-        <Select
-          value={employee.gender || ""}
-          onValueChange={(val) => handleSelectChange("gender", val)}
+        <Combobox
+          options={GENDER_OPTIONS}
+          value={employee.gender}
+          onChange={(option) => handleSelectChange("gender", option?.value)}
+          placeholder="Chọn giới tính"
+          searchPlaceholder="Tìm giới tính..."
+          emptyText="Không tìm thấy giới tính"
           disabled={isFieldReadOnly("gender")}
-        >
-          <SelectTrigger className={errors.gender ? "border-red-500" : ""}>
-            <SelectValue placeholder="Chọn giới tính" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="male">Nam</SelectItem>
-            <SelectItem value="female">Nữ</SelectItem>
-            <SelectItem value="other">Khác</SelectItem>
-          </SelectContent>
-        </Select>
+          className={errors.gender ? "border-red-500" : ""}
+        />
         {errors.gender && (
           <p className="text-sm text-red-500">{errors.gender}</p>
         )}
       </div>
 
-      {/* Địa chỉ */}
       <div className="space-y-2">
-        <Label htmlFor="address">Địa chỉ</Label>
-        <Input
-          id="address"
-          name="address"
-          value={employee.address || ""}
-          onChange={onChange}
-          readOnly={isFieldReadOnly("address")}
-          className={errors.address ? "border-red-500" : ""}
-          placeholder="Nhập địa chỉ"
-        />
-        {errors.address && (
-          <p className="text-sm text-red-500">{errors.address}</p>
-        )}
-      </div>
-
-      {/* Ngày bắt đầu làm */}
-      <div className="space-y-2">
-        <Label htmlFor="startDate">Ngày bắt đầu làm</Label>
+        <Label htmlFor="dateOfBirth">Ngày sinh</Label>
         <DatePicker
-          name="startDate"
-          value={employee.startDate || ""}
+          name="dateOfBirth"
+          value={employee.dateOfBirth ? employee.dateOfBirth.substring(0, 10) : ""}
           onChange={onChange}
-          disabled={isFieldReadOnly("startDate")}
-          placeholder="Chọn ngày bắt đầu"
+          disabled={isFieldReadOnly("dateOfBirth")}
+          error={!!errors.dateOfBirth}
+          placeholder="Chọn ngày sinh"
         />
-      </div>
-
-      {/* Số điện thoại */}
-      <div className="space-y-2">
-        <Label htmlFor="phoneNumber">
-          Số điện thoại <span className="text-red-500">*</span>
-        </Label>
-        <Input
-          id="phoneNumber"
-          name="phoneNumber"
-          value={employee.phoneNumber || ""}
-          onChange={onChange}
-          readOnly={isFieldReadOnly("phoneNumber")}
-          className={errors.phoneNumber ? "border-red-500" : ""}
-          placeholder="Nhập số điện thoại"
-        />
-        {errors.phoneNumber && (
-          <p className="text-sm text-red-500">{errors.phoneNumber}</p>
+        {errors.dateOfBirth && (
+          <p className="text-sm text-red-500">{errors.dateOfBirth}</p>
         )}
       </div>
 
-      {/* Email */}
       <div className="space-y-2">
         <Label htmlFor="email">
           Email <span className="text-red-500">*</span>
@@ -294,25 +240,19 @@ const EmployeeForm = ({
             )}
           </div>
 
-
-
           {/* Trạng thái */}
           <div className="space-y-2">
             <Label htmlFor="status">Trạng thái</Label>
-            <Select
-              value={employee.status || ""}
-              onValueChange={(val) => handleSelectChange("status", val)}
+            <Combobox
+              options={STATUS_OPTIONS}
+              value={employee.status}
+              onChange={(option) => handleSelectChange("status", option?.value)}
+              placeholder="Chọn trạng thái"
+              searchPlaceholder="Tìm trạng thái..."
+              emptyText="Không tìm thấy trạng thái"
               disabled={isFieldReadOnly("status")}
-            >
-              <SelectTrigger className={errors.status ? "border-red-500" : ""}>
-                <SelectValue placeholder="Chọn trạng thái" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="active">Đang hoạt động</SelectItem>
-                <SelectItem value="inactive">Không hoạt động</SelectItem>
-                <SelectItem value="resigned">Đã nghỉ</SelectItem>
-              </SelectContent>
-            </Select>
+              className={errors.status ? "border-red-500" : ""}
+            />
             {errors.status && (
               <p className="text-sm text-red-500">{errors.status}</p>
             )}

@@ -1,11 +1,11 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { createLine } from "@/services/general/ManufactureLineService";
-import LineForm from "@components/general/LineForm";
-import toastrService from "@/services/toastrService";
 import FormPageLayout from "@/components/layout/FormPageLayout";
 import { Button } from "@/components/ui/button";
+import { createLine } from "@/services/general/ManufactureLineService";
+import toastrService from "@/services/toastrService";
+import LineForm from "@components/general/LineForm";
 import { Save, X } from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const CreateLine = () => {
   const navigate = useNavigate();
@@ -13,7 +13,6 @@ const CreateLine = () => {
 
   const [line, setLine] = useState({
     plantId: "",
-    lineCode: "",
     lineName: "",
     capacity: 0,
     description: "",

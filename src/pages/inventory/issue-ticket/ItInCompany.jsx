@@ -141,9 +141,9 @@ const ItInCompany = () => {
       <Card className="shadow-lg">
         <CardBody>
           <Typography variant="h4" color="blue-gray" className="mb-6 font-bold">
-            DANH SÁCH PHIẾU XUẤT KHO
-          </Typography>
-
+              DANH SÁCH PHIẾU XUẤT KHO
+            </Typography>
+            
           <StatusSummaryCard
             data={tickets}
             statusLabels={[

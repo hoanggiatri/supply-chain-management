@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from "react";
-import { Typography, Card, CardBody, Button } from "@material-tailwind/react";
-import { useNavigate } from "react-router-dom";
+import BackButton from "@/components/common/BackButton";
+import TtDetailTable from "@/components/inventory/TtDetailTable";
+import TtForm from "@/components/inventory/TtForm";
+import { Button } from "@/components/ui/button";
 import { getAllItemsInCompany } from "@/services/general/ItemService";
 import { createTransferTicket } from "@/services/inventory/TransferTicketService";
-import TtForm from "@/components/inventory/TtForm";
-import TtDetailTable from "@/components/inventory/TtDetailTable";
 import toastrService from "@/services/toastrService";
-import BackButton from "@/components/common/BackButton";
-import { getButtonProps } from "@/utils/buttonStyles";
+import { Card, CardBody, Typography } from "@material-tailwind/react";
+import { Save, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const CreateTt = () => {
   const navigate = useNavigate();
@@ -21,7 +22,6 @@ const CreateTt = () => {
 
   const [ticket, setTicket] = useState({
     companyId,
-    ticketCode: "",
     reason: "",
     fromWarehouseId: "",
     toWarehouseId: "",
@@ -137,7 +137,7 @@ const CreateTt = () => {
           <TtForm
             ticket={ticket}
             onChange={handleChange}
-            readOnlyFields={{ ticketCode: true, status: true }}
+            readOnlyFields={{ status: true }}
             setTicket={setTicket}
             errors={errors}
           />
@@ -154,13 +154,19 @@ const CreateTt = () => {
           />
 
           <div className="mt-6 flex justify-end gap-2">
-            <Button {...getButtonProps("primary")} onClick={handleSubmit}>
-              Thêm
+            <Button
+              onClick={handleSubmit}
+              className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
+            >
+              <Save className="w-4 h-4" />
+              Lưu phiếu
             </Button>
             <Button
-              {...getButtonProps("outlinedSecondary")}
+              variant="outline"
               onClick={handleCancel}
+              className="gap-2"
             >
+              <X className="w-4 h-4" />
               Hủy
             </Button>
           </div>

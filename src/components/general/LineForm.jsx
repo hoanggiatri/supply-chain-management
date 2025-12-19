@@ -1,23 +1,16 @@
-import React, { useEffect, useState } from "react";
-import { getAllPlantsInCompany } from "@/services/general/ManufacturePlantService";
-import toastrService from "@/services/toastrService";
+import { Combobox } from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { getAllPlantsInCompany } from "@/services/general/ManufacturePlantService";
+import toastrService from "@/services/toastrService";
+import { useEffect, useState } from "react";
 
 const LineForm = ({
   line,
   onChange,
   errors = {},
   readOnlyFields = {},
-  requireLineCode = true,
 }) => {
   const [plants, setPlants] = useState([]);
   const token = localStorage.getItem("token");
@@ -48,6 +41,11 @@ const LineForm = ({
     fetchPlants();
   }, [companyId, token]);
 
+  const plantOptions = plants.map((plant) => ({
+    value: plant.plantId,
+    label: `${plant.plantCode} - ${plant.plantName}`,
+  }));
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* Xưởng sản xuất */}
@@ -55,45 +53,18 @@ const LineForm = ({
         <Label htmlFor="plantId">
           Xưởng sản xuất <span className="text-red-500">*</span>
         </Label>
-        <Select
-          value={line.plantId || ""}
-          onValueChange={(val) => handleSelectChange("plantId", val)}
+        <Combobox
+          options={plantOptions}
+          value={line.plantId}
+          onChange={(option) => handleSelectChange("plantId", option?.value)}
+          placeholder="Chọn xưởng sản xuất"
+          searchPlaceholder="Tìm xưởng sản xuất..."
+          emptyText="Không tìm thấy xưởng sản xuất"
           disabled={isFieldReadOnly("plantId")}
-        >
-          <SelectTrigger className={errors.plantId ? "border-red-500" : ""}>
-            <SelectValue placeholder="Chọn xưởng sản xuất" />
-          </SelectTrigger>
-          <SelectContent>
-            {plants.map((plant) => (
-              <SelectItem key={plant.plantId} value={plant.plantId}>
-                {plant.plantCode} - {plant.plantName}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          className={errors.plantId ? "border-red-500" : ""}
+        />
         {errors.plantId && (
           <p className="text-sm text-red-500">{errors.plantId}</p>
-        )}
-      </div>
-
-      {/* Mã dây chuyền */}
-      <div className="space-y-2">
-        <Label htmlFor="lineCode">
-          Mã dây chuyền{" "}
-          {requireLineCode && <span className="text-red-500">*</span>}
-        </Label>
-        <Input
-          id="lineCode"
-          name="lineCode"
-          value={line.lineCode || ""}
-          onChange={onChange}
-          readOnly={isFieldReadOnly("lineCode")}
-          disabled={isFieldReadOnly("lineCode")}
-          className={errors.lineCode ? "border-red-500" : ""}
-          placeholder="Nhập mã dây chuyền"
-        />
-        {errors.lineCode && (
-          <p className="text-sm text-red-500">{errors.lineCode}</p>
         )}
       </div>
 

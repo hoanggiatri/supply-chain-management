@@ -1,13 +1,20 @@
+import { Combobox } from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+
+const WAREHOUSE_TYPE_OPTIONS = [
+  { value: "Nguyên vật liệu", label: "Nguyên vật liệu" },
+  { value: "Thành phẩm", label: "Thành phẩm" },
+  { value: "Hàng lỗi", label: "Hàng lỗi" },
+  { value: "Nhận hàng", label: "Nhận hàng" },
+  { value: "Xuất hàng", label: "Xuất hàng" },
+];
+
+const WAREHOUSE_STATUS_OPTIONS = [
+  { value: "Đang sử dụng", label: "Đang sử dụng" },
+  { value: "Ngưng sử dụng", label: "Ngưng sử dụng" },
+];
 
 const WarehouseForm = ({ warehouse, onChange, errors, readOnlyFields }) => {
   const isFieldReadOnly = (field) => readOnlyFields[field] ?? false;
@@ -63,24 +70,16 @@ const WarehouseForm = ({ warehouse, onChange, errors, readOnlyFields }) => {
       {/* Loại kho */}
       <div className="space-y-2">
         <Label htmlFor="warehouseType">Loại kho</Label>
-        <Select
-          value={warehouse.warehouseType || ""}
-          onValueChange={(val) => handleSelectChange("warehouseType", val)}
+        <Combobox
+          options={WAREHOUSE_TYPE_OPTIONS}
+          value={warehouse.warehouseType}
+          onChange={(option) => handleSelectChange("warehouseType", option?.value)}
+          placeholder="Chọn loại kho"
+          searchPlaceholder="Tìm loại kho..."
+          emptyText="Không tìm thấy loại kho"
           disabled={isFieldReadOnly("warehouseType")}
-        >
-          <SelectTrigger
-            className={errors.warehouseType ? "border-red-500" : ""}
-          >
-            <SelectValue placeholder="Chọn loại kho" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Nguyên vật liệu">Nguyên vật liệu</SelectItem>
-            <SelectItem value="Thành phẩm">Thành phẩm</SelectItem>
-            <SelectItem value="Hàng lỗi">Hàng lỗi</SelectItem>
-            <SelectItem value="Nhận hàng">Nhận hàng</SelectItem>
-            <SelectItem value="Xuất hàng">Xuất hàng</SelectItem>
-          </SelectContent>
-        </Select>
+          className={errors.warehouseType ? "border-red-500" : ""}
+        />
         {errors.warehouseType && (
           <p className="text-sm text-red-500">{errors.warehouseType}</p>
         )}
@@ -107,19 +106,16 @@ const WarehouseForm = ({ warehouse, onChange, errors, readOnlyFields }) => {
       {/* Trạng thái */}
       <div className="space-y-2">
         <Label htmlFor="status">Trạng thái</Label>
-        <Select
-          value={warehouse.status || ""}
-          onValueChange={(val) => handleSelectChange("status", val)}
+        <Combobox
+          options={WAREHOUSE_STATUS_OPTIONS}
+          value={warehouse.status}
+          onChange={(option) => handleSelectChange("status", option?.value)}
+          placeholder="Chọn trạng thái"
+          searchPlaceholder="Tìm trạng thái..."
+          emptyText="Không tìm thấy trạng thái"
           disabled={isFieldReadOnly("status")}
-        >
-          <SelectTrigger className={`${errors.status ? "border-red-500" : ""} ${isFieldReadOnly("status") ? "bg-gray-50" : ""}`}>
-            <SelectValue placeholder="Chọn trạng thái" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Đang sử dụng">Đang sử dụng</SelectItem>
-            <SelectItem value="Ngưng sử dụng">Ngừng sử dụng</SelectItem>
-          </SelectContent>
-        </Select>
+          className={`${errors.status ? "border-red-500" : ""} ${isFieldReadOnly("status") ? "bg-gray-50" : ""}`}
+        />
         {errors.status && (
           <p className="text-sm text-red-500">{errors.status}</p>
         )}
