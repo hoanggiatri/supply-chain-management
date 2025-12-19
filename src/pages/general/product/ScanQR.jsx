@@ -39,7 +39,16 @@ const ScanQR = () => {
   const handleScan = async (qrCode) => {
     setLoading(true);
     try {
-      const data = await scanQRCodeDetail(qrCode, token);
+      let codeToScan = qrCode;
+      // Handle if QR is a URL (e.g. from our new verification page)
+      if (qrCode.includes("/verify-product/")) {
+        const parts = qrCode.split("/verify-product/");
+        if (parts.length > 1) {
+          codeToScan = parts[1];
+        }
+      }
+
+      const data = await scanQRCodeDetail(codeToScan, token);
       setProductDetail(data);
       toastrService.success("Quét QR thành công!");
     } catch (error) {

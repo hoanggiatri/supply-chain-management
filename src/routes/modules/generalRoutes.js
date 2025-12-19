@@ -39,6 +39,7 @@ import CreateLine from "@/pages/general/manufacturing-line/CreateLine";
 import AllProducts from "@/pages/general/product/AllProducts";
 import ProductDetail from "@/pages/general/product/ProductDetail";
 import ScanQR from "@/pages/general/product/ScanQR";
+import ProductVerification from "@/pages/general/product/ProductVerification";
 
 const generalRoutes = [
   {

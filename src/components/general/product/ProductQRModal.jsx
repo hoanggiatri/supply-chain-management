@@ -62,7 +62,7 @@ const ProductQRModal = ({ open, onClose, product }) => {
       <DialogBody className="flex flex-col items-center gap-4">
         <QRCodeCanvas
           id="modal-qr-canvas"
-          value={product.qrCode}
+          value={`${process.env.REACT_APP_FRONTEND_URL || window.location.origin}/verify-product/${product.qrCode}`}
           size={250}
           level="H"
           includeMargin={true}

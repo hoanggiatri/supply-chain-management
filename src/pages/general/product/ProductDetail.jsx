@@ -128,7 +128,7 @@ const ProductDetail = () => {
               <Box className="p-4 bg-white inline-block">
                 <QRCodeCanvas
                   id="product-qr-canvas"
-                  value={product.qrCode}
+                  value={`${process.env.REACT_APP_FRONTEND_URL || window.location.origin}/verify-product/${product.qrCode}`}
                   size={200}
                   level="H"
                   includeMargin={true}

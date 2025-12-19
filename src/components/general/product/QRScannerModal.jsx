@@ -35,7 +35,16 @@ const QRScannerModal = ({ open, onClose, onScanSuccess }) => {
   const handleScan = async (qrCode) => {
     setLoading(true);
     try {
-      const productData = await scanQRCodeDetail(qrCode, token);
+      let codeToScan = qrCode;
+      // Handle if QR is a URL
+      if (qrCode.includes("/verify-product/")) {
+        const parts = qrCode.split("/verify-product/");
+        if (parts.length > 1) {
+          codeToScan = parts[1];
+        }
+      }
+
+      const productData = await scanQRCodeDetail(codeToScan, token);
       toastrService.success("Quét QR thành công!");
       onScanSuccess(productData);
       handleClose();
@@ -60,7 +69,7 @@ const QRScannerModal = ({ open, onClose, onScanSuccess }) => {
           html5QrCode.stop();
           setIsScanning(false);
         },
-        () => {}
+        () => { }
       );
     } catch (error) {
       toastrService.error("Không thể khởi động camera!");

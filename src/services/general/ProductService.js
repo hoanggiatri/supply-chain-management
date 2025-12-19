@@ -22,9 +22,10 @@ export const getProductById = async (productId, token) => {
 };
 
 export const scanQRCodeDetail = async (qrCode, token) => {
+  const config = token ? axiosAuth(token) : {};
   const res = await axios.get(
     `${BASE_URL}/product/scan/${qrCode}`,
-    axiosAuth(token)
+    config
   );
   return res.data;
 };

@@ -33,6 +33,7 @@ import salesRoutes from "./modules/salesRoutes";
 // Admin login routes
 import AdminLogin from "@/pages/admin/AdminLogin";
 import AdminVerifyOtp from "@/pages/admin/AdminVerifyOtp";
+import ProductVerification from "@/pages/general/product/ProductVerification";
 
 const renderRoutes = (routes) =>
   routes.map(({ path, element }) => (
@@ -61,10 +62,13 @@ function AppRoutes() {
         <Route path="/verify-forgot-password-otp" element={<PublicRoute element={<OtpForgotPassword />} />} />
         <Route path="/reset-password" element={<PublicRoute element={<ResetPassword />} />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
-        
+
         {/* Admin auth routes */}
         <Route path="/login-admin" element={<PublicRoute element={<AdminLogin />} redirectPath="/admin/dashboard" />} />
         <Route path="/admin-verify-otp/:email" element={<AdminVerifyOtp />} />
+
+        {/* Public Product Verification */}
+        <Route path="/verify-product/:qrCode" element={<ProductVerification />} />
 
         {/* Landing page with NavBar */}
         <Route element={<NavBarLayout />}>
