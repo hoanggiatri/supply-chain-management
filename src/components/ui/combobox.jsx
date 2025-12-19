@@ -1,5 +1,5 @@
-import { useState } from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
+import { useState } from "react";
 
 export function Combobox({
     options = [],
@@ -8,7 +8,8 @@ export function Combobox({
     placeholder = "Chọn...",
     error,
     helperText,
-    disabled
+    disabled,
+    position = "bottom"
 }) {
     const [open, setOpen] = useState(false);
     const [search, setSearch] = useState("");
@@ -52,7 +53,9 @@ export function Combobox({
             {open && !disabled && (
                 <>
                     <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
-                    <div className="absolute z-20 w-full mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-auto">
+                    <div className={`absolute z-20 w-full bg-white border rounded-md shadow-lg max-h-60 overflow-auto ${
+                        position === "top" ? "bottom-full mb-1" : "mt-1"
+                    }`}>
                         <div className="p-2 border-b sticky top-0 bg-white">
                             <input
                                 type="text"

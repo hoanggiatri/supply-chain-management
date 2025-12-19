@@ -83,8 +83,8 @@ const KanbanColumn = ({ title, status, mos, onMoClick }) => {
   const columnMos = mos.filter(mo => mo.status === status);
   
   return (
-    <div className="flex-shrink-0 w-72">
-      <div className="flex items-center justify-between mb-3">
+    <div className="flex-shrink-0 w-72 flex flex-col h-full bg-white/5 dark:bg-black/20 rounded-xl p-2">
+      <div className="flex items-center justify-between mb-3 px-2 pt-2">
         <div className="flex items-center gap-2">
           <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusConfig[status]?.color || 'bg-gray-100'}`}>
             {title}
@@ -95,7 +95,7 @@ const KanbanColumn = ({ title, status, mos, onMoClick }) => {
         </div>
       </div>
       
-      <div className="space-y-3 max-h-[calc(100vh-400px)] overflow-y-auto pr-1">
+      <div className="space-y-3 flex-1 overflow-y-auto px-2 pb-4 hide-scroll-arrows min-h-0">
         <AnimatePresence>
           {columnMos.map(mo => (
             <MoCard key={mo.moId} mo={mo} onClick={() => onMoClick(mo.moId)} />
@@ -334,9 +334,9 @@ const MoList = () => {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="overflow-x-auto pb-4 max-h-[calc(100vh-380px)]"
+          className="overflow-x-auto h-[calc(100vh-280px)] overflow-y-hidden hide-scroll-arrows"
         >
-          <div className="flex gap-4 min-w-max h-full">
+          <div className="flex gap-4 min-w-max h-full p-1 pb-4">
             {kanbanStatuses.map(status => (
               <KanbanColumn
                 key={status}
@@ -352,7 +352,7 @@ const MoList = () => {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[calc(100vh-380px)] overflow-y-auto pr-1"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[calc(100vh-380px)] overflow-y-auto p-8 pb-20 hide-scroll-arrows"
         >
           <AnimatePresence>
             {mos.map((mo, index) => (

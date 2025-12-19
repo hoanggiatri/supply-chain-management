@@ -1,4 +1,3 @@
-import { AnimatePresence, motion } from 'framer-motion';
 import {
     ArrowDownToLine,
     ArrowUpFromLine,
@@ -9,7 +8,7 @@ import {
     RefreshCw,
     Search
 } from 'lucide-react';
-import { forwardRef, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useDebounce } from '../../../hooks';
 import {
@@ -46,15 +45,15 @@ const tabs = [
   { key: 'transfer', label: 'Phiếu chuyển kho', icon: Package, color: '#3b82f6' },
 ];
 
-// Ticket Card Component
-const TicketCard = forwardRef(({ ticket, type, onClick }, ref) => {
+// Ticket Card Component (Simplified)
+const TicketCard = ({ ticket, type, onClick }) => {
   const typeConfig = {
-    issue: { icon: ArrowUpFromLine, color: '#ef4444', detailPath: 'issue-ticket' },
-    receive: { icon: ArrowDownToLine, color: '#22c55e', detailPath: 'receive-ticket' },
-    transfer: { icon: Package, color: '#3b82f6', detailPath: 'transfer-ticket' }
+    issue: { icon: ArrowUpFromLine, color: '#ef4444' },
+    receive: { icon: ArrowDownToLine, color: '#22c55e' },
+    transfer: { icon: Package, color: '#3b82f6' }
   };
 
-  const config = typeConfig[type];
+  const config = typeConfig[type] || typeConfig.issue;
   const Icon = config.icon;
 
   const getStatusColor = (status) => {
@@ -71,15 +70,9 @@ const TicketCard = forwardRef(({ ticket, type, onClick }, ref) => {
   const statusColor = getStatusColor(ticket.status);
 
   return (
-    <motion.div
-      ref={ref}
-      layout
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.9 }}
-      whileHover={{ y: -4, boxShadow: '0 10px 40px rgba(0,0,0,0.1)' }}
+    <div
       onClick={onClick}
-      className="mp-glass-card p-5 cursor-pointer group"
+      className="mp-glass-card p-5 cursor-pointer group hover:-translate-y-1 transition-transform duration-200"
       style={{ borderLeft: `4px solid ${config.color}` }}
     >
       {/* Header */}
@@ -135,11 +128,9 @@ const TicketCard = forwardRef(({ ticket, type, onClick }, ref) => {
           </p>
         </div>
       )}
-    </motion.div>
+    </div>
   );
-});
-
-TicketCard.displayName = 'TicketCard';
+};
 
 // Loading Skeleton
 const TicketSkeleton = () => (
@@ -173,9 +164,16 @@ const TicketList = () => {
   const debouncedSearch = useDebounce(searchQuery, 300);
 
   // Fetch data for all ticket types
-  const { data: issueTickets = [], isLoading: issueLoading, refetch: refetchIssue } = useIssueTicketsInCompany();
-  const { data: receiveTickets = [], isLoading: receiveLoading, refetch: refetchReceive } = useReceiveTicketsInCompany();
-  const { data: transferTickets = [], isLoading: transferLoading, refetch: refetchTransfer } = useTransferTicketsInCompany();
+  // ONLY fetch for the active tab to prevent overload/race conditions
+  const { data: issueTickets = [], isLoading: issueLoading, refetch: refetchIssue } = useIssueTicketsInCompany({ 
+    enabled: activeTab === 'issue' 
+  });
+  const { data: receiveTickets = [], isLoading: receiveLoading, refetch: refetchReceive } = useReceiveTicketsInCompany({ 
+    enabled: activeTab === 'receive' 
+  });
+  const { data: transferTickets = [], isLoading: transferLoading, refetch: refetchTransfer } = useTransferTicketsInCompany({ 
+    enabled: activeTab === 'transfer' 
+  });
 
   const isLoading = activeTab === 'issue' ? issueLoading : activeTab === 'receive' ? receiveLoading : transferLoading;
 
@@ -183,11 +181,11 @@ const TicketList = () => {
   const { currentTickets, statusGroups } = useMemo(() => {
     switch (activeTab) {
       case 'issue':
-        return { currentTickets: issueTickets, statusGroups: issueStatusGroups };
+        return { currentTickets: issueTickets || [], statusGroups: issueStatusGroups };
       case 'receive':
-        return { currentTickets: receiveTickets, statusGroups: receiveStatusGroups };
+        return { currentTickets: receiveTickets || [], statusGroups: receiveStatusGroups };
       case 'transfer':
-        return { currentTickets: transferTickets, statusGroups: transferStatusGroups };
+        return { currentTickets: transferTickets || [], statusGroups: transferStatusGroups };
       default:
         return { currentTickets: [], statusGroups: [] };
     }
@@ -239,9 +237,9 @@ const TicketList = () => {
   };
 
   const handleRefresh = () => {
-    refetchIssue();
-    refetchReceive();
-    refetchTransfer();
+    if (activeTab === 'issue') refetchIssue();
+    if (activeTab === 'receive') refetchReceive();
+    if (activeTab === 'transfer') refetchTransfer();
   };
 
   const handleTicketClick = (ticket) => {
@@ -256,11 +254,7 @@ const TicketList = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex items-center justify-between"
-      >
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold" style={{ color: 'var(--mp-text-primary)' }}>
             Quản lý phiếu kho
@@ -271,41 +265,32 @@ const TicketList = () => {
         </div>
         <div className="flex items-center gap-2">
           {activeTab === 'transfer' && (
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <button
               onClick={() => navigate('/marketplace-v2/warehouse/create-transfer')}
-              className="mp-btn mp-btn-primary"
+              className="mp-btn mp-btn-primary hover:scale-105 transition-transform"
             >
               <Plus size={18} />
               Tạo phiếu chuyển
-            </motion.button>
+            </button>
           )}
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+          <button
             onClick={handleRefresh}
-            className="mp-glass-button p-3 rounded-xl"
+            className="mp-glass-button p-3 rounded-xl hover:bg-gray-100 transition-colors"
             disabled={isLoading}
           >
             <RefreshCw size={20} className={isLoading ? 'animate-spin' : ''} style={{ color: 'var(--mp-text-secondary)' }} />
-          </motion.button>
+          </button>
         </div>
-      </motion.div>
+      </div>
 
       {/* Tab Navigation */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="mp-glass-card p-2 flex gap-2"
-      >
+      <div className="mp-glass-card p-2 flex gap-2">
         {tabs.map(tab => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.key;
-          const count = tab.key === 'issue' ? issueTickets.length 
-            : tab.key === 'receive' ? receiveTickets.length 
-            : transferTickets.length;
+          const count = tab.key === 'issue' ? (issueTickets?.length || 0)
+            : tab.key === 'receive' ? (receiveTickets?.length || 0)
+            : (transferTickets?.length || 0);
 
           return (
             <button
@@ -333,15 +318,10 @@ const TicketList = () => {
             </button>
           );
         })}
-      </motion.div>
+      </div>
 
       {/* Filters */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.15 }}
-        className="flex flex-wrap gap-4 items-center"
-      >
+      <div className="flex flex-wrap gap-4 items-center">
         {/* Search */}
         <div className="relative flex-1 min-w-[200px] max-w-md">
           <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--mp-text-tertiary)' }} />
@@ -396,7 +376,7 @@ const TicketList = () => {
             <Kanban size={18} />
           </button>
         </div>
-      </motion.div>
+      </div>
 
       {/* Content */}
       {isLoading ? (
@@ -404,11 +384,9 @@ const TicketList = () => {
           {[...Array(6)].map((_, i) => <TicketSkeleton key={i} />)}
         </div>
       ) : viewMode === 'grid' ? (
-        <motion.div
-          layout
+        <div
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[calc(100vh-280px)] overflow-y-auto p-1"
         >
-          <AnimatePresence mode="popLayout">
             {filteredTickets.map(ticket => (
               <TicketCard
                 key={ticket.ticketId}
@@ -417,7 +395,6 @@ const TicketList = () => {
                 onClick={() => handleTicketClick(ticket)}
               />
             ))}
-          </AnimatePresence>
           {filteredTickets.length === 0 && (
             <div className="col-span-full text-center py-12">
               <Package size={48} className="mx-auto mb-4 opacity-30" />
@@ -426,7 +403,7 @@ const TicketList = () => {
               </p>
             </div>
           )}
-        </motion.div>
+        </div>
       ) : (
         // Kanban View
         <div className="flex gap-4 overflow-x-auto pb-4 max-h-[calc(100vh-280px)]">

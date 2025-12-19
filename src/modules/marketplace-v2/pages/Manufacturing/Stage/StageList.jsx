@@ -1,14 +1,15 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-    AlertCircle,
-    Grid3X3,
-    List,
-    Loader2,
-    Package,
-    Plus,
-    RefreshCw,
-    Search,
-    Settings
+  AlertCircle,
+  Filter,
+  Grid3X3,
+  List,
+  Loader2,
+  Package,
+  Plus,
+  RefreshCw,
+  Search,
+  Settings
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -159,15 +160,18 @@ const StageList = () => {
 
           <div className="flex items-center gap-3">
             {/* Status Filter */}
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="mp-input"
-            >
-              <option value="all">Tất cả trạng thái</option>
-              <option value="Đang sử dụng">Đang sử dụng</option>
-              <option value="Ngừng sử dụng">Ngừng sử dụng</option>
-            </select>
+            <div className="flex items-center gap-2">
+              <Filter size={16} style={{ color: 'var(--mp-text-tertiary)' }} />
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="mp-input"
+              >
+                <option value="all">Tất cả trạng thái</option>
+                <option value="Đang sử dụng">Đang sử dụng</option>
+                <option value="Ngừng sử dụng">Ngừng sử dụng</option>
+              </select>
+            </div>
 
             {/* Refresh */}
             <button
@@ -230,7 +234,7 @@ const StageList = () => {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[calc(100vh-400px)] overflow-y-auto pr-1"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[calc(100vh-400px)] overflow-y-auto p-6 pb-20"
         >
           <AnimatePresence>
             {stages.map((stage, index) => (

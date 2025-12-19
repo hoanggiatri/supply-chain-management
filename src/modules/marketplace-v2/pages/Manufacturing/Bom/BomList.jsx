@@ -1,16 +1,17 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-    AlertCircle,
-    Eye,
-    FileText,
-    Grid3X3,
-    List,
-    Loader2,
-    Package,
-    Pencil,
-    Plus,
-    Search,
-    Trash2
+  AlertCircle,
+  Eye,
+  FileText,
+  Filter,
+  Grid3X3,
+  List,
+  Loader2,
+  Package,
+  Pencil,
+  Plus,
+  Search,
+  Trash2
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -169,15 +170,18 @@ const BomList = () => {
 
           <div className="flex items-center gap-3">
             {/* Status Filter */}
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="mp-input"
-            >
-              <option value="all">Tất cả trạng thái</option>
-              <option value="Hoạt động">Hoạt động</option>
-              <option value="Không hoạt động">Không hoạt động</option>
-            </select>
+            <div className="flex items-center gap-2">
+              <Filter size={16} style={{ color: 'var(--mp-text-tertiary)' }} />
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="mp-input"
+              >
+                <option value="all">Tất cả trạng thái</option>
+                <option value="Hoạt động">Hoạt động</option>
+                <option value="Không hoạt động">Không hoạt động</option>
+              </select>
+            </div>
 
             {/* View Toggle */}
             <div className="flex items-center rounded-lg overflow-hidden border" style={{ borderColor: 'var(--mp-border-light)' }}>

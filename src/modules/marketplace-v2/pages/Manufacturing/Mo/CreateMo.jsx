@@ -1,15 +1,15 @@
+import { DatePicker } from '@/components/ui/date-picker';
 import confetti from 'canvas-confetti';
 import { motion } from 'framer-motion';
 import {
-    AlertCircle,
-    ArrowLeft,
-    Calendar,
-    Check,
-    Factory,
-    Loader2,
-    Package,
-    Save,
-    X
+  AlertCircle,
+  ArrowLeft,
+  Check,
+  Factory,
+  Loader2,
+  Package,
+  Save,
+  X
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -320,17 +320,17 @@ const CreateMo = () => {
           {/* Start Date */}
           <div>
             <label className="block text-sm font-medium mb-2" style={{ color: 'var(--mp-text-secondary)' }}>
-              <Calendar size={16} className="inline mr-1" />
               Ngày bắt đầu dự kiến *
             </label>
-            <input
-              type="date"
+            <DatePicker
+              name="estimatedStartTime"
               value={formData.estimatedStartTime}
               onChange={(e) => {
                 setFormData(prev => ({ ...prev, estimatedStartTime: e.target.value }));
                 setErrors(prev => ({ ...prev, estimatedStartTime: undefined }));
               }}
-              className="mp-input w-full"
+              placeholder="Chọn ngày bắt đầu"
+              error={!!errors.estimatedStartTime}
             />
             {errors.estimatedStartTime && (
               <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
@@ -343,17 +343,17 @@ const CreateMo = () => {
           {/* End Date */}
           <div>
             <label className="block text-sm font-medium mb-2" style={{ color: 'var(--mp-text-secondary)' }}>
-              <Calendar size={16} className="inline mr-1" />
               Ngày kết thúc dự kiến *
             </label>
-            <input
-              type="date"
+            <DatePicker
+              name="estimatedEndTime"
               value={formData.estimatedEndTime}
               onChange={(e) => {
                 setFormData(prev => ({ ...prev, estimatedEndTime: e.target.value }));
                 setErrors(prev => ({ ...prev, estimatedEndTime: undefined }));
               }}
-              className="mp-input w-full"
+              placeholder="Chọn ngày kết thúc"
+              error={!!errors.estimatedEndTime}
             />
             {errors.estimatedEndTime && (
               <p className="mt-1 text-sm text-red-500 flex items-center gap-1">

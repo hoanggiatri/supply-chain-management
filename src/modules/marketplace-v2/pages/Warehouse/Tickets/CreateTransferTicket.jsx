@@ -1,23 +1,23 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-    ArrowLeft,
-    ArrowRight,
-    Minus,
-    Package,
-    Plus,
-    Save,
-    Search,
-    Trash2,
-    Warehouse
+  ArrowLeft,
+  ArrowRight,
+  Minus,
+  Package,
+  Plus,
+  Save,
+  Search,
+  Trash2,
+  Warehouse
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useDebounce } from '../../../hooks';
 import {
-    useCreateTransferTicket,
-    useInventoryInCompany,
-    useWarehousesInCompany
+  useCreateTransferTicket,
+  useInventoryInCompany,
+  useWarehousesInCompany
 } from '../../../hooks/useApi';
 
 /**
@@ -73,6 +73,7 @@ const CreateTransferTicket = () => {
 
   const handleAddItem = (inventoryItem) => {
     setSelectedItems(prev => [...prev, {
+      itemId: inventoryItem.itemId,
       itemCode: inventoryItem.itemCode,
       itemName: inventoryItem.itemName,
       maxQuantity: inventoryItem.quantity,
@@ -89,15 +90,6 @@ const CreateTransferTicket = () => {
     setSelectedItems(prev => prev.map(item => {
       if (item.itemCode === itemCode) {
         return { ...item, quantity: Math.min(Math.max(1, quantity), item.maxQuantity) };
-      }
-      return item;
-    }));
-  };
-
-  const handleUpdateNote = (itemCode, note) => {
-    setSelectedItems(prev => prev.map(item => {
-      if (item.itemCode === itemCode) {
-        return { ...item, note };
       }
       return item;
     }));
@@ -122,14 +114,22 @@ const CreateTransferTicket = () => {
       return;
     }
 
+    // Get auth data inline (since getAuthData is not exported from useApi)
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const companyId = parseInt(localStorage.getItem('companyId')) || user?.companyId || user?.company?.id;
+    const username = user?.username || user?.email || 'Unknown';
+
     const request = {
+      companyId,
+      createdBy: username,
+      status: 'Đang chờ',
       fromWarehouseId: fromWarehouse.warehouseId,
       toWarehouseId: toWarehouse.warehouseId,
       reason,
       transferTicketDetails: selectedItems.map(item => ({
-        itemCode: item.itemCode,
+        itemId: item.itemId,
         quantity: item.quantity,
-        note: item.note
+        note: item.note || ''
       }))
     };
 

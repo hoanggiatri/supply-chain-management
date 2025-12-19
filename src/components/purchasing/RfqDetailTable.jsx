@@ -91,7 +91,7 @@ const RfqDetailTable = ({
   };
 
   return (
-    <div>
+    <div className="overflow-visible">
       {/* Table Header */}
       <div className="hidden md:grid grid-cols-12 gap-2 px-2 py-3 bg-gray-50 border-b font-medium text-sm text-gray-700">
         <div className="col-span-4">Hàng hóa của mình</div>
@@ -120,6 +120,7 @@ const RfqDetailTable = ({
                 placeholder="Chọn hàng hóa"
                 searchPlaceholder="Tìm hàng hóa..."
                 emptyText="Không tìm thấy"
+                position="top"
                 className={getError(index, "itemId") ? "border-red-500" : ""}
               />
               {getError(index, "itemId") && (
@@ -142,6 +143,7 @@ const RfqDetailTable = ({
                 searchPlaceholder="Tìm hàng hóa NCC..."
                 emptyText="Không tìm thấy"
                 disabled={!requestedCompanyId}
+                position="top"
                 className={getError(index, "supplierItemId") ? "border-red-500" : ""}
               />
               {getError(index, "supplierItemId") && (

@@ -1,11 +1,10 @@
+import { Combobox } from "@/components/ui/combobox";
 import { TrashIcon } from "@heroicons/react/24/outline";
 import {
-    Button,
-    IconButton,
-    Input,
-    Option,
-    Select,
-    Typography,
+  Button,
+  IconButton,
+  Input,
+  Typography,
 } from "@material-tailwind/react";
 import PropTypes from "prop-types";
 
@@ -29,22 +28,16 @@ const BomDetailRow = ({
   return (
     <tr key={`bom-detail-${index}-${detail.itemId || "new"}`}>
       <td className={classes}>
-        <Select
-          label="Chọn nguyên vật liệu"
-          color="blue"
+        <Combobox
+          options={materialOptions}
           value={detail.itemId ? String(detail.itemId) : ""}
-          onChange={(value) => handleItemSelect(index, value)}
-          className="w-full"
-          menuProps={{
-            className: "z-[9999]",
-          }}
-        >
-          {materialOptions.map((option) => (
-            <Option key={option.value} value={String(option.value)}>
-              {option.label}
-            </Option>
-          ))}
-        </Select>
+          onChange={(option) => handleItemSelect(index, option?.value)}
+          placeholder="Chọn nguyên vật liệu"
+          searchPlaceholder="Tìm kiếm..."
+          emptyText="Không tìm thấy"
+          position="top"
+          className={getFieldError("itemId") ? "border-red-500" : "w-full"}
+        />
         {getFieldError("itemId") && (
           <Typography variant="small" color="red" className="mt-1">
             {getFieldError("itemId")?.message}
@@ -167,7 +160,7 @@ const BomDetailTable = ({
 
   return (
     <>
-      <div className="overflow-x-auto overflow-y-visible rounded-lg border border-blue-gray-100">
+      <div className="overflow-visible rounded-lg border border-blue-gray-100">
         <table className="w-full min-w-max table-auto text-left">
           <thead>
             <tr>
