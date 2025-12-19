@@ -2,7 +2,7 @@ import { AddButton } from "@/components/common/ActionButtons";
 import ListPageLayout from "@/components/layout/ListPageLayout";
 import { DataTable, createSortableHeader } from "@/components/ui/data-table";
 import { StatusSummaryCard } from "@/components/ui/status-summary-card";
-import { getAllRfqsInRequestedCompany } from "@/services/purchasing/RfqService";
+import { getAllRfqsInCompany } from "@/services/purchasing/RfqService";
 import toastrService from "@/services/toastrService";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -20,7 +20,7 @@ const RfqInCompany = () => {
     const fetchRfqs = async () => {
       setLoading(true);
       try {
-        const data = await getAllRfqsInRequestedCompany(companyId, token);
+        const data = await getAllRfqsInCompany(companyId, token);
         setRfqs(data);
       } catch (error) {
         toastrService.error(
