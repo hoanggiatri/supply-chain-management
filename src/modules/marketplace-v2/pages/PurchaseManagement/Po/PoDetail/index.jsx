@@ -1,3 +1,5 @@
+import { getDeliveryOrderBySoId } from '@/services/delivery/DoService';
+import { getSoByPoId } from '@/services/sale/SoService';
 import { motion } from 'framer-motion';
 import {
     ArrowLeft,
@@ -12,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'sonner';
 import ItemList from '../../../../components/items/ItemList';
 import { StatusTimeline } from '../../../../components/timeline';
 import ConfirmModal from '../../../../components/ui/ConfirmModal';
@@ -109,9 +112,31 @@ const PoDetail = () => {
     });
   };
 
-  const handleViewDelivery = () => {
-    // Navigate to delivery order process
-    navigate(`/marketplace-v2/do-process/${id}`);
+  const handleViewDelivery = async () => {
+    try {
+      const { token } = JSON.parse(localStorage.getItem('user') || '{}');
+      const authToken = localStorage.getItem('token');
+      
+      // 1. Get SO by PO
+      const soData = await getSoByPoId(id, authToken);
+      if (!soData?.soId) {
+        toast.error('Không tìm thấy đơn bán hàng liên quan');
+        return;
+      }
+
+      // 2. Get DO by SO
+      const doData = await getDeliveryOrderBySoId(soData.soId, authToken);
+      if (!doData?.doId) {
+        toast.error('Không tìm thấy phiếu giao hàng');
+        return;
+      }
+
+      // 3. Navigate
+      navigate(`/marketplace-v2/warehouse/delivery/${doData.doId}`);
+    } catch (error) {
+      console.error('Error fetching delivery info:', error);
+      toast.error('Không thể tải thông tin vận chuyển');
+    }
   };
 
   const handleViewInvoice = () => {

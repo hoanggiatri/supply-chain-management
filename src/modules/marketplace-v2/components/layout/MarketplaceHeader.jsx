@@ -168,15 +168,16 @@ const MarketplaceHeader = ({ onMenuClick, user }) => {
         <nav className="hidden lg:flex items-center gap-2">
           {/* Dashboard Link - Direct */}
           <NavLink
-             to={dashboardPath}
-             className={({ isActive }) =>
-               `px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                 isActive ? 'text-blue-600 dark:text-blue-400 bg-black/5 dark:bg-white/10' : 'text-gray-600 dark:text-gray-300 hover:bg-black/5 dark:hover:bg-white/5'
-               }`
-             }
-           >
-             Tổng quan
-           </NavLink>
+            to={dashboardPath}
+            end
+            className={({ isActive }) =>
+              `px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                isActive ? 'text-blue-600 dark:text-blue-400 bg-black/5 dark:bg-white/10' : 'text-gray-600 dark:text-gray-300 hover:bg-black/5 dark:hover:bg-white/5'
+              }`
+            }
+          >
+            Tổng quan
+          </NavLink>
 
           <div className="w-px h-6 bg-gray-200 dark:bg-gray-700 mx-1" />
 

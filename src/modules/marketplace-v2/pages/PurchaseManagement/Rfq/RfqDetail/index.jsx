@@ -1,11 +1,11 @@
 import { motion } from 'framer-motion';
 import {
-    ArrowLeft,
-    Building2,
-    Calendar,
-    Clock,
-    FileText,
-    RefreshCw
+  ArrowLeft,
+  Building2,
+  Calendar,
+  Clock,
+  FileText,
+  RefreshCw
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -13,8 +13,9 @@ import ItemList from '../../../../components/items/ItemList';
 import { StatusTimeline } from '../../../../components/timeline';
 import ConfirmModal from '../../../../components/ui/ConfirmModal';
 import {
-    useRfqById,
-    useUpdateRfqStatus
+  useQuotationByRfq,
+  useRfqById,
+  useUpdateRfqStatus
 } from '../../../../hooks/useApi';
 
 // RFQ Status Config - 6 trạng thái
@@ -55,6 +56,7 @@ const RfqDetail = () => {
 
   // API hooks
   const { data: rfq, isLoading, isError, refetch } = useRfqById(id);
+  const { data: linkedQuotation } = useQuotationByRfq(id, { enabled: !!id });
   const updateStatusMutation = useUpdateRfqStatus();
 
   // Map RFQ data
@@ -102,8 +104,9 @@ const RfqDetail = () => {
   };
 
   const handleViewQuotation = () => {
-    // Navigate to quotation detail - lấy từ RFQ
-    navigate(`/marketplace-v2/customer-quotation/${id}`);
+    if (linkedQuotation?.quotationId) {
+      navigate(`/marketplace-v2/quotation/${linkedQuotation.quotationId}`);
+    }
   };
 
   const handleConfirmAction = async () => {

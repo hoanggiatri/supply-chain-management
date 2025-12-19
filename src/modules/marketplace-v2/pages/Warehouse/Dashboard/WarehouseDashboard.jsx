@@ -124,10 +124,10 @@ const KanbanColumn = ({ title, items, color, onItemClick }) => (
         {items.length}
       </span>
     </div>
-    <div className="space-y-2 max-h-[200px] overflow-y-auto pr-2">
+    <div className="space-y-2">
       {items.slice(0, 5).map((item, idx) => (
         <motion.div
-          key={item.ticketId || idx}
+          key={`${item.type}-${item.ticketId}` || idx}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: idx * 0.05 }}
