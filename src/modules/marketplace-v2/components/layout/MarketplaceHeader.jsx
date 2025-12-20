@@ -152,15 +152,10 @@ const MarketplaceHeader = ({ onMenuClick, user }) => {
           <Link to={dashboardPath} className="flex items-center gap-2">
             <motion.div
               whileHover={{ rotate: 5 }}
-              className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/20"
+              className="w-20 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/20"
             >
-              <span className="text-white font-bold text-lg">M</span>
+              <span className="text-white font-bold text-lg">SCMS</span>
             </motion.div>
-            <span
-              className="font-bold text-xl hidden sm:block bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400"
-            >
-              SCMS
-            </span>
           </Link>
         </div>
 

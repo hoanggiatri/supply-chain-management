@@ -1,9 +1,8 @@
-import React from "react";
-import { useNavigate, useLocation } from "react-router-dom";
 import {
   Breadcrumbs as MTBreadcrumbs,
   Typography,
 } from "@material-tailwind/react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 /**
  * Breadcrumbs - Navigation path component
@@ -23,7 +22,7 @@ const PATH_LABELS = {
   so: "Chi tiết đơn bán hàng",
   "supplier-rfqs": "Yêu cầu từ khách hàng",
   "supplier-rfq": "Chi tiết yêu cầu",
-  "supplier-pos": "Đơn đặt hàng",
+  "supplier-pos": "Yêu cầu mua hàng",
   "supplier-po": "Chi tiết đơn đặt hàng",
   "customer-quotations": "Báo giá từ nhà cung cấp",
   "customer-quotation": "Chi tiết báo giá",

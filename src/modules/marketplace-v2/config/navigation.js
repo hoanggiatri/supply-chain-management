@@ -31,7 +31,7 @@ export const PURCHASING_MENU = [
 export const SALES_MENU = [
   { path: '/marketplace-v2/supplier-rfqs', label: 'Yêu cầu từ khách', icon: FileText },
   { path: '/marketplace-v2/sent-quotations', label: 'Báo giá đã gửi', icon: DollarSign },
-  { path: '/marketplace-v2/customer-pos', label: 'Đơn đặt hàng', icon: ShoppingCart },
+  { path: '/marketplace-v2/customer-pos', label: 'Yêu cầu mua hàng', icon: ShoppingCart },
   { path: '/marketplace-v2/sos', label: 'Đơn bán hàng', icon: Package },
   { path: '/marketplace-v2/sales-report', label: 'Báo cáo bán hàng', icon: TrendingUp },
 ];

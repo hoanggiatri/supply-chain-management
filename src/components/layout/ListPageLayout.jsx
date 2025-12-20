@@ -1,4 +1,3 @@
-import { DescriptionOutlined } from "@mui/icons-material";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -48,7 +47,7 @@ const ListPageLayout = ({
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-sm shadow-sm border border-gray-100 overflow-hidden">
           {/* Content */}
           <div className="p-6">

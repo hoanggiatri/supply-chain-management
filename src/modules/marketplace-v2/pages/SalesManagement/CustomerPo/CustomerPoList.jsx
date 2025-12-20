@@ -119,7 +119,7 @@ const CustomerPoList = () => {
             className="text-2xl lg:text-3xl font-bold"
             style={{ color: 'var(--mp-text-primary)' }}
           >
-            Đơn hàng từ khách (PO)
+            Yêu cầu mua hàng
           </h1>
           <p
             className="mt-1"

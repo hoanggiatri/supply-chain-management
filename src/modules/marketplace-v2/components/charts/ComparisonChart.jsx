@@ -4,38 +4,19 @@ import Chart from 'react-apexcharts';
 import { useTheme } from '../../context/ThemeContext';
 
 /**
- * Order trends chart using ApexCharts
- * Shows line/bar chart for monthly order data
+ * Biểu đồ so sánh giữa dữ liệu mua và bán hàng
+ * Hiển thị biểu đồ 2 trục cho cả số đơn và giá trị
  */
-const OrderTrendsChart = ({
+const ComparisonChart = ({
   data = [],
-  loading = false,
-  type = 'line' // 'line', 'bar'
+  loading = false
 }) => {
   const { isDark } = useTheme();
-  const [chartType, setChartType] = useState(type);
-
-  // Default mock data if no data provided
-  const defaultData = [
-    { month: '01/25', orders: 45, revenue: 120 },
-    { month: '02/25', orders: 52, revenue: 145 },
-    { month: '03/25', orders: 48, revenue: 130 },
-    { month: '04/25', orders: 70, revenue: 180 },
-    { month: '05/25', orders: 65, revenue: 170 },
-    { month: '06/25', orders: 85, revenue: 220 },
-    { month: '07/25', orders: 78, revenue: 200 },
-    { month: '08/25', orders: 95, revenue: 250 },
-    { month: '09/25', orders: 88, revenue: 230 },
-    { month: '10/25', orders: 110, revenue: 290 },
-    { month: '11/25', orders: 102, revenue: 270 },
-    { month: '12/25', orders: 125, revenue: 320 },
-  ];
-
-  const chartData = data.length > 0 ? data : defaultData;
+  const [chartType, setChartType] = useState('area');
 
   const options = {
     chart: {
-      id: 'order-trends',
+      id: 'purchase-sales-comparison',
       type: chartType,
       toolbar: {
         show: false,
@@ -49,17 +30,9 @@ const OrderTrendsChart = ({
         enabled: true,
         easing: 'easeinout',
         speed: 800,
-        animateGradually: {
-          enabled: true,
-          delay: 150
-        },
-        dynamicAnimation: {
-          enabled: true,
-          speed: 350
-        }
       }
     },
-    colors: ['#3B82F6', '#8B5CF6'],
+    colors: ['#3B82F6', '#8B5CF6', '#10B981', '#F59E0B'],
     stroke: {
       curve: 'smooth',
       width: chartType === 'bar' ? 0 : 3,
@@ -77,7 +50,7 @@ const OrderTrendsChart = ({
       enabled: false,
     },
     xaxis: {
-      categories: chartData.map(d => d.month),
+      categories: data.map(d => d.month),
       axisBorder: {
         show: false,
       },
@@ -87,63 +60,46 @@ const OrderTrendsChart = ({
       labels: {
         style: {
           colors: isDark ? '#94A3B8' : '#64748B',
-          fontSize: '13px',
-          fontFamily: 'Inter, sans-serif',
-          fontWeight: 500,
-        },
-        rotate: -45,
-        rotateAlways: chartData.length > 6,
+          fontSize: '12px',
+        }
       }
     },
     yaxis: [
       {
         title: {
-          text: 'Số đơn hàng',
+          text: 'Số đơn',
           style: {
             color: isDark ? '#94A3B8' : '#64748B',
             fontSize: '13px',
-            fontFamily: 'Inter, sans-serif',
             fontWeight: 600,
           }
         },
         labels: {
-          show: true,
           style: {
             colors: isDark ? '#94A3B8' : '#64748B',
-            fontSize: '13px',
-            fontFamily: 'Inter, sans-serif',
+            fontSize: '12px',
           },
-          formatter: (val) => {
-            // Only show integers, skip decimals
-            return Number.isInteger(val) ? val : '';
-          }
-        },
-        tickAmount: 5,
-        forceNiceScale: true,
-        decimalsInFloat: 0,
+          formatter: (val) => Math.round(val)
+        }
       },
       {
+        seriesName: 'Doanh thu mua',
         opposite: true,
         title: {
-          text: 'Doanh thu (triệu VNĐ)',
+          text: 'Giá trị (triệu VNĐ)',
           style: {
             color: isDark ? '#94A3B8' : '#64748B',
             fontSize: '13px',
-            fontFamily: 'Inter, sans-serif',
             fontWeight: 600,
           }
         },
         labels: {
-          show: true,
           style: {
             colors: isDark ? '#94A3B8' : '#64748B',
-            fontSize: '13px',
-            fontFamily: 'Inter, sans-serif',
+            fontSize: '12px',
           },
           formatter: (val) => `${Math.round(val)}M`
-        },
-        tickAmount: 5,
-        forceNiceScale: true,
+        }
       }
     ],
     grid: {
@@ -157,6 +113,12 @@ const OrderTrendsChart = ({
     legend: {
       position: 'top',
       horizontalAlign: 'right',
+      floating: false,
+      offsetY: 0,
+      itemMargin: {
+        horizontal: 10,
+        vertical: 0
+      },
       labels: {
         colors: isDark ? '#CBD5E1' : '#475569',
       },
@@ -172,8 +134,8 @@ const OrderTrendsChart = ({
       intersect: false,
       y: {
         formatter: (val, { seriesIndex }) => {
-          if (seriesIndex === 0) return `${val} đơn`;
-          return `${val}M VNĐ`;
+          if (seriesIndex === 0 || seriesIndex === 1) return `${val} đơn`;
+          return `${val.toFixed(1)}M VNĐ`;
         }
       }
     },
@@ -192,14 +154,28 @@ const OrderTrendsChart = ({
 
   const series = [
     {
-      name: 'Đơn hàng',
+      name: 'Đơn mua',
       type: chartType === 'bar' ? 'column' : chartType,
-      data: chartData.map(d => d.orders)
+      data: data.map(d => d.purchaseOrders || 0),
+      yAxisIndex: 0
+    },
+    {
+      name: 'Đơn bán',
+      type: chartType === 'bar' ? 'column' : chartType,
+      data: data.map(d => d.salesOrders || 0),
+      yAxisIndex: 0
+    },
+    {
+      name: 'Giá trị mua',
+      type: chartType === 'bar' ? 'column' : chartType,
+      data: data.map(d => d.purchaseRevenue || 0),
+      yAxisIndex: 1
     },
     {
       name: 'Doanh thu',
       type: chartType === 'bar' ? 'column' : chartType,
-      data: chartData.map(d => d.revenue)
+      data: data.map(d => d.salesRevenue || 0),
+      yAxisIndex: 1
     }
   ];
 
@@ -217,9 +193,9 @@ const OrderTrendsChart = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      {/* Chart Type Toggle */}
+      {/* Chọn loại biểu đồ */}
       <div className="flex justify-end gap-2 mb-4">
-        {['line', 'bar'].map((t) => (
+        {['area', 'line', 'bar'].map((t) => (
           <button
             key={t}
             onClick={() => setChartType(t)}
@@ -231,7 +207,7 @@ const OrderTrendsChart = ({
               color: chartType === t ? 'white' : 'var(--mp-text-secondary)'
             }}
           >
-            {t === 'line' ? 'Đường' : 'Cột'}
+            {t === 'area' ? 'Vùng' : t === 'line' ? 'Đường' : 'Cột'}
           </button>
         ))}
       </div>
@@ -247,4 +223,4 @@ const OrderTrendsChart = ({
   );
 };
 
-export default OrderTrendsChart;
+export default ComparisonChart;

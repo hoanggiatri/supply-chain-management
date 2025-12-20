@@ -245,7 +245,7 @@ const HeaderMT = ({ role }) => {
       "purchase-report": "Báo cáo mua",
       "supplier-rfqs": "Yêu cầu KH",
       quotations: "Báo giá bán",
-      "supplier-pos": "Đơn đặt hàng",
+      "supplier-pos": "Yêu cầu mua hàng",
       sos: "Đơn bán (SO)",
       "sales-report": "Báo cáo bán",
 

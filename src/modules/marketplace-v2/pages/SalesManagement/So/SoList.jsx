@@ -1,9 +1,9 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-    Grid3X3,
-    Kanban,
-    RefreshCw,
-    Search
+  Grid3X3,
+  Kanban,
+  RefreshCw,
+  Search
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -114,7 +114,7 @@ const SoList = () => {
             className="text-2xl lg:text-3xl font-bold"
             style={{ color: 'var(--mp-text-primary)' }}
           >
-            Đơn bán hàng (Sales Order)
+            Đơn bán hàng
           </h1>
           <p
             className="mt-1"

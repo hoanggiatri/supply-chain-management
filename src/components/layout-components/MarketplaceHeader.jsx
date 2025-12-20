@@ -68,7 +68,7 @@ const SALES_DROPDOWN_ITEMS = [
     Icon: CurrencyDollarIcon,
   },
   {
-    label: "Đơn đặt hàng",
+    label: "Yêu cầu mua hàng",
     path: "/marketplace/supplier-pos",
     Icon: BuildingStorefrontIcon,
   },

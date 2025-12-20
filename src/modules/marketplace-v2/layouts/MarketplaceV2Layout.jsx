@@ -203,7 +203,7 @@ const MarketplaceV2Layout = () => {
               width: '100%'
             }}
           >
-            <div className="container mx-auto px-4 lg:px-6 py-6 max-w-7xl">
+            <div className="container mx-auto px-4 lg:px-6 py-6 max-w-9xl">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={location.pathname}

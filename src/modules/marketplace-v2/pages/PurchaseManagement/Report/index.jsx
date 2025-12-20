@@ -1,10 +1,10 @@
 import { motion } from 'framer-motion';
 import {
-    Calendar,
-    Download,
-    RefreshCw,
-    TrendingDown,
-    TrendingUp
+  Calendar,
+  Download,
+  RefreshCw,
+  TrendingDown,
+  TrendingUp
 } from 'lucide-react';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -12,10 +12,10 @@ import { MetricCard } from '../../../components/cards';
 import { OrderTrendsChart } from '../../../components/charts';
 import { MetricCardSkeleton } from '../../../components/ui';
 import {
-    useMonthlyPurchaseReport,
-    useMonthlySalesReport,
-    usePosInCompany,
-    useSosInCompany
+  useMonthlyPurchaseReport,
+  useMonthlySalesReport,
+  usePosInCompany,
+  useSosInCompany
 } from '../../../hooks/useApi';
 
 const formatCurrency = (amount) => {
@@ -91,11 +91,21 @@ const Report = ({ type = 'purchase' }) => {
     const report = reportQuery.data || [];
     if (!Array.isArray(report)) return [];
 
-    return report.map(item => ({
-      month: `T${item.month || item.monthNumber}`,
-      orders: item.orderCount || item.count || 0,
-      revenue: (item.totalAmount || item.revenue || 0) / 1000000
-    }));
+    return report.map(item => {
+      const month = item.month || item.monthNumber || '';
+      // Format month from "MM/YYYY" to "MM/YY" without T prefix
+      let formattedMonth = month;
+      if (month && month.includes('/')) {
+        const [m, y] = month.split('/');
+        formattedMonth = `${m}/${y.slice(-2)}`;
+      }
+      
+      return {
+        month: formattedMonth,
+        orders: item.totalOrder || item.orderCount || item.count || 0,
+        revenue: (item.totalAmount || item.revenue || 0) / 1000000
+      };
+    });
   }, [reportQuery.data]);
 
   // Orders by month for table

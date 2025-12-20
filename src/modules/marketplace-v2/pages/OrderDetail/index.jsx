@@ -1,12 +1,12 @@
 import { motion } from 'framer-motion';
 import {
-    ArrowLeft,
-    Building2,
-    Calendar,
-    Download,
-    Package,
-    Printer,
-    RefreshCw
+  ArrowLeft,
+  Building2,
+  Calendar,
+  Download,
+  Package,
+  Printer,
+  RefreshCw
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -15,14 +15,14 @@ import ItemList from '../../components/items/ItemList';
 import { StatusTimeline } from '../../components/timeline';
 import ConfirmModal from '../../components/ui/ConfirmModal';
 import {
-    usePoById,
-    useQuotationById,
-    useRfqById,
-    useSoById,
-    useUpdatePoStatus,
-    useUpdateQuotationStatus,
-    useUpdateRfqStatus,
-    useUpdateSoStatus
+  usePoById,
+  useQuotationById,
+  useRfqById,
+  useSoById,
+  useUpdatePoStatus,
+  useUpdateQuotationStatus,
+  useUpdateRfqStatus,
+  useUpdateSoStatus
 } from '../../hooks/useApi';
 
 const formatCurrency = (amount) => {
@@ -233,7 +233,7 @@ const OrderDetail = ({ type = 'po' }) => {
   // Loading state
   if (isLoading) {
     return (
-      <div className="max-w-7xl mx-auto animate-pulse space-y-6">
+      <div className="max-w-8xl mx-auto animate-pulse space-y-6">
         <div className="h-8 bg-gray-200 rounded w-48" />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-4">
