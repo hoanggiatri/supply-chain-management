@@ -2,15 +2,15 @@ import { getDeliveryOrderBySoId } from '@/services/delivery/DoService';
 import { getSoByPoId } from '@/services/sale/SoService';
 import { motion } from 'framer-motion';
 import {
-    ArrowLeft,
-    Building2,
-    Calendar,
-    CreditCard,
-    FileText,
-    Package,
-    RefreshCw,
-    Truck,
-    XCircle
+  ArrowLeft,
+  Building2,
+  Calendar,
+  CreditCard,
+  FileText,
+  Package,
+  RefreshCw,
+  Truck,
+  XCircle
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -19,8 +19,8 @@ import ItemList from '../../../../components/items/ItemList';
 import { StatusTimeline } from '../../../../components/timeline';
 import ConfirmModal from '../../../../components/ui/ConfirmModal';
 import {
-    usePoById,
-    useUpdatePoStatus
+  usePoById,
+  useUpdatePoStatus
 } from '../../../../hooks/useApi';
 
 // PO Status Config - 6 trạng thái
@@ -141,7 +141,6 @@ const PoDetail = () => {
 
   const handleViewInvoice = () => {
     // View invoice PDF
-    console.log('View invoice for PO:', id);
   };
 
   const handleConfirmAction = async () => {

@@ -34,7 +34,6 @@ const AdminVerifyOtp = () => {
 
     try {
       const response = await adminVerifyOtp(email, Number(otp));
-      console.log("Admin verify OTP response:", response); // Debug: see actual response structure
       toastrService.success("Xác thực thành công!");
 
       // Handle both 'token' and 'accessToken' field names

@@ -20,7 +20,6 @@ const RtInCompany = () => {
     const fetchTickets = async () => {
       try {
         const data = await getAllReceiveTicketsInCompany(companyId, token);
-        console.log(data);
         setTickets(data);
       } catch (error) {
         toastrService.error(

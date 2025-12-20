@@ -27,7 +27,6 @@ const AllCompanies = () => {
       setLoading(true);
       try {
         const data = await getAllCompanies(token, { page: 1, pageSize: 100 });
-        console.log("getAllCompanies response:", data);
         // Safe data extraction
         const companyList = Array.isArray(data) ? data : (data?.data || data?.content || []);
         setCompanies(companyList);

@@ -106,13 +106,11 @@ const CreateTt = () => {
           note: detail.note,
         })),
       };
-      console.log("Request", request);
 
       await createTransferTicket(request, token);
       toastrService.success("Tạo phiếu chuyển kho thành công!");
       navigate("/transfer-tickets");
     } catch (error) {
-      console.log(error.response);
       toastrService.error(
         error.response?.data?.message || "Lỗi khi tạo phiếu chuyển kho!"
       );

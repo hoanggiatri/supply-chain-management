@@ -21,11 +21,6 @@ const PrivateRoute = ({ element, allowedRoles, allowedDepartments }) => {
       role !== "c_admin" &&
       !allowedDepartments.includes(departmentName?.trim())
     ) {
-      console.log("Department check failed:", {
-        departmentName: departmentName?.trim(),
-        allowedDepartments,
-        role,
-      });
       toastrService.error("Bạn không có quyền truy cập vào trang này!");
       setRedirectPath("/unauthorized");
     }

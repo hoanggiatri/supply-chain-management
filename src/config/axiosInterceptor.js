@@ -41,7 +41,6 @@ export const validateTokenOnInit = () => {
 
   // If token exists but is expired, clear and redirect
   if (isTokenExpired(token)) {
-    console.log("Token expired on app init - clearing session");
     handleTokenExpired();
   }
 };

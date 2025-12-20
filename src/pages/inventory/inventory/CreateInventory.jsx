@@ -65,13 +65,10 @@ const CreateInventory = () => {
         status: inventory.status,
       };
 
-      console.log(inv);
-
       await createInventory(inv, token);
       toastrService.success("Thêm mới tồn kho thành công!");
       navigate("/inventory-count");
     } catch (error) {
-      console.log(error.response);
       toastrService.error(
         error.response?.data?.message || "Lỗi khi tạo tồn kho!"
       );
