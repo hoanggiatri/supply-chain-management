@@ -302,7 +302,6 @@ const CheckInventory = () => {
         }
 
         if (type === "po") {
-          console.log('here')
           localStorage.setItem("poWarehouseId", selectedWarehouseId);
           navigate(`/create-so/${id}`);
         }
