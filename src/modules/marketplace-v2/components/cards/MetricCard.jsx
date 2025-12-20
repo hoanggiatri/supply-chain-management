@@ -20,16 +20,10 @@ const MetricCard = ({
   const navigate = useNavigate();
   const [ref, isInView] = useInView();
 
-  // Parse numeric value for animation
-  const numericValue = typeof value === 'number' ? value : parseFloat(value?.replace(/[^0-9.-]/g, '')) || 0;
+  // Parse numeric value for animation only if it's a pure number
+  const isNumericValue = typeof value === 'number';
+  const numericValue = isNumericValue ? value : 0;
   const animatedValue = useAnimatedCounter(isInView ? numericValue : 0, 1000);
-
-  // Format the animated value back
-  const displayValue = typeof value === 'string' && value.includes('B VNĐ')
-    ? `${(animatedValue / 1000000000).toFixed(1)}B VNĐ`
-    : typeof value === 'string' && value.includes('M VNĐ')
-      ? `${(animatedValue / 1000000).toFixed(1)}M VNĐ`
-      : animatedValue.toLocaleString('vi-VN');
 
   return (
     <motion.div
@@ -58,7 +52,11 @@ const MetricCard = ({
             animate={{ opacity: 1 }}
             transition={{ delay: delay + 0.2 }}
           >
-            {loading ? '...' : (typeof value === 'number' ? animatedValue.toLocaleString('vi-VN') : displayValue)}
+            {loading 
+              ? '...' 
+              : isNumericValue 
+                ? animatedValue.toLocaleString('vi-VN')
+                : value}
           </motion.p>
 
           {/* Trend */}

@@ -7,7 +7,6 @@ import {
   TrendingUp
 } from 'lucide-react';
 import { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { MetricCard } from '../../../components/cards';
 import { OrderTrendsChart } from '../../../components/charts';
 import { MetricCardSkeleton } from '../../../components/ui';
@@ -20,19 +19,21 @@ import {
 
 const formatCurrency = (amount) => {
   if (amount >= 1000000000) {
-    return `${(amount / 1000000000).toFixed(1)}B`;
+    return `${(amount / 1000000000).toFixed(1)}B VNĐ`;
   }
   if (amount >= 1000000) {
-    return `${(amount / 1000000).toFixed(1)}M`;
+    return `${(amount / 1000000).toFixed(1)}M VNĐ`;
   }
-  return new Intl.NumberFormat('vi-VN').format(amount);
+  if (amount >= 1000) {
+    return `${(amount / 1000).toFixed(0)}K VNĐ`;
+  }
+  return `${new Intl.NumberFormat('vi-VN').format(amount)} VNĐ`;
 };
 
 /**
  * Purchase/Sales Report page with charts and statistics
  */
 const Report = ({ type = 'purchase' }) => {
-  const navigate = useNavigate();
   const isPurchase = type === 'purchase';
 
   // Call ALL hooks unconditionally at top level (React hooks rules)
@@ -60,14 +61,21 @@ const Report = ({ type = 'purchase' }) => {
     }
     if (!Array.isArray(reportData)) reportData = [];
 
-    const totalOrders = ordersData.length;
-    const completedOrders = ordersData.filter(o =>
-      o && ['COMPLETED', 'completed'].includes(o.status)
+    // Only count completed orders for total
+    const totalOrders = ordersData.filter(o =>
+      o && ['Đã hoàn thành'].includes(o.status)
     ).length;
+    
+    const completedOrders = totalOrders; // Same as totalOrders now
+    
     const pendingOrders = ordersData.filter(o =>
-      o && ['PENDING', 'CONFIRMED', 'PROCESSING', 'pending', 'confirmed', 'processing'].includes(o.status)
+      o && ['Chờ xuất kho', 'Chờ vận chuyển', 'Đang vận chuyển'].includes(o.status)
     ).length;
-    const totalAmount = ordersData.reduce((sum, o) => sum + (o?.totalAmount || o?.total || 0), 0);
+    
+    // Total amount from completed orders only
+    const totalAmount = ordersData
+      .filter(o => o && ['Đã hoàn thành'].includes(o.status))
+      .reduce((sum, o) => sum + (o?.totalAmount || 0), 0);
 
     // Get this month and last month from report
     const thisMonth = reportData[reportData.length - 1] || {};
@@ -124,7 +132,7 @@ const Report = ({ type = 'purchase' }) => {
       label: isPurchase ? 'Tổng đơn mua' : 'Tổng đơn bán',
       value: stats.totalOrders,
       trend: 'up',
-      trendValue: `${stats.completedOrders} hoàn thành`,
+      trendValue: `${stats.totalOrders} đơn đã hoàn thành`,
       icon: '📦',
       iconBg: 'bg-gradient-to-br from-blue-500 to-blue-600'
     },
@@ -151,7 +159,7 @@ const Report = ({ type = 'purchase' }) => {
       label: 'Trung bình/đơn',
       value: stats.avgOrderValue,
       trend: 'up',
-      trendValue: formatCurrency(stats.avgOrderValue) + ' VNĐ',
+      trendValue: formatCurrency(stats.avgOrderValue), // formatCurrency đã có VNĐ
       icon: '📊',
       iconBg: 'bg-gradient-to-br from-purple-500 to-purple-600'
     }
@@ -319,7 +327,7 @@ const Report = ({ type = 'purchase' }) => {
                         {item.orderCount || item.count || 0}
                       </td>
                       <td className="py-3 px-4 text-right font-medium" style={{ color: 'var(--mp-text-primary)' }}>
-                        {formatCurrency(item.totalAmount || item.revenue || 0)} VNĐ
+                        {new Intl.NumberFormat('vi-VN').format(item.totalAmount || item.revenue || 0)} VNĐ
                       </td>
                       <td className="py-3 px-4 text-right">
                         <span className={`inline-flex items-center gap-1 ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
