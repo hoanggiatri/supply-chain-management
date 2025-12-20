@@ -1,4 +1,3 @@
-import MarketplaceLayout from "@layouts/MarketplaceLayout";
 import NavBarLayout from "@layouts/NavBarLayout";
 import SideBarLayoutMT from "@layouts/SideBarLayoutMT";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
@@ -26,7 +25,6 @@ import deliveryRoutes from "./modules/deliveryRoutes";
 import generalRoutes from "./modules/generalRoutes";
 import inventoryRoutes from "./modules/inventoryRoutes";
 import manufacturingRoutes from "./modules/manufacturingRoutes";
-import marketplaceRoutes from "./modules/marketplaceRoutes";
 import purchasingRoutes from "./modules/purchasingRoutes";
 import salesRoutes from "./modules/salesRoutes";
 
@@ -83,11 +81,6 @@ function AppRoutes() {
         {/* Marketplace V2 routes (New redesigned version) */}
         <Route element={<MarketplaceV2Layout />}>
           {renderRoutes(marketplaceV2Routes)}
-        </Route>
-
-        {/* Marketplace routes (Legacy - for user role with Mua hàng/Bán hàng department) */}
-        <Route element={<MarketplaceLayout />}>
-          {renderRoutes(marketplaceRoutes)}
         </Route>
 
         {/* Traditional sidebar routes (for c_admin and other roles) */}

@@ -1,12 +1,12 @@
+import toastrService from "@/services/toastrService";
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import toastrService from "@/services/toastrService";
 
 const PrivateRoute = ({ element, allowedRoles, allowedDepartments }) => {
   const [redirectPath, setRedirectPath] = useState(null);
   const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role");
-  const departmentName = localStorage.getItem("departmentName");
+  const role = localStorage.getItem("role")?.trim();
+  const departmentName = localStorage.getItem("departmentName")?.trim();
 
   useEffect(() => {
     if (!token) {

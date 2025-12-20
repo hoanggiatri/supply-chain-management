@@ -27,9 +27,12 @@ const CreateSo = () => {
   const [soDetails, setSoDetails] = useState([]);
 
   useEffect(() => {
+    debugger
     const fetchData = async () => {
+      console.log('create PO');
       setLoading(true);
       try {
+        console.log(poId);
         const poData = await getPoById(poId, token);
         setPo(poData);
 
@@ -53,7 +56,7 @@ const CreateSo = () => {
           discount: d.discount,
           note: d.note,
         }));
-
+        console.log(details);
         setSoDetails(details);
       } catch (err) {
         toastrService.error(
@@ -65,6 +68,7 @@ const CreateSo = () => {
     };
 
     fetchData();
+    console.log('get data')
   }, [poId, token, employeeName, companyAddress]);
 
   const handleSubmit = async () => {

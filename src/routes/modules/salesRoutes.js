@@ -11,9 +11,9 @@ import PoInSupplierCompany from "@/pages/sale/supplier-po/PoInSupplierCompany";
 import SupplierPoDetail from "@/pages/sale/supplier-po/SupplierPoDetail";
 
 import CreateSo from "@/pages/sale/so/CreateSo";
-import SoInCompany from "@/pages/sale/so/SoInCompany";
-import SoDetail from "@/pages/sale/so/SoDetail";
 import SalesReport from "@/pages/sale/so/SalesReport";
+import SoDetail from "@/pages/sale/so/SoDetail";
+import SoInCompany from "@/pages/sale/so/SoInCompany";
 
 const salesRoutes = [
   {
@@ -81,7 +81,7 @@ const salesRoutes = [
     element: (
       <PrivateRoute
         element={<SupplierPoDetail />}
-        allowedRoles={["c_admin", "user"]}
+        allowedRoles={["c_admin"]}
         allowedDepartments={["Quản trị", "Bán hàng"]}
       />
     ),
@@ -91,8 +91,8 @@ const salesRoutes = [
     element: (
       <PrivateRoute
         element={<CreateSo />}
-        allowedRoles={["c_admin", "user"]}
-        allowedDepartments={["Quản trị", "Bán hàng"]}
+        allowedRoles={["c_admin"]}
+        allowedDepartments={["Quản trị"]}
       />
     ),
   },
