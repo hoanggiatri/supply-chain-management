@@ -1,19 +1,20 @@
 import confetti from 'canvas-confetti';
 import { motion } from 'framer-motion';
 import {
-    AlertCircle,
-    ArrowLeft,
-    Check,
-    Loader2,
-    Package,
-    Plus,
-    Save,
-    Trash2,
-    X
+  AlertCircle,
+  ArrowLeft,
+  Check,
+  Loader2,
+  Package,
+  Plus,
+  Save,
+  Trash2,
+  X
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { MpCombobox } from '../../../components/ui/MpCombobox';
 import { useCreateBom, useItemsInCompany } from '../../../hooks/useApi';
 
 /**
@@ -51,6 +52,21 @@ const CreateBom = () => {
       item.itemType === 'Bán thành phẩm'
     );
   }, [itemsData]);
+
+  // Convert to Combobox options
+  const productOptions = useMemo(() => 
+    productItems.map(item => ({
+      value: item.itemId,
+      label: `${item.itemCode} - ${item.itemName}`
+    })), [productItems]
+  );
+
+  const materialOptions = useMemo(() => 
+    materialItems.map(item => ({
+      value: item.itemId,
+      label: `${item.itemCode} - ${item.itemName}`
+    })), [materialItems]
+  );
 
   const selectedProduct = productItems.find(p => p.itemId?.toString() === formData.itemId);
 
@@ -163,7 +179,7 @@ const CreateBom = () => {
   }
 
   return (
-    <div className="space-y-6 max-w-3xl mx-auto">
+    <div className="space-y-6 max-w-6xl mx-auto">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -209,27 +225,17 @@ const CreateBom = () => {
               <label className="block text-sm font-medium mb-2" style={{ color: 'var(--mp-text-secondary)' }}>
                 Sản phẩm *
               </label>
-              <select
+              <MpCombobox
+                options={productOptions}
                 value={formData.itemId}
-                onChange={(e) => {
-                  setFormData(prev => ({ ...prev, itemId: e.target.value }));
+                onChange={(option) => {
+                  setFormData(prev => ({ ...prev, itemId: option?.value || '' }));
                   setErrors(prev => ({ ...prev, itemId: undefined }));
                 }}
-                className="mp-input w-full"
-              >
-                <option value="">-- Chọn sản phẩm --</option>
-                {productItems.map(item => (
-                  <option key={item.itemId} value={item.itemId}>
-                    {item.itemCode} - {item.itemName}
-                  </option>
-                ))}
-              </select>
-              {errors.itemId && (
-                <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
-                  <AlertCircle size={14} />
-                  {errors.itemId}
-                </p>
-              )}
+                placeholder="Chọn sản phẩm"
+                error={!!errors.itemId}
+                helperText={errors.itemId}
+              />
             </div>
 
             {selectedProduct && (
@@ -312,24 +318,17 @@ const CreateBom = () => {
                 style={{ borderColor: 'var(--mp-border-light)', backgroundColor: 'var(--mp-bg-secondary)' }}
               >
                 <div className="flex-1">
-                  <label className="block text-xs font-medium mb-1" style={{ color: 'var(--mp-text-tertiary)' }}>
+                 <label className="block text-xs font-medium mb-1" style={{ color: 'var(--mp-text-tertiary)' }}>
                     Nguyên vật liệu *
                   </label>
-                  <select
+                  <MpCombobox
+                    options={materialOptions}
                     value={detail.itemId}
-                    onChange={(e) => handleMaterialChange(index, 'itemId', e.target.value)}
-                    className="mp-input w-full text-sm"
-                  >
-                    <option value="">-- Chọn NVL --</option>
-                    {materialItems.map(item => (
-                      <option key={item.itemId} value={item.itemId}>
-                        {item.itemCode} - {item.itemName}
-                      </option>
-                    ))}
-                  </select>
-                  {errors[`material_${index}`] && (
-                    <p className="mt-1 text-xs text-red-500">{errors[`material_${index}`]}</p>
-                  )}
+                    onChange={(option) => handleMaterialChange(index, 'itemId', option?.value || '')}
+                    placeholder="Chọn NVL"
+                    error={!!errors[`material_${index}`]}
+                    helperText={errors[`material_${index}`]}
+                  />
                 </div>
                 
                 <div className="w-full md:w-24">

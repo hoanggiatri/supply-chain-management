@@ -1,18 +1,18 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  AlertCircle,
-  Filter,
-  Grid3X3,
-  List,
-  Loader2,
-  Package,
-  Plus,
-  RefreshCw,
-  Search,
-  Settings
+    AlertCircle,
+    Grid3X3,
+    List,
+    Loader2,
+    Package,
+    Plus,
+    RefreshCw,
+    Search,
+    Settings
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { MpCombobox } from '../../../components/ui/MpCombobox';
 import { useDebounce } from '../../../hooks';
 import { useStagesInCompany } from '../../../hooks/useApi';
 
@@ -160,17 +160,17 @@ const StageList = () => {
 
           <div className="flex items-center gap-3">
             {/* Status Filter */}
-            <div className="flex items-center gap-2">
-              <Filter size={16} style={{ color: 'var(--mp-text-tertiary)' }} />
-              <select
+            <div className="min-w-[200px]">
+              <MpCombobox
+                options={[
+                  { value: 'all', label: 'Tất cả trạng thái' },
+                  { value: 'Đang sử dụng', label: 'Đang sử dụng' },
+                  { value: 'Ngừng sử dụng', label: 'Ngừng sử dụng' }
+                ]}
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="mp-input"
-              >
-                <option value="all">Tất cả trạng thái</option>
-                <option value="Đang sử dụng">Đang sử dụng</option>
-                <option value="Ngừng sử dụng">Ngừng sử dụng</option>
-              </select>
+                onChange={(option) => setStatusFilter(option?.value || 'all')}
+                placeholder="Lọc trạng thái"
+              />
             </div>
 
             {/* Refresh */}

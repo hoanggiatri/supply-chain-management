@@ -1,9 +1,10 @@
 import { motion } from 'framer-motion';
 import { Save } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import BackButton from '../../../components/ui/BackButton';
+import { MpCombobox } from '../../../components/ui/MpCombobox';
 import { useCreateInventory, useItemsInCompany, useWarehousesInCompany } from '../../../hooks/useApi';
 
 const AddInventory = () => {
@@ -12,6 +13,21 @@ const AddInventory = () => {
   
   const { data: warehouses = [] } = useWarehousesInCompany();
   const { data: items = [] } = useItemsInCompany();
+
+  // Convert to Combobox options format
+  const warehouseOptions = useMemo(() => 
+    warehouses.map(w => ({
+      value: w.warehouseId,
+      label: `${w.warehouseCode} - ${w.warehouseName}`
+    })), [warehouses]
+  );
+
+  const itemOptions = useMemo(() => 
+    items.map(item => ({
+      value: item.itemId,
+      label: `${item.itemCode} - ${item.itemName}`
+    })), [items]
+  );
 
   const [formData, setFormData] = useState({
     warehouseId: '',
@@ -25,6 +41,11 @@ const AddInventory = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
+  };
+
+  const handleComboboxChange = (name, option) => {
+    setFormData(prev => ({ ...prev, [name]: option?.value || '' }));
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
@@ -89,25 +110,18 @@ const AddInventory = () => {
       >
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 gap-6">
-             {/* Warehouse Selection */}
-            <div>
+             <div>
               <label className="block text-sm font-medium mb-1" style={{ color: 'var(--mp-text-secondary)' }}>
                 Chọn kho <span className="text-red-500">*</span>
               </label>
-              <select
-                name="warehouseId"
+              <MpCombobox
+                options={warehouseOptions}
                 value={formData.warehouseId}
-                onChange={handleChange}
-                className={`mp-input w-full ${errors.warehouseId ? 'border-red-500' : ''}`}
-              >
-                <option value="">-- Chọn kho --</option>
-                {warehouses.map(w => (
-                  <option key={w.warehouseId} value={w.warehouseId}>
-                    {w.warehouseCode} - {w.warehouseName}
-                  </option>
-                ))}
-              </select>
-              {errors.warehouseId && <p className="text-red-500 text-xs mt-1">{errors.warehouseId}</p>}
+                onChange={(option) => handleComboboxChange('warehouseId', option)}
+                placeholder="Chọn kho"
+                error={!!errors.warehouseId}
+                helperText={errors.warehouseId}
+              />
             </div>
 
             {/* Item Selection */}
@@ -115,20 +129,14 @@ const AddInventory = () => {
               <label className="block text-sm font-medium mb-1" style={{ color: 'var(--mp-text-secondary)' }}>
                 Chọn sản phẩm <span className="text-red-500">*</span>
               </label>
-              <select
-                name="itemId"
+              <MpCombobox
+                options={itemOptions}
                 value={formData.itemId}
-                onChange={handleChange}
-                className={`mp-input w-full ${errors.itemId ? 'border-red-500' : ''}`}
-              >
-                <option value="">-- Chọn sản phẩm --</option>
-                {items.map(item => (
-                  <option key={item.itemId} value={item.itemId}>
-                    {item.itemCode} - {item.itemName}
-                  </option>
-                ))}
-              </select>
-              {errors.itemId && <p className="text-red-500 text-xs mt-1">{errors.itemId}</p>}
+                onChange={(option) => handleComboboxChange('itemId', option)}
+                placeholder="Chọn sản phẩm"
+                error={!!errors.itemId}
+                helperText={errors.itemId}
+              />
             </div>
 
             <div className="grid grid-cols-2 gap-6">

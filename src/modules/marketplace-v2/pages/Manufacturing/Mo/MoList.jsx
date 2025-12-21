@@ -1,20 +1,20 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  AlertCircle,
-  Calendar,
-  Clock,
-  Factory,
-  Filter,
-  Grid3X3,
-  Kanban,
-  List,
-  Loader2,
-  Package,
-  Plus,
-  Search
+    AlertCircle,
+    Calendar,
+    Clock,
+    Factory,
+    Grid3X3,
+    Kanban,
+    List,
+    Loader2,
+    Package,
+    Plus,
+    Search
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { MpCombobox } from '../../../components/ui/MpCombobox';
 import { useDebounce } from '../../../hooks';
 import { useMosInCompany } from '../../../hooks/useApi';
 
@@ -260,18 +260,19 @@ const MoList = () => {
 
           <div className="flex items-center gap-3">
             {/* Status Filter */}
-            <div className="flex items-center gap-2">
-              <Filter size={16} style={{ color: 'var(--mp-text-tertiary)' }} />
-              <select
+            <div className="min-w-[220px]">
+              <MpCombobox
+                options={[
+                  { value: 'all', label: 'Tất cả trạng thái' },
+                  ...Object.keys(statusConfig).map(status => ({
+                    value: status,
+                    label: status
+                  }))
+                ]}
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="mp-input"
-              >
-                <option value="all">Tất cả trạng thái</option>
-                {Object.keys(statusConfig).map(status => (
-                  <option key={status} value={status}>{status}</option>
-                ))}
-              </select>
+                onChange={(option) => setStatusFilter(option?.value || 'all')}
+                placeholder="Lọc trạng thái"
+              />
             </div>
 
             {/* View Toggle */}

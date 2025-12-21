@@ -1,21 +1,21 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  AlertCircle,
-  Eye,
-  FileText,
-  Filter,
-  Grid3X3,
-  List,
-  Loader2,
-  Package,
-  Pencil,
-  Plus,
-  Search,
-  Trash2
+    AlertCircle,
+    Eye,
+    FileText,
+    Grid3X3,
+    List,
+    Loader2,
+    Package,
+    Pencil,
+    Plus,
+    Search,
+    Trash2
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { MpCombobox } from '../../../components/ui/MpCombobox';
 import { useDebounce } from '../../../hooks';
 import { useBomsInCompany, useDeleteBom } from '../../../hooks/useApi';
 
@@ -170,17 +170,17 @@ const BomList = () => {
 
           <div className="flex items-center gap-3">
             {/* Status Filter */}
-            <div className="flex items-center gap-2">
-              <Filter size={16} style={{ color: 'var(--mp-text-tertiary)' }} />
-              <select
+            <div className="min-w-[200px]">
+              <MpCombobox
+                options={[
+                  { value: 'all', label: 'Tất cả trạng thái' },
+                  { value: 'Hoạt động', label: 'Hoạt động' },
+                  { value: 'Không hoạt động', label: 'Không hoạt động' }
+                ]}
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="mp-input"
-              >
-                <option value="all">Tất cả trạng thái</option>
-                <option value="Hoạt động">Hoạt động</option>
-                <option value="Không hoạt động">Không hoạt động</option>
-              </select>
+                onChange={(option) => setStatusFilter(option?.value || 'all')}
+                placeholder="Lọc trạng thái"
+              />
             </div>
 
             {/* View Toggle */}

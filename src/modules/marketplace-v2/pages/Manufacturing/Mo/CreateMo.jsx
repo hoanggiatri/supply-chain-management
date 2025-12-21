@@ -14,6 +14,7 @@ import {
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { MpCombobox } from '../../../components/ui/MpCombobox';
 import { useCreateMo, useItemsInCompany, useManufactureLinesInCompany } from '../../../hooks/useApi';
 
 /**
@@ -48,6 +49,27 @@ const CreateMo = () => {
     if (!linesData) return [];
     return Array.isArray(linesData) ? linesData : linesData.content || linesData.data || [];
   }, [linesData]);
+
+  // Convert to Combobox options
+  const productOptions = useMemo(() => 
+    productItems.map(item => ({
+      value: item.itemId,
+      label: `${item.itemCode} - ${item.itemName}`
+    })), [productItems]
+  );
+
+  const lineOptions = useMemo(() => 
+    manufactureLines.map(line => ({
+      value: line.lineId,
+      label: `${line.lineCode} - ${line.lineName}`
+    })), [manufactureLines]
+  );
+
+  const typeOptions = [
+    { value: 'Sản xuất', label: 'Sản xuất' },
+    { value: 'Sửa chữa', label: 'Sửa chữa' },
+    { value: 'Tái chế', label: 'Tái chế' }
+  ];
 
   const selectedProduct = productItems.find(p => p.itemId?.toString() === formData.itemId);
   const selectedLine = manufactureLines.find(l => l.lineId?.toString() === formData.lineId);
@@ -202,27 +224,17 @@ const CreateMo = () => {
             </div>
           ) : (
             <>
-              <select
+              <MpCombobox
+                options={productOptions}
                 value={formData.itemId}
-                onChange={(e) => {
-                  setFormData(prev => ({ ...prev, itemId: e.target.value }));
+                onChange={(option) => {
+                  setFormData(prev => ({ ...prev, itemId: option?.value || '' }));
                   setErrors(prev => ({ ...prev, itemId: undefined }));
                 }}
-                className="mp-input w-full"
-              >
-                <option value="">-- Chọn sản phẩm --</option>
-                {productItems.map(item => (
-                  <option key={item.itemId} value={item.itemId}>
-                    {item.itemCode} - {item.itemName}
-                  </option>
-                ))}
-              </select>
-              {errors.itemId && (
-                <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
-                  <AlertCircle size={14} />
-                  {errors.itemId}
-                </p>
-              )}
+                placeholder="Chọn sản phẩm"
+                error={!!errors.itemId}
+                helperText={errors.itemId}
+              />
               {selectedProduct && (
                 <p className="mt-2 text-xs" style={{ color: 'var(--mp-text-tertiary)' }}>
                   Loại: {selectedProduct.itemType} | ĐVT: {selectedProduct.uom}
@@ -245,27 +257,17 @@ const CreateMo = () => {
             </div>
           ) : (
             <>
-              <select
+              <MpCombobox
+                options={lineOptions}
                 value={formData.lineId}
-                onChange={(e) => {
-                  setFormData(prev => ({ ...prev, lineId: e.target.value }));
+                onChange={(option) => {
+                  setFormData(prev => ({ ...prev, lineId: option?.value || '' }));
                   setErrors(prev => ({ ...prev, lineId: undefined }));
                 }}
-                className="mp-input w-full"
-              >
-                <option value="">-- Chọn dây chuyền --</option>
-                {manufactureLines.map(line => (
-                  <option key={line.lineId} value={line.lineId}>
-                    {line.lineCode} - {line.lineName}
-                  </option>
-                ))}
-              </select>
-              {errors.lineId && (
-                <p className="mt-1 text-sm text-red-500 flex items-center gap-1">
-                  <AlertCircle size={14} />
-                  {errors.lineId}
-                </p>
-              )}
+                placeholder="Chọn dây chuyền"
+                error={!!errors.lineId}
+                helperText={errors.lineId}
+              />
               {selectedLine && (
                 <p className="mt-2 text-xs" style={{ color: 'var(--mp-text-tertiary)' }}>
                   Mô tả: {selectedLine.description || 'Không có mô tả'}
@@ -281,15 +283,12 @@ const CreateMo = () => {
             <label className="block text-sm font-medium mb-2" style={{ color: 'var(--mp-text-secondary)' }}>
               Loại sản xuất *
             </label>
-            <select
+            <MpCombobox
+              options={typeOptions}
               value={formData.type}
-              onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value }))}
-              className="mp-input w-full"
-            >
-              <option value="Sản xuất">Sản xuất</option>
-              <option value="Sửa chữa">Sửa chữa</option>
-              <option value="Tái chế">Tái chế</option>
-            </select>
+              onChange={(option) => setFormData(prev => ({ ...prev, type: option?.value || 'Sản xuất' }))}
+              placeholder="Chọn loại"
+            />
           </div>
 
           {/* Quantity */}

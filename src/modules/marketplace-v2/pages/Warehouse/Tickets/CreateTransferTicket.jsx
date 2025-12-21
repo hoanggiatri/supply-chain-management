@@ -13,6 +13,7 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { MpCombobox } from '../../../components/ui/MpCombobox';
 import { useDebounce } from '../../../hooks';
 import {
   useCreateTransferTicket,
@@ -39,6 +40,15 @@ const CreateTransferTicket = () => {
   const { data: warehouses = [], isLoading: warehouseLoading } = useWarehousesInCompany();
   const { data: inventoryData = [], isLoading: inventoryLoading } = useInventoryInCompany();
   const createMutation = useCreateTransferTicket();
+
+  // Convert warehouses to Combobox options
+  const warehouseOptions = useMemo(() => 
+    warehouses.map(w => ({
+      value: w.warehouseId,
+      label: `${w.warehouseCode} - ${w.warehouseName}`,
+      warehouseData: w // Store full warehouse object for later use
+    })), [warehouses]
+  );
 
   // Get available items from source warehouse
   const availableItems = useMemo(() => {
@@ -136,7 +146,7 @@ const CreateTransferTicket = () => {
     try {
       await createMutation.mutateAsync(request);
       toast.success('Tạo phiếu chuyển kho thành công');
-      navigate('/marketplace-v2/warehouse/tickets?tab=transfer');
+      navigate('/marketplace-v2/warehouse/transfer-tickets');
     } catch (error) {
       console.error('Error creating transfer ticket:', error);
       toast.error('Có lỗi xảy ra khi tạo phiếu chuyển kho');
@@ -191,22 +201,16 @@ const CreateTransferTicket = () => {
                 <label className="block text-sm font-medium mb-2" style={{ color: 'var(--mp-text-tertiary)' }}>
                   Kho xuất
                 </label>
-                <select
-                  value={fromWarehouse?.warehouseId || ''}
-                  onChange={(e) => {
-                    const wh = warehouses.find(w => w.warehouseId === parseInt(e.target.value));
-                    setFromWarehouse(wh || null);
+                <MpCombobox
+                  options={warehouseOptions.filter(w => !toWarehouse || w.value !== toWarehouse.warehouseId)}
+                  value={fromWarehouse?.warehouseId}
+                  onChange={(option) => {
+                    const wh = option ? warehouses.find(w => w.warehouseId === option.value) : null;
+                    setFromWarehouse(wh);
                   }}
-                  className="mp-input w-full"
+                  placeholder="Chọn kho xuất"
                   disabled={isLoading}
-                >
-                  <option value="">-- Chọn kho xuất --</option>
-                  {warehouses.filter(w => !toWarehouse || w.warehouseId !== toWarehouse.warehouseId).map(w => (
-                    <option key={w.warehouseId} value={w.warehouseId}>
-                      {w.warehouseCode} - {w.warehouseName}
-                    </option>
-                  ))}
-                </select>
+                />
               </div>
 
               {/* Arrow */}
@@ -224,22 +228,16 @@ const CreateTransferTicket = () => {
                 <label className="block text-sm font-medium mb-2" style={{ color: 'var(--mp-text-tertiary)' }}>
                   Kho nhập
                 </label>
-                <select
-                  value={toWarehouse?.warehouseId || ''}
-                  onChange={(e) => {
-                    const wh = warehouses.find(w => w.warehouseId === parseInt(e.target.value));
-                    setToWarehouse(wh || null);
+                <MpCombobox
+                  options={warehouseOptions.filter(w => !fromWarehouse || w.value !== fromWarehouse.warehouseId)}
+                  value={toWarehouse?.warehouseId}
+                  onChange={(option) => {
+                    const wh = option ? warehouses.find(w => w.warehouseId === option.value) : null;
+                    setToWarehouse(wh);
                   }}
-                  className="mp-input w-full"
+                  placeholder="Chọn kho nhập"
                   disabled={isLoading}
-                >
-                  <option value="">-- Chọn kho nhập --</option>
-                  {warehouses.filter(w => !fromWarehouse || w.warehouseId !== fromWarehouse.warehouseId).map(w => (
-                    <option key={w.warehouseId} value={w.warehouseId}>
-                      {w.warehouseCode} - {w.warehouseName}
-                    </option>
-                  ))}
-                </select>
+                />
               </div>
             </div>
 

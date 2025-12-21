@@ -277,14 +277,14 @@ const WarehouseDashboard = () => {
           label="Chờ xuất kho"
           value={stats.pendingIssue}
           color="#ef4444"
-          onClick={() => navigate('/marketplace-v2/warehouse/tickets?tab=issue')}
+          onClick={() => navigate('/marketplace-v2/warehouse/issue-tickets')}
         />
         <StatsCard
           icon={ArrowDownToLine}
           label="Chờ nhập kho"
           value={stats.pendingReceive}
           color="#22c55e"
-          onClick={() => navigate('/marketplace-v2/warehouse/tickets?tab=receive')}
+          onClick={() => navigate('/marketplace-v2/warehouse/receive-tickets')}
         />
         <StatsCard
           icon={AlertTriangle}
@@ -336,7 +336,7 @@ const WarehouseDashboard = () => {
               Phiếu đang xử lý
             </h2>
             <button
-              onClick={() => navigate('/marketplace-v2/warehouse/tickets')}
+              onClick={() => navigate('/marketplace-v2/warehouse/issue-tickets')}
               className="text-sm mp-btn mp-btn-secondary py-1 px-3"
             >
               Xem tất cả
@@ -374,9 +374,9 @@ const WarehouseDashboard = () => {
       >
         {[
           { label: 'Xem tồn kho', icon: Box, path: '/marketplace-v2/warehouse/inventory', color: '#6366f1' },
-          { label: 'Phiếu xuất', icon: ArrowUpFromLine, path: '/marketplace-v2/warehouse/tickets?tab=issue', color: '#ef4444' },
-          { label: 'Phiếu nhập', icon: ArrowDownToLine, path: '/marketplace-v2/warehouse/tickets?tab=receive', color: '#22c55e' },
-          { label: 'Chuyển kho', icon: Package, path: '/marketplace-v2/warehouse/tickets?tab=transfer', color: '#3b82f6' },
+          { label: 'Phiếu xuất', icon: ArrowUpFromLine, path: '/marketplace-v2/warehouse/issue-tickets', color: '#ef4444' },
+          { label: 'Phiếu nhập', icon: ArrowDownToLine, path: '/marketplace-v2/warehouse/receive-tickets', color: '#22c55e' },
+          { label: 'Chuyển kho', icon: Package, path: '/marketplace-v2/warehouse/transfer-tickets', color: '#3b82f6' },
         ].map((action, idx) => (
           <motion.button
             key={action.path}

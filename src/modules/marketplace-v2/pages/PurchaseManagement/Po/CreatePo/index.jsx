@@ -1,18 +1,19 @@
 import { motion } from 'framer-motion';
 import {
-  ArrowLeft,
-  Building2,
-  CreditCard,
-  MapPin,
-  Package,
-  Save,
-  Warehouse
+    ArrowLeft,
+    Building2,
+    CreditCard,
+    MapPin,
+    Package,
+    Save,
+    Warehouse
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import ItemList from '../../../../components/items/ItemList';
 import ConfirmModal from '../../../../components/ui/ConfirmModal';
+import { MpCombobox } from '../../../../components/ui/MpCombobox';
 import { useCreatePo, useQuotationById, useWarehousesInCompany } from '../../../../hooks/useApi';
 
 const formatCurrency = (amount) => {
@@ -74,13 +75,26 @@ const CreatePo = () => {
     }));
   }, [quotation]);
 
-  // Payment methods
+  // Payment methods options
   const paymentMethods = [
     'Ghi công nợ',
     'Chuyển khoản',
     'Tiền mặt',
     'Thẻ tín dụng'
   ];
+
+  const paymentMethodOptions = useMemo(() => 
+    paymentMethods.map(method => ({ value: method, label: method })),
+  []);
+
+  // Warehouse options
+  const warehouseOptions = useMemo(() => {
+    const warehouseArr = Array.isArray(warehouses) ? warehouses : [];
+    return warehouseArr.map(wh => ({
+      value: wh.warehouseId?.toString(),
+      label: `${wh.warehouseCode} - ${wh.warehouseName}`
+    }));
+  }, [warehouses]);
 
   // Validate form
   const validate = () => {
@@ -235,21 +249,17 @@ const CreatePo = () => {
               <Warehouse size={16} />
               Kho nhập hàng <span className="text-red-500">*</span>
             </label>
-            <select
+            <MpCombobox
+              options={warehouseOptions}
               value={formData.receiveWarehouseId}
-              onChange={(e) => setFormData(prev => ({ ...prev, receiveWarehouseId: e.target.value }))}
-              className={`w-full mp-input ${errors.receiveWarehouseId ? 'border-red-500' : ''}`}
-            >
-              <option value="">Chọn kho nhập hàng</option>
-              {warehouses.map(wh => (
-                <option key={wh.warehouseId} value={wh.warehouseId}>
-                  {wh.warehouseCode} - {wh.warehouseName}
-                </option>
-              ))}
-            </select>
-            {errors.receiveWarehouseId && (
-              <p className="text-red-500 text-sm mt-1">{errors.receiveWarehouseId}</p>
-            )}
+              onChange={(option) => {
+                setFormData(prev => ({ ...prev, receiveWarehouseId: option?.value || '' }));
+                setErrors(prev => ({ ...prev, receiveWarehouseId: undefined }));
+              }}
+              placeholder="Chọn kho nhập hàng"
+              error={!!errors.receiveWarehouseId}
+              helperText={errors.receiveWarehouseId}
+            />
           </div>
 
           {/* Phương thức thanh toán */}
@@ -258,18 +268,17 @@ const CreatePo = () => {
               <CreditCard size={16} />
               Phương thức thanh toán <span className="text-red-500">*</span>
             </label>
-            <select
+            <MpCombobox
+              options={paymentMethodOptions}
               value={formData.paymentMethod}
-              onChange={(e) => setFormData(prev => ({ ...prev, paymentMethod: e.target.value }))}
-              className={`w-full mp-input ${errors.paymentMethod ? 'border-red-500' : ''}`}
-            >
-              {paymentMethods.map(method => (
-                <option key={method} value={method}>{method}</option>
-              ))}
-            </select>
-            {errors.paymentMethod && (
-              <p className="text-red-500 text-sm mt-1">{errors.paymentMethod}</p>
-            )}
+              onChange={(option) => {
+                setFormData(prev => ({ ...prev, paymentMethod: option?.value || '' }));
+                setErrors(prev => ({ ...prev, paymentMethod: undefined }));
+              }}
+              placeholder="Chọn phương thức thanh toán"
+              error={!!errors.paymentMethod}
+              helperText={errors.paymentMethod}
+            />
           </div>
 
           {/* Địa chỉ giao hàng */}

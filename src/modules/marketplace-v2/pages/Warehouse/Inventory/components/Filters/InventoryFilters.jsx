@@ -5,10 +5,12 @@
 
 import { motion } from 'framer-motion';
 import { AlertTriangle, Grid3X3, List, Search } from 'lucide-react';
+import { useMemo } from 'react';
+import { MpCombobox } from '../../../../../components/ui/MpCombobox';
 import { VIEW_MODES } from '../../utils/constants';
 
 const InventoryFilters = ({
-  searchQuery,
+  searchTerm,
   onSearchChange,
   selectedWarehouse,
   onWarehouseChange,
@@ -16,9 +18,18 @@ const InventoryFilters = ({
   onLowStockToggle,
   viewMode,
   onViewModeChange,
-  warehouses,
+  warehouses = [],
   lowStockCount
 }) => {
+  // Convert warehouses to Combobox options
+  const warehouseOptions = useMemo(() => [
+    { value: 'all', label: 'Tất cả kho' },
+    ...warehouses.map(w => ({
+      value: w.warehouseCode,
+      label: `${w.warehouseCode} - ${w.warehouseName}`
+    }))
+  ], [warehouses]);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -36,25 +47,21 @@ const InventoryFilters = ({
         <input
           type="text"
           placeholder="Tìm theo mã SP, tên, kho..."
-          value={searchQuery}
+          value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
           className="mp-input pl-10 w-full"
         />
       </div>
 
       {/* Warehouse Filter */}
-      <select
-        value={selectedWarehouse}
-        onChange={(e) => onWarehouseChange(e.target.value)}
-        className="mp-input"
-      >
-        <option value="all">Tất cả kho</option>
-        {warehouses.map((w) => (
-          <option key={w.warehouseId} value={w.warehouseCode}>
-            {w.warehouseCode} - {w.warehouseName}
-          </option>
-        ))}
-      </select>
+      <div className="min-w-[280px]">
+        <MpCombobox
+          options={warehouseOptions}
+          value={selectedWarehouse}
+          onChange={(option) => onWarehouseChange(option?.value || 'all')}
+          placeholder="Lọc theo kho"
+        />
+      </div>
 
       {/* Low Stock Toggle */}
       <button

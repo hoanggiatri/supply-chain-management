@@ -29,7 +29,9 @@ const CreateSo = lazy(() => import('../pages/SalesManagement/So/CreateSo'));
 
 // Warehouse Pages
 const WarehouseDashboard = lazy(() => import('../pages/Warehouse/Dashboard/WarehouseDashboard'));
-const TicketList = lazy(() => import('../pages/Warehouse/Tickets/TicketList'));
+const IssueTicketList = lazy(() => import('../pages/Warehouse/Tickets/IssueTicketList'));
+const ReceiveTicketList = lazy(() => import('../pages/Warehouse/Tickets/ReceiveTicketList'));
+const TransferTicketList = lazy(() => import('../pages/Warehouse/Tickets/TransferTicketList'));
 const IssueTicketDetail = lazy(() => import('../pages/Warehouse/Tickets/IssueTicketDetail'));
 const ReceiveTicketDetail = lazy(() => import('../pages/Warehouse/Tickets/ReceiveTicketDetail'));
 const WarehouseList = lazy(() => import('../pages/Warehouse/Management/WarehouseList'));
@@ -485,12 +487,36 @@ const marketplaceV2Routes = [
     ),
   },
 
-  // Ticket List
+  // Issue Ticket List
   {
-    path: '/marketplace-v2/warehouse/tickets',
+    path: '/marketplace-v2/warehouse/issue-tickets',
     element: (
       <PrivateRoute
-        element={withSuspense(TicketList)()}
+        element={withSuspense(IssueTicketList)()}
+        allowedRoles={['user']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_WAREHOUSE]}
+      />
+    ),
+  },
+
+  // Receive Ticket List
+  {
+    path: '/marketplace-v2/warehouse/receive-tickets',
+    element: (
+      <PrivateRoute
+        element={withSuspense(ReceiveTicketList)()}
+        allowedRoles={['user']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_WAREHOUSE]}
+      />
+    ),
+  },
+
+  // Transfer Ticket List
+  {
+    path: '/marketplace-v2/warehouse/transfer-tickets',
+    element: (
+      <PrivateRoute
+        element={withSuspense(TransferTicketList)()}
         allowedRoles={['user']}
         allowedDepartments={[DEPT_ADMIN, DEPT_WAREHOUSE]}
       />

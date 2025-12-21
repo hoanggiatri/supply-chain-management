@@ -1,16 +1,17 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-    ArrowLeft,
-    Loader2,
-    Package,
-    Plus,
-    Save,
-    Settings,
-    Trash2
+  ArrowLeft,
+  Loader2,
+  Package,
+  Plus,
+  Save,
+  Settings,
+  Trash2
 } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { MpCombobox } from '../../../components/ui/MpCombobox';
 import { useCreateStage, useProducts } from '../../../hooks/useApi';
 
 /**
@@ -41,6 +42,19 @@ const CreateStage = () => {
   const items = (itemsData || []).filter(
     item => item.itemType === 'Thành phẩm' || item.itemType === 'Bán thành phẩm'
   );
+
+  // Convert to Combobox options
+  const itemOptions = useMemo(() => 
+    items.map(item => ({
+      value: item.itemId,
+      label: `${item.itemCode} - ${item.itemName}`
+    })), [items]
+  );
+
+  const statusOptions = [
+    { value: 'Đang sử dụng', label: 'Đang sử dụng' },
+    { value: 'Ngừng sử dụng', label: 'Ngừng sử dụng' }
+  ];
 
   const handleItemSelect = (itemId) => {
     const selectedItem = items.find(item => item.itemId === Number(itemId));
@@ -207,21 +221,14 @@ const CreateStage = () => {
                 <label className="block text-sm font-medium mb-2" style={{ color: 'var(--mp-text-secondary)' }}>
                   Hàng hóa <span className="text-red-500">*</span>
                 </label>
-                <select
+                <MpCombobox
+                  options={itemOptions}
                   value={stage.itemId}
-                  onChange={(e) => handleItemSelect(e.target.value)}
-                  className={`mp-input w-full ${errors.itemId ? 'border-red-500' : ''}`}
-                >
-                  <option value="">-- Chọn hàng hóa --</option>
-                  {items.map(item => (
-                    <option key={item.itemId} value={item.itemId}>
-                      {item.itemCode} - {item.itemName}
-                    </option>
-                  ))}
-                </select>
-                {errors.itemId && (
-                  <p className="text-red-500 text-sm mt-1">{errors.itemId}</p>
-                )}
+                  onChange={(option) => handleItemSelect(option?.value)}
+                  placeholder="Chọn hàng hóa"
+                  error={!!errors.itemId}
+                  helperText={errors.itemId}
+                />
               </div>
 
               {/* Status Select */}
@@ -229,17 +236,14 @@ const CreateStage = () => {
                 <label className="block text-sm font-medium mb-2" style={{ color: 'var(--mp-text-secondary)' }}>
                   Trạng thái <span className="text-red-500">*</span>
                 </label>
-                <select
+                <MpCombobox
+                  options={statusOptions}
                   value={stage.status}
-                  onChange={(e) => setStage(prev => ({ ...prev, status: e.target.value }))}
-                  className={`mp-input w-full ${errors.status ? 'border-red-500' : ''}`}
-                >
-                  <option value="Đang sử dụng">Đang sử dụng</option>
-                  <option value="Ngừng sử dụng">Ngừng sử dụng</option>
-                </select>
-                {errors.status && (
-                  <p className="text-red-500 text-sm mt-1">{errors.status}</p>
-                )}
+                  onChange={(option) => setStage(prev => ({ ...prev, status: option?.value || 'Đang sử dụng' }))}
+                  placeholder="Chọn trạng thái"
+                  error={!!errors.status}
+                  helperText={errors.status}
+                />
               </div>
 
               {/* Description */}

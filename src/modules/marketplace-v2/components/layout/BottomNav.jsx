@@ -59,7 +59,7 @@ const BottomNav = ({ onCreateClick, user }) => {
         { path: '/marketplace-v2/warehouse', label: 'Kho', icon: Box },
         { path: '/marketplace-v2/mos', label: 'Sản xuất', icon: Factory },
         { path: '/marketplace-v2/create', label: 'Tạo mới', icon: Plus, isAction: true },
-        { path: '/marketplace-v2/warehouse/tickets?tab=issue', label: 'Phiếu', icon: FileText },
+        { path: '/marketplace-v2/warehouse/issue-tickets', label: 'Phiếu', icon: FileText },
         ...baseItems,
       ];
     }

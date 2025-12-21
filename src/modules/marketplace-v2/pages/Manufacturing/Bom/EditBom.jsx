@@ -12,6 +12,7 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
+import { MpCombobox } from '../../../components/ui/MpCombobox';
 import { useBomByItemId, useItemsInCompany, useUpdateBom } from '../../../hooks/useApi';
 
 /**
@@ -57,6 +58,19 @@ const EditBom = () => {
       item.itemType === 'Bán thành phẩm'
     );
   }, [itemsData]);
+
+  // Convert to Combobox options
+  const materialOptions = useMemo(() => 
+    materialItems.map(item => ({
+      value: item.itemId,
+      label: `${item.itemCode} - ${item.itemName}`
+    })), [materialItems]
+  );
+
+  const statusOptions = [
+    { value: 'Hoạt động', label: 'Hoạt động' },
+    { value: 'Không hoạt động', label: 'Không hoạt động' }
+  ];
 
   const handleAddMaterial = () => {
     setFormData(prev => ({
@@ -204,14 +218,12 @@ const EditBom = () => {
             <label className="block text-sm font-medium mb-2" style={{ color: 'var(--mp-text-secondary)' }}>
               Trạng thái
             </label>
-            <select
+            <MpCombobox
+              options={statusOptions}
               value={formData.status}
-              onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value }))}
-              className="mp-input w-full"
-            >
-              <option value="Hoạt động">Hoạt động</option>
-              <option value="Không hoạt động">Không hoạt động</option>
-            </select>
+              onChange={(option) => setFormData(prev => ({ ...prev, status: option?.value || 'Hoạt động' }))}
+              placeholder="Chọn trạng thái"
+            />
           </div>
           <div>
             <label className="block text-sm font-medium mb-2" style={{ color: 'var(--mp-text-secondary)' }}>
@@ -277,21 +289,14 @@ const EditBom = () => {
                   <label className="block text-xs font-medium mb-1" style={{ color: 'var(--mp-text-tertiary)' }}>
                     Nguyên vật liệu *
                   </label>
-                  <select
+                  <MpCombobox
+                    options={materialOptions}
                     value={detail.itemId}
-                    onChange={(e) => handleMaterialChange(index, 'itemId', e.target.value)}
-                    className="mp-input w-full text-sm"
-                  >
-                    <option value="">-- Chọn NVL --</option>
-                    {materialItems.map(item => (
-                      <option key={item.itemId} value={item.itemId}>
-                        {item.itemCode} - {item.itemName}
-                      </option>
-                    ))}
-                  </select>
-                  {errors[`material_${index}`] && (
-                    <p className="mt-1 text-xs text-red-500">{errors[`material_${index}`]}</p>
-                  )}
+                    onChange={(option) => handleMaterialChange(index, 'itemId', option?.value || '')}
+                    placeholder="Chọn NVL"
+                    error={!!errors[`material_${index}`]}
+                    helperText={errors[`material_${index}`]}
+                  />
                 </div>
                 
                 <div className="w-full md:w-24">

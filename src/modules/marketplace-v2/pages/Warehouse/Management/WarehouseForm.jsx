@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { Save } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { MpCombobox } from '../../../components/ui/MpCombobox';
 
 const WarehouseForm = ({ 
   initialData = {}, 
@@ -57,6 +58,19 @@ const WarehouseForm = ({
     }
   };
 
+  const warehouseTypes = [
+    { value: 'Nguyên vật liệu', label: 'Nguyên vật liệu' },
+    { value: 'Thành phẩm', label: 'Thành phẩm' },
+    { value: 'Hàng lỗi', label: 'Hàng lỗi' },
+    { value: 'Nhận hàng', label: 'Nhận hàng' },
+    { value: 'Xuất hàng', label: 'Xuất hàng' }
+  ];
+
+  const warehouseStatuses = [
+    { value: 'Đang sử dụng', label: 'Đang sử dụng' },
+    { value: 'Ngừng sử dụng', label: 'Ngừng sử dụng' }
+  ];
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -89,33 +103,28 @@ const WarehouseForm = ({
                 <label className="block text-sm font-medium mb-1" style={{ color: 'var(--mp-text-secondary)' }}>
                   Loại kho
                 </label>
-                <select
-                  name="warehouseType"
+                <MpCombobox
+                  options={warehouseTypes}
                   value={formData.warehouseType}
-                  onChange={handleChange}
-                  className="mp-input w-full"
-                >
-                  <option value="Nguyên vật liệu">Nguyên vật liệu</option>
-                  <option value="Thành phẩm">Thành phẩm</option>
-                  <option value="Hàng lỗi">Hàng lỗi</option>
-                  <option value="Nhận hàng">Nhận hàng</option>
-                  <option value="Xuất hàng">Xuất hàng</option>
-                </select>
+                  onChange={(option) => handleChange({ target: { name: 'warehouseType', value: option?.value || '' } })}
+                  placeholder="Chọn loại kho"
+                  error={!!errors.warehouseType}
+                  helperText={errors.warehouseType}
+                />
               </div>
 
                <div>
                 <label className="block text-sm font-medium mb-1" style={{ color: 'var(--mp-text-secondary)' }}>
                   Trạng thái
                 </label>
-                <select
-                  name="status"
+                <MpCombobox
+                  options={warehouseStatuses}
                   value={formData.status}
-                  onChange={handleChange}
-                  className="mp-input w-full"
-                >
-                  <option value="Đang sử dụng">Đang sử dụng</option>
-                  <option value="Ngừng sử dụng">Ngừng sử dụng</option>
-                </select>
+                  onChange={(option) => handleChange({ target: { name: 'status', value: option?.value || '' } })}
+                  placeholder="Chọn trạng thái"
+                  error={!!errors.status}
+                  helperText={errors.status}
+                />
               </div>
             </div>
           </div>

@@ -11,6 +11,7 @@ import {
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
+import { MpCombobox } from '../../../components/ui/MpCombobox';
 import { useProducts, useStageById, useUpdateStage } from '../../../hooks/useApi';
 
 /**
@@ -41,6 +42,11 @@ const EditStage = () => {
   const items = (itemsData || []).filter(
     item => item.itemType === 'Thành phẩm' || item.itemType === 'Bán thành phẩm'
   );
+
+  const statusOptions = [
+    { value: 'Đang sử dụng', label: 'Đang sử dụng' },
+    { value: 'Ngừng sử dụng', label: 'Ngừng sử dụng' }
+  ];
 
   // Initialize form with fetched data
   useEffect(() => {
@@ -249,17 +255,14 @@ const EditStage = () => {
                 <label className="block text-sm font-medium mb-2" style={{ color: 'var(--mp-text-secondary)' }}>
                   Trạng thái <span className="text-red-500">*</span>
                 </label>
-                <select
+                <MpCombobox
+                  options={statusOptions}
                   value={stage.status}
-                  onChange={(e) => setStage(prev => ({ ...prev, status: e.target.value }))}
-                  className={`mp-input w-full ${errors.status ? 'border-red-500' : ''}`}
-                >
-                  <option value="Đang sử dụng">Đang sử dụng</option>
-                  <option value="Ngừng sử dụng">Ngừng sử dụng</option>
-                </select>
-                {errors.status && (
-                  <p className="text-red-500 text-sm mt-1">{errors.status}</p>
-                )}
+                  onChange={(option) => setStage(prev => ({ ...prev, status: option?.value || 'Đang sử dụng' }))}
+                  placeholder="Chọn trạng thái"
+                  error={!!errors.status}
+                  helperText={errors.status}
+                />
               </div>
 
               {/* Description */}
