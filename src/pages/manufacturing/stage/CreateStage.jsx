@@ -74,13 +74,23 @@ const CreateStage = () => {
     };
 
     try {
-      await createStage(request, token);
+      const response = await createStage(request, token);
+      
+      // Check if backend returned error in response body with statusCode
+      if (response?.statusCode === 400 || response?.statusCode >= 400) {
+        toastrService.error(response.message || "Lỗi khi tạo Stage!");
+        return;
+      }
+      
       toastrService.success("Tạo công đoạn sản xuất thành công!");
       navigate("/stages");
     } catch (error) {
-      toastrService.error(
-        error.response?.data?.message || "Lỗi khi tạo Stage!"
-      );
+      // Handle both HTTP error responses and custom error messages from backend
+      const errorMessage = 
+        error.response?.data?.message || 
+        error.message || 
+        "Lỗi khi tạo Stage!";
+      toastrService.error(errorMessage);
     }
   };
 
@@ -117,10 +127,33 @@ const CreateStage = () => {
         await performCreateStage();
       }
     } catch (error) {
-      toastrService.error(
-        error.response?.data?.message || "Lỗi khi kiểm tra hoặc tạo Stage!"
-      );
+      // Handle both HTTP error responses and custom error messages from backend
+      const errorMessage = 
+        error.response?.data?.message || 
+        error.message || 
+        "Lỗi khi kiểm tra hoặc tạo Stage!";
+      toastrService.error(errorMessage);
     }
+  };
+
+  // Check if form is valid to enable/disable submit button
+  const isFormValid = () => {
+    // Required fields must be filled
+    if (!stage.itemId || !stage.itemCode || !stage.itemName) {
+      return false;
+    }
+    // Must have at least one stage detail
+    if (stageDetails.length === 0) {
+      return false;
+    }
+    // All stage details must be valid
+    const hasInvalidDetails = stageDetails.some(
+      (detail) => !detail.stageName?.trim() || detail.estimatedTime < 0
+    );
+    if (hasInvalidDetails) {
+      return false;
+    }
+    return true;
   };
 
   return (
@@ -165,7 +198,8 @@ const CreateStage = () => {
           type="button"
           variant="default"
           onClick={handleSubmit}
-          className="gap-2 bg-blue-600 hover:bg-blue-700 min-w-[120px]"
+          disabled={!isFormValid()}
+          className="gap-2 bg-blue-600 hover:bg-blue-700 min-w-[120px] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Save className="w-4 h-4" />
           Thêm

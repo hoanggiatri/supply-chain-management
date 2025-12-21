@@ -1,19 +1,18 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { AddButton, EditButton } from "@/components/common/ActionButtons";
+import QuickViewModal from "@/components/common/QuickViewModal";
+import WarehouseForm from "@/components/general/WarehouseForm";
+import ListPageLayout from "@/components/layout/ListPageLayout";
+import { Button } from "@/components/ui/button";
+import { DataTable, createSortableHeader } from "@/components/ui/data-table";
 import {
   getAllWarehousesInCompany,
   updateWarehouse,
 } from "@/services/general/WarehouseService";
 import toastrService from "@/services/toastrService";
-import { DataTable, createSortableHeader } from "@/components/ui/data-table";
-import { AddButton } from "@/components/common/ActionButtons";
-import ListPageLayout from "@/components/layout/ListPageLayout";
-import QuickViewModal from "@/components/common/QuickViewModal";
-import WarehouseForm from "@/components/general/WarehouseForm";
 import { PencilIcon } from "@heroicons/react/24/outline";
-import { Button } from "@/components/ui/button";
-import { EditButton } from "@/components/common/ActionButtons";
-import { X, Save } from "lucide-react";
+import { Save, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const WarehouseInCompany = () => {
   const [warehouses, setWarehouses] = useState([]);
@@ -277,6 +276,12 @@ const WarehouseInCompany = () => {
                           warehouseCode,
                           ...payload
                         } = formData;
+                        
+                        // Ensure maxCapacity is a number
+                        if (payload.maxCapacity !== undefined) {
+                          payload.maxCapacity = Number(payload.maxCapacity);
+                        }
+                        
                         await updateWarehouse(
                           selectedWarehouse.warehouseId,
                           payload,

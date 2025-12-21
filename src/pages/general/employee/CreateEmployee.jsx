@@ -91,7 +91,6 @@ const CreateEmployee = () => {
         payload.dateOfBirth = new Date(payload.dateOfBirth).toISOString();
       if (payload.startDate)
         payload.startDate = new Date(payload.startDate).toISOString();
-
       const newEmployee = await createEmployee(payload, token);
 
       // Upload avatar if selected

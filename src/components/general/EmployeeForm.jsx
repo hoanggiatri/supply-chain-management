@@ -7,9 +7,9 @@ import toastrService from "@/services/toastrService";
 import { useEffect, useState } from "react";
 
 const GENDER_OPTIONS = [
-  { value: "Nam", label: "Nam" },
-  { value: "Nữ", label: "Nữ" },
-  { value: "Khác", label: "Khác" },
+  { value: "male", label: "Nam" },
+  { value: "female", label: "Nữ" },
+  { value: "other", label: "Khác" },
 ];
 
 const STATUS_OPTIONS = [
@@ -126,11 +126,13 @@ const EmployeeForm = ({
           id="employeeCode"
           name="employeeCode"
           value={employee.employeeCode || ""}
-          readOnly
-          disabled
-          className={`bg-gray-100 ${errors.employeeCode ? "border-red-500" : ""}`}
+          onChange={onChange}
+          className={errors.employeeCode ? "border-red-500" : ""}
           placeholder="Nhập mã nhân viên"
         />
+        {errors.employeeCode && (
+          <p className="text-sm text-red-500">{errors.employeeCode}</p>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -143,6 +145,7 @@ const EmployeeForm = ({
           value={employee.employeeName || ""}
           onChange={onChange}
           readOnly={isFieldReadOnly("employeeName")}
+          placeholder="Nhập họ và tên"
           className={errors.employeeName ? "border-red-500" : ""}
         />
         {errors.employeeName && (
@@ -179,6 +182,72 @@ const EmployeeForm = ({
         />
         {errors.dateOfBirth && (
           <p className="text-sm text-red-500">{errors.dateOfBirth}</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="startDate">Ngày vào làm</Label>
+        <DatePicker
+          name="startDate"
+          value={employee.startDate ? employee.startDate.substring(0, 10) : ""}
+          onChange={onChange}
+          disabled={isFieldReadOnly("startDate")}
+          error={!!errors.startDate}
+          placeholder="Chọn ngày vào làm"
+        />
+        {errors.startDate && (
+          <p className="text-sm text-red-500">{errors.startDate}</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="position">Chức vụ</Label>
+        <Input
+          id="position"
+          name="position"
+          value={employee.position || ""}
+          onChange={onChange}
+          readOnly={isFieldReadOnly("position") || mode === "create"}
+          className={errors.position ? "border-red-500" : ""}
+          placeholder={mode === "create" ? "Tự động theo bộ phận" : "Nhập chức vụ"}
+        />
+        {errors.position && (
+          <p className="text-sm text-red-500">{errors.position}</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="phoneNumber">
+          SĐT <span className="text-red-500">*</span>
+        </Label>
+        <Input
+          id="phoneNumber"
+          name="phoneNumber"
+          type="tel"
+          value={employee.phoneNumber || ""}
+          onChange={onChange}
+          readOnly={isFieldReadOnly("phoneNumber")}
+          className={errors.phoneNumber ? "border-red-500" : ""}
+          placeholder="Nhập số điện thoại"
+        />
+        {errors.phoneNumber && (
+          <p className="text-sm text-red-500">{errors.phoneNumber}</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="address">Địa chỉ</Label>
+        <Input
+          id="address"
+          name="address"
+          value={employee.address || ""}
+          onChange={onChange}
+          readOnly={isFieldReadOnly("address")}
+          className={errors.address ? "border-red-500" : ""}
+          placeholder="Nhập địa chỉ"
+        />
+        {errors.address && (
+          <p className="text-sm text-red-500">{errors.address}</p>
         )}
       </div>
 

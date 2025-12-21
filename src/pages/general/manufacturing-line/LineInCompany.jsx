@@ -1,19 +1,18 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { AddButton, EditButton } from "@/components/common/ActionButtons";
+import QuickViewModal from "@/components/common/QuickViewModal";
+import LineForm from "@/components/general/LineForm";
+import ListPageLayout from "@/components/layout/ListPageLayout";
+import { Button } from "@/components/ui/button";
+import { DataTable, createSortableHeader } from "@/components/ui/data-table";
 import {
   getAllLinesInCompany,
   updateLine,
 } from "@/services/general/ManufactureLineService";
 import toastrService from "@/services/toastrService";
-import { DataTable, createSortableHeader } from "@/components/ui/data-table";
-import { AddButton } from "@/components/common/ActionButtons";
-import ListPageLayout from "@/components/layout/ListPageLayout";
-import QuickViewModal from "@/components/common/QuickViewModal";
-import LineForm from "@/components/general/LineForm";
 import { PencilIcon } from "@heroicons/react/24/outline";
-import { Button } from "@/components/ui/button";
-import { EditButton } from "@/components/common/ActionButtons";
-import { X, Save } from "lucide-react";
+import { Save, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const LineInCompany = () => {
   const [lines, setLines] = useState([]);
@@ -235,6 +234,12 @@ const LineInCompany = () => {
                           lineCode,
                           ...payload
                         } = formData;
+                        
+                        // Ensure capacity is a number
+                        if (payload.capacity !== undefined) {
+                          payload.capacity = Number(payload.capacity);
+                        }
+                        
                         await updateLine(selectedLine.lineId, payload, token);
                         toastrService.success(
                           "Cập nhật dây chuyền thành công!"

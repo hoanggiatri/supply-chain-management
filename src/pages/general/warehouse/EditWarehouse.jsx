@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import WarehouseForm from "@components/general/WarehouseForm";
+import FormPageLayout from "@/components/layout/FormPageLayout";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
-  getWarehouseById,
-  updateWarehouse,
+    getWarehouseById,
+    updateWarehouse,
 } from "@/services/general/WarehouseService";
 import toastrService from "@/services/toastrService";
-import { Button } from "@/components/ui/button";
-import FormPageLayout from "@/components/layout/FormPageLayout";
-import { Skeleton } from "@/components/ui/skeleton";
+import WarehouseForm from "@components/general/WarehouseForm";
 import { Save, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 const EditWarehouse = () => {
   const { warehouseId } = useParams();
@@ -91,6 +91,12 @@ const EditWarehouse = () => {
         warehouseCode,
         ...payload
       } = editedWarehouse || {};
+      
+      // Ensure maxCapacity is a number
+      if (payload.maxCapacity !== undefined) {
+        payload.maxCapacity = Number(payload.maxCapacity);
+      }
+      
       const updatedWarehouse = await updateWarehouse(
         warehouseId,
         payload,

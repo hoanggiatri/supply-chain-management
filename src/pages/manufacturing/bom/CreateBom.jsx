@@ -97,12 +97,44 @@ const CreateBom = () => {
         })),
       };
 
-      await createBom(request, token);
+      const response = await createBom(request, token);
+      
+      // Check if backend returned error in response body with statusCode
+      if (response?.statusCode === 400 || response?.statusCode >= 400) {
+        toastrService.error(response.message || "Lỗi khi tạo BOM!");
+        return;
+      }
+      
       toastrService.success("Tạo BOM thành công!");
       navigate("/boms");
     } catch (error) {
-      toastrService.error(error.response?.data?.message || "Lỗi khi tạo BOM!");
+      // Handle both HTTP error responses and custom error messages from backend
+      const errorMessage = 
+        error.response?.data?.message || 
+        error.message || 
+        "Lỗi khi tạo BOM!";
+      toastrService.error(errorMessage);
     }
+  };
+
+  // Check if form is valid to enable/disable submit button
+  const isFormValid = () => {
+    // Required fields must be filled
+    if (!bom.itemId || !bom.itemCode || !bom.itemName) {
+      return false;
+    }
+    // Must have at least one material
+    if (bomDetails.length === 0) {
+      return false;
+    }
+    // All materials must be valid
+    const hasInvalidDetails = bomDetails.some(
+      (detail) => !detail.itemId || detail.quantity <= 0
+    );
+    if (hasInvalidDetails) {
+      return false;
+    }
+    return true;
   };
 
   return (
@@ -148,7 +180,8 @@ const CreateBom = () => {
           type="button"
           variant="default"
           onClick={handleSubmit}
-          className="gap-2 bg-blue-600 hover:bg-blue-700 min-w-[120px]"
+          disabled={!isFormValid()}
+          className="gap-2 bg-blue-600 hover:bg-blue-700 min-w-[120px] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Save className="w-4 h-4" />
           Thêm
