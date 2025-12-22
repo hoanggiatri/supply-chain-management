@@ -1,4 +1,4 @@
-import { sendVerifyOtp, verifyOtp } from "@/services/general/AuthService";
+import { forgotPassword, verifyOtp } from "@/services/general/AuthService";
 import toastrService from "@/services/toastrService";
 import { AlertCircle, ArrowLeft, Loader2, Mail, Package, RefreshCw } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -109,7 +109,7 @@ const OtpVerificationForm = () => {
   const handleResendOtp = async () => {
     setIsResending(true);
     try {
-      await sendVerifyOtp(email);
+      await forgotPassword(email);
       toastrService.success("Mã OTP đã được gửi lại!");
       setResendTimer(60);
       setOtp(["", "", "", "", "", ""]);

@@ -112,7 +112,7 @@ const QuotationList = () => {
             className="text-2xl lg:text-3xl font-bold"
             style={{ color: 'var(--mp-text-primary)' }}
           >
-            Báo giá từ NCC
+            Báo giá từ nhà cung cấp
           </h1>
           <p
             className="mt-1"

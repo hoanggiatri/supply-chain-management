@@ -345,7 +345,7 @@ const CheckInventory = () => {
   const getConfirmLabel = () => {
     if (type === 'mo') return 'Xác nhận MO';
     if (type === 'tt') return 'Xác nhận Chuyển kho';
-    if (type === 'po') return 'Xác nhận & Tạo SO';
+    if (type === 'po') return 'Xác nhận & Tạo đơn bán hàng';
     return 'Xác nhận';
   };
 

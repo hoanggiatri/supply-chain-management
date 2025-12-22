@@ -4,22 +4,22 @@ import { getSoById, updateSoStatus } from '@/services/sale/SoService';
 import dayjs from 'dayjs';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-    CheckCircle2,
-    MapPin,
-    Package,
-    Plus,
-    Truck,
-    X
+  CheckCircle2,
+  MapPin,
+  Package,
+  Plus,
+  Truck,
+  X
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import BackButton from '../../../components/ui/BackButton';
 import {
-    useCreateDeliveryProcess,
-    useDeliveryOrderById,
-    useDeliveryProcesses,
-    useUpdateDeliveryOrder
+  useCreateDeliveryProcess,
+  useDeliveryOrderById,
+  useDeliveryProcesses,
+  useUpdateDeliveryOrder
 } from '../../../hooks/useApi';
 
 // Status configuration
@@ -131,6 +131,8 @@ const TimelineItem = ({ process, isLast, isFirst }) => {
 const AddStopForm = ({ doId, onSuccess }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [location, setLocation] = useState('');
+  const [arrivalTime, setArrivalTime] = useState(dayjs().format('YYYY-MM-DDTHH:mm'));
+  const [note, setNote] = useState('');
   const createProcessMutation = useCreateDeliveryProcess();
 
   const handleSubmit = (e) => {
@@ -140,11 +142,14 @@ const AddStopForm = ({ doId, onSuccess }) => {
     createProcessMutation.mutate({
       doId: parseInt(doId),
       location: location.trim(),
-      arrivalTime: dayjs().format('YYYY-MM-DDTHH:mm:ss')
+      arrivalTime: arrivalTime ? dayjs(arrivalTime).format('YYYY-MM-DDTHH:mm:ss') : dayjs().format('YYYY-MM-DDTHH:mm:ss'),
+      note: note.trim() || undefined
     }, {
       onSuccess: () => {
         toast.success('Thêm điểm dừng thành công!');
         setLocation('');
+        setArrivalTime(dayjs().format('YYYY-MM-DDTHH:mm'));
+        setNote('');
         setIsExpanded(false);
         onSuccess?.();
       },
@@ -152,6 +157,13 @@ const AddStopForm = ({ doId, onSuccess }) => {
         toast.error(err.response?.data?.message || 'Có lỗi xảy ra');
       }
     });
+  };
+
+  const handleCancel = () => {
+    setIsExpanded(false);
+    setLocation('');
+    setArrivalTime(dayjs().format('YYYY-MM-DDTHH:mm'));
+    setNote('');
   };
 
   return (
@@ -167,27 +179,62 @@ const AddStopForm = ({ doId, onSuccess }) => {
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
               onSubmit={handleSubmit}
-              className="mp-glass-card p-4"
+              className="mp-glass-card p-4 space-y-3"
             >
-              <input
-                type="text"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                placeholder="Nhập địa điểm điểm dừng..."
-                className="mp-input w-full mb-3"
-                autoFocus
-              />
-              <div className="flex gap-2">
+              {/* Location */}
+              <div>
+                <label className="block text-xs font-medium mb-1" style={{ color: 'var(--mp-text-tertiary)' }}>
+                  Địa điểm <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  placeholder="Nhập địa điểm điểm dừng..."
+                  className="mp-input w-full"
+                  autoFocus
+                />
+              </div>
+
+              {/* Arrival Time */}
+              <div>
+                <label className="block text-xs font-medium mb-1" style={{ color: 'var(--mp-text-tertiary)' }}>
+                  Thời gian đến
+                </label>
+                <input
+                  type="datetime-local"
+                  value={arrivalTime}
+                  onChange={(e) => setArrivalTime(e.target.value)}
+                  className="mp-input w-full"
+                />
+              </div>
+
+              {/* Note */}
+              <div>
+                <label className="block text-xs font-medium mb-1" style={{ color: 'var(--mp-text-tertiary)' }}>
+                  Ghi chú
+                </label>
+                <textarea
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  placeholder="Nhập ghi chú (tùy chọn)..."
+                  className="mp-input w-full resize-none"
+                  rows={2}
+                />
+              </div>
+
+              {/* Buttons */}
+              <div className="flex gap-2 pt-1">
                 <button
                   type="submit"
-                  disabled={createProcessMutation.isLoading}
-                  className="px-4 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors"
+                  disabled={createProcessMutation.isLoading || !location.trim()}
+                  className="px-4 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {createProcessMutation.isLoading ? 'Đang lưu...' : 'Thêm'}
+                  {createProcessMutation.isLoading ? 'Đang lưu...' : 'Thêm điểm dừng'}
                 </button>
                 <button
                   type="button"
-                  onClick={() => { setIsExpanded(false); setLocation(''); }}
+                  onClick={handleCancel}
                   className="px-4 py-2 text-gray-500 text-sm hover:bg-gray-100 rounded-lg transition-colors"
                 >
                   Hủy
@@ -212,7 +259,7 @@ const AddStopForm = ({ doId, onSuccess }) => {
 };
 
 // Confirm Modal Component
-const ConfirmModal = ({ isOpen, onClose, onConfirm, title, message, isLoading }) => {
+const ConfirmModal = ({ isOpen, onClose, onConfirm, title, message, isLoading, isSuccess, successMessage }) => {
   if (!isOpen) return null;
 
   return (
@@ -224,29 +271,55 @@ const ConfirmModal = ({ isOpen, onClose, onConfirm, title, message, isLoading })
       >
         <div className="flex items-center justify-between p-4 border-b dark:border-gray-700">
           <h3 className="font-semibold text-lg" style={{ color: 'var(--mp-text-primary)' }}>
-            {title}
+            {isSuccess ? 'Thành công' : title}
           </h3>
           <button onClick={onClose} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full">
             <X size={20} />
           </button>
         </div>
         <div className="p-4">
-          <p style={{ color: 'var(--mp-text-secondary)' }}>{message}</p>
+          {isSuccess ? (
+            <div className="flex flex-col items-center py-4">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: 'spring', stiffness: 200, damping: 10 }}
+              >
+                <CheckCircle2 size={64} className="text-green-500 mb-4" />
+              </motion.div>
+              <p className="text-center font-medium" style={{ color: 'var(--mp-text-primary)' }}>
+                {successMessage || 'Thao tác thành công!'}
+              </p>
+            </div>
+          ) : (
+            <p style={{ color: 'var(--mp-text-secondary)' }}>{message}</p>
+          )}
         </div>
         <div className="flex justify-end gap-2 p-4 border-t dark:border-gray-700">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-          >
-            Hủy
-          </button>
-          <button
-            onClick={onConfirm}
-            disabled={isLoading}
-            className="px-4 py-2 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors disabled:opacity-50"
-          >
-            {isLoading ? 'Đang xử lý...' : 'Xác nhận'}
-          </button>
+          {isSuccess ? (
+            <button
+              onClick={onClose}
+              className="px-4 py-2 text-sm font-medium rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors"
+            >
+              Đóng
+            </button>
+          ) : (
+            <>
+              <button
+                onClick={onClose}
+                className="px-4 py-2 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={onConfirm}
+                disabled={isLoading}
+                className="px-4 py-2 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors disabled:opacity-50"
+              >
+                {isLoading ? 'Đang xử lý...' : 'Xác nhận'}
+              </button>
+            </>
+          )}
         </div>
       </motion.div>
     </div>
@@ -267,7 +340,7 @@ const DeliveryDetail = () => {
   const updateDoMutation = useUpdateDeliveryOrder();
 
   const [so, setSo] = useState(null);
-  const [confirmModal, setConfirmModal] = useState({ open: false, type: null });
+  const [confirmModal, setConfirmModal] = useState({ open: false, type: null, isSuccess: false, successMessage: '' });
 
   const processes = Array.isArray(processesRaw) ? processesRaw : [];
 
@@ -287,7 +360,7 @@ const DeliveryDetail = () => {
     try {
       await updateDoMutation.mutateAsync({
         doId,
-        request: { createdBy: employeeName, status: 'Chờ lấy hàng' }
+        request: { soId: deliveryOrder.soId, createdBy: employeeName, status: 'Chờ lấy hàng' }
       });
       if (so) {
         await updateSoStatus(so.soId, 'Đang vận chuyển', token);
@@ -362,10 +435,10 @@ const DeliveryDetail = () => {
         }, token);
       }
 
-      toast.success('Hoàn thành đơn vận chuyển!');
       refetch();
       refetchProcesses();
-      setConfirmModal({ open: false, type: null });
+      // Show success in modal instead of closing
+      setConfirmModal(prev => ({ ...prev, isSuccess: true, successMessage: 'Hoàn thành đơn vận chuyển thành công!' }));
     } catch (err) {
       toast.error(err.response?.data?.message || 'Có lỗi xảy ra');
     }
@@ -384,7 +457,7 @@ const DeliveryDetail = () => {
       {/* Confirm Modal */}
       <ConfirmModal
         isOpen={confirmModal.open}
-        onClose={() => setConfirmModal({ open: false, type: null })}
+        onClose={() => setConfirmModal({ open: false, type: null, isSuccess: false, successMessage: '' })}
         onConfirm={confirmModal.type === 'confirm' ? handleConfirm : confirmModal.type === 'pickup' ? handlePickup : handleComplete}
         title="Xác nhận"
         message={
@@ -393,6 +466,8 @@ const DeliveryDetail = () => {
           'Bạn có chắc muốn hoàn thành đơn vận chuyển này?'
         }
         isLoading={updateDoMutation.isLoading}
+        isSuccess={confirmModal.isSuccess}
+        successMessage={confirmModal.successMessage}
       />
 
       {/* Header */}

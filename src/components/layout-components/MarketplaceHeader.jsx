@@ -43,7 +43,7 @@ const PURCHASING_DROPDOWN_ITEMS = [
     Icon: DocumentTextIcon,
   },
   {
-    label: "Báo giá từ NCC",
+    label: "Báo giá từ nhà cung cấp",
     path: "/marketplace/customer-quotations",
     Icon: CurrencyDollarIcon,
   },

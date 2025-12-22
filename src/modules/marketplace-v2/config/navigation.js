@@ -21,7 +21,7 @@ import {
 // Mua hàng menu - for "Mua, Bán hàng" department
 export const PURCHASING_MENU = [
   { path: '/marketplace-v2/rfqs', label: 'Yêu cầu báo giá', icon: FileText },
-  { path: '/marketplace-v2/customer-quotations', label: 'Báo giá từ NCC', icon: DollarSign },
+  { path: '/marketplace-v2/customer-quotations', label: 'Báo giá từ nhà cung cấp', icon: DollarSign },
   { path: '/marketplace-v2/pos', label: 'Đơn mua hàng', icon: ShoppingCart },
   { path: '/marketplace-v2/suppliers', label: 'Nhà cung cấp', icon: Building2 },
   { path: '/marketplace-v2/purchase-report', label: 'Báo cáo mua hàng', icon: TrendingUp },
