@@ -1,31 +1,33 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  ArrowLeft,
-  ArrowRight,
-  Minus,
-  Package,
-  Plus,
-  Save,
-  Search,
-  Trash2,
-  Warehouse
+    ArrowLeft,
+    ArrowRight,
+    Minus,
+    Package,
+    Plus,
+    Save,
+    Search,
+    Trash2,
+    Warehouse
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { MpCombobox } from '../../../components/ui/MpCombobox';
 import { useDebounce } from '../../../hooks';
 import {
-  useCreateTransferTicket,
-  useInventoryInCompany,
-  useWarehousesInCompany
+    useInventoryInCompany,
+    useTransferTicketById,
+    useUpdateTransferTicket,
+    useWarehousesInCompany
 } from '../../../hooks/useApi';
 
 /**
- * Create Transfer Ticket Page
- * Form to create a new transfer ticket between warehouses
+ * Edit Transfer Ticket Page
+ * Form to edit an existing transfer ticket
  */
-const CreateTransferTicket = () => {
+const EditTransferTicket = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
   
   const [fromWarehouse, setFromWarehouse] = useState(null);
@@ -34,20 +36,51 @@ const CreateTransferTicket = () => {
   const [reasonError, setReasonError] = useState('');
   const [selectedItems, setSelectedItems] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const debouncedSearch = useDebounce(searchQuery, 300);
 
   // Fetch data
+  const { data: ticket, isLoading: ticketLoading } = useTransferTicketById(id);
   const { data: warehouses = [], isLoading: warehouseLoading } = useWarehousesInCompany();
   const { data: inventoryData = [], isLoading: inventoryLoading } = useInventoryInCompany();
-  const createMutation = useCreateTransferTicket();
+  const updateMutation = useUpdateTransferTicket();
+
+  // Initialize form with ticket data
+  useEffect(() => {
+    if (ticket && warehouses.length > 0 && !isInitialized) {
+      const fromWh = warehouses.find(w => w.warehouseId === ticket.fromWarehouseId);
+      const toWh = warehouses.find(w => w.warehouseId === ticket.toWarehouseId);
+      
+      setFromWarehouse(fromWh || null);
+      setToWarehouse(toWh || null);
+      setReason(ticket.reason || '');
+      
+      // Map existing items
+      if (ticket.transferTicketDetails && ticket.transferTicketDetails.length > 0) {
+        const existingItems = ticket.transferTicketDetails.map(detail => ({
+          itemId: detail.itemId,
+          itemCode: detail.itemCode,
+          itemName: detail.itemName,
+          quantity: detail.quantity,
+          note: detail.note || '',
+          maxQuantity: detail.quantity + (inventoryData.find(inv => 
+            inv.itemCode === detail.itemCode && inv.warehouseCode === ticket.fromWarehouseCode
+          )?.quantity || 0)
+        }));
+        setSelectedItems(existingItems);
+      }
+      
+      setIsInitialized(true);
+    }
+  }, [ticket, warehouses, inventoryData, isInitialized]);
 
   // Convert warehouses to Combobox options
   const warehouseOptions = useMemo(() => 
     warehouses.map(w => ({
       value: w.warehouseId,
       label: `${w.warehouseCode} - ${w.warehouseName}`,
-      warehouseData: w // Store full warehouse object for later use
+      warehouseData: w
     })), [warehouses]
   );
 
@@ -76,11 +109,6 @@ const CreateTransferTicket = () => {
     const selectedCodes = new Set(selectedItems.map(i => i.itemCode));
     return availableItems.filter(inv => !selectedCodes.has(inv.itemCode));
   }, [availableItems, selectedItems]);
-
-  // Reset selected items when source warehouse changes
-  useEffect(() => {
-    setSelectedItems([]);
-  }, [fromWarehouse]);
 
   const handleAddItem = (inventoryItem) => {
     setSelectedItems(prev => [...prev, {
@@ -115,48 +143,51 @@ const CreateTransferTicket = () => {
     }));
   };
 
-  const handleSubmit = async () => {
-    // Validation
-    let hasError = false;
-    
+  const validateForm = () => {
+    let isValid = true;
+
+    // Validate reason
     if (!reason.trim()) {
       setReasonError('Vui lòng nhập lý do chuyển kho');
-      hasError = true;
+      isValid = false;
     } else {
       setReasonError('');
     }
-    
+
     if (!fromWarehouse) {
       toast.error('Vui lòng chọn kho xuất');
-      hasError = true;
+      isValid = false;
     }
     if (!toWarehouse) {
       toast.error('Vui lòng chọn kho nhập');
-      hasError = true;
+      isValid = false;
     }
     if (fromWarehouse && toWarehouse && fromWarehouse.warehouseId === toWarehouse.warehouseId) {
       toast.error('Kho xuất và kho nhập không được trùng nhau');
-      hasError = true;
+      isValid = false;
     }
     if (selectedItems.length === 0) {
       toast.error('Vui lòng chọn ít nhất một sản phẩm');
-      hasError = true;
+      isValid = false;
     }
-    
-    if (hasError) return;
 
-    // Get auth data inline (since getAuthData is not exported from useApi)
+    return isValid;
+  };
+
+  const handleSubmit = async () => {
+    if (!validateForm()) return;
+
+    // Get auth data inline
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const companyId = parseInt(localStorage.getItem('companyId')) || user?.companyId || user?.company?.id;
-    const username = user?.username || user?.email || 'Unknown';
 
     const request = {
       companyId,
-      createdBy: username,
-      status: 'Chờ xác nhận',
       fromWarehouseId: fromWarehouse.warehouseId,
       toWarehouseId: toWarehouse.warehouseId,
-      reason,
+      reason: reason.trim(),
+      createdBy: ticket.createdBy || user?.username || 'Unknown',
+      status: ticket.status, // Keep original status
       transferTicketDetails: selectedItems.map(item => ({
         itemId: item.itemId,
         quantity: item.quantity,
@@ -165,16 +196,56 @@ const CreateTransferTicket = () => {
     };
 
     try {
-      await createMutation.mutateAsync(request);
-      toast.success('Tạo phiếu chuyển kho thành công');
-      navigate('/marketplace-v2/warehouse/transfer-tickets');
+      await updateMutation.mutateAsync({
+        ticketId: ticket.ticketId,
+        request
+      });
+      toast.success('Cập nhật phiếu chuyển kho thành công');
+      navigate(`/marketplace-v2/warehouse/transfer-ticket/${id}`);
     } catch (error) {
-      console.error('Error creating transfer ticket:', error);
-      toast.error('Có lỗi xảy ra khi tạo phiếu chuyển kho');
+      console.error('Error updating transfer ticket:', error);
+      toast.error(error.response?.data?.message || 'Có lỗi xảy ra khi cập nhật phiếu chuyển kho');
     }
   };
 
-  const isLoading = warehouseLoading || inventoryLoading;
+  const isLoading = ticketLoading || warehouseLoading || inventoryLoading;
+
+  if (isLoading && !isInitialized) {
+    return (
+      <div className="max-w-6xl mx-auto animate-pulse space-y-6">
+        <div className="h-8 bg-gray-200 rounded w-64" />
+        <div className="mp-glass-card p-6 h-64" />
+        <div className="mp-glass-card p-6 h-48" />
+      </div>
+    );
+  }
+
+  if (!ticket && !ticketLoading) {
+    return (
+      <div className="max-w-6xl mx-auto">
+        <div className="mp-glass-card p-8 text-center">
+          <p className="text-red-500 mb-4">Không tìm thấy phiếu chuyển kho</p>
+          <button onClick={() => navigate(-1)} className="mp-btn mp-btn-secondary">
+            Quay lại
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Check if ticket can be edited
+  if (ticket && ticket.status !== 'Chờ xác nhận') {
+    return (
+      <div className="max-w-6xl mx-auto">
+        <div className="mp-glass-card p-8 text-center">
+          <p className="text-amber-500 mb-4">Chỉ có thể chỉnh sửa phiếu ở trạng thái "Chờ xác nhận"</p>
+          <button onClick={() => navigate(-1)} className="mp-btn mp-btn-secondary">
+            Quay lại
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -194,10 +265,10 @@ const CreateTransferTicket = () => {
         </motion.button>
         <div className="flex-1">
           <h1 className="text-2xl font-bold" style={{ color: 'var(--mp-text-primary)' }}>
-            Tạo phiếu chuyển kho
+            Chỉnh sửa phiếu chuyển kho
           </h1>
           <p className="text-sm" style={{ color: 'var(--mp-text-secondary)' }}>
-            Tạo phiếu chuyển hàng giữa các kho
+            {ticket?.ticketCode}
           </p>
         </div>
       </motion.div>
@@ -228,6 +299,10 @@ const CreateTransferTicket = () => {
                   onChange={(option) => {
                     const wh = option ? warehouses.find(w => w.warehouseId === option.value) : null;
                     setFromWarehouse(wh);
+                    // Clear selected items when source warehouse changes
+                    if (wh?.warehouseId !== fromWarehouse?.warehouseId) {
+                      setSelectedItems([]);
+                    }
                   }}
                   placeholder="Chọn kho xuất"
                   disabled={isLoading}
@@ -466,19 +541,19 @@ const CreateTransferTicket = () => {
           >
             <button
               onClick={handleSubmit}
-              disabled={createMutation.isPending || selectedItems.length === 0 || !fromWarehouse || !toWarehouse}
+              disabled={updateMutation.isPending || selectedItems.length === 0 || !fromWarehouse || !toWarehouse}
               className="w-full mp-btn mp-btn-primary justify-center py-3"
               style={{ backgroundColor: '#3b82f6' }}
             >
-              {createMutation.isPending ? (
+              {updateMutation.isPending ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Đang tạo...
+                  Đang lưu...
                 </>
               ) : (
                 <>
                   <Save size={18} />
-                  Tạo phiếu chuyển kho
+                  Lưu thay đổi
                 </>
               )}
             </button>
@@ -489,4 +564,4 @@ const CreateTransferTicket = () => {
   );
 };
 
-export default CreateTransferTicket;
+export default EditTransferTicket;

@@ -54,6 +54,11 @@ const TransferTicketDetail = () => {
         reason: ticket.reason || '',
         status: 'Chờ xuất kho',
         createdBy: ticket.createdBy || '',
+        transferTicketDetails: (ticket.transferTicketDetails || []).map(detail => ({
+          itemId: detail.itemId,
+          quantity: detail.quantity,
+          note: detail.note || ''
+        }))
       };
 
       await updateMutation.mutateAsync({
@@ -79,6 +84,11 @@ const TransferTicketDetail = () => {
         reason: ticket.reason || '',
         status: 'Đã hủy',
         createdBy: ticket.createdBy || '',
+        transferTicketDetails: (ticket.transferTicketDetails || []).map(detail => ({
+          itemId: detail.itemId,
+          quantity: detail.quantity,
+          note: detail.note || ''
+        }))
       };
 
       await updateMutation.mutateAsync({

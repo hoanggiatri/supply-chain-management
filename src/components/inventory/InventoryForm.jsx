@@ -139,24 +139,6 @@ const InventoryForm = ({ inventory, onChange, setInventory, errors, mode }) => {
           <p className="text-sm text-red-500">{errors.onDemandQuantity}</p>
         )}
       </div>
-
-      {/* Trạng thái */}
-      <div className="space-y-2">
-        <Label htmlFor="status">Trạng thái</Label>
-        <Combobox
-          options={[
-            { value: "Đang sử dụng", label: "Đang sử dụng" },
-            { value: "Ngừng sử dụng", label: "Ngừng sử dụng" },
-          ]}
-          value={inventory.status}
-          onChange={(option) => handleSelectChange("status", option?.value)}
-          placeholder="Chọn trạng thái"
-          searchPlaceholder="Tìm trạng thái..."
-          emptyText="Không tìm thấy trạng thái"
-          disabled={mode === "create"}
-          className={errors.status ? "border-red-500" : ""}
-        />
-      </div>
     </div>
   );
 };

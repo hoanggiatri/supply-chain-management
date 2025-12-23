@@ -19,7 +19,6 @@ const CreateInventory = () => {
     itemCode: "",
     quantity: 0,
     onDemandQuantity: 0,
-    status: "Đang sử dụng",
   });
 
   const validateForm = () => {
@@ -62,7 +61,6 @@ const CreateInventory = () => {
         itemId: inventory.itemId,
         quantity: inventory.quantity,
         onDemandQuantity: inventory.onDemandQuantity,
-        status: inventory.status,
       };
 
       await createInventory(inv, token);

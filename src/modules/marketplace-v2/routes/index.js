@@ -41,6 +41,7 @@ const InventoryList = lazy(() => import('../pages/Warehouse/Inventory/InventoryL
 const AddInventory = lazy(() => import('../pages/Warehouse/Inventory/AddInventory'));
 const TransferTicketDetail = lazy(() => import('../pages/Warehouse/Tickets/TransferTicketDetail'));
 const CreateTransferTicket = lazy(() => import('../pages/Warehouse/Tickets/CreateTransferTicket'));
+const EditTransferTicket = lazy(() => import('../pages/Warehouse/Tickets/EditTransferTicket'));
 const DeliveryList = lazy(() => import('../pages/Warehouse/Delivery/DeliveryList'));
 const DeliveryDetail = lazy(() => import('../pages/Warehouse/Delivery/DeliveryDetail'));
 const MyProfile = lazy(() => import('../pages/Profile/MyProfile'));
@@ -577,6 +578,18 @@ const marketplaceV2Routes = [
     element: (
       <PrivateRoute
         element={withSuspense(CreateTransferTicket)()}
+        allowedRoles={['user']}
+        allowedDepartments={[DEPT_ADMIN, DEPT_WAREHOUSE]}
+      />
+    ),
+  },
+
+  // Edit Transfer Ticket
+  {
+    path: '/marketplace-v2/warehouse/edit-transfer/:id',
+    element: (
+      <PrivateRoute
+        element={withSuspense(EditTransferTicket)()}
         allowedRoles={['user']}
         allowedDepartments={[DEPT_ADMIN, DEPT_WAREHOUSE]}
       />

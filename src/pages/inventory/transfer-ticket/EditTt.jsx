@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from "react";
-import { Typography, Card, CardBody, Button } from "@material-tailwind/react";
-import { useNavigate, useParams } from "react-router-dom";
+import BackButton from "@/components/common/BackButton";
+import LoadingPaper from "@/components/content-components/LoadingPaper";
+import TtDetailTable from "@/components/inventory/TtDetailTable";
+import TtForm from "@/components/inventory/TtForm";
+import { getAllItemsInCompany } from "@/services/general/ItemService";
 import {
   getTransferTicketById,
   updateTransferTicket,
 } from "@/services/inventory/TransferTicketService";
-import { getAllItemsInCompany } from "@/services/general/ItemService";
-import TtForm from "@/components/inventory/TtForm";
-import TtDetailTable from "@/components/inventory/TtDetailTable";
-import LoadingPaper from "@/components/content-components/LoadingPaper";
 import toastrService from "@/services/toastrService";
-import BackButton from "@/components/common/BackButton";
 import { getButtonProps } from "@/utils/buttonStyles";
+import { Button, Card, CardBody, Typography } from "@material-tailwind/react";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 const EditTt = () => {
   const { ticketId } = useParams();
@@ -135,7 +135,7 @@ const EditTt = () => {
   };
 
   const handleCancel = () => {
-    navigate("/transfer-ticket");
+    navigate("/transfer-tickets");
   };
 
   if (loading) {
