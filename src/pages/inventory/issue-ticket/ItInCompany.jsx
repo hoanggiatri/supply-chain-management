@@ -11,9 +11,7 @@ const ItInCompany = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [filterStatus, setFilterStatus] = useState("Tất cả");
-  const [monthlyData, setMonthlyData] = useState([]);
-  const [forecastData, setForecastData] = useState([]);
-  const [chartLoading, setChartLoading] = useState(false);
+
 
   const token = localStorage.getItem("token");
   const companyId = localStorage.getItem("companyId");
@@ -37,26 +35,7 @@ const ItInCompany = () => {
     fetchTickets();
   }, [companyId, token]);
 
-  useEffect(() => {
-    const fetchChartData = async () => {
-      setChartLoading(true);
-      try {
-        const monthly = await getMonthlyIssueReport(companyId, "Tất cả", 0, token);
-        const forecast = await getIssueForecast(companyId, "Tất cả", 0, token);
-        setMonthlyData(monthly);
-        setForecastData(forecast);
-      } catch (error) {
-        toastrService.error(
-          error.response?.data?.message ||
-          "Có lỗi khi lấy dữ liệu biểu đồ!"
-        );
-      } finally {
-        setChartLoading(false);
-      }
-    };
 
-    fetchChartData();
-  }, [companyId, token]);
 
   const filteredTickets =
     !filterStatus || filterStatus === "Tất cả"
@@ -141,9 +120,9 @@ const ItInCompany = () => {
       <Card className="shadow-lg">
         <CardBody>
           <Typography variant="h4" color="blue-gray" className="mb-6 font-bold">
-              DANH SÁCH PHIẾU XUẤT KHO
-            </Typography>
-            
+            DANH SÁCH PHIẾU XUẤT KHO
+          </Typography>
+
           <StatusSummaryCard
             data={tickets}
             statusLabels={[
@@ -163,16 +142,7 @@ const ItInCompany = () => {
             selectedStatus={filterStatus}
           />
 
-          {/* <BarChart
-            title="Xuất kho theo tháng"
-            data={monthlyData}
-            dataKey="totalQuantity"
-            xAxisKey="month"
-            color="#ff6b6b"
-            height={250}
-            loading={chartLoading}
-            className="mb-6"
-          /> */}
+
 
           <DataTable
             columns={columns}
