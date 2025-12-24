@@ -3,33 +3,33 @@ import * as ReceiveTicketService from '@/services/inventory/ReceiveTicketService
 import dayjs from 'dayjs';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-    ArrowLeft,
-    Calendar,
-    Check,
-    CheckCircle,
-    Clock,
-    Edit,
-    Factory,
-    Loader2,
-    Package,
-    QrCode,
-    RefreshCw,
-    Settings,
-    Truck,
-    Warehouse,
-    X,
-    XCircle
+  ArrowLeft,
+  Calendar,
+  Check,
+  CheckCircle,
+  Clock,
+  Edit,
+  Factory,
+  Loader2,
+  Package,
+  QrCode,
+  RefreshCw,
+  Settings,
+  Truck,
+  Warehouse,
+  X,
+  XCircle
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import {
-    useCompleteMo,
-    useMoById,
-    useProcessesInMo,
-    useUpdateMo,
-    useUpdateProcess,
-    useWarehousesInCompany
+  useCompleteMo,
+  useMoById,
+  useProcessesInMo,
+  useUpdateMo,
+  useUpdateProcess,
+  useWarehousesInCompany
 } from '../../../hooks/useApi';
 
 // Status configuration
@@ -459,7 +459,7 @@ const MoDetail = () => {
                 <div>
                   <p className="text-sm" style={{ color: 'var(--mp-text-tertiary)' }}>Số lượng</p>
                   <p className="font-medium text-blue-600">
-                    {mo.quantity?.toLocaleString()} / {mo.completedQuantity?.toLocaleString() || 0} hoàn thành
+                    {mo.completedQuantity?.toLocaleString() || 0} / {mo.quantity?.toLocaleString()} hoàn thành
                   </p>
                 </div>
               </div>

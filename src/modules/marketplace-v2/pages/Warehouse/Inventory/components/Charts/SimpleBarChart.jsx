@@ -16,6 +16,18 @@ const SimpleBarChart = ({ data, barColor, title, dataKey, xAxisKey }) => {
 
   const maxValue = Math.max(...data.map((d) => d[dataKey] || 0));
 
+  // Helper function to format month label
+  const formatMonthLabel = (monthStr) => {
+    if (!monthStr) return '';
+    // Handle format "MM/YYYY" -> "T1", "T2", etc.
+    if (monthStr.includes('/')) {
+      const month = parseInt(monthStr.split('/')[0], 10);
+      return `T${month}`;
+    }
+    // Fallback: return first 3 characters
+    return monthStr.substring(0, 3);
+  };
+
   return (
     <div>
       <h4 className="text-sm font-medium mb-4" style={{ color: 'var(--mp-text-primary)' }}>
@@ -25,11 +37,12 @@ const SimpleBarChart = ({ data, barColor, title, dataKey, xAxisKey }) => {
         {data.slice(-12).map((item, idx) => {
           const value = item[dataKey] || 0;
           const height = maxValue > 0 ? (value / maxValue) * 100 : 0;
+          const monthLabel = formatMonthLabel(item[xAxisKey]);
           return (
             <div key={idx} className="flex-1 flex flex-col items-center">
               <motion.div
                 initial={{ height: 0 }}
-                animate={{ height: `${height}%` }}
+                animate={{ height: `${Math.max(height, 2)}%` }}
                 transition={{ duration: 0.5, delay: idx * 0.05 }}
                 className="w-full rounded-t-sm min-h-[4px]"
                 style={{ backgroundColor: barColor }}
@@ -39,7 +52,7 @@ const SimpleBarChart = ({ data, barColor, title, dataKey, xAxisKey }) => {
                 className="text-[10px] mt-1 truncate w-full text-center"
                 style={{ color: 'var(--mp-text-tertiary)' }}
               >
-                {item[xAxisKey]?.substring(0, 3)}
+                {monthLabel}
               </span>
             </div>
           );
@@ -50,3 +63,4 @@ const SimpleBarChart = ({ data, barColor, title, dataKey, xAxisKey }) => {
 };
 
 export default SimpleBarChart;
+

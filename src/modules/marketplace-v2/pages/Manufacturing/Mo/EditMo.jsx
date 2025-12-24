@@ -1,25 +1,25 @@
 import dayjs from 'dayjs';
 import { motion } from 'framer-motion';
 import {
-  AlertCircle,
-  ArrowLeft,
-  Calendar,
-  Check,
-  Factory,
-  Loader2,
-  Package,
-  Save,
-  X
+    AlertCircle,
+    ArrowLeft,
+    Calendar,
+    Check,
+    Factory,
+    Loader2,
+    Package,
+    Save,
+    X
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { MpCombobox } from '../../../components/ui/MpCombobox';
 import {
-  useItemsInCompany,
-  useManufactureLinesInCompany,
-  useMoById,
-  useUpdateMo
+    useItemsInCompany,
+    useManufactureLinesInCompany,
+    useMoById,
+    useUpdateMo
 } from '../../../hooks/useApi';
 
 /**
@@ -40,7 +40,7 @@ const EditMo = () => {
   const [formData, setFormData] = useState({
     itemId: '',
     lineId: '',
-    type: 'Sản xuất',
+    type: 'Sản xuất đại trà',
     quantity: 1,
     estimatedStartTime: '',
     estimatedEndTime: '',
@@ -52,7 +52,7 @@ const EditMo = () => {
       setFormData({
         itemId: mo.itemId?.toString() || '',
         lineId: mo.lineId?.toString() || '',
-        type: mo.type || 'Sản xuất',
+        type: mo.type || 'Sản xuất đại trà',
         quantity: mo.quantity || 1,
         estimatedStartTime: mo.estimatedStartTime ? dayjs(mo.estimatedStartTime).format('YYYY-MM-DD') : '',
         estimatedEndTime: mo.estimatedEndTime ? dayjs(mo.estimatedEndTime).format('YYYY-MM-DD') : '',
@@ -74,22 +74,21 @@ const EditMo = () => {
   // Convert to Combobox options
   const productOptions = useMemo(() => 
     productItems.map(item => ({
-      value: item.itemId,
+      value: item.itemId?.toString(),
       label: `${item.itemCode} - ${item.itemName}`
     })), [productItems]
   );
 
   const lineOptions = useMemo(() => 
     manufactureLines.map(line => ({
-      value: line.lineId,
+      value: line.lineId?.toString(),
       label: `${line.lineCode} - ${line.lineName}`
     })), [manufactureLines]
   );
 
   const typeOptions = [
-    { value: 'Sản xuất', label: 'Sản xuất' },
-    { value: 'Sửa chữa', label: 'Sửa chữa' },
-    { value: 'Tái chế', label: 'Tái chế' }
+    { value: 'Sản xuất đại trà', label: 'Sản xuất đại trà' },
+    { value: 'Sản xuất thử nghiệm', label: 'Sản xuất thử nghiệm' }
   ];
 
   const selectedProduct = productItems.find(p => p.itemId?.toString() === formData.itemId);
@@ -302,7 +301,7 @@ const EditMo = () => {
             <MpCombobox
               options={typeOptions}
               value={formData.type}
-              onChange={(option) => setFormData(prev => ({ ...prev, type: option?.value || 'Sản xuất' }))}
+              onChange={(option) => setFormData(prev => ({ ...prev, type: option?.value || 'Sản xuất đại trà' }))}
               placeholder="Chọn loại"
             />
           </div>

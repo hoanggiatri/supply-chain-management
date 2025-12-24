@@ -32,7 +32,7 @@ const CreateMo = () => {
   const [formData, setFormData] = useState({
     itemId: '',
     lineId: '',
-    type: 'Sản xuất',
+    type: 'Sản xuất đại trà',
     quantity: 1,
     estimatedStartTime: '',
     estimatedEndTime: '',
@@ -53,22 +53,21 @@ const CreateMo = () => {
   // Convert to Combobox options
   const productOptions = useMemo(() => 
     productItems.map(item => ({
-      value: item.itemId,
+      value: item.itemId?.toString(),
       label: `${item.itemCode} - ${item.itemName}`
     })), [productItems]
   );
 
   const lineOptions = useMemo(() => 
     manufactureLines.map(line => ({
-      value: line.lineId,
+      value: line.lineId?.toString(),
       label: `${line.lineCode} - ${line.lineName}`
     })), [manufactureLines]
   );
 
   const typeOptions = [
-    { value: 'Sản xuất', label: 'Sản xuất' },
-    { value: 'Sửa chữa', label: 'Sửa chữa' },
-    { value: 'Tái chế', label: 'Tái chế' }
+    { value: 'Sản xuất đại trà', label: 'Sản xuất đại trà' },
+    { value: 'Sản xuất thử nghiệm', label: 'Sản xuất thử nghiệm' }
   ];
 
   const selectedProduct = productItems.find(p => p.itemId?.toString() === formData.itemId);
@@ -286,7 +285,7 @@ const CreateMo = () => {
             <MpCombobox
               options={typeOptions}
               value={formData.type}
-              onChange={(option) => setFormData(prev => ({ ...prev, type: option?.value || 'Sản xuất' }))}
+              onChange={(option) => setFormData(prev => ({ ...prev, type: option?.value || 'Sản xuất đại trà' }))}
               placeholder="Chọn loại"
             />
           </div>

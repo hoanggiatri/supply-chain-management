@@ -1,24 +1,24 @@
-import React, { useEffect, useState } from "react";
-import { Typography, Card, CardBody, Button } from "@material-tailwind/react";
-import { useParams, useNavigate } from "react-router-dom";
+import BackButton from "@/components/common/BackButton";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
 import DataTable from "@/components/content-components/DataTable";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import RtForm from "@/components/inventory/RtForm";
-import BackButton from "@/components/common/BackButton";
-import ConfirmDialog from "@/components/common/ConfirmDialog";
-import { getButtonProps } from "@/utils/buttonStyles";
+import { increaseQuantity } from "@/services/inventory/InventoryService";
 import {
   getReceiveTicketById,
   updateReceiveTicket,
 } from "@/services/inventory/ReceiveTicketService";
-import { getMoById, updateMo } from "@/services/manufacturing/MoService";
-import { increaseQuantity } from "@/services/inventory/InventoryService";
 import {
   getTransferTicketById,
   updateTransferTicket,
 } from "@/services/inventory/TransferTicketService";
+import { getMoById, updateMo } from "@/services/manufacturing/MoService";
 import { updatePoStatus } from "@/services/purchasing/PoService";
 import toastrService from "@/services/toastrService";
+import { getButtonProps } from "@/utils/buttonStyles";
+import { Button, Card, CardBody, Typography } from "@material-tailwind/react";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 const RtDetail = () => {
   const { ticketId } = useParams();
@@ -154,11 +154,22 @@ const RtDetail = () => {
             ticket.referenceId,
             token
           );
+          // Only send allowed fields per API spec
           await updateTransferTicket(
             ticket.referenceId,
             {
-              ...transferTicket,
+              companyId: Number(transferTicket.companyId),
+              fromWarehouseId: Number(transferTicket.fromWarehouseId),
+              toWarehouseId: Number(transferTicket.toWarehouseId),
+              reason: transferTicket.reason || "",
+              createdBy: transferTicket.createdBy || "",
               status: "Đã hoàn thành",
+              file: transferTicket.file || "",
+              transferTicketDetails: (transferTicket.transferTicketDetails || []).map(detail => ({
+                itemId: Number(detail.itemId),
+                quantity: Number(detail.quantity),
+                note: detail.note || ""
+              }))
             },
             token
           );

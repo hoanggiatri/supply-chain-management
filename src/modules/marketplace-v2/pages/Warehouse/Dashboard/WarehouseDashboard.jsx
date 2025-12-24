@@ -1,24 +1,24 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-    AlertTriangle,
-    ArrowDownToLine,
-    ArrowUpFromLine,
-    Box,
-    Clock,
-    Package,
-    RefreshCw,
-    TrendingDown,
-    TrendingUp
+  AlertTriangle,
+  ArrowDownToLine,
+  ArrowUpFromLine,
+  Box,
+  Clock,
+  Package,
+  RefreshCw,
+  TrendingDown,
+  TrendingUp
 } from 'lucide-react';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-    useInventoryInCompany,
-    useIssueTicketsInCompany,
-    useMonthlyIssueReport,
-    useMonthlyReceiveReport,
-    useReceiveTicketsInCompany,
-    useTransferTicketsInCompany
+  useInventoryInCompany,
+  useIssueTicketsInCompany,
+  useMonthlyIssueReport,
+  useMonthlyReceiveReport,
+  useReceiveTicketsInCompany,
+  useTransferTicketsInCompany
 } from '../../../hooks/useApi';
 
 // Stats Card Component with animated counter
@@ -241,7 +241,7 @@ const WarehouseDashboard = () => {
       >
         <div>
           <h1 className="text-2xl font-bold" style={{ color: 'var(--mp-text-primary)' }}>
-            Dashboard Kho
+            Tổng quan
           </h1>
           <p className="text-sm" style={{ color: 'var(--mp-text-secondary)' }}>
             Tổng quan hoạt động kho hàng

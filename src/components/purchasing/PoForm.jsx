@@ -2,11 +2,11 @@ import { Combobox } from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
 import toastrService from "@/services/toastrService";
@@ -156,14 +156,15 @@ const PoForm = ({ quotation, po = {}, setPo, errors = {}, readOnlyFields }) => {
           Kho nhận hàng <span className="text-red-500">*</span>
         </Label>
         {isFieldReadOnly("receiveWarehouseId") ? (
-          <Input
-            value={
-              po?.receiveWarehouseCode
-                ? `${po.receiveWarehouseCode} - ${po.receiveWarehouseName}`
-                : ""
-            }
-            readOnly
-            className="bg-gray-50"
+          <Combobox
+            options={warehouseOptions}
+            value={String(po?.receiveWarehouseId || "")}
+            onChange={(option) => handleWarehouseChange(option?.value)}
+            placeholder="Chọn kho"
+            disabled={isFieldReadOnly("receiveWarehouseId")}
+            searchPlaceholder="Tìm kho..."
+            emptyText="Không tìm thấy kho"
+            className={errors.receiveWarehouseId ? "border-red-500" : ""}
           />
         ) : (
           <Combobox
