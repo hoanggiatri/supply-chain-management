@@ -173,8 +173,8 @@ const CreatePo = () => {
         { label: "Báo giá nhận được", path: "/customer-quotations" },
         { label: "Tạo đơn mua hàng" },
       ]}
-      backLink="/customer-quotations"
-      backLabel="Quay lại danh sách"
+      backLink={-1}
+      backLabel="Quay lại"
     >
       <PoForm
         po={po}

@@ -152,8 +152,8 @@ const PoDetail = () => {
         { label: "Danh sách đơn mua hàng", path: "/pos" },
         { label: "Chi tiết" },
       ]}
-      backLink="/pos"
-      backLabel="Quay lại danh sách"
+      backLink={-1}
+      backLabel="Quay lại"
     >
       {/* Action buttons */}
       <div className="flex justify-end gap-3 mb-6">

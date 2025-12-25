@@ -146,13 +146,12 @@ const CreateTransferTicket = () => {
     if (hasError) return;
 
     // Get auth data inline (since getAuthData is not exported from useApi)
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    const companyId = parseInt(localStorage.getItem('companyId')) || user?.companyId || user?.company?.id;
-    const username = user?.username || user?.email || 'Unknown';
+    const employeeName = localStorage.getItem('employeeName');
+    const companyId = parseInt(localStorage.getItem('companyId'));
 
     const request = {
       companyId,
-      createdBy: username,
+      createdBy: employeeName,
       status: 'Chờ xác nhận',
       fromWarehouseId: fromWarehouse.warehouseId,
       toWarehouseId: toWarehouse.warehouseId,

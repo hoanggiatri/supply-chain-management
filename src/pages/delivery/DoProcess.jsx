@@ -54,8 +54,8 @@ const DoProcess = () => {
         { label: "Đơn vận chuyển", path: "/dos" },
         { label: "Thông tin vận chuyển" },
       ]}
-      backLink={`/do/${doId}`}
-      backLabel="Quay lại chi tiết"
+      backLink={-1}
+      backLabel="Quay lại"
     >
       {/* Stepper */}
       {deliveryOrder && (

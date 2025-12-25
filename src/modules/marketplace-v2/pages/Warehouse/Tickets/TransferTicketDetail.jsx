@@ -44,34 +44,11 @@ const TransferTicketDetail = () => {
   const { data: ticket, isLoading, refetch } = useTransferTicketById(id);
   const updateMutation = useUpdateTransferTicket();
 
-  const handleConfirmTicket = async () => {
-    try {
-      // Send all required fields to match API validation
-      const request = {
-        companyId: Number(ticket.companyId),
-        fromWarehouseId: Number(ticket.fromWarehouseId),
-        toWarehouseId: Number(ticket.toWarehouseId),
-        reason: ticket.reason || '',
-        status: 'Chờ xuất kho',
-        createdBy: ticket.createdBy || '',
-        transferTicketDetails: (ticket.transferTicketDetails || []).map(detail => ({
-          itemId: detail.itemId,
-          quantity: detail.quantity,
-          note: detail.note || ''
-        }))
-      };
-
-      await updateMutation.mutateAsync({
-        ticketId: ticket.ticketId,
-        request
-      });
-      toast.success('Đã xác nhận phiếu chuyển kho');
-      setConfirmModalOpen(false);
-      refetch();
-    } catch (error) {
-      console.error('Error confirming ticket:', error);
-      toast.error(error.response?.data?.message || 'Có lỗi xảy ra khi xác nhận phiếu');
-    }
+  const handleConfirmTicket = () => {
+    // Navigate to inventory check page like TtDetail.jsx
+    // The inventory check page will handle the actual confirmation after verifying stock
+    navigate(`/marketplace-v2/check-inventory/tt/${ticket.ticketId}`);
+    setConfirmModalOpen(false);
   };
 
   const handleCancelTicket = async () => {
@@ -429,10 +406,9 @@ const TransferTicketDetail = () => {
         onClose={() => setConfirmModalOpen(false)}
         onConfirm={handleConfirmTicket}
         title="Xác nhận phiếu chuyển kho"
-        message="Bạn có chắc chắn muốn xác nhận phiếu chuyển kho này? Sau khi xác nhận, hệ thống sẽ tạo phiếu xuất kho và phiếu nhập kho tương ứng."
+        message="Bạn có chắc chắn muốn xác nhận phiếu chuyển kho này? Hệ thống sẽ chuyển đến trang kiểm kê kho để xác nhận tồn kho thực tế."
         confirmText="Xác nhận"
         variant="primary"
-        loading={updateMutation.isPending}
       />
 
       {/* Cancel Modal */}
