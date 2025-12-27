@@ -24,7 +24,7 @@ const ItemDetail = () => {
     } catch (error) {
       toastrService.error(
         error.response?.data?.message ||
-        "Có lỗi xảy ra khi lấy thông tin hàng hóa!"
+          "Có lỗi xảy ra khi lấy thông tin hàng hóa!"
       );
     }
   };
@@ -54,7 +54,9 @@ const ItemDetail = () => {
   const InfoRow = ({ label, value, className = "" }) => (
     <div className="flex items-start py-2">
       <span className="text-gray-500 w-32 flex-shrink-0 text-sm">{label}</span>
-      <span className={`text-gray-900 text-sm ${className}`}>{value || "---"}</span>
+      <span className={`text-gray-900 text-sm ${className}`}>
+        {value || "---"}
+      </span>
     </div>
   );
 
@@ -65,9 +67,16 @@ const ItemDetail = () => {
           {/* Header / Breadcrumb area */}
           <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white">
             <div className="flex items-center gap-2 text-sm text-gray-500">
-              <span className="cursor-pointer hover:text-blue-600" onClick={() => navigate("/items")}>Danh sách</span>
+              <span
+                className="cursor-pointer hover:text-blue-600"
+                onClick={() => navigate("/items")}
+              >
+                Danh sách
+              </span>
               <span>/</span>
-              <span className="text-gray-900 font-medium">Chi tiết hàng hóa</span>
+              <span className="text-gray-900 font-medium">
+                Chi tiết hàng hóa
+              </span>
             </div>
             <BackButton to="/items" label="Trở lại" />
           </div>
@@ -86,23 +95,28 @@ const ItemDetail = () => {
                     className="w-full h-full object-cover"
                   />
                   {/* Status Badge Overlay */}
-                  <div className={`absolute top-0 left-0 text-white text-xs font-bold px-2 py-1 rounded-br-md ${item.isSellable ? 'bg-green-500' : 'bg-gray-500'}`}>
+                  <div
+                    className={`absolute top-0 left-0 text-white text-xs font-bold px-2 py-1 rounded-br-md ${
+                      item.isSellable ? "bg-green-500" : "bg-gray-500"
+                    }`}
+                  >
                     {item.isSellable ? "Đang kinh doanh" : "Ngừng kinh doanh"}
                   </div>
                 </div>
 
                 {/* Thumbnail placeholders (simulated) */}
-                <div className="flex gap-2 overflow-x-auto pb-2">
-                  {[1, 2, 3, 4].map((_, idx) => (
-                    <div key={idx} className="w-20 h-20 flex-shrink-0 border border-gray-200 rounded-sm cursor-pointer hover:border-orange-500 opacity-60 hover:opacity-100 transition-all">
-                      <img
-                        src={item.imageUrl || "https://cdn-icons-png.freepik.com/512/2774/2774806.png"}
-                        className="w-full h-full object-cover"
-                        alt="thumb"
-                      />
-                    </div>
-                  ))}
-                </div>
+                {/* <div className="flex gap-2 overflow-x-auto pb-2">
+                  <div className="w-20 h-20 flex-shrink-0 border border-gray-200 rounded-sm cursor-pointer hover:border-orange-500 opacity-60 hover:opacity-100 transition-all">
+                    <img
+                      src={
+                        item.imageUrl ||
+                        "https://cdn-icons-png.freepik.com/512/2774/2774806.png"
+                      }
+                      className="w-full h-full object-cover"
+                      alt="thumb"
+                    />
+                  </div>
+                </div> */}
               </div>
 
               {/* Right Column: Info */}
@@ -124,10 +138,20 @@ const ItemDetail = () => {
                   <InfoRow label="Mã hàng hóa" value={item.itemCode} />
                   <InfoRow label="Loại hàng hóa" value={item.itemType} />
                   <InfoRow label="Đơn vị tính" value={item.uom} />
-                  <InfoRow label="Giá nhập" value={`${item.importPrice?.toLocaleString()} ₫`} className="text-gray-500" />
-                  <InfoRow label="Thông số" value={item.technicalSpecifications} />
-                  <InfoRow label="Mô tả" value={item.description} className="line-clamp-3" />
-
+                  <InfoRow
+                    label="Giá nhập"
+                    value={`${item.importPrice?.toLocaleString()} ₫`}
+                    className="text-gray-500"
+                  />
+                  <InfoRow
+                    label="Thông số"
+                    value={item.technicalSpecifications}
+                  />
+                  <InfoRow
+                    label="Mô tả"
+                    value={item.description}
+                    className="line-clamp-3"
+                  />
                 </div>
 
                 {/* Actions */}
@@ -157,7 +181,7 @@ const ItemDetail = () => {
       <ConfirmDialog
         open={confirmDialog.open}
         onClose={() => setConfirmDialog({ open: false, onConfirm: null })}
-        onConfirm={confirmDialog.onConfirm || (() => { })}
+        onConfirm={confirmDialog.onConfirm || (() => {})}
         title="Xác nhận xóa"
         message="Bạn có chắc muốn xóa hàng hóa này không?"
         confirmText="Xóa"
