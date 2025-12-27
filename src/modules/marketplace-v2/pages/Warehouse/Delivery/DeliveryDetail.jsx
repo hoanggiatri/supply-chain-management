@@ -4,22 +4,22 @@ import { getSoById, updateSoStatus } from '@/services/sale/SoService';
 import dayjs from 'dayjs';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  CheckCircle2,
-  MapPin,
-  Package,
-  Plus,
-  Truck,
-  X
+    CheckCircle2,
+    MapPin,
+    Package,
+    Plus,
+    Truck,
+    X
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import BackButton from '../../../components/ui/BackButton';
 import {
-  useCreateDeliveryProcess,
-  useDeliveryOrderById,
-  useDeliveryProcesses,
-  useUpdateDeliveryOrder
+    useCreateDeliveryProcess,
+    useDeliveryOrderById,
+    useDeliveryProcesses,
+    useUpdateDeliveryOrder
 } from '../../../hooks/useApi';
 
 // Status configuration
@@ -332,8 +332,12 @@ const ConfirmModal = ({ isOpen, onClose, onConfirm, title, message, isLoading, i
  */
 const DeliveryDetail = () => {
   const { doId } = useParams();
+  const location = useLocation();
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
+
+  // Check if readOnly mode (for buyers viewing delivery info)
+  const isReadOnly = location.state?.readOnly === true;
 
   const { data: deliveryOrder, isLoading, refetch } = useDeliveryOrderById(doId);
   const { data: processesRaw = [], refetch: refetchProcesses } = useDeliveryProcesses(doId);
@@ -502,42 +506,44 @@ const DeliveryDetail = () => {
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex gap-2">
-          {deliveryOrder.status === 'Chờ xác nhận' && (
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setConfirmModal({ open: true, type: 'confirm' })}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2"
-            >
-              <CheckCircle2 size={18} />
-              Xác nhận
-            </motion.button>
-          )}
-          {deliveryOrder.status === 'Chờ lấy hàng' && (
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setConfirmModal({ open: true, type: 'pickup' })}
-              className="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors flex items-center gap-2"
-            >
-              <Package size={18} />
-              Lấy hàng
-            </motion.button>
-          )}
-          {deliveryOrder.status === 'Đang vận chuyển' && (
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setConfirmModal({ open: true, type: 'complete' })}
-              className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center gap-2"
-            >
-              <CheckCircle2 size={18} />
-              Hoàn thành
-            </motion.button>
-          )}
-        </div>
+        {/* Action Buttons - Hidden for buyers (readOnly mode) */}
+        {!isReadOnly && (
+          <div className="flex gap-2">
+            {deliveryOrder.status === 'Chờ xác nhận' && (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setConfirmModal({ open: true, type: 'confirm' })}
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2"
+              >
+                <CheckCircle2 size={18} />
+                Xác nhận
+              </motion.button>
+            )}
+            {deliveryOrder.status === 'Chờ lấy hàng' && (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setConfirmModal({ open: true, type: 'pickup' })}
+                className="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors flex items-center gap-2"
+              >
+                <Package size={18} />
+                Lấy hàng
+              </motion.button>
+            )}
+            {deliveryOrder.status === 'Đang vận chuyển' && (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setConfirmModal({ open: true, type: 'complete' })}
+                className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center gap-2"
+              >
+                <CheckCircle2 size={18} />
+                Hoàn thành
+              </motion.button>
+            )}
+          </div>
+        )}
       </motion.div>
 
       {/* Stepper */}
@@ -633,7 +639,8 @@ const DeliveryDetail = () => {
                     isLast={index === processes.length - 1 && deliveryOrder.status === 'Đã hoàn thành'}
                   />
                 ))}
-                {deliveryOrder.status === 'Đang vận chuyển' && (
+                {/* AddStopForm - Hidden for buyers (readOnly mode) */}
+                {deliveryOrder.status === 'Đang vận chuyển' && !isReadOnly && (
                   <AddStopForm doId={doId} onSuccess={refetchProcesses} />
                 )}
               </>

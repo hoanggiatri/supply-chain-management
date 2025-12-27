@@ -132,7 +132,7 @@ const PoDetail = () => {
       }
 
       // 3. Navigate
-      navigate(`/marketplace-v2/warehouse/delivery/${doData.doId}`);
+      navigate(`/marketplace-v2/warehouse/delivery/${doData.doId}`, { state: { readOnly: true } });
     } catch (error) {
       console.error('Error fetching delivery info:', error);
       toast.error('Không thể tải thông tin vận chuyển');

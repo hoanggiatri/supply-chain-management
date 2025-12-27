@@ -1,16 +1,20 @@
+import { increaseQuantity } from '@/services/inventory/InventoryService';
+import { getTransferTicketById, updateTransferTicket } from '@/services/inventory/TransferTicketService';
+import { getMoById, updateMo } from '@/services/manufacturing/MoService';
+import { updatePoStatus } from '@/services/purchasing/PoService';
 import { motion } from 'framer-motion';
 import {
-  ArrowDownToLine,
-  ArrowLeft,
-  Box,
-  Calendar,
-  CheckCircle,
-  Clock,
-  FileText,
-  Hash,
-  MapPin,
-  Package,
-  User
+    ArrowDownToLine,
+    ArrowLeft,
+    Box,
+    Calendar,
+    CheckCircle,
+    Clock,
+    FileText,
+    Hash,
+    MapPin,
+    Package,
+    User
 } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -29,6 +33,7 @@ const ReceiveTicketDetail = () => {
   const navigate = useNavigate();
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [receiveModalOpen, setReceiveModalOpen] = useState(false);
+  const [showMoNavigateButton, setShowMoNavigateButton] = useState(false);
 
   // Fetch ticket data
   const { data: ticket, isLoading, refetch } = useReceiveTicketById(id);
@@ -71,17 +76,103 @@ const ReceiveTicketDetail = () => {
 
   const handleReceiveStock = async () => {
     try {
-      const now = new Date().toISOString();
+      const token = localStorage.getItem('token');
+      const receiveDateISO = new Date().toISOString();
 
-      // Send all required fields to match API validation
+      // Handle different receive types
+      if (ticket.receiveType === 'Sản xuất' && ticket.referenceId) {
+        try {
+          const mo = await getMoById(ticket.referenceId, token);
+          const toISO8601String = (dateString) => {
+            if (!dateString) return null;
+            return new Date(dateString).toISOString();
+          };
+
+          await updateMo(
+            ticket.referenceId,
+            {
+              itemId: Number(mo.itemId),
+              lineId: Number(mo.lineId),
+              type: mo.type,
+              quantity: mo.quantity,
+              estimatedStartTime: toISO8601String(mo.estimatedStartTime),
+              estimatedEndTime: toISO8601String(mo.estimatedEndTime),
+              status: 'Đã nhập kho',
+            },
+            token
+          );
+          setShowMoNavigateButton(true);
+        } catch (moError) {
+          console.error('Error updating MO:', moError);
+          toast.error('Cập nhật MO thất bại!');
+        }
+      }
+
+      if (ticket.receiveType === 'Chuyển kho' && ticket.referenceId) {
+        try {
+          const transferTicket = await getTransferTicketById(ticket.referenceId, token);
+          await updateTransferTicket(
+            ticket.referenceId,
+            {
+              companyId: Number(transferTicket.companyId),
+              fromWarehouseId: Number(transferTicket.fromWarehouseId),
+              toWarehouseId: Number(transferTicket.toWarehouseId),
+              reason: transferTicket.reason || '',
+              createdBy: transferTicket.createdBy || '',
+              status: 'Đã hoàn thành',
+              file: transferTicket.file || '',
+              transferTicketDetails: (transferTicket.transferTicketDetails || []).map(detail => ({
+                itemId: Number(detail.itemId),
+                quantity: Number(detail.quantity),
+                note: detail.note || ''
+              }))
+            },
+            token
+          );
+        } catch (transferError) {
+          console.error('Error updating transfer ticket:', transferError);
+          toast.error('Cập nhật phiếu chuyển kho thất bại!');
+        }
+      }
+
+      if (ticket.receiveType === 'Mua hàng' && ticket.referenceId) {
+        try {
+          await updatePoStatus(ticket.referenceId, 'Đã hoàn thành', token);
+        } catch (poError) {
+          console.error('Error updating PO status:', poError);
+          toast.error('Cập nhật đơn mua hàng thất bại!');
+        }
+      }
+
+      // Increase inventory quantity for all items
+      try {
+        await Promise.all(
+          (ticket.receiveTicketDetails || []).map((detail) =>
+            increaseQuantity(
+              {
+                warehouseId: ticket.warehouseId,
+                itemId: detail.itemId,
+                quantity: detail.quantity,
+              },
+              token
+            )
+          )
+        );
+      } catch (inventoryError) {
+        console.error('Error updating inventory:', inventoryError);
+        toast.error('Cập nhật tồn kho thất bại!');
+        return;
+      }
+
+      // Update receive ticket status
       const request = {
         companyId: Number(ticket.companyId),
         warehouseId: Number(ticket.warehouseId),
         reason: ticket.reason || '',
-        receiveType: ticket.receiveType || 'Nhập mua hàng',
+        receiveType: ticket.receiveType || '',
         referenceCode: ticket.referenceCode || '',
         status: 'Đã hoàn thành',
-        receiveDate: now,
+        receiveDate: receiveDateISO,
         createdBy: ticket.createdBy || '',
       };
 
@@ -89,7 +180,7 @@ const ReceiveTicketDetail = () => {
         ticketId: ticket.ticketId,
         request
       });
-      toast.success('Đã nhập kho thành công');
+      toast.success('Nhập kho thành công!');
       setReceiveModalOpen(false);
       refetch();
     } catch (error) {
@@ -179,9 +270,21 @@ const ReceiveTicketDetail = () => {
             </motion.button>
           )}
           {isCompleted && (
-            <div className="flex items-center gap-2 px-4 py-2 rounded-lg" style={{ backgroundColor: '#10b98120' }}>
-              <CheckCircle size={18} style={{ color: '#10b981' }} />
-              <span className="font-medium" style={{ color: '#10b981' }}>Đã hoàn thành</span>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 px-4 py-2 rounded-lg" style={{ backgroundColor: '#10b98120' }}>
+                <CheckCircle size={18} style={{ color: '#10b981' }} />
+                <span className="font-medium" style={{ color: '#10b981' }}>Đã hoàn thành</span>
+              </div>
+              {showMoNavigateButton && ticket.referenceId && (
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => navigate(`/marketplace-v2/manufacturing/mo/${ticket.referenceId}`)}
+                  className="mp-btn mp-btn-secondary"
+                >
+                  Xem lệnh sản xuất
+                </motion.button>
+              )}
             </div>
           )}
         </div>
