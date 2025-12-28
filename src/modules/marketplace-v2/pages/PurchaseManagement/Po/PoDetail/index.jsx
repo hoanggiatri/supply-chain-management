@@ -1,4 +1,5 @@
 import { getDeliveryOrderBySoId } from '@/services/delivery/DoService';
+import { getInvoicePdf } from '@/services/sale/InvoiceService';
 import { getSoByPoId } from '@/services/sale/SoService';
 import { motion } from 'framer-motion';
 import {
@@ -139,8 +140,23 @@ const PoDetail = () => {
     }
   };
 
-  const handleViewInvoice = () => {
-    // View invoice PDF
+  const handleViewInvoice = async () => {
+    try {
+      const authToken = localStorage.getItem('token');
+      
+      // 1. Get SO by PO
+      const soData = await getSoByPoId(id, authToken);
+      if (!soData?.soId) {
+        toast.error('Không tìm thấy đơn bán hàng liên quan');
+        return;
+      }
+
+      // 2. Get Invoice PDF
+      await getInvoicePdf(soData.soId, authToken);
+    } catch (error) {
+      console.error('Error fetching invoice:', error);
+      toast.error('Không thể tải hóa đơn');
+    }
   };
 
   const handleConfirmAction = async () => {

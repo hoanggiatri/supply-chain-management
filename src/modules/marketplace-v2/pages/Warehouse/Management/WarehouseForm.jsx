@@ -13,7 +13,6 @@ const WarehouseForm = ({
   const navigate = useNavigate();
   
   const [formData, setFormData] = useState({
-    warehouseCode: initialData.warehouseCode || '',
     warehouseName: initialData.warehouseName || '',
     description: initialData.description || '',
     maxCapacity: initialData.maxCapacity || '',
@@ -34,7 +33,6 @@ const WarehouseForm = ({
 
   const validate = () => {
     const newErrors = {};
-    if (!formData.warehouseCode?.trim()) newErrors.warehouseCode = 'Vui lòng nhập mã kho';
     if (!formData.warehouseName?.trim()) newErrors.warehouseName = 'Vui lòng nhập tên kho';
     // if (!formData.address?.trim()) newErrors.address = 'Vui lòng nhập địa chỉ';
     if (!formData.maxCapacity || formData.maxCapacity <= 0) newErrors.maxCapacity = 'Sức chứa phải lớn hơn 0';
@@ -46,7 +44,7 @@ const WarehouseForm = ({
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validate()) {
-      // Only send fields that API allows for update
+      // Send fields that API requires
       const payload = {
         warehouseName: formData.warehouseName,
         description: formData.description || '',

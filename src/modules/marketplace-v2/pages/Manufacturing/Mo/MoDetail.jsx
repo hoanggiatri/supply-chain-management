@@ -279,12 +279,24 @@ const MoDetail = () => {
 
   // Handle download QR codes
   const handleDownloadQR = async () => {
+    if (!mo.batchNo) {
+      toast.error('Không tìm thấy batch number!');
+      return;
+    }
+
     try {
       const { token } = getAuthData();
-      await ProductService.downloadQRPDF(moId, token);
-      toast.success('Đang tải file QR codes...');
+      toast.info('Đang tạo file PDF...');
+      const blob = await ProductService.downloadQRPDF(mo.batchNo, token);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `QR_Batch_${mo.batchNo}.pdf`;
+      link.click();
+      window.URL.revokeObjectURL(url);
+      toast.success('Tải QR codes thành công!');
     } catch (error) {
-      toast.error('Lỗi khi tải QR codes!');
+      toast.error(error.response?.data?.message || 'Lỗi khi tải QR codes!');
     }
   };
 
