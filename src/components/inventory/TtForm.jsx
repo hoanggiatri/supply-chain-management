@@ -103,13 +103,10 @@ const TtForm = ({
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-      
-
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white p-6 rounded-lg border border-gray-100 shadow-sm">
       {/* Kho xuất */}
       <div className="space-y-2">
-        <Label htmlFor="fromWarehouseCode">
+        <Label htmlFor="fromWarehouseCode" className="text-gray-700 font-medium">
           Kho xuất <span className="text-red-500">*</span>
         </Label>
         <Combobox
@@ -123,12 +120,13 @@ const TtForm = ({
           error={!!errors.fromWarehouseCode}
           helperText={errors.fromWarehouseCode}
           disabled={isFieldReadOnly("fromWarehouseCode")}
+          className="bg-white"
         />
       </div>
 
       {/* Kho nhập */}
       <div className="space-y-2">
-        <Label htmlFor="toWarehouseCode">
+        <Label htmlFor="toWarehouseCode" className="text-gray-700 font-medium">
           Kho nhập <span className="text-red-500">*</span>
         </Label>
         <Combobox
@@ -142,12 +140,13 @@ const TtForm = ({
           error={!!errors.toWarehouseCode}
           helperText={errors.toWarehouseCode}
           disabled={isFieldReadOnly("toWarehouseCode")}
+          className="bg-white"
         />
       </div>
 
       {/* Lý do */}
-      <div className="space-y-2">
-        <Label htmlFor="reason">
+      <div className="space-y-2 md:col-span-1">
+        <Label htmlFor="reason" className="text-gray-700 font-medium">
           Lý do <span className="text-red-500">*</span>
         </Label>
         <Input
@@ -157,17 +156,17 @@ const TtForm = ({
           onChange={onChange}
           readOnly={isFieldReadOnly("reason")}
           disabled={isFieldReadOnly("reason")}
-          className={errors.reason ? "border-red-500" : ""}
-          placeholder="Nhập lý do"
+          className={`bg-white ${errors.reason ? "border-red-500" : ""}`}
+          placeholder="Nhập lý do chuyển kho"
         />
         {errors.reason && (
-          <p className="text-sm text-red-500">{errors.reason}</p>
+          <p className="text-xs text-red-500 mt-1">{errors.reason}</p>
         )}
       </div>
 
       {/* Trạng thái */}
-      <div className="space-y-2">
-        <Label htmlFor="status">Trạng thái</Label>
+      <div className="space-y-2 md:col-span-1">
+        <Label htmlFor="status" className="text-gray-700 font-medium">Trạng thái</Label>
         <Combobox
           options={[
             { value: "Chờ xác nhận", label: "Chờ xác nhận" },
@@ -182,10 +181,10 @@ const TtForm = ({
           searchPlaceholder="Tìm trạng thái..."
           emptyText="Không tìm thấy trạng thái"
           disabled={isFieldReadOnly("status")}
-          className={errors.status ? "border-red-500" : ""}
+          className={`bg-white ${errors.status ? "border-red-500" : ""}`}
         />
         {errors.status && (
-          <p className="text-sm text-red-500">{errors.status}</p>
+          <p className="text-xs text-red-500 mt-1">{errors.status}</p>
         )}
       </div>
     </div>

@@ -1,3 +1,4 @@
+import FormPageLayout from "@/components/layout/FormPageLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,7 +20,6 @@ import { getPoById } from "@/services/purchasing/PoService";
 import toastrService from "@/services/toastrService";
 import dayjs from "dayjs";
 import {
-  ArrowLeft,
   Check,
   Loader2,
   Package,
@@ -207,7 +207,7 @@ const CheckInventory = () => {
       const allEnough = inventoryResults.every(
         (r) => r.enough === "Đủ" || r.enough === true // Handle both potential return values
       );
-      
+
       if (allEnough) {
         setLoading(true);
         if (type === "mo") {
@@ -322,182 +322,172 @@ const CheckInventory = () => {
     "Không đủ": "bg-red-100 text-red-800",
     "Không có tồn kho": "bg-orange-100 text-orange-800"
   };
-  
+
   const statusLabels = {
     "Đủ": "✔️ Đủ",
     "Không đủ": "❌ Không đủ",
     "Không có tồn kho": "⚠️ Không có tồn kho"
   };
 
+  const breadcrumbItems = [
+    { label: "Kiểm kê tồn kho", path: "" },
+  ];
+
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => navigate(-1)}
-          className="bg-white"
-        >
-          <ArrowLeft className="w-4 h-4" />
-        </Button>
+    <FormPageLayout breadcrumbItems={breadcrumbItems} backLink={-1}>
+      <div className="space-y-6">
+        {/* Header Section in content */}
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-3">
-            <Warehouse className="w-7 h-7 text-blue-600" />
-            Kiểm tra tồn kho
-          </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Mã: {id}
-          </p>
+          <h2 className="text-xl font-bold flex items-center gap-3 text-gray-900 border-b border-gray-100 pb-3 mb-4">
+            <Warehouse className="w-6 h-6 text-blue-600" />
+            Kiểm tra tồn kho <span className="text-gray-400 font-normal text-base ml-auto">Mã: {id}</span>
+          </h2>
         </div>
-      </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border p-6">
-        <div className="flex flex-col md:flex-row md:items-end gap-4">
-          <div className="flex-1 space-y-2">
-            <Label className="flex items-center">
-              <Warehouse className="w-4 h-4 mr-2" />
-              {type === "tt" ? 'Kho xuất (từ phiếu chuyển)' : 'Kho xuất'}
-            </Label>
-            
-            {type === "tt" ? (
-              <Input
-                readOnly
-                value={warehouses.find(
-                  (w) => String(w.warehouseId) === String(selectedWarehouseId)
-                )
-                  ? `${
-                      warehouses.find(
-                        (w) =>
-                          String(w.warehouseId) ===
-                          String(selectedWarehouseId)
-                      )?.warehouseCode
-                    } - ${
-                      warehouses.find(
-                        (w) =>
-                          String(w.warehouseId) ===
-                          String(selectedWarehouseId)
-                      )?.warehouseName
+        <div className="bg-gray-50/50 rounded-lg border border-gray-100 p-6">
+          <div className="flex flex-col md:flex-row md:items-end gap-4">
+            <div className="flex-1 space-y-2">
+              <Label className="flex items-center text-gray-700">
+                <Warehouse className="w-4 h-4 mr-2" />
+                {type === "tt" ? 'Kho xuất (từ phiếu chuyển)' : 'Kho xuất'}
+              </Label>
+
+              {type === "tt" ? (
+                <Input
+                  readOnly
+                  value={warehouses.find(
+                    (w) => String(w.warehouseId) === String(selectedWarehouseId)
+                  )
+                    ? `${warehouses.find(
+                      (w) =>
+                        String(w.warehouseId) ===
+                        String(selectedWarehouseId)
+                    )?.warehouseCode
+                    } - ${warehouses.find(
+                      (w) =>
+                        String(w.warehouseId) ===
+                        String(selectedWarehouseId)
+                    )?.warehouseName
                     }`
-                  : "Không có kho"}
-                className="bg-muted"
-              />
-            ) : (
-              <Select 
-                value={selectedWarehouseId} 
-                onValueChange={setSelectedWarehouseId}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="-- Chọn kho --" />
-                </SelectTrigger>
-                <SelectContent>
-                  {warehouses.map((wh) => (
-                    <SelectItem key={wh.warehouseId} value={String(wh.warehouseId)}>
-                      {wh.warehouseCode} - {wh.warehouseName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
+                    : "Không có kho"}
+                  className="bg-white"
+                />
+              ) : (
+                <Select
+                  value={selectedWarehouseId}
+                  onValueChange={setSelectedWarehouseId}
+                >
+                  <SelectTrigger className="bg-white">
+                    <SelectValue placeholder="-- Chọn kho --" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {warehouses.map((wh) => (
+                      <SelectItem key={wh.warehouseId} value={String(wh.warehouseId)}>
+                        {wh.warehouseCode} - {wh.warehouseName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
+            <Button
+              onClick={handleCheckInventory}
+              disabled={!selectedWarehouseId || loading}
+              className="min-w-[180px] bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  Đang kiểm tra...
+                </>
+              ) : (
+                <>
+                  <Search className="w-4 h-4 mr-2" />
+                  Kiểm tra tồn kho
+                </>
+              )}
+            </Button>
           </div>
-          <Button
-            onClick={handleCheckInventory}
-            disabled={!selectedWarehouseId || loading}
-            className="min-w-[180px] bg-blue-600 hover:bg-blue-700"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                Đang kiểm tra...
-              </>
-            ) : (
-              <>
-                <Search className="w-4 h-4 mr-2" />
-                Kiểm tra tồn kho
-              </>
-            )}
-          </Button>
-        </div>
-      </div>
-
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border overflow-hidden">
-        <div className="p-4 border-b bg-muted/30">
-          <h3 className="font-semibold flex items-center gap-2">
-            <Package className="w-5 h-5" />
-            Kết quả kiểm tra ({inventoryResults.length} sản phẩm)
-          </h3>
         </div>
 
-        {inventoryResults.length === 0 ? (
-          <div className="text-center py-12">
-            <Package className="mx-auto mb-4 w-12 h-12 text-muted-foreground" />
-            <p className="text-muted-foreground">
-              {selectedWarehouseId ? 'Nhấn "Kiểm tra tồn kho" để xem kết quả' : 'Vui lòng chọn kho xuất'}
-            </p>
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <Package className="w-5 h-5 text-gray-500" />
+            <h3 className="font-semibold text-gray-900">Kết quả kiểm tra ({inventoryResults.length})</h3>
           </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-muted/50 border-b">
-                <tr>
-                  <th className="h-10 px-2 text-left align-middle font-medium text-muted-foreground ml-2">Mã hàng hóa</th>
-                  <th className="h-10 px-2 text-left align-middle font-medium text-muted-foreground">Tên hàng hóa</th>
-                  <th className="h-10 px-2 text-right align-middle font-medium text-muted-foreground">Số lượng cần</th>
-                  <th className="h-10 px-2 text-right align-middle font-medium text-muted-foreground">Tồn kho sẵn có</th>
-                  <th className="h-10 px-2 text-center align-middle font-medium text-muted-foreground">Trạng thái</th>
-                </tr>
-              </thead>
-              <tbody>
-                {inventoryResults.map((result, index) => {
-                  const key = `${result.itemId || result.supplierItemId}-${index}`;
-                  return (
-                    <tr key={key} className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-                      <td className="p-2 align-middle font-medium">
-                        {type === "po" ? result.supplierItemCode : result.itemCode}
-                      </td>
-                      <td className="p-2 align-middle text-muted-foreground">
-                        {type === "po" ? result.supplierItemName : result.itemName}
-                      </td>
-                      <td className="p-2 align-middle text-right font-semibold text-blue-600">
-                        {result.enough === "Không có tồn kho" ? "-" : Number(result.quantityNeeded).toLocaleString()}
-                      </td>
-                      <td className="p-2 align-middle text-right font-semibold text-green-600">
-                        {result.enough === "Không có tồn kho" ? "-" : Number(result.available).toLocaleString()}
-                      </td>
-                      <td className="p-2 align-middle text-center">
-                         <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${statusColors[result.enough] || "bg-gray-100 text-gray-700"}`}>
-                          {statusLabels[result.enough] || result.enough}
-                        </span>
-                      </td>
+
+          <div className="border rounded-md overflow-hidden">
+            {inventoryResults.length === 0 ? (
+              <div className="text-center py-12 bg-gray-50">
+                <Package className="mx-auto mb-4 w-12 h-12 text-gray-300" />
+                <p className="text-gray-500">
+                  {selectedWarehouseId ? 'Nhấn "Kiểm tra tồn kho" để xem kết quả' : 'Vui lòng chọn kho xuất'}
+                </p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-50 border-b">
+                    <tr>
+                      <th className="h-10 px-4 py-2 text-left font-medium text-gray-500">Mã hàng hóa</th>
+                      <th className="h-10 px-4 py-2 text-left font-medium text-gray-500">Tên hàng hóa</th>
+                      <th className="h-10 px-4 py-2 text-right font-medium text-gray-500">Số lượng cần</th>
+                      <th className="h-10 px-4 py-2 text-right font-medium text-gray-500">Tồn kho sẵn có</th>
+                      <th className="h-10 px-4 py-2 text-center font-medium text-gray-500">Trạng thái</th>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {inventoryResults.map((result, index) => {
+                      const key = `${result.itemId || result.supplierItemId}-${index}`;
+                      return (
+                        <tr key={key} className="hover:bg-gray-50/50">
+                          <td className="px-4 py-3 font-medium text-gray-900">
+                            {type === "po" ? result.supplierItemCode : result.itemCode}
+                          </td>
+                          <td className="px-4 py-3 text-gray-600">
+                            {type === "po" ? result.supplierItemName : result.itemName}
+                          </td>
+                          <td className="px-4 py-3 text-right font-semibold text-blue-600">
+                            {result.enough === "Không có tồn kho" ? "-" : Number(result.quantityNeeded).toLocaleString()}
+                          </td>
+                          <td className="px-4 py-3 text-right font-semibold text-green-600">
+                            {result.enough === "Không có tồn kho" ? "-" : Number(result.available).toLocaleString()}
+                          </td>
+                          <td className="px-4 py-3 text-center">
+                            <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${statusColors[result.enough] || "bg-gray-100 text-gray-700"}`}>
+                              {statusLabels[result.enough] || result.enough}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {inventoryResults.length > 0 && (
+          <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 mt-4">
+            <Button
+              variant="secondary"
+              onClick={() => navigate(-1)}
+            >
+              Hủy
+            </Button>
+            <Button
+              onClick={handleConfirm}
+              disabled={loading}
+              className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
+            >
+              <Check className="w-4 h-4" />
+              Xác nhận
+            </Button>
           </div>
         )}
       </div>
-
-      {inventoryResults.length > 0 && (
-         <div className="flex justify-end gap-3 sticky bottom-4">
-          <Button
-            variant="outline"
-            onClick={() => navigate(-1)}
-            className="bg-white"
-          >
-            Hủy
-          </Button>
-          <Button
-            onClick={handleConfirm}
-            disabled={loading}
-            className="bg-blue-600 hover:bg-blue-700"
-          >
-            <Check className="w-4 h-4 mr-2" />
-            Xác nhận
-          </Button>
-        </div>
-      )}
-    </div>
+    </FormPageLayout>
   );
 };
 

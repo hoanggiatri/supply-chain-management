@@ -1,8 +1,8 @@
 import StatusSummaryCard from "@/components/common/StatusSummaryCard";
+import ListPageLayout from "@/components/layout/ListPageLayout";
 import { createSortableHeader, createStatusBadge, DataTable } from "@/components/ui/data-table";
-import { getAllIssueTicketsInCompany, getIssueForecast, getMonthlyIssueReport } from "@/services/inventory/IssueTicketService";
+import { getAllIssueTicketsInCompany } from "@/services/inventory/IssueTicketService";
 import toastrService from "@/services/toastrService";
-import { Card, CardBody, Typography } from "@material-tailwind/react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -11,7 +11,6 @@ const ItInCompany = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [filterStatus, setFilterStatus] = useState("Tất cả");
-
 
   const token = localStorage.getItem("token");
   const companyId = localStorage.getItem("companyId");
@@ -35,14 +34,12 @@ const ItInCompany = () => {
     fetchTickets();
   }, [companyId, token]);
 
-
-
   const filteredTickets =
     !filterStatus || filterStatus === "Tất cả"
       ? tickets
       : tickets.filter((ticket) => ticket.status === filterStatus);
 
-  const getIssueTicketColumns = () => [
+  const columns = [
     {
       accessorKey: "ticketCode",
       header: createSortableHeader("Mã phiếu"),
@@ -113,62 +110,56 @@ const ItInCompany = () => {
     },
   ];
 
-  const columns = getIssueTicketColumns();
-
   return (
-    <div className="p-6">
-      <Card className="shadow-lg">
-        <CardBody>
-          <Typography variant="h4" color="blue-gray" className="mb-6 font-bold">
-            DANH SÁCH PHIẾU XUẤT KHO
-          </Typography>
+    <ListPageLayout
+      breadcrumbs="Kho / Xuất kho"
+      title="Phiếu xuất kho"
+      description="Quản lý các phiếu xuất kho trong hệ thống"
+    >
+      <div className="mb-6">
+        <StatusSummaryCard
+          data={tickets}
+          statusLabels={[
+            "Tất cả",
+            "Chờ xác nhận",
+            "Chờ xuất kho",
+            "Đã hoàn thành",
+          ]}
+          getStatus={(ticket) => ticket.status}
+          statusColors={{
+            "Tất cả": "#000",
+            "Chờ xác nhận": "#9c27b0",
+            "Chờ xuất kho": "#ff9800",
+            "Đã hoàn thành": "#4caf50",
+          }}
+          onSelectStatus={(status) => setFilterStatus(status)}
+          selectedStatus={filterStatus}
+        />
+      </div>
 
-          <StatusSummaryCard
-            data={tickets}
-            statusLabels={[
-              "Tất cả",
-              "Chờ xác nhận",
-              "Chờ xuất kho",
-              "Đã hoàn thành",
-            ]}
-            getStatus={(ticket) => ticket.status}
-            statusColors={{
-              "Tất cả": "#000",
-              "Chờ xác nhận": "#9c27b0",
-              "Chờ xuất kho": "#ff9800",
-              "Đã hoàn thành": "#4caf50",
-            }}
-            onSelectStatus={(status) => setFilterStatus(status)}
-            selectedStatus={filterStatus}
-          />
-
-
-
-          <DataTable
-            columns={columns}
-            data={filteredTickets}
-            loading={loading}
-            emptyMessage="Chưa có phiếu xuất kho nào"
-            onRowClick={(ticket) => navigate(`/issue-ticket/${ticket.ticketId}`)}
-            defaultSorting={[{ id: "createdOn", desc: true }]}
-            exportFileName="Danh_sach_phieu_xuat_kho"
-            exportMapper={(ticket = {}) => ({
-              "Mã phiếu": ticket.ticketCode || "",
-              "Mã kho": ticket.warehouseCode || "",
-              "Tên kho": ticket.warehouseName || "",
-              "Ngày xuất kho": ticket.issueDate ? new Date(ticket.issueDate).toLocaleString() : "",
-              "Lý do": ticket.reason || "",
-              "Loại xuất kho": ticket.issueType || "",
-              "Mã tham chiếu": ticket.referenceCode || "",
-              "Người tạo": ticket.createdBy || "",
-              "Ngày tạo": ticket.createdOn ? new Date(ticket.createdOn).toLocaleString() : "",
-              "Cập nhật": ticket.lastUpdatedOn ? new Date(ticket.lastUpdatedOn).toLocaleString() : "",
-              "Trạng thái": ticket.status || "",
-            })}
-          />
-        </CardBody>
-      </Card>
-    </div>
+      <DataTable
+        columns={columns}
+        data={filteredTickets}
+        loading={loading}
+        emptyMessage="Chưa có phiếu xuất kho nào"
+        onRowClick={(ticket) => navigate(`/issue-ticket/${ticket.ticketId}`)}
+        defaultSorting={[{ id: "createdOn", desc: true }]}
+        exportFileName="Danh_sach_phieu_xuat_kho"
+        exportMapper={(ticket = {}) => ({
+          "Mã phiếu": ticket.ticketCode || "",
+          "Mã kho": ticket.warehouseCode || "",
+          "Tên kho": ticket.warehouseName || "",
+          "Ngày xuất kho": ticket.issueDate ? new Date(ticket.issueDate).toLocaleString() : "",
+          "Lý do": ticket.reason || "",
+          "Loại xuất kho": ticket.issueType || "",
+          "Mã tham chiếu": ticket.referenceCode || "",
+          "Người tạo": ticket.createdBy || "",
+          "Ngày tạo": ticket.createdOn ? new Date(ticket.createdOn).toLocaleString() : "",
+          "Cập nhật": ticket.lastUpdatedOn ? new Date(ticket.lastUpdatedOn).toLocaleString() : "",
+          "Trạng thái": ticket.status || "",
+        })}
+      />
+    </ListPageLayout>
   );
 };
 

@@ -1,23 +1,17 @@
-import { useEffect, useState } from "react";
+import IssueForecast from "@/components/inventory/IssueForecast";
+import ListPageLayout from "@/components/layout/ListPageLayout";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DataTable, createSortableHeader } from "@/components/ui/data-table";
+import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
 import {
   getIssueForecast,
   getIssueReport,
   getMonthlyIssueReport,
 } from "@services/inventory/IssueTicketService";
-import {
-  Card,
-  CardBody,
-  Input,
-  Select,
-  Option,
-  Typography,
-} from "@material-tailwind/react";
-import DataTable from "@/components/content-components/DataTable";
-import LoadingPaper from "@/components/content-components/LoadingPaper";
-import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
-import IssueForecast from "@/components/inventory/IssueForecast";
 import dayjs from "dayjs";
-import BackButton from "@/components/common/BackButton";
+import { useEffect, useState } from "react";
 
 const IssueReport = () => {
   const token = localStorage.getItem("token");
@@ -28,12 +22,7 @@ const IssueReport = () => {
   const [forecastData, setForecastData] = useState([]);
   const [tableData, setTableData] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
-
-  const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState("itemCode");
-  const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const getStartOfMonth = () => {
     const now = new Date();
@@ -54,42 +43,6 @@ const IssueReport = () => {
   const [startDate, setStartDate] = useState(getStartOfMonth());
   const [endDate, setEndDate] = useState(new Date());
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const data = await getAllWarehousesInCompany(companyId, token);
-      setWarehouses(data);
-
-      const monthly = await getMonthlyIssueReport(
-        companyId,
-        issueType,
-        warehouseId,
-        token
-      );
-      const detail = await getIssueReport(
-        {
-          startTime: toLocalDateTimeString(startDate),
-          endTime: toLocalDateTimeString(getEndOfDay(endDate)),
-          issueType,
-          warehouseId,
-        },
-        companyId,
-        token
-      );
-      const forecast = await getIssueForecast(
-        companyId,
-        issueType,
-        warehouseId,
-        token
-      );
-
-      setMonthlyData(monthly);
-      setForecastData(forecast);
-      setTableData(detail);
-    };
-
-    fetchData();
-  }, [issueType, warehouseId, companyId, token, startDate, endDate]);
-
   const toLocalDateTimeString = (localDateTimeString) => {
     if (!localDateTimeString) return null;
     return dayjs(localDateTimeString).format("YYYY-MM-DDTHH:mm:ss");
@@ -104,156 +57,141 @@ const IssueReport = () => {
     return `${year}-${month}-${day}`;
   };
 
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const data = await getAllWarehousesInCompany(companyId, token);
+        setWarehouses(data);
+
+        const monthly = await getMonthlyIssueReport(
+          companyId,
+          issueType,
+          warehouseId,
+          token
+        );
+        const detail = await getIssueReport(
+          {
+            startTime: toLocalDateTimeString(startDate),
+            endTime: toLocalDateTimeString(getEndOfDay(endDate)),
+            issueType,
+            warehouseId,
+          },
+          companyId,
+          token
+        );
+        const forecast = await getIssueForecast(
+          companyId,
+          issueType,
+          warehouseId,
+          token
+        );
+
+        setMonthlyData(monthly);
+        setForecastData(forecast);
+        setTableData(detail);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [issueType, warehouseId, companyId, token, startDate, endDate]);
+
   const columns = [
-    { id: "itemCode", label: "Mã hàng hóa" },
-    { id: "itemName", label: "Tên hàng hóa" },
-    { id: "totalQuantity", label: "Tổng số lượng xuất kho" },
+    {
+      accessorKey: "itemCode",
+      header: createSortableHeader("Mã hàng hóa"),
+      cell: ({ getValue }) => <span className="font-medium">{getValue() || ""}</span>
+    },
+    {
+      accessorKey: "itemName",
+      header: createSortableHeader("Tên hàng hóa"),
+      cell: ({ getValue }) => <span>{getValue() || ""}</span>
+    },
+    {
+      accessorKey: "totalQuantity",
+      header: createSortableHeader("Tổng số lượng xuất kho"),
+      cell: ({ getValue }) => <span className="font-semibold text-blue-600">{getValue() || 0}</span>
+    },
   ];
 
-  const filteredItems = tableData.filter(
-    (item) =>
-      (item.itemCode?.toLowerCase().includes(search.toLowerCase()) ?? false) ||
-      (item.itemName?.toLowerCase().includes(search.toLowerCase()) ?? false)
-  );
-
-  const handleRequestSort = (event, property) => {
-    const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(property);
-  };
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(Number.parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  if (monthlyData.length === 0 && tableData.length === 0) {
-    return <LoadingPaper title="BÁO CÁO XUẤT KHO" />;
-  }
-
   return (
-    <div className="p-6">
-      <Card className="shadow-lg">
-        <CardBody>
-          <div className="flex items-center justify-between mb-6">
-            <Typography variant="h4" color="blue-gray" className="font-bold">
-              BÁO CÁO XUẤT KHO
-            </Typography>
-            <BackButton to="/issue-tickets" label="Quay lại danh sách" />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <ListPageLayout
+      breadcrumbs="Kho / Báo cáo xuất kho"
+      title="Báo cáo xuất kho"
+      description="Thống kê và dự báo tình hình xuất kho"
+    >
+      <div className="bg-white p-6 rounded-lg border border-gray-100 shadow-sm mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="space-y-2">
+            <Label>Từ ngày</Label>
             <Input
-              label="Từ ngày"
               type="date"
               value={formatDateLocal(startDate)}
               onChange={(e) => setStartDate(new Date(e.target.value))}
-              color="blue"
-              className="w-full placeholder:opacity-100"
             />
+          </div>
+          <div className="space-y-2">
+            <Label>Đến ngày</Label>
             <Input
-              label="Đến ngày"
               type="date"
               value={formatDateLocal(endDate)}
               onChange={(e) => setEndDate(new Date(e.target.value))}
-              color="blue"
-              className="w-full placeholder:opacity-100"
-            />
-            <Select
-              label="Loại xuất kho"
-              value={issueType}
-              onChange={(val) => setIssueType(val)}
-              color="blue"
-              className="w-full"
-            >
-              <Option value="Tất cả">Tất cả</Option>
-              <Option value="Sản xuất">Sản xuất</Option>
-              <Option value="Bán hàng">Bán hàng</Option>
-              <Option value="Chuyển kho">Chuyển kho</Option>
-            </Select>
-            <Select
-              label="Kho"
-              value={warehouseId}
-              onChange={(val) => setWarehouseId(Number(val))}
-              color="blue"
-              className="w-full"
-            >
-              <Option value={0}>Tất cả</Option>
-              {warehouses.map((w) => (
-                <Option key={w.warehouseId} value={w.warehouseId}>
-                  {w.warehouseName}
-                </Option>
-              ))}
-            </Select>
-          </div>
-
-          <div className="flex justify-center mb-6">
-            <IssueForecast
-              data={monthlyData}
-              forecastData={forecastData}
-              metric="totalQuantity"
-              label="Tổng số lượng hàng hóa xuất kho"
-              color="#05518B"
             />
           </div>
+          <div className="space-y-2">
+            <Label>Loại xuất kho</Label>
+            <Select value={issueType} onValueChange={setIssueType}>
+              <SelectTrigger className="bg-white">
+                <SelectValue placeholder="Chọn loại xuất" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Tất cả">Tất cả</SelectItem>
+                <SelectItem value="Sản xuất">Sản xuất</SelectItem>
+                <SelectItem value="Bán hàng">Bán hàng</SelectItem>
+                <SelectItem value="Chuyển kho">Chuyển kho</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label>Kho</Label>
+            <Select value={String(warehouseId)} onValueChange={(val) => setWarehouseId(Number(val))}>
+              <SelectTrigger className="bg-white">
+                <SelectValue placeholder="Chọn kho" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="0">Tất cả</SelectItem>
+                {warehouses.map((w) => (
+                  <SelectItem key={w.warehouseId} value={String(w.warehouseId)}>
+                    {w.warehouseName} ({w.warehouseCode})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
 
-          <DataTable
-            rows={filteredItems}
-            columns={columns}
-            order={order}
-            orderBy={orderBy}
-            onRequestSort={handleRequestSort}
-            page={page}
-            rowsPerPage={rowsPerPage}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            search={search}
-            setSearch={setSearch}
-            renderRow={(item, index) => {
-              const isLast = index === filteredItems.length - 1;
-              const classes = isLast
-                ? "p-4"
-                : "p-4 border-b border-blue-gray-50";
-              return (
-                <tr key={item.itemId}>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {item.itemCode || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {item.itemName || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {item.totalQuantity || ""}
-                    </Typography>
-                  </td>
-                </tr>
-              );
-            }}
+        <div className="flex justify-center mb-6 py-4 border-t border-gray-50">
+          <IssueForecast
+            data={monthlyData}
+            forecastData={forecastData}
+            metric="totalQuantity"
+            label="Tổng số lượng hàng hóa xuất kho"
+            color="#05518B"
           />
-        </CardBody>
-      </Card>
-    </div>
+        </div>
+      </div>
+
+      <DataTable
+        columns={columns}
+        data={tableData}
+        loading={loading}
+        emptyMessage="Không có dữ liệu báo cáo"
+      />
+    </ListPageLayout>
   );
 };
 

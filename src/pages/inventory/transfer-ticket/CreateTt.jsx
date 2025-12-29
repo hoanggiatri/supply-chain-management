@@ -1,11 +1,10 @@
-import BackButton from "@/components/common/BackButton";
+import FormPageLayout from "@/components/layout/FormPageLayout";
 import TtDetailTable from "@/components/inventory/TtDetailTable";
 import TtForm from "@/components/inventory/TtForm";
 import { Button } from "@/components/ui/button";
 import { getAllItemsInCompany } from "@/services/general/ItemService";
 import { createTransferTicket } from "@/services/inventory/TransferTicketService";
 import toastrService from "@/services/toastrService";
-import { Card, CardBody, Typography } from "@material-tailwind/react";
 import { Save, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -121,17 +120,16 @@ const CreateTt = () => {
     navigate("/transfer-tickets");
   };
 
-  return (
-    <div className="p-6">
-      <Card className="shadow-lg">
-        <CardBody>
-          <div className="flex items-center justify-between mb-6">
-            <Typography variant="h4" color="blue-gray" className="font-bold">
-              TẠO PHIẾU CHUYỂN KHO
-            </Typography>
-            <BackButton to="/transfer-tickets" label="Quay lại danh sách" />
-          </div>
+  const breadcrumbItems = [
+    { label: "Danh sách", path: "/transfer-tickets" },
+    { label: "Tạo phiếu chuyển", path: "" }
+  ];
 
+  return (
+    <FormPageLayout breadcrumbItems={breadcrumbItems} backLink="/transfer-tickets">
+      <div className="flex flex-col gap-6">
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b border-gray-100 pb-2">Thông tin chung</h3>
           <TtForm
             ticket={ticket}
             onChange={handleChange}
@@ -139,38 +137,37 @@ const CreateTt = () => {
             setTicket={setTicket}
             errors={errors}
           />
+        </div>
 
-          <Typography variant="h5" className="mt-6 mb-4 font-semibold">
-            DANH SÁCH HÀNG HÓA:
-          </Typography>
-
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b border-gray-100 pb-2">Danh sách hàng hóa</h3>
           <TtDetailTable
             ticketDetails={details}
             setTicketDetails={setDetails}
             items={items}
             errors={errors.transferDetailErrors}
           />
+        </div>
 
-          <div className="mt-6 flex justify-end gap-2">
-            <Button
-              onClick={handleSubmit}
-              className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
-            >
-              <Save className="w-4 h-4" />
-              Lưu phiếu
-            </Button>
-            <Button
-              variant="outline"
-              onClick={handleCancel}
-              className="gap-2"
-            >
-              <X className="w-4 h-4" />
-              Hủy
-            </Button>
-          </div>
-        </CardBody>
-      </Card>
-    </div>
+        <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 mt-4">
+          <Button
+            variant="secondary"
+            onClick={handleCancel}
+            className="gap-2"
+          >
+            <X className="w-4 h-4" />
+            Hủy
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            className="bg-blue-600 hover:bg-blue-700 text-white gap-2 min-w-[120px]"
+          >
+            <Save className="w-4 h-4" />
+            Lưu phiếu
+          </Button>
+        </div>
+      </div>
+    </FormPageLayout>
   );
 };
 

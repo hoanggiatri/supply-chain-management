@@ -1,15 +1,15 @@
-import BackButton from "@/components/common/BackButton";
+import FormPageLayout from "@/components/layout/FormPageLayout";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
 import TtDetailTable from "@/components/inventory/TtDetailTable";
 import TtForm from "@/components/inventory/TtForm";
+import { Button } from "@/components/ui/button";
 import { getAllItemsInCompany } from "@/services/general/ItemService";
 import {
   getTransferTicketById,
   updateTransferTicket,
 } from "@/services/inventory/TransferTicketService";
 import toastrService from "@/services/toastrService";
-import { getButtonProps } from "@/utils/buttonStyles";
-import { Button, Card, CardBody, Typography } from "@material-tailwind/react";
+import { Save, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -50,7 +50,7 @@ const EditTt = () => {
       } catch (error) {
         toastrService.error(
           error.response?.data?.message ||
-            "Có lỗi khi tải dữ liệu phiếu điều chuyển!"
+          "Có lỗi khi tải dữ liệu phiếu điều chuyển!"
         );
       } finally {
         setLoading(false);
@@ -142,17 +142,17 @@ const EditTt = () => {
     return <LoadingPaper title="CẬP NHẬT PHIẾU CHUYỂN KHO" />;
   }
 
-  return (
-    <div className="p-6">
-      <Card className="shadow-lg">
-        <CardBody>
-          <div className="flex items-center justify-between mb-6">
-            <Typography variant="h4" color="blue-gray" className="font-bold">
-              CẬP NHẬT PHIẾU CHUYỂN KHO
-            </Typography>
-            <BackButton to={`/transfer-ticket/${ticketId}`} label="Quay lại" />
-          </div>
+  const breadcrumbItems = [
+    { label: "Danh sách", path: "/transfer-tickets" },
+    { label: "Chi tiết", path: `/transfer-ticket/${ticketId}` },
+    { label: "Cập nhật", path: "" }
+  ];
 
+  return (
+    <FormPageLayout breadcrumbItems={breadcrumbItems} backLink={`/transfer-ticket/${ticketId}`}>
+      <div className="flex flex-col gap-6">
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b border-gray-100 pb-2">Thông tin chung</h3>
           <TtForm
             ticket={ticket}
             onChange={handleChange}
@@ -160,32 +160,37 @@ const EditTt = () => {
             readOnlyFields={readOnlyFields}
             setTicket={setTicket}
           />
+        </div>
 
-          <Typography variant="h5" className="mt-6 mb-4 font-semibold">
-            DANH SÁCH HÀNG HÓA CHUYỂN KHO:
-          </Typography>
-
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b border-gray-100 pb-2">Danh sách hàng hóa</h3>
           <TtDetailTable
             ticketDetails={ticketDetails}
             setTicketDetails={setTicketDetails}
             items={items}
             errors={errors.ticketDetailErrors}
           />
+        </div>
 
-          <div className="mt-6 flex justify-end gap-2">
-            <Button {...getButtonProps("primary")} onClick={handleSubmit}>
-              Lưu
-            </Button>
-            <Button
-              {...getButtonProps("outlinedSecondary")}
-              onClick={handleCancel}
-            >
-              Hủy
-            </Button>
-          </div>
-        </CardBody>
-      </Card>
-    </div>
+        <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 mt-4">
+          <Button
+            variant="secondary"
+            onClick={handleCancel}
+            className="gap-2"
+          >
+            <X className="w-4 h-4" />
+            Hủy
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            className="bg-blue-600 hover:bg-blue-700 text-white gap-2 min-w-[120px]"
+          >
+            <Save className="w-4 h-4" />
+            Lưu
+          </Button>
+        </div>
+      </div>
+    </FormPageLayout>
   );
 };
 

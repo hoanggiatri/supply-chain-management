@@ -1,22 +1,16 @@
-import { useEffect, useState } from "react";
-import {
-  getReceiveReport,
-  getMonthlyReceiveReport,
-} from "@services/inventory/ReceiveTicketService";
-import {
-  Card,
-  CardBody,
-  Input,
-  Select,
-  Option,
-  Typography,
-} from "@material-tailwind/react";
-import DataTable from "@/components/content-components/DataTable";
 import MonthlyBarChart from "@/components/content-components/MonthlyBarChart";
-import LoadingPaper from "@/components/content-components/LoadingPaper";
+import ListPageLayout from "@/components/layout/ListPageLayout";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DataTable, createSortableHeader } from "@/components/ui/data-table";
 import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
+import {
+  getMonthlyReceiveReport,
+  getReceiveReport,
+} from "@/services/inventory/ReceiveTicketService";
 import dayjs from "dayjs";
-import BackButton from "@/components/common/BackButton";
+import { useEffect, useState } from "react";
 
 const ReceiveReport = () => {
   const token = localStorage.getItem("token");
@@ -26,12 +20,7 @@ const ReceiveReport = () => {
   const [monthlyData, setMonthlyData] = useState([]);
   const [tableData, setTableData] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
-
-  const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState("itemCode");
-  const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const getStartOfMonth = () => {
     const now = new Date();
@@ -68,182 +57,131 @@ const ReceiveReport = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await getAllWarehousesInCompany(companyId, token);
-      setWarehouses(data);
+      setLoading(true);
+      try {
+        const data = await getAllWarehousesInCompany(companyId, token);
+        setWarehouses(data);
 
-      const monthly = await getMonthlyReceiveReport(
-        companyId,
-        receiveType,
-        warehouseId,
-        token
-      );
-      const detail = await getReceiveReport(
-        {
-          startTime: toLocalDateTimeString(startDate),
-          endTime: toLocalDateTimeString(getEndOfDay(endDate)),
+        const monthly = await getMonthlyReceiveReport(
+          companyId,
           receiveType,
           warehouseId,
-        },
-        companyId,
-        token
-      );
+          token
+        );
+        const detail = await getReceiveReport(
+          {
+            startTime: toLocalDateTimeString(startDate),
+            endTime: toLocalDateTimeString(getEndOfDay(endDate)),
+            receiveType,
+            warehouseId,
+          },
+          companyId,
+          token
+        );
 
-      setMonthlyData(monthly);
-      setTableData(detail);
+        setMonthlyData(monthly);
+        setTableData(detail);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchData();
   }, [receiveType, warehouseId, companyId, token, startDate, endDate]);
 
   const columns = [
-    { id: "itemCode", label: "Mã hàng hóa" },
-    { id: "itemName", label: "Tên hàng hóa" },
-    { id: "totalQuantity", label: "Tổng số lượng nhập kho" },
+    {
+      accessorKey: "itemCode",
+      header: createSortableHeader("Mã hàng hóa"),
+      cell: ({ getValue }) => <span className="font-medium">{getValue() || ""}</span>
+    },
+    {
+      accessorKey: "itemName",
+      header: createSortableHeader("Tên hàng hóa"),
+      cell: ({ getValue }) => <span>{getValue() || ""}</span>
+    },
+    {
+      accessorKey: "totalQuantity",
+      header: createSortableHeader("Tổng số lượng nhập kho"),
+      cell: ({ getValue }) => <span className="font-semibold text-blue-600">{getValue() || 0}</span>
+    },
   ];
 
-  const filteredItems = tableData.filter(
-    (item) =>
-      (item.itemCode?.toLowerCase().includes(search.toLowerCase()) ?? false) ||
-      (item.itemName?.toLowerCase().includes(search.toLowerCase()) ?? false)
-  );
-
-  const handleRequestSort = (event, property) => {
-    const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(property);
-  };
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(Number.parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  if (monthlyData.length === 0 && tableData.length === 0) {
-    return <LoadingPaper title="BÁO CÁO NHẬP KHO" />;
-  }
-
   return (
-    <div className="p-6">
-      <Card className="shadow-lg">
-        <CardBody>
-          <div className="flex items-center justify-between mb-6">
-            <Typography variant="h4" color="blue-gray" className="font-bold">
-              BÁO CÁO NHẬP KHO
-            </Typography>
-            <BackButton to="/receive-tickets" label="Quay lại danh sách" />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <ListPageLayout
+      breadcrumbs="Kho / Báo cáo nhập kho"
+      title="Báo cáo nhập kho"
+      description="Thống kê và dự báo tình hình nhập kho"
+    >
+      <div className="bg-white p-6 rounded-lg border border-gray-100 shadow-sm mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="space-y-2">
+            <Label>Từ ngày</Label>
             <Input
-              label="Từ ngày"
               type="date"
               value={formatDateLocal(startDate)}
               onChange={(e) => setStartDate(new Date(e.target.value))}
-              color="blue"
-              className="w-full placeholder:opacity-100"
             />
+          </div>
+          <div className="space-y-2">
+            <Label>Đến ngày</Label>
             <Input
-              label="Đến ngày"
               type="date"
               value={formatDateLocal(endDate)}
               onChange={(e) => setEndDate(new Date(e.target.value))}
-              color="blue"
-              className="w-full placeholder:opacity-100"
-            />
-            <Select
-              label="Loại nhập kho"
-              value={receiveType}
-              onChange={(val) => setReceiveType(val)}
-              color="blue"
-              className="w-full"
-            >
-              <Option value="Tất cả">Tất cả</Option>
-              <Option value="Sản xuất">Sản xuất</Option>
-              <Option value="Mua hàng">Mua hàng</Option>
-              <Option value="Chuyển kho">Chuyển kho</Option>
-            </Select>
-            <Select
-              label="Kho"
-              value={warehouseId}
-              onChange={(val) => setWarehouseId(Number(val))}
-              color="blue"
-              className="w-full"
-            >
-              <Option value={0}>Tất cả</Option>
-              {warehouses.map((w) => (
-                <Option key={w.warehouseId} value={w.warehouseId}>
-                  {w.warehouseName}
-                </Option>
-              ))}
-            </Select>
-          </div>
-
-          <div className="flex justify-center mb-6">
-            <MonthlyBarChart
-              data={monthlyData}
-              metric="totalQuantity"
-              label="Tổng số lượng hàng hóa nhập kho"
-              color="#05518B"
             />
           </div>
+          <div className="space-y-2">
+            <Label>Loại nhập kho</Label>
+            <Select value={receiveType} onValueChange={setReceiveType}>
+              <SelectTrigger className="bg-white">
+                <SelectValue placeholder="Chọn loại nhập" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Tất cả">Tất cả</SelectItem>
+                <SelectItem value="Sản xuất">Sản xuất</SelectItem>
+                <SelectItem value="Mua hàng">Mua hàng</SelectItem>
+                <SelectItem value="Chuyển kho">Chuyển kho</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label>Kho</Label>
+            <Select value={String(warehouseId)} onValueChange={(val) => setWarehouseId(val === "0" ? 0 : Number(val))}>
+              <SelectTrigger className="bg-white">
+                <SelectValue placeholder="Chọn kho" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="0">Tất cả</SelectItem>
+                {warehouses.map((w) => (
+                  <SelectItem key={w.warehouseId} value={String(w.warehouseId)}>
+                    {w.warehouseName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
 
-          <DataTable
-            rows={filteredItems}
-            columns={columns}
-            order={order}
-            orderBy={orderBy}
-            onRequestSort={handleRequestSort}
-            page={page}
-            rowsPerPage={rowsPerPage}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            search={search}
-            setSearch={setSearch}
-            renderRow={(item, index) => {
-              const isLast = index === filteredItems.length - 1;
-              const classes = isLast
-                ? "p-4"
-                : "p-4 border-b border-blue-gray-50";
-              return (
-                <tr key={item.itemId}>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {item.itemCode || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {item.itemName || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {item.totalQuantity || ""}
-                    </Typography>
-                  </td>
-                </tr>
-              );
-            }}
+        <div className="flex justify-center mb-6 py-4 border-t border-gray-50">
+          <MonthlyBarChart
+            data={monthlyData}
+            metric="totalQuantity"
+            label="Tổng số lượng hàng hóa nhập kho"
+            color="#05518B"
           />
-        </CardBody>
-      </Card>
-    </div>
+        </div>
+      </div>
+
+      <DataTable
+        columns={columns}
+        data={tableData}
+        loading={loading}
+        emptyMessage="Không có dữ liệu báo cáo"
+      />
+    </ListPageLayout>
   );
 };
 

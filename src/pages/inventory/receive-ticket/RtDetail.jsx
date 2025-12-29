@@ -1,8 +1,8 @@
 import BackButton from "@/components/common/BackButton";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
-import DataTable from "@/components/content-components/DataTable";
 import LoadingPaper from "@/components/content-components/LoadingPaper";
-import RtForm from "@/components/inventory/RtForm";
+import { Button } from "@/components/ui/button";
+import { DataTable, createSortableHeader } from "@/components/ui/data-table";
 import { increaseQuantity } from "@/services/inventory/InventoryService";
 import {
   getReceiveTicketById,
@@ -15,8 +15,7 @@ import {
 import { getMoById, updateMo } from "@/services/manufacturing/MoService";
 import { updatePoStatus } from "@/services/purchasing/PoService";
 import toastrService from "@/services/toastrService";
-import { getButtonProps } from "@/utils/buttonStyles";
-import { Button, Card, CardBody, Typography } from "@material-tailwind/react";
+import { Factory } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -24,7 +23,6 @@ const RtDetail = () => {
   const { ticketId } = useParams();
   const navigate = useNavigate();
   const [ticket, setTicket] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState({
     open: false,
     type: null, // 'confirm' or 'receive'
@@ -32,60 +30,36 @@ const RtDetail = () => {
   });
   const [showMoNavigateButton, setShowMoNavigateButton] = useState(false);
 
-  const [search, setSearch] = useState("");
-  const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState("itemCode");
-  const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-
   const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchTicket = async () => {
+      if (!ticketId) return;
       try {
-        const token = localStorage.getItem("token");
-        const updatedTicket = await getReceiveTicketById(ticketId, token);
-        setTicket(updatedTicket);
+        const data = await getReceiveTicketById(ticketId, token);
+        setTicket(data);
 
         if (
-          updatedTicket.receiveType === "Sản xuất" &&
-          updatedTicket.status === "Đã hoàn thành"
+          data.receiveType === "Sản xuất" &&
+          data.status === "Đã hoàn thành"
         ) {
           setShowMoNavigateButton(true);
         } else {
           setShowMoNavigateButton(false);
         }
       } catch (error) {
-        console.error("Lỗi khi lấy ticket:", error);
-      }
-    };
-
-    fetchTicket();
-  }, [ticketId]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const data = await getReceiveTicketById(ticketId, token);
-        setTicket(data);
-      } catch (error) {
         toastrService.error(
           error.response?.data?.message || "Không thể lấy dữ liệu phiếu nhập."
         );
-      } finally {
-        setLoading(false);
       }
     };
-    fetchData();
+    fetchTicket();
   }, [ticketId, token]);
 
   const handleConfirm = async () => {
-    const token = localStorage.getItem("token");
     const employeeName = localStorage.getItem("employeeName");
 
     try {
-      // Only send allowed fields, exclude read-only and computed fields
       await updateReceiveTicket(
         ticket.ticketId,
         {
@@ -115,15 +89,12 @@ const RtDetail = () => {
   };
 
   const handleReceive = async () => {
-    const token = localStorage.getItem("token");
-
     try {
       const receiveDateISO = new Date().toISOString();
 
       if (ticket.receiveType === "Sản xuất" && ticket.referenceId) {
         try {
           const mo = await getMoById(ticket.referenceId, token);
-          // Only send allowed fields, exclude read-only and computed fields
           const toISO8601String = (dateString) => {
             if (!dateString) return null;
             return new Date(dateString).toISOString();
@@ -154,7 +125,6 @@ const RtDetail = () => {
             ticket.referenceId,
             token
           );
-          // Only send allowed fields per API spec
           await updateTransferTicket(
             ticket.referenceId,
             {
@@ -200,7 +170,6 @@ const RtDetail = () => {
           )
         );
 
-        // Only send allowed fields, exclude read-only and computed fields
         await updateReceiveTicket(
           ticket.ticketId,
           {
@@ -233,160 +202,151 @@ const RtDetail = () => {
   };
 
   const columns = [
-    { id: "itemCode", label: "Mã NVL" },
-    { id: "itemName", label: "Tên NVL" },
-    { id: "quantity", label: "Số lượng" },
-    { id: "note", label: "Ghi chú" },
+    {
+      accessorKey: "itemCode",
+      header: createSortableHeader("Mã NVL"),
+      cell: ({ getValue }) => <span className="font-medium">{getValue()}</span>
+    },
+    {
+      accessorKey: "itemName",
+      header: createSortableHeader("Tên NVL"),
+    },
+    {
+      accessorKey: "quantity",
+      header: createSortableHeader("Số lượng"),
+      cell: ({ getValue }) => <span className="font-semibold text-blue-600">{getValue()}</span>
+    },
+    {
+      accessorKey: "note",
+      header: createSortableHeader("Ghi chú"),
+      cell: ({ getValue }) => <span className="text-gray-500 italic">{getValue()}</span>
+    },
   ];
-
-  const handleRequestSort = (property) => {
-    const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(property);
-  };
-
-  const handleChangePage = (event, newPage) => setPage(newPage);
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(Number(event.target.value));
-    setPage(1);
-  };
-
-  const paginatedDetails =
-    ticket?.receiveTicketDetails.slice(
-      (page - 1) * rowsPerPage,
-      (page - 1) * rowsPerPage + rowsPerPage
-    ) || [];
 
   if (!ticket) return <LoadingPaper title="THÔNG TIN PHIẾU NHẬP KHO" />;
 
-  return (
-    <div className="p-6">
-      <Card className="shadow-lg">
-        <CardBody>
-          <div className="flex items-center justify-between mb-6">
-            <Typography variant="h4" color="blue-gray" className="font-bold">
-              THÔNG TIN PHIẾU NHẬP KHO
-            </Typography>
-            <BackButton to="/receive-tickets" label="Quay lại danh sách" />
-          </div>
+  const InfoRow = ({ label, value, className = "" }) => (
+    <div className="flex items-start py-3 border-b border-gray-50 last:border-0">
+      <span className="text-gray-500 w-40 flex-shrink-0 text-sm font-medium">{label}</span>
+      <span className={`text-gray-900 text-sm flex-1 ${className}`}>
+        {value || "---"}
+      </span>
+    </div>
+  );
 
-          <div className="flex justify-end gap-2 mb-6">
-            {ticket.status === "Chờ xác nhận" && (
-              <Button
-                {...getButtonProps("primary")}
-                onClick={() =>
-                  setConfirmDialog({
-                    open: true,
-                    type: "confirm",
-                    onConfirm: handleConfirm,
-                  })
-                }
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-white rounded-sm shadow-sm border border-gray-100 overflow-hidden">
+          {/* Header */}
+          <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white">
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <span
+                className="cursor-pointer hover:text-blue-600"
+                onClick={() => navigate("/receive-tickets")}
               >
-                Xác nhận
-              </Button>
-            )}
-            {ticket.status === "Chờ nhập kho" && (
-              <Button
-                {...getButtonProps("warning")}
-                onClick={() =>
-                  setConfirmDialog({
-                    open: true,
-                    type: "receive",
-                    onConfirm: handleReceive,
-                  })
-                }
-              >
-                Nhập kho
-              </Button>
-            )}
-            {showMoNavigateButton &&
-              ticket.receiveType === "Sản xuất" &&
-              ticket.referenceId && (
+                Danh sách
+              </span>
+              <span>/</span>
+              <span className="text-gray-900 font-medium">
+                Chi tiết phiếu nhập
+              </span>
+            </div>
+
+            <div className="flex items-center gap-3">
+              {ticket.status === "Chờ xác nhận" && (
                 <Button
-                  {...getButtonProps("success")}
-                  onClick={() => navigate(`/mo/${ticket.referenceId}`)}
+                  className="bg-purple-600 hover:bg-purple-700 text-white"
+                  onClick={() =>
+                    setConfirmDialog({
+                      open: true,
+                      type: "confirm",
+                      onConfirm: handleConfirm,
+                    })
+                  }
                 >
-                  Quay về công lệnh sản xuất
+                  Xác nhận phiếu
                 </Button>
               )}
+              {ticket.status === "Chờ nhập kho" && (
+                <Button
+                  className="bg-orange-600 hover:bg-orange-700 text-white"
+                  onClick={() =>
+                    setConfirmDialog({
+                      open: true,
+                      type: "receive",
+                      onConfirm: handleReceive,
+                    })
+                  }
+                >
+                  Thực hiện nhập kho
+                </Button>
+              )}
+              {showMoNavigateButton &&
+                ticket.receiveType === "Sản xuất" &&
+                ticket.referenceId && (
+                  <Button
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2"
+                    onClick={() => navigate(`/mo/${ticket.referenceId}`)}
+                  >
+                    <Factory className="w-4 h-4" /> Xem Công lệnh sản xuất
+                  </Button>
+                )}
+              <BackButton to="/receive-tickets" label="Trở lại" />
+            </div>
           </div>
 
-          <RtForm ticket={ticket} />
+          <div className="p-6">
+            <div className="flex flex-col gap-8">
+              {/* Info Section */}
+              <div className="flex flex-col gap-8">
+                <div className="flex-1">
+                  <div className="flex items-center justify-between mb-4">
+                    <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                      {ticket.ticketCode}
+                    </h1>
+                    <div className={`px-3 py-1 rounded-full text-xs font-semibold ${ticket.status === 'Đã hoàn thành' ? 'bg-green-100 text-green-700' :
+                      ticket.status === 'Chờ nhập kho' ? 'bg-orange-100 text-orange-700' :
+                        'bg-purple-100 text-purple-700'
+                      }`}>
+                      {ticket.status}
+                    </div>
+                  </div>
 
-          <Typography variant="h5" className="mt-6 mb-4 font-semibold">
-            DANH SÁCH HÀNG HÓA NHẬP KHO:
-          </Typography>
+                  <div className="bg-gray-50/50 rounded-lg p-4 border border-gray-100">
+                    <InfoRow label="Mã tham chiếu" value={ticket.referenceCode} className="font-mono text-blue-600" />
+                    <InfoRow label="Kho nhập" value={`${ticket.warehouseName} (${ticket.warehouseCode})`} />
+                    <InfoRow label="Loại nhập kho" value={ticket.receiveType} />
+                    <InfoRow label="Lý do" value={ticket.reason} />
+                    <InfoRow label="Người tạo" value={ticket.createdBy} />
+                    <InfoRow label="Ngày nhập" value={ticket.receiveDate ? new Date(ticket.receiveDate).toLocaleString() : ""} />
+                  </div>
+                </div>
+              </div>
 
-          <DataTable
-            rows={paginatedDetails}
-            columns={columns}
-            order={order}
-            orderBy={orderBy}
-            onRequestSort={handleRequestSort}
-            page={page}
-            rowsPerPage={rowsPerPage}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            search={search}
-            setSearch={setSearch}
-            isLoading={loading}
-            renderRow={(detail, index) => {
-              const isLast = index === paginatedDetails.length - 1;
-              const classes = isLast
-                ? "p-4"
-                : "p-4 border-b border-blue-gray-50";
-              return (
-                <tr key={index}>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {detail.itemCode || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {detail.itemName || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {detail.quantity || ""}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {detail.note || ""}
-                    </Typography>
-                  </td>
-                </tr>
-              );
-            }}
-          />
-        </CardBody>
-      </Card>
+              {/* Items Table */}
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  Danh sách hàng hóa
+                </h2>
+                <DataTable
+                  columns={columns}
+                  data={ticket.receiveTicketDetails || []}
+                  emptyMessage="Không có hàng hóa nào trong phiếu này"
+                />
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
 
       <ConfirmDialog
         open={confirmDialog.open}
         onClose={() =>
           setConfirmDialog({ open: false, type: null, onConfirm: null })
         }
-        onConfirm={confirmDialog.onConfirm || (() => {})}
+        onConfirm={confirmDialog.onConfirm || (() => { })}
         title="Xác nhận"
         message={
           confirmDialog.type === "confirm"
