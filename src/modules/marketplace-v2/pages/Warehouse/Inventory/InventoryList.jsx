@@ -3,14 +3,12 @@
  * Main inventory management page with modular architecture
  */
 
-import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { useDebounce } from '../../../hooks';
 import { useInventoryData } from './hooks/useInventoryData';
 import { SORT_DIRECTIONS, VIEW_MODES } from './utils/constants';
 
 // Components
-import SimpleBarChart from './components/Charts/SimpleBarChart';
 import InventoryFilters from './components/Filters/InventoryFilters';
 import InventoryHeader from './components/Header/InventoryHeader';
 import WarehouseHeatmap from './components/Heatmap/WarehouseHeatmap';
@@ -101,7 +99,7 @@ const InventoryList = () => {
       <StatsGrid stats={stats} />
 
       {/* Charts Row */}
-      <motion.div
+      {/* <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15 }}
@@ -125,7 +123,7 @@ const InventoryList = () => {
             barColor="#ef4444"
           />
         </div>
-      </motion.div>
+      </motion.div> */}
 
       {/* Filters */}
       <InventoryFilters

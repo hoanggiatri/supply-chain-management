@@ -33,19 +33,24 @@ const SimpleBarChart = ({ data, barColor, title, dataKey, xAxisKey }) => {
       <h4 className="text-sm font-medium mb-4" style={{ color: 'var(--mp-text-primary)' }}>
         {title}
       </h4>
-      <div className="flex items-end gap-2 h-[150px]">
+      <div className="flex items-end gap-2" style={{ height: '150px' }}>
         {data.slice(-12).map((item, idx) => {
           const value = item[dataKey] || 0;
-          const height = maxValue > 0 ? (value / maxValue) * 100 : 0;
+          const heightPercent = maxValue > 0 ? (value / maxValue) * 100 : 0;
+          // Convert percentage to pixels based on container height (150px)
+          const heightPx = maxValue > 0 ? (value / maxValue) * 130 : 0; // 130px để chừa space cho label
           const monthLabel = formatMonthLabel(item[xAxisKey]);
           return (
-            <div key={idx} className="flex-1 flex flex-col items-center">
+            <div key={idx} className="flex-1 flex flex-col items-center justify-end" style={{ height: '100%' }}>
               <motion.div
                 initial={{ height: 0 }}
-                animate={{ height: `${Math.max(height, 2)}%` }}
+                animate={{ height: Math.max(heightPx, 4) }}
                 transition={{ duration: 0.5, delay: idx * 0.05 }}
-                className="w-full rounded-t-sm min-h-[4px]"
-                style={{ backgroundColor: barColor }}
+                className="w-full rounded-t-sm"
+                style={{ 
+                  backgroundColor: barColor,
+                  minWidth: '8px'
+                }}
                 title={`${item[xAxisKey]}: ${value.toLocaleString()}`}
               />
               <span
