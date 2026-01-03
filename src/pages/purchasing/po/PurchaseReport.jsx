@@ -1,16 +1,10 @@
 import LoadingPaper from "@/components/content-components/LoadingPaper";
-import MonthlyBarChart from "@/components/content-components/MonthlyBarChart";
+import IssueForecast from "@/components/inventory/IssueForecast";
 import ListPageLayout from "@/components/layout/ListPageLayout";
+import { Combobox } from "@/components/ui/combobox";
 import { DataTable, createSortableHeader } from "@/components/ui/data-table";
-import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Label } from "@/components/ui/label";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 import {
     getMonthlyPurchaseReport,
     getPurchaseReport,
@@ -58,6 +52,13 @@ const PurchaseReport = () => {
     const day = String(date.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   };
+
+  // Options cho combobox loại biểu đồ
+  const chartMetricOptions = [
+    { label: "Tổng số lượng hàng hóa", value: "totalQuantity" },
+    { label: "Số đơn mua hàng", value: "totalOrder" },
+    { label: "Tổng giá trị đơn hàng", value: "totalAmount" },
+  ];
 
   useEffect(() => {
     const fetchData = async () => {
@@ -127,44 +128,36 @@ const PurchaseReport = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <div className="space-y-2">
           <Label>Từ ngày</Label>
-          <Input
-            type="date"
+          <DatePicker
             value={formatDateLocal(startDate)}
             onChange={(e) => setStartDate(new Date(e.target.value))}
+            placeholder="Chọn ngày bắt đầu"
           />
         </div>
         <div className="space-y-2">
           <Label>Đến ngày</Label>
-          <Input
-            type="date"
+          <DatePicker
             value={formatDateLocal(endDate)}
             onChange={(e) => setEndDate(new Date(e.target.value))}
+            placeholder="Chọn ngày kết thúc"
           />
         </div>
         <div />
         <div className="space-y-2">
           <Label>Loại biểu đồ</Label>
-          <Select
+          <Combobox
+            options={chartMetricOptions}
             value={chartMetric}
-            onValueChange={(value) => setChartMetric(value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Chọn loại biểu đồ" />
-            </SelectTrigger>
-            <SelectContent>
-              {Object.entries(metricLabels).map(([key, val]) => (
-                <SelectItem key={key} value={key}>
-                  {val.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            onChange={(selected) => setChartMetric(selected?.value || "totalQuantity")}
+            placeholder="Chọn loại biểu đồ"
+            searchPlaceholder="Tìm loại..."
+          />
         </div>
       </div>
 
       {/* Chart */}
       <div className="flex justify-center mb-8">
-        <MonthlyBarChart
+        <IssueForecast
           data={monthlyData}
           metric={chartMetric}
           label={metricLabels[chartMetric].label}

@@ -1,9 +1,9 @@
-import MonthlyBarChart from "@/components/content-components/MonthlyBarChart";
+import IssueForecast from "@/components/inventory/IssueForecast";
 import ListPageLayout from "@/components/layout/ListPageLayout";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Combobox } from "@/components/ui/combobox";
 import { DataTable, createSortableHeader } from "@/components/ui/data-table";
+import { DatePicker } from "@/components/ui/date-picker";
+import { Label } from "@/components/ui/label";
 import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
 import {
   getMonthlyReceiveReport,
@@ -54,6 +54,23 @@ const ReceiveReport = () => {
     const day = String(date.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   };
+
+  // Options cho selectbox loại nhập kho
+  const receiveTypeOptions = [
+    { label: "Tất cả", value: "Tất cả" },
+    { label: "Sản xuất", value: "Sản xuất" },
+    { label: "Mua hàng", value: "Mua hàng" },
+    { label: "Chuyển kho", value: "Chuyển kho" },
+  ];
+
+  // Options cho selectbox kho
+  const warehouseOptions = [
+    { label: "Tất cả", value: 0 },
+    ...warehouses.map((w) => ({
+      label: `${w.warehouseCode} - ${w.warehouseName}`,
+      value: w.warehouseId,
+    })),
+  ];
 
   useEffect(() => {
     const fetchData = async () => {
@@ -119,54 +136,44 @@ const ReceiveReport = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <div className="space-y-2">
             <Label>Từ ngày</Label>
-            <Input
-              type="date"
+            <DatePicker
               value={formatDateLocal(startDate)}
               onChange={(e) => setStartDate(new Date(e.target.value))}
+              placeholder="Chọn ngày bắt đầu"
             />
           </div>
           <div className="space-y-2">
             <Label>Đến ngày</Label>
-            <Input
-              type="date"
+            <DatePicker
               value={formatDateLocal(endDate)}
               onChange={(e) => setEndDate(new Date(e.target.value))}
+              placeholder="Chọn ngày kết thúc"
             />
           </div>
           <div className="space-y-2">
             <Label>Loại nhập kho</Label>
-            <Select value={receiveType} onValueChange={setReceiveType}>
-              <SelectTrigger className="bg-white">
-                <SelectValue placeholder="Chọn loại nhập" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Tất cả">Tất cả</SelectItem>
-                <SelectItem value="Sản xuất">Sản xuất</SelectItem>
-                <SelectItem value="Mua hàng">Mua hàng</SelectItem>
-                <SelectItem value="Chuyển kho">Chuyển kho</SelectItem>
-              </SelectContent>
-            </Select>
+            <Combobox
+              options={receiveTypeOptions}
+              value={receiveType}
+              onChange={(selected) => setReceiveType(selected?.value || "Tất cả")}
+              placeholder="Chọn loại nhập"
+              searchPlaceholder="Tìm loại nhập..."
+            />
           </div>
           <div className="space-y-2">
             <Label>Kho</Label>
-            <Select value={String(warehouseId)} onValueChange={(val) => setWarehouseId(val === "0" ? 0 : Number(val))}>
-              <SelectTrigger className="bg-white">
-                <SelectValue placeholder="Chọn kho" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="0">Tất cả</SelectItem>
-                {warehouses.map((w) => (
-                  <SelectItem key={w.warehouseId} value={String(w.warehouseId)}>
-                    {w.warehouseName}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Combobox
+              options={warehouseOptions}
+              value={warehouseId}
+              onChange={(selected) => setWarehouseId(selected?.value ?? 0)}
+              placeholder="Chọn kho"
+              searchPlaceholder="Tìm kho..."
+            />
           </div>
         </div>
 
         <div className="flex justify-center mb-6 py-4 border-t border-gray-50">
-          <MonthlyBarChart
+          <IssueForecast
             data={monthlyData}
             metric="totalQuantity"
             label="Tổng số lượng hàng hóa nhập kho"

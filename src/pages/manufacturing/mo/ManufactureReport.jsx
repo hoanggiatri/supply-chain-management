@@ -1,20 +1,15 @@
-import { useEffect, useState } from "react";
-import {
-  Card,
-  CardBody,
-  Typography,
-  Input,
-  Select,
-  Option,
-} from "@material-tailwind/react";
-import DataTable from "@/components/content-components/DataTable";
-import MonthlyBarChart from "@/components/content-components/MonthlyBarChart";
-import LoadingPaper from "@/components/content-components/LoadingPaper";
+import IssueForecast from "@/components/inventory/IssueForecast";
+import ListPageLayout from "@/components/layout/ListPageLayout";
+import { Combobox } from "@/components/ui/combobox";
+import { DataTable, createSortableHeader } from "@/components/ui/data-table";
+import { DatePicker } from "@/components/ui/date-picker";
+import { Label } from "@/components/ui/label";
 import {
   getManufactureReport,
   getMonthlyManufactureReport,
 } from "@/services/manufacturing/MoService";
 import dayjs from "dayjs";
+import { useEffect, useState } from "react";
 
 const ManufactureReport = () => {
   const token = localStorage.getItem("token");
@@ -22,12 +17,7 @@ const ManufactureReport = () => {
   const [type, setType] = useState("Tất cả");
   const [monthlyData, setMonthlyData] = useState([]);
   const [tableData, setTableData] = useState([]);
-
-  const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState("itemCode");
-  const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const getStartOfMonth = () => {
     const now = new Date();
@@ -62,154 +52,118 @@ const ManufactureReport = () => {
     return `${year}-${month}-${day}`;
   };
 
+  // Options cho combobox loại sản xuất
+  const typeOptions = [
+    { label: "Tất cả", value: "Tất cả" },
+    { label: "Sản xuất đại trà", value: "Sản xuất đại trà" },
+    { label: "Sản xuất thử nghiệm", value: "Sản xuất thử nghiệm" },
+  ];
+
   useEffect(() => {
     const fetchData = async () => {
-      const monthly = await getMonthlyManufactureReport(companyId, type, token);
-      const detail = await getManufactureReport(
-        {
-          startTime: toLocalDateTimeString(startDate),
-          endTime: toLocalDateTimeString(getEndOfDay(endDate)),
-          type,
-        },
-        companyId,
-        token
-      );
+      setLoading(true);
+      try {
+        const monthly = await getMonthlyManufactureReport(companyId, type, token);
+        const detail = await getManufactureReport(
+          {
+            startTime: toLocalDateTimeString(startDate),
+            endTime: toLocalDateTimeString(getEndOfDay(endDate)),
+            type,
+          },
+          companyId,
+          token
+        );
 
-      setMonthlyData(monthly);
-      setTableData(detail);
+        setMonthlyData(monthly);
+        setTableData(detail);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchData();
   }, [type, companyId, token, startDate, endDate]);
 
   const columns = [
-    { id: "itemCode", label: "Mã hàng hóa" },
-    { id: "itemName", label: "Tên hàng hóa" },
-    { id: "totalQuantity", label: "Tổng số lượng nhập kho" },
+    {
+      accessorKey: "itemCode",
+      header: createSortableHeader("Mã hàng hóa"),
+      cell: ({ getValue }) => <span className="font-medium">{getValue() || ""}</span>
+    },
+    {
+      accessorKey: "itemName",
+      header: createSortableHeader("Tên hàng hóa"),
+      cell: ({ getValue }) => <span>{getValue() || ""}</span>
+    },
+    {
+      accessorKey: "totalQuantity",
+      header: createSortableHeader("Tổng số lượng sản xuất"),
+      cell: ({ getValue }) => <span className="font-semibold text-blue-600">{getValue() || 0}</span>
+    },
   ];
 
-  const filteredItems = tableData.filter(
-    (item) =>
-      (item.itemCode?.toLowerCase().includes(search.toLowerCase()) ?? false) ||
-      (item.itemName?.toLowerCase().includes(search.toLowerCase()) ?? false)
-  );
-
-  const handleRequestSort = (event, property) => {
-    const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(property);
-  };
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(Number.parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  if (monthlyData.length === 0 && tableData.length === 0) {
-    return <LoadingPaper title="BÁO CÁO NHẬP KHO" />;
-  }
-
   return (
-    <div className="p-6">
-      <Card className="shadow-lg max-w-6xl mx-auto">
-        <CardBody>
-          <Typography variant="h4" color="blue-gray" className="mb-6 font-bold">
-            BÁO CÁO NHẬP KHO
-          </Typography>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <Input
-              label="Từ ngày"
-              type="date"
+    <ListPageLayout
+      breadcrumbs="Sản xuất / Báo cáo sản xuất"
+      title="Báo cáo sản xuất"
+      description="Thống kê tình hình sản xuất"
+    >
+      <div className="bg-white p-6 rounded-lg border border-gray-100 shadow-sm mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="space-y-2">
+            <Label>Từ ngày</Label>
+            <DatePicker
               value={formatDateLocal(startDate)}
               onChange={(e) => setStartDate(new Date(e.target.value))}
-              color="blue"
+              placeholder="Chọn ngày bắt đầu"
             />
-            <Input
-              label="Đến ngày"
-              type="date"
+          </div>
+          <div className="space-y-2">
+            <Label>Đến ngày</Label>
+            <DatePicker
               value={formatDateLocal(endDate)}
               onChange={(e) => setEndDate(new Date(e.target.value))}
-              color="blue"
+              placeholder="Chọn ngày kết thúc"
             />
-            <Select
-              label="Loại sản xuất"
-              color="blue"
+          </div>
+          <div className="space-y-2">
+            <Label>Loại sản xuất</Label>
+            <Combobox
+              options={typeOptions}
               value={type}
-              onChange={(val) => setType(val)}
-            >
-              <Option value="Tất cả">Tất cả</Option>
-              <Option value="Sản xuất đại trà">Sản xuất đại trà</Option>
-              <Option value="Sản xuất thử nghiệm">Sản xuất thử nghiệm</Option>
-            </Select>
-          </div>
-
-          <div className="flex justify-center mb-6">
-            <MonthlyBarChart
-              data={monthlyData}
-              metric="totalQuantity"
-              label="Tổng số lượng hàng hóa sản xuất"
-              color="#05518B"
+              onChange={(selected) => setType(selected?.value || "Tất cả")}
+              placeholder="Chọn loại sản xuất"
+              searchPlaceholder="Tìm loại..."
             />
           </div>
+          <div />
+        </div>
 
-          <DataTable
-            rows={filteredItems}
-            columns={columns}
-            order={order}
-            orderBy={orderBy}
-            onRequestSort={handleRequestSort}
-            page={page}
-            rowsPerPage={rowsPerPage}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            search={search}
-            setSearch={setSearch}
-            renderRow={(item, index) => {
-              const isLast = index === filteredItems.length - 1;
-              const classes = isLast
-                ? "p-4"
-                : "p-4 border-b border-blue-gray-50";
-              return (
-                <tr key={item.itemId}>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {item.itemCode}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {item.itemName}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal"
-                    >
-                      {item.totalQuantity}
-                    </Typography>
-                  </td>
-                </tr>
-              );
-            }}
+        <div className="flex justify-center mb-6 py-4 border-t border-gray-50">
+          <IssueForecast
+            data={monthlyData}
+            metric="totalQuantity"
+            label="Tổng số lượng hàng hóa sản xuất"
+            color="#05518B"
           />
-        </CardBody>
-      </Card>
-    </div>
+        </div>
+      </div>
+
+      <DataTable
+        columns={columns}
+        data={tableData}
+        loading={loading}
+        emptyMessage="Không có dữ liệu báo cáo"
+        exportFileName="Bao_cao_san_xuat"
+        exportMapper={(row = {}) => ({
+          "Mã hàng hóa": row.itemCode || "",
+          "Tên hàng hóa": row.itemName || "",
+          "Tổng số lượng sản xuất": row.totalQuantity || 0,
+        })}
+      />
+    </ListPageLayout>
   );
 };
 

@@ -1,12 +1,11 @@
 import IssueForecast from "@/components/inventory/IssueForecast";
 import ListPageLayout from "@/components/layout/ListPageLayout";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Combobox } from "@/components/ui/combobox";
 import { DataTable, createSortableHeader } from "@/components/ui/data-table";
+import { DatePicker } from "@/components/ui/date-picker";
+import { Label } from "@/components/ui/label";
 import { getAllWarehousesInCompany } from "@/services/general/WarehouseService";
 import {
-  getIssueForecast,
   getIssueReport,
   getMonthlyIssueReport,
 } from "@services/inventory/IssueTicketService";
@@ -19,7 +18,6 @@ const IssueReport = () => {
   const [issueType, setIssueType] = useState("Tất cả");
   const [warehouseId, setWarehouseId] = useState(0);
   const [monthlyData, setMonthlyData] = useState([]);
-  const [forecastData, setForecastData] = useState([]);
   const [tableData, setTableData] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -57,6 +55,23 @@ const IssueReport = () => {
     return `${year}-${month}-${day}`;
   };
 
+  // Options cho selectbox loại xuất kho
+  const issueTypeOptions = [
+    { label: "Tất cả", value: "Tất cả" },
+    { label: "Sản xuất", value: "Sản xuất" },
+    { label: "Bán hàng", value: "Bán hàng" },
+    { label: "Chuyển kho", value: "Chuyển kho" },
+  ];
+
+  // Options cho selectbox kho
+  const warehouseOptions = [
+    { label: "Tất cả", value: 0 },
+    ...warehouses.map((w) => ({
+      label: `${w.warehouseCode} - ${w.warehouseName}`,
+      value: w.warehouseId,
+    })),
+  ];
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -80,15 +95,8 @@ const IssueReport = () => {
           companyId,
           token
         );
-        const forecast = await getIssueForecast(
-          companyId,
-          issueType,
-          warehouseId,
-          token
-        );
 
         setMonthlyData(monthly);
-        setForecastData(forecast);
         setTableData(detail);
       } catch (e) {
         console.error(e);
@@ -128,56 +136,45 @@ const IssueReport = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <div className="space-y-2">
             <Label>Từ ngày</Label>
-            <Input
-              type="date"
+            <DatePicker
               value={formatDateLocal(startDate)}
               onChange={(e) => setStartDate(new Date(e.target.value))}
+              placeholder="Chọn ngày bắt đầu"
             />
           </div>
           <div className="space-y-2">
             <Label>Đến ngày</Label>
-            <Input
-              type="date"
+            <DatePicker
               value={formatDateLocal(endDate)}
               onChange={(e) => setEndDate(new Date(e.target.value))}
+              placeholder="Chọn ngày kết thúc"
             />
           </div>
           <div className="space-y-2">
             <Label>Loại xuất kho</Label>
-            <Select value={issueType} onValueChange={setIssueType}>
-              <SelectTrigger className="bg-white">
-                <SelectValue placeholder="Chọn loại xuất" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Tất cả">Tất cả</SelectItem>
-                <SelectItem value="Sản xuất">Sản xuất</SelectItem>
-                <SelectItem value="Bán hàng">Bán hàng</SelectItem>
-                <SelectItem value="Chuyển kho">Chuyển kho</SelectItem>
-              </SelectContent>
-            </Select>
+            <Combobox
+              options={issueTypeOptions}
+              value={issueType}
+              onChange={(selected) => setIssueType(selected?.value || "Tất cả")}
+              placeholder="Chọn loại xuất"
+              searchPlaceholder="Tìm loại xuất..."
+            />
           </div>
           <div className="space-y-2">
             <Label>Kho</Label>
-            <Select value={String(warehouseId)} onValueChange={(val) => setWarehouseId(Number(val))}>
-              <SelectTrigger className="bg-white">
-                <SelectValue placeholder="Chọn kho" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="0">Tất cả</SelectItem>
-                {warehouses.map((w) => (
-                  <SelectItem key={w.warehouseId} value={String(w.warehouseId)}>
-                    {w.warehouseName} ({w.warehouseCode})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Combobox
+              options={warehouseOptions}
+              value={warehouseId}
+              onChange={(selected) => setWarehouseId(selected?.value ?? 0)}
+              placeholder="Chọn kho"
+              searchPlaceholder="Tìm kho..."
+            />
           </div>
         </div>
 
         <div className="flex justify-center mb-6 py-4 border-t border-gray-50">
           <IssueForecast
             data={monthlyData}
-            forecastData={forecastData}
             metric="totalQuantity"
             label="Tổng số lượng hàng hóa xuất kho"
             color="#05518B"
