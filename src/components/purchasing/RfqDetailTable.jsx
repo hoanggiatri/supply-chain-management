@@ -12,22 +12,8 @@ const RfqDetailTable = ({
   requestedCompanyId,
   errors,
 }) => {
-  const [myItems, setMyItems] = useState([]);
   const [supplierItems, setSupplierItems] = useState([]);
-  const companyId = localStorage.getItem("companyId");
   const token = localStorage.getItem("token");
-
-  useEffect(() => {
-    const fetchMyItems = async () => {
-      try {
-        const data = await getAllItemsInCompany(companyId, token);
-        setMyItems(data);
-      } catch (err) {
-        toastrService.error("Lỗi khi tải danh sách hàng hóa công ty mình.");
-      }
-    };
-    fetchMyItems();
-  }, [companyId, token]);
 
   useEffect(() => {
     const fetchSupplierItems = async () => {
@@ -76,11 +62,6 @@ const RfqDetailTable = ({
     setRfqDetails((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const itemOptions = myItems.map((item) => ({
-    value: String(item.itemId),
-    label: item.itemCode + " - " + item.itemName,
-  }));
-
   const supplierItemOptions = supplierItems.map((item) => ({
     value: String(item.itemId),
     label: item.itemCode + " - " + item.itemName,
@@ -94,10 +75,9 @@ const RfqDetailTable = ({
     <div className="overflow-visible">
       {/* Table Header */}
       <div className="hidden md:grid grid-cols-12 gap-2 px-2 py-3 bg-gray-50 border-b font-medium text-sm text-gray-700">
-        <div className="col-span-4">Hàng hóa của mình</div>
-        <div className="col-span-4">Hàng hóa NCC</div>
+        <div className="col-span-6">Hàng hóa NCC</div>
         <div className="col-span-2">Số lượng</div>
-        <div className="col-span-1">Ghi chú</div>
+        <div className="col-span-3">Ghi chú</div>
         <div className="col-span-1"></div>
       </div>
 
@@ -108,30 +88,8 @@ const RfqDetailTable = ({
             key={index}
             className="grid grid-cols-1 md:grid-cols-12 gap-2 p-2 hover:bg-gray-50"
           >
-            {/* Hàng hóa của mình */}
-            <div className="col-span-1 md:col-span-4">
-              <span className="md:hidden text-xs text-gray-500 mb-1 block">Hàng hóa của mình</span>
-              <Combobox
-                options={itemOptions}
-                value={String(detail.itemId || "")}
-                onChange={(option) =>
-                  handleDetailChange(index, "itemId", option?.value)
-                }
-                placeholder="Chọn hàng hóa"
-                searchPlaceholder="Tìm hàng hóa..."
-                emptyText="Không tìm thấy"
-                position="top"
-                className={getError(index, "itemId") ? "border-red-500" : ""}
-              />
-              {getError(index, "itemId") && (
-                <p className="text-xs text-red-500 mt-1">
-                  {getError(index, "itemId").message}
-                </p>
-              )}
-            </div>
-
             {/* Hàng hóa NCC */}
-            <div className="col-span-1 md:col-span-4">
+            <div className="col-span-1 md:col-span-6">
               <span className="md:hidden text-xs text-gray-500 mb-1 block">Hàng hóa NCC</span>
               <Combobox
                 options={supplierItemOptions}
@@ -173,7 +131,7 @@ const RfqDetailTable = ({
             </div>
 
             {/* Ghi chú */}
-            <div className="col-span-1 md:col-span-1">
+            <div className="col-span-1 md:col-span-3">
               <span className="md:hidden text-xs text-gray-500 mb-1 block">Ghi chú</span>
               <Input
                 value={detail.note || ""}

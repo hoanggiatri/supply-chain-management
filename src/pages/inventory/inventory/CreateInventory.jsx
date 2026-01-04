@@ -64,13 +64,23 @@ const CreateInventory = () => {
         onDemandQuantity: inventory.onDemandQuantity,
       };
 
-      await createInventory(inv, token);
+      const res = await createInventory(inv, token);
+      
+      if (res && res.statusCode === 400) {
+        toastrService.error(res.message);
+        return;
+      }
+
       toastrService.success("Thêm mới tồn kho thành công!");
       navigate("/inventory-count");
     } catch (error) {
-      toastrService.error(
-        error.response?.data?.message || "Lỗi khi tạo tồn kho!"
-      );
+      if (error.response?.data?.statusCode == 400) {
+        toastrService.error(error.response.data.message);
+      } else {
+        toastrService.error(
+          error.response?.data?.message || "Lỗi khi tạo tồn kho!"
+        );
+      }
     }
   };
 
@@ -85,8 +95,8 @@ const CreateInventory = () => {
 
   return (
     <FormPageLayout breadcrumbItems={breadcrumbItems} backLink="/inventory-count">
-      <div className="flex flex-col gap-6">
-        <div>
+      <div className="h-[350px] flex flex-col gap-6">
+        <div className="overflow-visible">
           <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b border-gray-100 pb-2">Thông tin tồn kho</h3>
           <InventoryForm
             inventory={inventory}
