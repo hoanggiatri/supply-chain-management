@@ -72,13 +72,6 @@ const CreateRfq = () => {
     const detailErrors = [];
 
     details.forEach((detail, index) => {
-      if (!detail.itemId) {
-        detailErrors.push({
-          index,
-          field: "itemId",
-          message: "Phải chọn hàng hóa",
-        });
-      }
       if (!detail.supplierItemId) {
         detailErrors.push({
           index,
