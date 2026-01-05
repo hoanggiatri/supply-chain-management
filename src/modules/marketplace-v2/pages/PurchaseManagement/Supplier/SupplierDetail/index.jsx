@@ -1,16 +1,16 @@
 import { motion } from 'framer-motion';
 import {
-    ArrowLeft,
-    Briefcase,
-    Building2,
-    Loader2,
-    Mail,
-    MapPin,
-    Package,
-    Phone,
-    Plus,
-    Search,
-    User
+  ArrowLeft,
+  Briefcase,
+  Building2,
+  Loader2,
+  Mail,
+  MapPin,
+  Package,
+  Phone,
+  Plus,
+  Search,
+  User
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -242,7 +242,7 @@ const SupplierDetail = () => {
             className="mp-btn mp-btn-primary"
           >
             <Plus size={18} />
-            Tạo RFQ
+            Tạo yêu cầu báo giá
           </motion.button>
         </div>
       </motion.div>

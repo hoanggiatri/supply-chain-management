@@ -32,7 +32,7 @@ const PoDetail = () => {
 
         const quotationData = await getQuotationById(poData.quotationId, token);
         setQuotation(quotationData);
-        setDetails(poData.purchaseOrderDetails || []);
+        setDetails(quotationData.quotationDetails || []);
       } catch (error) {
         toastrService.error(
           error.response?.data?.message ||

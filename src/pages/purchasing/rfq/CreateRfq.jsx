@@ -117,11 +117,11 @@ const CreateRfq = () => {
       };
 
       await createRfq(request, token);
-      toastrService.success("Tạo RFQ thành công!");
+      toastrService.success("Tạo yêu cầu báo giá thành công!");
       navigate(-1);
     } catch (error) {
       console.error(error);
-      toastrService.error(error.response?.data?.message || "Lỗi khi tạo RFQ!");
+      toastrService.error(error.response?.data?.message || "Lỗi khi tạo yêu cầu báo giá!");
     }
   };
 
