@@ -83,7 +83,19 @@ export const setupAxiosInterceptors = () => {
 
   // Response interceptor - handle 401 and 403 responses
   axios.interceptors.response.use(
-    (response) => response,
+    (response) => {
+      // Check if backend returned statusCode >= 400 in response body
+      if (response.data && response.data.statusCode >= 400) {
+        const error = new Error(response.data.message || "Có lỗi xảy ra!");
+        error.response = {
+          ...response,
+          status: response.data.statusCode,
+          data: response.data
+        };
+        return Promise.reject(error);
+      }
+      return response;
+    },
     (error) => {
       // List of auth pages where we should NOT auto-redirect on 401
       const authPages = [
