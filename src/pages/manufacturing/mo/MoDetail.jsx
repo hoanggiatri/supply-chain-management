@@ -39,7 +39,16 @@ import {
 } from "@/services/manufacturing/ProcessService";
 import toastrService from "@/services/toastrService";
 import dayjs from "dayjs";
-import { Check, Download, Edit, Eye, List, Loader2, QrCode, X } from "lucide-react";
+import {
+  Check,
+  Download,
+  Edit,
+  Eye,
+  List,
+  Loader2,
+  QrCode,
+  X,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -53,9 +62,7 @@ const MoDetail = () => {
   const [warehouses, setWarehouses] = useState([]);
   const [hasRequestedReceive, setHasRequestedReceive] = useState(false);
   const [receiveTicketId, setReceiveTicketId] = useState(null);
-  const [showCompleteModal, setShowCompleteModal] = useState(false);
-  const [completedQuantity, setCompletedQuantity] = useState(0);
-  const [isCompletingMo, setIsCompletingMo] = useState(false);
+
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
@@ -294,26 +301,26 @@ const MoDetail = () => {
           token
         );
       } else {
+        // Hoàn thành tất cả processes → Tự động tạo sản phẩm + QR
         const employeeName = localStorage.getItem("employeeName");
-        await updateMo(
-          moIdNum,
-          {
-            itemId: Number(mo.itemId),
-            lineId: Number(mo.lineId),
-            type: mo.type,
-            quantity: mo.quantity,
-            estimatedStartTime: toISO8601String(mo.estimatedStartTime),
-            estimatedEndTime: toISO8601String(mo.estimatedEndTime),
-            status: "Chờ nhập kho",
-            createdBy: employeeName,
-          },
-          token
-        );
 
-        setMo((prevMo) => ({
-          ...prevMo,
-          status: "Chờ nhập kho",
-        }));
+        try {
+          // Tạo sản phẩm + QR code
+          const result = await completeMo(moIdNum, mo.quantity, token);
+
+          toastrService.success(
+            `Hoàn thành sản xuất! Đã tạo ${mo.quantity} sản phẩm với QR code.`
+          );
+
+          // Cập nhật MO sang "Chờ nhập kho" (đã có sản phẩm)
+          const updatedMo = await getMoById(moIdNum, token);
+          setMo(updatedMo);
+        } catch (error) {
+          toastrService.error(
+            error.response?.data?.message || "Có lỗi khi tạo sản phẩm!"
+          );
+          return;
+        }
       }
 
       const updatedProcesses = await getAllProcessesInMo(moIdNum, token);
@@ -358,41 +365,6 @@ const MoDetail = () => {
       toastrService.error(
         error.response?.data?.message || "Không thể tạo phiếu nhập kho!"
       );
-    }
-  };
-
-  const handleCompleteMo = async () => {
-    if (!completedQuantity || completedQuantity <= 0) {
-      toastrService.error("Số lượng hoàn thành phải lớn hơn 0!");
-      return;
-    }
-
-    if (completedQuantity > mo.quantity) {
-      toastrService.warning("Số lượng hoàn thành vượt quá số lượng kế hoạch!");
-    }
-
-    setIsCompletingMo(true);
-
-    try {
-      const result = await completeMo(moId, completedQuantity, token);
-
-      toastrService.success("Hoàn thành công lệnh thành công!");
-
-      if (result.productsGenerated) {
-        toastrService.info(
-          `Đã tạo ${completedQuantity} sản phẩm với QR codes!`
-        );
-      }
-
-      const updatedMo = await getMoById(moId, token);
-      setMo(updatedMo);
-      setShowCompleteModal(false);
-    } catch (error) {
-      toastrService.error(
-        error.response?.data?.message || "Có lỗi khi hoàn thành công lệnh!"
-      );
-    } finally {
-      setIsCompletingMo(false);
     }
   };
 
@@ -478,63 +450,52 @@ const MoDetail = () => {
             </Button>
           </div>
         )}
-
-        {mo.status === "Đã nhập kho" && (
-          <Button
-            variant="default"
-            onClick={() => {
-              setCompletedQuantity(mo.quantity);
-              setShowCompleteModal(true);
-            }}
-            className="gap-2 bg-green-600 hover:bg-green-700"
-          >
-            <Check className="w-4 h-4" />
-            Hoàn thành công lệnh
-          </Button>
-        )}
       </div>
 
-      {/* Product info when completed */}
-      {mo.status === "Đã hoàn thành" && mo.batchNo && (
-        <div className="mb-6 p-4 border border-gray-200 rounded-lg bg-blue-50/50">
-          <div className="flex items-center gap-2 mb-4">
-            <QrCode className="w-5 h-5 text-blue-600" />
-            <h3 className="text-lg font-semibold text-gray-900">
-              Thông tin sản phẩm đã tạo
-            </h3>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <p className="text-sm text-gray-500">Batch Number</p>
-              <p className="text-lg font-medium">{mo.batchNo}</p>
+      {/* Product info - Hiển thị khi đã tạo sản phẩm (Chờ nhập kho hoặc Đã hoàn thành) */}
+      {(mo.status === "Chờ nhập kho" || mo.status === "Đã hoàn thành") &&
+        mo.batchNo && (
+          <div className="mb-6 p-4 border border-gray-200 rounded-lg bg-blue-50/50">
+            <div className="flex items-center gap-2 mb-4">
+              <QrCode className="w-5 h-5 text-blue-600" />
+              <h3 className="text-lg font-semibold text-gray-900">
+                Thông tin sản phẩm đã tạo
+              </h3>
             </div>
-            <div>
-              <p className="text-sm text-gray-500">Số lượng sản phẩm</p>
-              <p className="text-lg font-medium">{mo.completedQuantity} sản phẩm</p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <p className="text-sm text-gray-500">Batch Number</p>
+                <p className="text-lg font-medium">{mo.batchNo}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Số lượng sản phẩm</p>
+                <p className="text-lg font-medium">
+                  {mo.completedQuantity} sản phẩm
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant="default"
+                onClick={() => navigate(`/products?batch=${mo.batchNo}`)}
+                className="gap-2 bg-blue-600 hover:bg-blue-700"
+              >
+                <List className="w-4 h-4" />
+                Xem danh sách sản phẩm
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={handleDownloadBatchQR}
+                className="gap-2"
+              >
+                <Download className="w-4 h-4" />
+                Tải QR Codes (PDF)
+              </Button>
             </div>
           </div>
-
-          <div className="flex flex-wrap gap-2">
-            <Button
-              variant="default"
-              onClick={() => navigate(`/products?batch=${mo.batchNo}`)}
-              className="gap-2 bg-blue-600 hover:bg-blue-700"
-            >
-              <List className="w-4 h-4" />
-              Xem danh sách sản phẩm
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={handleDownloadBatchQR}
-              className="gap-2"
-            >
-              <Download className="w-4 h-4" />
-              Tải QR Codes (PDF)
-            </Button>
-          </div>
-        </div>
-      )}
+        )}
 
       {/* Warehouse selection when waiting for inventory */}
       {mo.status === "Chờ nhập kho" && !hasRequestedReceive && (
@@ -554,7 +515,10 @@ const MoDetail = () => {
                 </SelectTrigger>
                 <SelectContent>
                   {warehouses.map((wh) => (
-                    <SelectItem key={wh.warehouseId} value={String(wh.warehouseId)}>
+                    <SelectItem
+                      key={wh.warehouseId}
+                      value={String(wh.warehouseId)}
+                    >
                       {wh.warehouseCode} - {wh.warehouseName}
                     </SelectItem>
                   ))}
@@ -576,23 +540,25 @@ const MoDetail = () => {
       )}
 
       {/* Receive ticket created notification */}
-      {hasRequestedReceive && receiveTicketId && mo.status === "Chờ nhập kho" && (
-        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-          <h3 className="text-lg font-semibold text-green-700 mb-2">
-            Đã tạo phiếu nhập kho thành công!
-          </h3>
-          <p className="text-sm text-gray-600 mb-4">
-            Vui lòng chuyển đến trang nhập kho để xác nhận.
-          </p>
-          <Button
-            variant="default"
-            onClick={() => navigate(`/receive-ticket/${receiveTicketId}`)}
-            className="bg-blue-600 hover:bg-blue-700"
-          >
-            Đến trang nhập kho
-          </Button>
-        </div>
-      )}
+      {hasRequestedReceive &&
+        receiveTicketId &&
+        mo.status === "Chờ nhập kho" && (
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <h3 className="text-lg font-semibold text-green-700 mb-2">
+              Đã tạo phiếu nhập kho thành công!
+            </h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Vui lòng chuyển đến trang nhập kho để xác nhận.
+            </p>
+            <Button
+              variant="default"
+              onClick={() => navigate(`/receive-ticket/${receiveTicketId}`)}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              Đến trang nhập kho
+            </Button>
+          </div>
+        )}
 
       {/* MO Form */}
       <MoForm
@@ -639,53 +605,7 @@ const MoDetail = () => {
         </div>
       )}
 
-      {/* Complete MO Dialog */}
-      <Dialog open={showCompleteModal} onOpenChange={setShowCompleteModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Hoàn thành công lệnh sản xuất</DialogTitle>
-            <DialogDescription>
-              Nhập số lượng sản phẩm đã hoàn thành
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label>Số lượng hoàn thành</Label>
-              <Input
-                type="number"
-                value={completedQuantity}
-                onChange={(e) => setCompletedQuantity(Number(e.target.value))}
-              />
-            </div>
-            <p className="text-sm text-gray-500">
-              Số lượng kế hoạch: {mo.quantity}
-            </p>
-          </div>
-          <DialogFooter className="gap-2">
-            <Button
-              variant="secondary"
-              onClick={() => setShowCompleteModal(false)}
-            >
-              Hủy
-            </Button>
-            <Button
-              variant="default"
-              onClick={handleCompleteMo}
-              disabled={isCompletingMo}
-              className="bg-green-600 hover:bg-green-700"
-            >
-              {isCompletingMo ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Đang xử lý...
-                </>
-              ) : (
-                "Xác nhận"
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Complete MO Dialog đã bỏ - Tự động tạo product khi hoàn thành processes */}
     </FormPageLayout>
   );
 };

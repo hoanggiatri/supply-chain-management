@@ -109,7 +109,7 @@ const RtDetail = () => {
               quantity: mo.quantity,
               estimatedStartTime: toISO8601String(mo.estimatedStartTime),
               estimatedEndTime: toISO8601String(mo.estimatedEndTime),
-              status: "Đã nhập kho",
+              status: "Đã hoàn thành",
             },
             token
           );

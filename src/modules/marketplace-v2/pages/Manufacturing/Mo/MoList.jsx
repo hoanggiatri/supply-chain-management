@@ -23,7 +23,6 @@ const statusConfig = {
   'Chờ sản xuất': { color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400', label: 'Chờ sản xuất' },
   'Đang sản xuất': { color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400', label: 'Đang sản xuất' },
   'Chờ nhập kho': { color: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400', label: 'Chờ nhập kho' },
-  'Đã nhập kho': { color: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400', label: 'Đã nhập kho' },
   'Đã hoàn thành': { color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400', label: 'Đã hoàn thành' },
   'Đã hủy': { color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400', label: 'Đã hủy' },
 };
@@ -33,7 +32,6 @@ const kanbanStatuses = [
   'Chờ sản xuất',
   'Đang sản xuất',
   'Chờ nhập kho',
-  'Đã nhập kho',
   'Đã hoàn thành'
 ];
 
@@ -159,7 +157,7 @@ const MoList = () => {
       total: allMos.length,
       pending: allMos.filter(m => m.status === 'Chờ xác nhận').length,
       inProgress: allMos.filter(m => m.status === 'Đang sản xuất').length,
-      waitingInventory: allMos.filter(m => m.status === 'Chờ nhập kho' || m.status === 'Đã nhập kho').length,
+      waitingInventory: allMos.filter(m => m.status === 'Chờ nhập kho').length,
       completed: allMos.filter(m => m.status === 'Đã hoàn thành').length,
     };
   }, [mosData]);
