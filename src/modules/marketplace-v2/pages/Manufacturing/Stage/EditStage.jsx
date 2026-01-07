@@ -1,18 +1,17 @@
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
     ArrowLeft,
+    Clock,
     Loader2,
     Package,
-    Plus,
     Save,
-    Settings,
-    Trash2
+    Settings
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { MpCombobox } from '../../../components/ui/MpCombobox';
-import { useProducts, useStageById, useUpdateStage } from '../../../hooks/useApi';
+import { useStageById, useUpdateStage } from '../../../hooks/useApi';
 
 /**
  * Edit Stage Page
@@ -35,13 +34,7 @@ const EditStage = () => {
 
   // Fetch data
   const { data: stageData, isLoading: stageLoading } = useStageById(stageId);
-  const { data: itemsData } = useProducts();
   const updateMutation = useUpdateStage();
-
-  // Filter items to only show Thành phẩm and Bán thành phẩm
-  const items = (itemsData || []).filter(
-    item => item.itemType === 'Thành phẩm' || item.itemType === 'Bán thành phẩm'
-  );
 
   const statusOptions = [
     { value: 'Đang sử dụng', label: 'Đang sử dụng' },
@@ -72,46 +65,12 @@ const EditStage = () => {
     }
   }, [stageData]);
 
-  const handleAddDetail = () => {
-    setStageDetails(prev => [
-      ...prev,
-      {
-        stageName: '',
-        stageOrder: prev.length + 1,
-        estimatedTime: 0,
-        description: '',
-      }
-    ]);
-  };
-
-  const handleUpdateDetail = (index, field, value) => {
-    setStageDetails(prev =>
-      prev.map((detail, i) =>
-        i === index ? { ...detail, [field]: value } : detail
-      )
-    );
-  };
-
-  const handleDeleteDetail = (index) => {
-    setStageDetails(prev =>
-      prev.filter((_, i) => i !== index)
-        .map((detail, i) => ({ ...detail, stageOrder: i + 1 }))
-    );
-  };
-
   const validateForm = () => {
     const newErrors = {};
     
     if (!stage.status) {
       newErrors.status = 'Vui lòng chọn trạng thái';
     }
-
-    // Validate stage details
-    stageDetails.forEach((detail, index) => {
-      if (!detail.stageName?.trim()) {
-        newErrors[`detail_${index}_stageName`] = 'Tên công đoạn không được để trống';
-      }
-    });
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -124,16 +83,8 @@ const EditStage = () => {
     }
 
     const request = {
-      itemId: stage.itemId,
       description: stage.description,
       status: stage.status,
-      stageDetails: stageDetails.map(detail => ({
-        stageDetailId: detail.stageDetailId,
-        stageName: detail.stageName,
-        stageOrder: detail.stageOrder,
-        estimatedTime: Number(detail.estimatedTime) || 0,
-        description: detail.description,
-      })),
     };
 
     try {
@@ -281,7 +232,7 @@ const EditStage = () => {
             </div>
           </motion.div>
 
-          {/* Stage Details */}
+          {/* Stage Details - Read Only */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -292,13 +243,10 @@ const EditStage = () => {
               <h2 className="text-lg font-semibold" style={{ color: 'var(--mp-text-primary)' }}>
                 Danh sách công đoạn
               </h2>
-              <button
-                onClick={handleAddDetail}
-                className="mp-btn mp-btn-secondary text-sm"
-              >
-                <Plus size={16} />
-                Thêm công đoạn
-              </button>
+              <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--mp-text-tertiary)' }}>
+                <Clock size={14} />
+                <span>Không thể chỉnh sửa công đoạn</span>
+              </div>
             </div>
             
             <div className="overflow-x-auto">
@@ -306,73 +254,41 @@ const EditStage = () => {
                 <thead>
                   <tr className="border-b" style={{ borderColor: 'var(--mp-border-light)' }}>
                     <th className="py-3 px-2 text-left font-medium w-16" style={{ color: 'var(--mp-text-tertiary)' }}>TT</th>
-                    <th className="py-3 px-2 text-left font-medium" style={{ color: 'var(--mp-text-tertiary)' }}>Tên công đoạn *</th>
-                    <th className="py-3 px-2 text-left font-medium w-32" style={{ color: 'var(--mp-text-tertiary)' }}>Thời gian (phút)</th>
+                    <th className="py-3 px-2 text-left font-medium" style={{ color: 'var(--mp-text-tertiary)' }}>Tên công đoạn</th>
+                    <th className="py-3 px-2 text-right font-medium w-32" style={{ color: 'var(--mp-text-tertiary)' }}>Thời gian (phút)</th>
                     <th className="py-3 px-2 text-left font-medium" style={{ color: 'var(--mp-text-tertiary)' }}>Ghi chú</th>
-                    <th className="py-3 px-2 text-center font-medium w-16" style={{ color: 'var(--mp-text-tertiary)' }}></th>
                   </tr>
                 </thead>
                 <tbody>
                   {stageDetails.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="py-8 text-center" style={{ color: 'var(--mp-text-tertiary)' }}>
-                        Chưa có công đoạn nào. Nhấn "Thêm công đoạn" để bắt đầu.
+                      <td colSpan={4} className="py-8 text-center" style={{ color: 'var(--mp-text-tertiary)' }}>
+                        Chưa có công đoạn nào
                       </td>
                     </tr>
                   ) : (
-                    <AnimatePresence>
-                      {stageDetails.map((detail, index) => (
-                        <motion.tr
-                          key={detail.stageDetailId || `new-${index}`}
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, x: -20 }}
-                          className="border-b"
-                          style={{ borderColor: 'var(--mp-border-light)' }}
-                        >
-                          <td className="py-2 px-2">
-                            <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 inline-flex items-center justify-center text-xs font-medium">
-                              {detail.stageOrder}
-                            </span>
-                          </td>
-                          <td className="py-2 px-2">
-                            <input
-                              type="text"
-                              value={detail.stageName}
-                              onChange={(e) => handleUpdateDetail(index, 'stageName', e.target.value)}
-                              className={`mp-input w-full text-sm ${errors[`detail_${index}_stageName`] ? 'border-red-500' : ''}`}
-                              placeholder="Tên công đoạn..."
-                            />
-                          </td>
-                          <td className="py-2 px-2">
-                            <input
-                              type="number"
-                              min={0}
-                              value={detail.estimatedTime}
-                              onChange={(e) => handleUpdateDetail(index, 'estimatedTime', e.target.value)}
-                              className="mp-input w-full text-sm"
-                            />
-                          </td>
-                          <td className="py-2 px-2">
-                            <input
-                              type="text"
-                              value={detail.description}
-                              onChange={(e) => handleUpdateDetail(index, 'description', e.target.value)}
-                              className="mp-input w-full text-sm"
-                              placeholder="Ghi chú..."
-                            />
-                          </td>
-                          <td className="py-2 px-2 text-center">
-                            <button
-                              onClick={() => handleDeleteDetail(index)}
-                              className="p-1.5 rounded-lg hover:bg-red-50 text-red-500 transition-colors"
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          </td>
-                        </motion.tr>
-                      ))}
-                    </AnimatePresence>
+                    stageDetails.map((detail, index) => (
+                      <tr
+                        key={detail.stageDetailId || index}
+                        className="border-b"
+                        style={{ borderColor: 'var(--mp-border-light)' }}
+                      >
+                        <td className="py-3 px-2">
+                          <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 inline-flex items-center justify-center text-xs font-medium">
+                            {detail.stageOrder}
+                          </span>
+                        </td>
+                        <td className="py-3 px-2 font-medium" style={{ color: 'var(--mp-text-primary)' }}>
+                          {detail.stageName}
+                        </td>
+                        <td className="py-3 px-2 text-right" style={{ color: 'var(--mp-text-primary)' }}>
+                          {detail.estimatedTime || 0}
+                        </td>
+                        <td className="py-3 px-2" style={{ color: 'var(--mp-text-tertiary)' }}>
+                          {detail.description || '---'}
+                        </td>
+                      </tr>
+                    ))
                   )}
                 </tbody>
               </table>
@@ -380,10 +296,7 @@ const EditStage = () => {
 
             {/* Summary */}
             {stageDetails.length > 0 && (
-              <div className="mt-4 pt-4 border-t flex justify-between items-center" style={{ borderColor: 'var(--mp-border-light)' }}>
-                <span className="text-sm" style={{ color: 'var(--mp-text-tertiary)' }}>
-                  {stageDetails.length} công đoạn
-                </span>
+              <div className="mt-4 pt-4 border-t flex justify-end" style={{ borderColor: 'var(--mp-border-light)' }}>
                 <span className="text-sm" style={{ color: 'var(--mp-text-tertiary)' }}>
                   Tổng thời gian: <strong className="text-blue-500">{stageDetails.reduce((sum, d) => sum + (Number(d.estimatedTime) || 0), 0)} phút</strong>
                 </span>

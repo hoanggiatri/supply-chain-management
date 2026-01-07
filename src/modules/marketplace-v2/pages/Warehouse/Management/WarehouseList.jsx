@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { Building2, Edit, MapPin, Plus, Search, Warehouse } from 'lucide-react';
+import { Building2, Edit, Plus, Search, Warehouse } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDebounce } from '../../../hooks';
@@ -42,10 +42,6 @@ const WarehouseCard = ({ warehouse, onEdit }) => {
       </div>
 
       <div className="space-y-3 mb-5 flex-1">
-        <div className="flex items-start gap-2 text-sm" style={{ color: 'var(--mp-text-secondary)' }}>
-          <MapPin size={16} className="mt-0.5 flex-shrink-0" />
-          <span className="line-clamp-2">{warehouse.address || 'Chưa cập nhật địa chỉ'}</span>
-        </div>
         <div className="grid grid-cols-2 gap-4">
           <div className="p-2 rounded-lg bg-gray-50 dark:bg-white/5">
              <span className="text-xs block" style={{ color: 'var(--mp-text-tertiary)' }}>Loại kho</span>
