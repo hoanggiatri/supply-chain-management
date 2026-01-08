@@ -1,13 +1,13 @@
 import { motion } from 'framer-motion';
 import {
-    AlertCircle,
-    ArrowLeft,
-    Loader2,
-    Package,
-    Plus,
-    Save,
-    Trash2,
-    X
+  AlertCircle,
+  ArrowLeft,
+  Loader2,
+  Package,
+  Plus,
+  Save,
+  Trash2,
+  X
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -40,7 +40,7 @@ const EditBom = () => {
         description: bom.description || '',
         status: bom.status || 'Hoạt động',
         bomDetails: (bom.bomDetails || []).map(detail => ({
-          itemId: detail.itemId?.toString() || '',
+          itemId: detail.itemId || '',  // Keep as number, not string
           quantity: detail.quantity || 1,
           note: detail.note || ''
         }))
@@ -282,10 +282,10 @@ const EditBom = () => {
                 key={index}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="p-4 rounded-xl border flex flex-col md:flex-row gap-3"
+                className="p-4 rounded-xl border grid grid-cols-12 gap-3 items-end"
                 style={{ borderColor: 'var(--mp-border-light)', backgroundColor: 'var(--mp-bg-secondary)' }}
               >
-                <div className="flex-1">
+                <div className="col-span-12 md:col-span-5">
                   <label className="block text-xs font-medium mb-1" style={{ color: 'var(--mp-text-tertiary)' }}>
                     Nguyên vật liệu *
                   </label>
@@ -299,7 +299,7 @@ const EditBom = () => {
                   />
                 </div>
                 
-                <div className="w-full md:w-24">
+                <div className="col-span-4 md:col-span-2">
                   <label className="block text-xs font-medium mb-1" style={{ color: 'var(--mp-text-tertiary)' }}>
                     Số lượng *
                   </label>
@@ -313,7 +313,7 @@ const EditBom = () => {
                   />
                 </div>
                 
-                <div className="flex-1">
+                <div className="col-span-7 md:col-span-4">
                   <label className="block text-xs font-medium mb-1" style={{ color: 'var(--mp-text-tertiary)' }}>
                     Ghi chú
                   </label>
@@ -326,13 +326,15 @@ const EditBom = () => {
                   />
                 </div>
                 
-                <button
-                  onClick={() => handleRemoveMaterial(index)}
-                  className="self-end p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30"
-                  title="Xóa"
-                >
-                  <Trash2 size={18} className="text-red-500" />
-                </button>
+                <div className="col-span-1 flex justify-end">
+                  <button
+                    onClick={() => handleRemoveMaterial(index)}
+                    className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30"
+                    title="Xóa"
+                  >
+                    <Trash2 size={18} className="text-red-500" />
+                  </button>
+                </div>
               </motion.div>
             ))}
           </div>

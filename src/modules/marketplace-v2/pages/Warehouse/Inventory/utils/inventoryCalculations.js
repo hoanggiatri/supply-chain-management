@@ -1,14 +1,14 @@
 /**
- * Inventory Calculation Utilities
- * Helper functions for stock calculations, status determination, and color schemes
+ * Các hàm tiện ích tính toán tồn kho
+ * Bao gồm: tính trạng thái tồn kho, xác định màu sắc, và các phép tính liên quan
  */
 
 import { CAPACITY, STOCK_COLORS, STOCK_STATUS, STOCK_THRESHOLDS } from './constants';
 
 /**
- * Calculate stock status based on quantity
- * @param {number} quantity - Current stock quantity
- * @returns {string} - Status key: 'critical', 'low', 'healthy', or 'excess'
+ * Xác định trạng thái tồn kho dựa trên số lượng
+ * @param {number} quantity - Số lượng tồn kho hiện tại
+ * @returns {string} - Mã trạng thái: 'critical' (hết), 'low' (sắp hết), 'healthy' (bình thường), 'excess' (dư thừa)
  */
 export const getStockStatus = (quantity) => {
   if (quantity <= STOCK_THRESHOLDS.CRITICAL) return 'critical';
@@ -18,9 +18,9 @@ export const getStockStatus = (quantity) => {
 };
 
 /**
- * Get stock status label in Vietnamese
- * @param {number} quantity - Current stock quantity
- * @returns {string} - Status label
+ * Lấy nhãn trạng thái tồn kho bằng tiếng Việt
+ * @param {number} quantity - Số lượng tồn kho hiện tại
+ * @returns {string} - Nhãn trạng thái (VD: "Hết hàng", "Sắp hết", "Bình thường", "Dư thừa")
  */
 export const getStockStatusLabel = (quantity) => {
   const status = getStockStatus(quantity);
@@ -28,9 +28,9 @@ export const getStockStatusLabel = (quantity) => {
 };
 
 /**
- * Get color scheme based on stock status
- * @param {number} quantity - Current stock quantity
- * @returns {object} - Color scheme with bg, border, text
+ * Lấy bảng màu dựa trên trạng thái tồn kho
+ * @param {number} quantity - Số lượng tồn kho hiện tại
+ * @returns {object} - Bảng màu gồm: bg (nền), border (viền), text (chữ)
  */
 export const getStockColorScheme = (quantity) => {
   const status = getStockStatus(quantity);
@@ -38,67 +38,80 @@ export const getStockColorScheme = (quantity) => {
 };
 
 /**
- * Get color scheme for warehouse tile based on low stock count and fill level
- * @param {number} lowStockCount - Number of items with low stock
- * @param {number} fillLevel - Fill level percentage (0-100)
- * @returns {object} - Color scheme with bg, border, text
+ * Lấy bảng màu cho tile kho dựa trên số lượng hàng sắp hết và mức lấp đầy
+ * @param {number} lowStockCount - Số lượng mặt hàng sắp hết trong kho
+ * @param {number} fillLevel - Phần trăm lấp đầy (0-100)
+ * @returns {object} - Bảng màu gồm: bg (nền), border (viền), text (chữ)
  */
 export const getWarehouseColorScheme = (lowStockCount, fillLevel) => {
+  // Ưu tiên 1: Nếu có hàng sắp hết → hiển thị cảnh báo đỏ
   if (lowStockCount > 0) return STOCK_COLORS.critical;
+  // Lấp đầy > 70% → xanh lá (tốt)
   if (fillLevel > 70) return STOCK_COLORS.healthy;
+  // Lấp đầy 30-70% → vàng (trung bình)
   if (fillLevel > 30) return STOCK_COLORS.low;
+  // Lấp đầy < 30% → đỏ (gần trống)
   return STOCK_COLORS.critical;
 };
 
 /**
- * Calculate fill level percentage for a warehouse
- * @param {number} totalStock - Total stock in warehouse
- * @param {number} itemCount - Number of different items
- * @param {number} maxCapacityPerItem - Max capacity per item (default from constants)
- * @returns {number} - Fill level percentage (0-100)
+ * Tính phần trăm lấp đầy của kho
+ * @param {number} totalStock - Tổng số lượng tồn kho
+ * @param {number} itemCount - Số lượng mặt hàng khác nhau trong kho
+ * @param {number} warehouseMaxCapacity - Sức chứa thực tế từ database (không bắt buộc)
+ * @param {number} maxCapacityPerItem - Sức chứa tối đa mỗi mặt hàng (mặc định từ constants, dùng làm fallback)
+ * @returns {number} - Phần trăm lấp đầy (0-100)
  */
 export const calculateFillLevel = (
   totalStock,
   itemCount,
+  warehouseMaxCapacity = null,
   maxCapacityPerItem = CAPACITY.MAX_PER_ITEM
 ) => {
-  const maxCapacity = itemCount * maxCapacityPerItem;
+  // Ưu tiên sử dụng sức chứa thực tế từ DB, nếu không có thì tính theo công thức
+  const maxCapacity = warehouseMaxCapacity || (itemCount * maxCapacityPerItem);
   if (maxCapacity <= 0) return 0;
   return Math.min((totalStock / maxCapacity) * 100, 100);
 };
 
 /**
- * Calculate available stock (quantity - onDemandQuantity)
- * @param {number} quantity - Total quantity
- * @param {number} onDemandQuantity - On demand quantity
- * @returns {number} - Available stock
+ * Tính số lượng tồn kho khả dụng (tổng - đang giữ chỗ)
+ * @param {number} quantity - Tổng số lượng tồn kho
+ * @param {number} onDemandQuantity - Số lượng đang được giữ chỗ (onDemand)
+ * @returns {number} - Số lượng khả dụng thực tế
  */
 export const calculateAvailableStock = (quantity, onDemandQuantity) => {
   return Math.max(0, (quantity || 0) - (onDemandQuantity || 0));
 };
 
 /**
- * Check if item is low stock
- * @param {number} quantity - Current stock quantity
- * @returns {boolean}
+ * Kiểm tra mặt hàng có đang sắp hết không
+ * Điều kiện: 0 < quantity < ngưỡng LOW (mặc định 10)
+ * @param {number} quantity - Số lượng tồn kho hiện tại
+ * @returns {boolean} - true nếu sắp hết, false nếu không
  */
 export const isLowStock = (quantity) => {
   return quantity < STOCK_THRESHOLDS.LOW && quantity > STOCK_THRESHOLDS.CRITICAL;
 };
 
 /**
- * Check if item is out of stock
- * @param {number} quantity - Current stock quantity
- * @returns {boolean}
+ * Kiểm tra mặt hàng có hết hàng không
+ * Điều kiện: quantity <= ngưỡng CRITICAL (mặc định 0)
+ * @param {number} quantity - Số lượng tồn kho hiện tại
+ * @returns {boolean} - true nếu hết hàng, false nếu không
  */
 export const isOutOfStock = (quantity) => {
   return quantity <= STOCK_THRESHOLDS.CRITICAL;
 };
 
 /**
- * Calculate inventory statistics from data array
- * @param {Array} inventoryData - Array of inventory items
- * @returns {object} - Stats object with totalStock, totalItems, lowStockItems, outOfStock
+ * Tính toán thống kê tồn kho từ mảng dữ liệu
+ * @param {Array} inventoryData - Mảng các bản ghi tồn kho
+ * @returns {object} - Đối tượng thống kê gồm:
+ *   - totalStock: Tổng số lượng tồn kho
+ *   - totalItems: Số lượng mặt hàng (không trùng lặp)
+ *   - lowStockItems: Số mặt hàng sắp hết
+ *   - outOfStock: Số mặt hàng hết hàng
  */
 export const calculateInventoryStats = (inventoryData) => {
   if (!Array.isArray(inventoryData)) {
@@ -114,9 +127,9 @@ export const calculateInventoryStats = (inventoryData) => {
 };
 
 /**
- * Group inventory by warehouse code
- * @param {Array} inventoryData - Array of inventory items
- * @returns {object} - Grouped inventory { warehouseCode: [items] }
+ * Nhóm tồn kho theo mã kho
+ * @param {Array} inventoryData - Mảng các bản ghi tồn kho
+ * @returns {object} - Đối tượng đã nhóm { warehouseCode: [danh sách items] }
  */
 export const groupInventoryByWarehouse = (inventoryData) => {
   if (!Array.isArray(inventoryData)) return {};
@@ -132,10 +145,10 @@ export const groupInventoryByWarehouse = (inventoryData) => {
 };
 
 /**
- * Calculate percentage change
- * @param {number} oldValue - Old value
- * @param {number} newValue - New value
- * @returns {number} - Percentage change
+ * Tính phần trăm thay đổi giữa 2 giá trị
+ * @param {number} oldValue - Giá trị cũ
+ * @param {number} newValue - Giá trị mới
+ * @returns {number} - Phần trăm thay đổi (dương = tăng, âm = giảm)
  */
 export const calculatePercentageChange = (oldValue, newValue) => {
   if (oldValue === 0) return newValue > 0 ? 100 : 0;

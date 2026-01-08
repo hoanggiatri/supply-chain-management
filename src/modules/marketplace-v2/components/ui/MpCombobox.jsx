@@ -65,7 +65,7 @@ export function MpCombobox({
 
   const selectedOption = typeof value === "object"
     ? value
-    : options.find((opt) => opt.value === value);
+    : options.find((opt) => opt.value == value || String(opt.value) === String(value));
 
   const handleSelect = (option) => {
     onChange(option);

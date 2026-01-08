@@ -35,10 +35,7 @@ const InventoryList = () => {
 
   // Consolidated data management
   const {
-    inventoryData,
     warehouses,
-    monthlyIssue,
-    monthlyReceive,
     filteredInventory,
     stats,
     warehouseGrouped,
@@ -97,33 +94,6 @@ const InventoryList = () => {
 
       {/* Stats Grid */}
       <StatsGrid stats={stats} />
-
-      {/* Charts Row */}
-      {/* <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.15 }}
-        className="grid grid-cols-1 md:grid-cols-2 gap-4"
-      >
-        <div className="mp-glass-card p-6">
-          <SimpleBarChart
-            title="Nhập kho theo tháng"
-            data={monthlyReceive}
-            dataKey="totalQuantity"
-            xAxisKey="month"
-            barColor="#22c55e"
-          />
-        </div>
-        <div className="mp-glass-card p-6">
-          <SimpleBarChart
-            title="Xuất kho theo tháng"
-            data={monthlyIssue}
-            dataKey="totalQuantity"
-            xAxisKey="month"
-            barColor="#ef4444"
-          />
-        </div>
-      </motion.div> */}
 
       {/* Filters */}
       <InventoryFilters

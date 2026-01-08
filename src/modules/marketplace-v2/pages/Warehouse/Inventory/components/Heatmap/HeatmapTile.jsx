@@ -16,8 +16,9 @@ const HeatmapTile = ({ warehouse, items, onClick }) => {
   const totalStock = items.reduce((sum, inv) => sum + (inv.quantity || 0), 0);
   const lowStockCount = items.filter((inv) => isLowStock(inv.quantity)).length;
   const itemCount = items.length;
+  const warehouseMaxCapacity = warehouse?.maxCapacity || null;
 
-  const fillLevel = calculateFillLevel(totalStock, itemCount);
+  const fillLevel = calculateFillLevel(totalStock, itemCount, warehouseMaxCapacity);
   const colors = getWarehouseColorScheme(lowStockCount, fillLevel);
 
   return (
