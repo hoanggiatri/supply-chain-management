@@ -1,11 +1,11 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-    ArrowLeft,
-    Edit3,
-    FileText,
-    Loader2,
-    Package,
-    Trash2
+  ArrowLeft,
+  Edit3,
+  FileText,
+  Loader2,
+  Package,
+  Trash2
 } from 'lucide-react';
 import { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -125,7 +125,7 @@ const BomDetail = () => {
             </p>
           </div>
           <span className={`ml-auto px-3 py-1 rounded-full text-sm font-medium ${
-            bom.status === 'Hoạt động' 
+            bom.status === 'Đang sử dụng' 
               ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
               : 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400'
           }`}>

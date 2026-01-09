@@ -1,15 +1,15 @@
 import confetti from 'canvas-confetti';
 import { motion } from 'framer-motion';
 import {
-  AlertCircle,
-  ArrowLeft,
-  Check,
-  Loader2,
-  Package,
-  Plus,
-  Save,
-  Trash2,
-  X
+    AlertCircle,
+    ArrowLeft,
+    Check,
+    Loader2,
+    Package,
+    Plus,
+    Save,
+    Trash2,
+    X
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -31,7 +31,7 @@ const CreateBom = () => {
   const [formData, setFormData] = useState({
     itemId: '',
     description: '',
-    status: 'Hoạt động',
+    status: 'Đang sử dụng',
     bomDetails: [], // { itemId, quantity, note }
   });
 

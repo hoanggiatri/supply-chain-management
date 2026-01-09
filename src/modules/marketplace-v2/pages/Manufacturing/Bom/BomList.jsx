@@ -1,16 +1,16 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  AlertCircle,
-  Eye,
-  FileText,
-  Grid3X3,
-  List,
-  Loader2,
-  Package,
-  Pencil,
-  Plus,
-  Search,
-  Trash2
+    AlertCircle,
+    Eye,
+    FileText,
+    Grid3X3,
+    List,
+    Loader2,
+    Package,
+    Pencil,
+    Plus,
+    Search,
+    Trash2
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -20,8 +20,8 @@ import { useDebounce } from '../../../hooks';
 import { useBomsInCompany, useDeleteBom } from '../../../hooks/useApi';
 
 const statusColors = {
-  'Hoạt động': 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-  'Không hoạt động': 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400',
+  'Đang sử dụng': 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+  'Ngừng sử dụng': 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400',
 };
 
 /**
@@ -82,8 +82,8 @@ const BomList = () => {
                    bomsData?.content || bomsData?.data || [];
     return {
       total: allBoms.length,
-      active: allBoms.filter(b => b.status === 'Hoạt động').length,
-      inactive: allBoms.filter(b => b.status === 'Không hoạt động').length,
+      active: allBoms.filter(b => b.status === 'Đang sử dụng').length,
+      inactive: allBoms.filter(b => b.status === 'Ngừng sử dụng').length,
     };
   }, [bomsData]);
 
@@ -143,7 +143,7 @@ const BomList = () => {
           <p className="text-2xl font-bold text-green-500">{stats.active}</p>
         </div>
         <div className="mp-glass-card p-4">
-          <p className="text-sm" style={{ color: 'var(--mp-text-tertiary)' }}>Không hoạt động</p>
+          <p className="text-sm" style={{ color: 'var(--mp-text-tertiary)' }}>Ngừng sử dụng</p>
           <p className="text-2xl font-bold text-gray-500">{stats.inactive}</p>
         </div>
       </motion.div>
@@ -174,8 +174,8 @@ const BomList = () => {
               <MpCombobox
                 options={[
                   { value: 'all', label: 'Tất cả trạng thái' },
-                  { value: 'Hoạt động', label: 'Hoạt động' },
-                  { value: 'Không hoạt động', label: 'Không hoạt động' }
+                  { value: 'Đang sử dụng', label: 'Đang sử dụng' },
+                  { value: 'Ngừng sử dụng', label: 'Ngừng sử dụng' }
                 ]}
                 value={statusFilter}
                 onChange={(option) => setStatusFilter(option?.value || 'all')}

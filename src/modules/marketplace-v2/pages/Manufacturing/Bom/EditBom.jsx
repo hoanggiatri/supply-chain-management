@@ -1,13 +1,13 @@
 import { motion } from 'framer-motion';
 import {
-  AlertCircle,
-  ArrowLeft,
-  Loader2,
-  Package,
-  Plus,
-  Save,
-  Trash2,
-  X
+    AlertCircle,
+    ArrowLeft,
+    Loader2,
+    Package,
+    Plus,
+    Save,
+    Trash2,
+    X
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -29,7 +29,7 @@ const EditBom = () => {
 
   const [formData, setFormData] = useState({
     description: '',
-    status: 'Hoạt động',
+    status: 'Đang sử dụng',
     bomDetails: [],
   });
 
@@ -38,7 +38,7 @@ const EditBom = () => {
     if (bom) {
       setFormData({
         description: bom.description || '',
-        status: bom.status || 'Hoạt động',
+        status: bom.status || 'Đang sử dụng',
         bomDetails: (bom.bomDetails || []).map(detail => ({
           itemId: detail.itemId || '',  // Keep as number, not string
           quantity: detail.quantity || 1,
@@ -68,8 +68,8 @@ const EditBom = () => {
   );
 
   const statusOptions = [
-    { value: 'Hoạt động', label: 'Hoạt động' },
-    { value: 'Không hoạt động', label: 'Không hoạt động' }
+    { value: 'Đang sử dụng', label: 'Đang sử dụng' },
+    { value: 'Ngừng sử dụng', label: 'Ngừng sử dụng' }
   ];
 
   const handleAddMaterial = () => {
@@ -221,7 +221,7 @@ const EditBom = () => {
             <MpCombobox
               options={statusOptions}
               value={formData.status}
-              onChange={(option) => setFormData(prev => ({ ...prev, status: option?.value || 'Hoạt động' }))}
+              onChange={(option) => setFormData(prev => ({ ...prev, status: option?.value || 'Đang sử dụng' }))}
               placeholder="Chọn trạng thái"
             />
           </div>
