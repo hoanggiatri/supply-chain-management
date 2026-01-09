@@ -1,16 +1,16 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-    AlertCircle,
-    Eye,
-    FileText,
-    Grid3X3,
-    List,
-    Loader2,
-    Package,
-    Pencil,
-    Plus,
-    Search,
-    Trash2
+  AlertCircle,
+  Eye,
+  FileText,
+  Grid3X3,
+  List,
+  Loader2,
+  Package,
+  Pencil,
+  Plus,
+  Search,
+  Trash2
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -113,7 +113,7 @@ const BomList = () => {
             Định mức nguyên vật liệu (BOM)
           </h1>
           <p className="text-sm mt-1" style={{ color: 'var(--mp-text-secondary)' }}>
-            Quản lý định mức NVL cho sản xuất
+            Quản lý định mức nguyên vật liệu cho sản xuất
           </p>
         </div>
         <motion.button
@@ -271,7 +271,7 @@ const BomList = () => {
 
                 <div className="flex items-center justify-between pt-3 border-t" style={{ borderColor: 'var(--mp-border-light)' }}>
                   <span className="text-sm" style={{ color: 'var(--mp-text-tertiary)' }}>
-                    {bom.bomDetails?.length || 0} NVL
+                    {bom.bomDetails?.length || 0} nguyên vật liệu
                   </span>
                   <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
@@ -314,7 +314,7 @@ const BomList = () => {
                   <th className="py-3 px-4 text-left font-medium" style={{ color: 'var(--mp-text-tertiary)' }}>Mã BOM</th>
                   <th className="py-3 px-4 text-left font-medium" style={{ color: 'var(--mp-text-tertiary)' }}>Mã SP</th>
                   <th className="py-3 px-4 text-left font-medium" style={{ color: 'var(--mp-text-tertiary)' }}>Tên sản phẩm</th>
-                  <th className="py-3 px-4 text-center font-medium" style={{ color: 'var(--mp-text-tertiary)' }}>Số NVL</th>
+                  <th className="py-3 px-4 text-center font-medium" style={{ color: 'var(--mp-text-tertiary)' }}>Số nguyên vật liệu</th>
                   <th className="py-3 px-4 text-center font-medium" style={{ color: 'var(--mp-text-tertiary)' }}>Trạng thái</th>
                   <th className="py-3 px-4 text-right font-medium" style={{ color: 'var(--mp-text-tertiary)' }}>Thao tác</th>
                 </tr>
